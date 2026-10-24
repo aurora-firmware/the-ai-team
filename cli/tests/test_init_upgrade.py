@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 import shutil
 import tomllib
 from pathlib import Path
@@ -262,3 +263,142 @@ def test_dry_run_upgrade_answers_flagged_questions_without_prompting(tmp_path):
         assert f"WOULD OVERWRITE: {path}" in result.output
         assert f"WOULD PROMPT: {path}" not in result.output
     assert f"WOULD PROMPT: {_exported_files(target)[0]}" in result.output
+
+
+# T-154
+
+OLD_VERSION = "0.0.1"
+
+
+def _set_framework_version(target: Path, version: str) -> None:
+    marker = target / ".ai-team.toml"
+    text = marker.read_text(encoding="utf-8")
+    current = tomllib.loads(text)["init"]["framework_version"]
+    marker.write_text(
+        text.replace(
+            f'framework_version = "{current}"', f'framework_version = "{version}"'
+        ),
+        encoding="utf-8",
+    )
+
+
+def _marker_data(target: Path) -> dict:
+    return tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+
+
+def _running_version() -> str:
+    return importlib.metadata.version("ai-team")
+
+
+def _add_legacy_codex_skill(target: Path) -> Path:
+    legacy = target / ".codex" / "skills" / "tdd"
+    legacy.mkdir(parents=True)
+    (legacy / "SKILL.md").write_text("legacy\n", encoding="utf-8")
+    return legacy
+
+
+def test_skills_update_sets_framework_version_and_keeps_other_settings(tmp_path):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+    before = _marker_data(target)
+
+    result = _run(target, "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    after = _marker_data(target)
+    assert after["init"]["framework_version"] == _running_version()
+    before["init"]["framework_version"] = _running_version()
+    assert after == before
+
+
+def test_force_upgrade_sets_framework_version(tmp_path):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+
+    result = _run(target, "--force", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert _marker_data(target)["init"]["framework_version"] == _running_version()
+
+
+def test_interactive_yes_to_skills_sets_framework_version(tmp_path):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+
+    result = _run(target, input="n\ny\n")
+
+    assert result.exit_code == 0, result.output
+    assert _marker_data(target)["init"]["framework_version"] == _running_version()
+
+
+def test_framework_version_is_unchanged_when_skills_are_not_updated(tmp_path):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+
+    result = _run(target, "--update-docs", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert _marker_data(target)["init"]["framework_version"] == OLD_VERSION
+
+
+def test_dry_run_reports_the_version_bump_without_writing_it(tmp_path):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+
+    result = _run(target, "--dry-run", "--update-skills")
+
+    assert result.exit_code == 0, result.output
+    assert f"WOULD OVERWRITE: {target / '.ai-team.toml'}" in result.output
+    assert _marker_data(target)["init"]["framework_version"] == OLD_VERSION
+
+
+def test_skills_update_for_codex_removes_and_reports_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert not legacy.exists()
+    assert f"REMOVED: {legacy}" in result.output
+
+
+def test_force_upgrade_for_codex_removes_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--force", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert not legacy.exists()
+
+
+def test_legacy_codex_skills_stay_when_skills_are_not_updated(tmp_path):
+    target = _new_project(tmp_path, tools="codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+
+
+def test_legacy_codex_skills_stay_when_tool_is_not_codex(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+
+
+def test_dry_run_reports_legacy_removal_without_removing(tmp_path):
+    target = _new_project(tmp_path, tools="codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--dry-run", "--update-skills")
+
+    assert result.exit_code == 0, result.output
+    assert f"WOULD REMOVE: {legacy}" in result.output
+    assert legacy.is_dir()

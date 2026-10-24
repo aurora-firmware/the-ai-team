@@ -147,12 +147,16 @@ def _resolve_upgrade_tools(
 
 
 def _upgraded_marker(
-    existing: dict, project_dir: str, integration_branch: str, tools: list[str]
+    existing: dict,
+    project_dir: str,
+    integration_branch: str,
+    tools: list[str],
+    is_skills_updated: bool,
 ) -> dict:
     """Return *existing* with only the settings that differ from it changed.
 
-    ``framework_version`` is left alone; the version bump belongs to the step
-    that updates the agents and skills.
+    ``framework_version`` is set to the running version only when the agents
+    and skills are updated; otherwise it is left alone.
     """
     data = copy.deepcopy(existing)
     changes = [
@@ -170,6 +174,15 @@ def _upgraded_marker(
         ),
         ("init", "tools", tools, _configured_tools(existing)),
     ]
+    if is_skills_updated:
+        changes.append(
+            (
+                "init",
+                "framework_version",
+                importlib.metadata.version("ai-team"),
+                existing.get("init", {}).get("framework_version"),
+            )
+        )
     for table, key, value, current in changes:
         if value != current:
             data.setdefault(table, {})[key] = value
@@ -202,10 +215,11 @@ def _ask_upgrade_question(
     covered: list[Path],
     request: _UpgradeRequest,
 ) -> bool:
-    """Answer one upgrade question; return True when its files are to be written.
+    """Answer one upgrade question; return True when it is answered yes.
 
     A dry run never prompts: it names the files an unanswered question would
-    prompt for and, for an answered one, the files it would write.
+    prompt for and, for an answered one, the files it would write. The caller
+    writes only when the answer is yes and the run is not a dry run.
     """
     if is_answered_yes:
         answer = True
@@ -221,7 +235,7 @@ def _ask_upgrade_question(
     if answer and request.dry_run:
         for destination in covered:
             typer.echo(f"{_would_verb(destination)}: {destination}")
-        return False
+        return True
     return answer
 
 
@@ -230,10 +244,16 @@ def _write_all(plan: list[tuple[Path, Path]], settings: dict[str, str]) -> None:
         _write_rendered(source, destination, settings)
 
 
-def _upgrade_marker(request: _UpgradeRequest, integration_branch: str) -> None:
+def _upgrade_marker(
+    request: _UpgradeRequest, integration_branch: str, is_skills_updated: bool
+) -> None:
     marker = request.target_root / ".ai-team.toml"
     data = _upgraded_marker(
-        request.existing_marker, request.project_dir, integration_branch, request.tools
+        request.existing_marker,
+        request.project_dir,
+        integration_branch,
+        request.tools,
+        is_skills_updated,
     )
     if data == request.existing_marker:
         return
@@ -276,6 +296,7 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
                 )
             )
 
+    answers: list[bool] = []
     for question, is_yes, plan in (
         (
             _UPDATE_DOCS_QUESTION.format(project_dir=request.project_dir),
@@ -284,10 +305,17 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
         ),
         (_UPDATE_SKILLS_QUESTION, request.update_skills, skills_plan),
     ):
-        if _ask_upgrade_question(question, is_yes, [d for _, d in plan], request):
+        is_answered_yes = _ask_upgrade_question(
+            question, is_yes, [d for _, d in plan], request
+        )
+        answers.append(is_answered_yes)
+        if is_answered_yes and not request.dry_run:
             _write_all(plan, request.settings)
 
-    _upgrade_marker(request, request.settings["integration_branch"])
+    is_skills_updated = answers[1]
+    if is_skills_updated and "codex" in request.tools:
+        _remove_legacy_codex_skills(request.target_root, request.dry_run)
+    _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
 
 
 def _skill_invocation(skill: str, tools: list[str]) -> str:
