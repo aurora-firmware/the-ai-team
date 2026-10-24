@@ -355,6 +355,35 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
     _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
 
 
+_ADOPTION_QUESTION = "Overwrite these existing files?"
+
+
+def _decide_adoption_overwrite(
+    collisions: list[Path], force: bool, no_interactive: bool, dry_run: bool
+) -> bool | None:
+    """Answer the single adoption question; None means a dry run left it unanswered.
+
+    ``--force`` answers yes, ``--no-interactive`` answers no, and a dry run never
+    prompts. The real run and the dry run both use this, so they cannot disagree.
+    """
+    if not collisions or force:
+        return True
+    if no_interactive:
+        return False
+    if dry_run:
+        return None
+    typer.echo("These files already exist:\n" + "\n".join(f"- {p}" for p in collisions))
+    return typer.confirm(_ADOPTION_QUESTION, default=False)
+
+
+def _report_skipped(skipped: list[Path]) -> None:
+    typer.echo(
+        "Skipped existing files (not overwritten without --force):\n"
+        + "\n".join(f"- {path}" for path in skipped),
+        err=True,
+    )
+
+
 def _skill_invocation(skill: str, tools: list[str]) -> str:
     """Return how to invoke ``skill`` in the configured tools.
 
@@ -681,25 +710,30 @@ def init_command(
                 )
 
         marker = target_root / ".ai-team.toml"
-        planned_destinations = [destination for _, destination in planned] + [marker]
-        collisions = [
-            destination for destination in planned_destinations if destination.exists()
-        ]
+        collisions = [destination for _, destination in planned if destination.exists()]
 
         if dry_run:
             typer.echo(f"CASE: {'adoption' if collisions else 'new project'}")
 
-        if collisions and not force:
-            typer.echo(
-                "Refusing to overwrite existing files without --force:\n"
-                + "\n".join(str(path) for path in collisions),
-                err=True,
-            )
-            raise typer.Exit(code=1)
+        overwrite = _decide_adoption_overwrite(
+            collisions, force, no_interactive, dry_run
+        )
+        is_overwrite_approved = force or (bool(collisions) and bool(overwrite))
+        if overwrite:
+            to_write = planned
+        else:
+            to_write = [(s, d) for s, d in planned if d not in collisions]
+            if not dry_run or no_interactive:
+                _report_skipped(collisions)
 
         if dry_run:
-            for destination in planned_destinations:
-                typer.echo(f"{_would_write_verb(destination, force)}: {destination}")
+            for _, destination in to_write:
+                typer.echo(
+                    f"{_would_write_verb(destination, force or bool(overwrite))}: {destination}"
+                )
+            for destination in collisions if overwrite is None else []:
+                typer.echo(f"WOULD PROMPT: {destination}")
+            typer.echo(f"WOULD WRITE: {marker}")
             if force and "codex" in selected_tools:
                 _remove_legacy_codex_skills(target_root, dry_run=True)
             _handle_root_guidance(
@@ -714,9 +748,8 @@ def init_command(
             _ensure_tracker(target_root, tracker_dir, dry_run=True)
             return
 
-        for source, destination in planned:
-            _write_rendered(source, destination, settings)
-        if force and "codex" in selected_tools:
+        _write_all(to_write, settings)
+        if is_overwrite_approved and "codex" in selected_tools:
             _remove_legacy_codex_skills(target_root, dry_run=False)
 
         # Keep every setting the user already configured; only the values this
