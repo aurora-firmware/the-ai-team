@@ -485,3 +485,58 @@ def test_usage_md_documents_force_never_overwrites_coding_guidelines():
     assert "docs/coding_guidelines.md" in row
     assert "only when missing" in row
     assert "never overwritten" in row
+
+
+# ---------------------------------------------------------------------------
+# CR-005: state-aware init (T-152)
+# ---------------------------------------------------------------------------
+
+
+def _init_section() -> str:
+    content = _content()
+    start = content.index("## Initialisation")
+    end = content.index("## Daily Workflows")
+    return content[start:end]
+
+
+def test_init_section_describes_three_cases_and_detection():
+    """AC-1: the init section names the upgrade, new-project and adoption cases and how each is detected."""
+    section = _init_section().lower()
+    assert "### init cases" in section
+    for case in ("upgrade", "new project", "adoption"):
+        assert case in section
+    assert "`.ai-team.toml`" in section
+    assert "already exist" in section
+
+
+def test_init_flags_document_update_flags_and_force_as_yes_to_every_question():
+    """AC-2: --update-docs, --update-skills, the adoption question and --force as yes."""
+    section = _init_section()
+    assert "| `--update-docs` |" in section
+    assert "| `--update-skills` |" in section
+    assert "Overwrite these existing files?" in section
+    assert "yes to every overwrite question" in section
+    assert "Update the agents and skills for the configured tools?" in section
+    assert "never overwritten" in section
+
+
+def test_init_section_documents_dry_run_case_lines_and_stale_warning():
+    """AC-3: dry-run case lines, WOULD PROMPT and the stale-definition warning."""
+    section = _init_section()
+    for line in ("CASE: upgrade", "CASE: new project", "CASE: adoption"):
+        assert f"`{line}`" in section
+    assert "WOULD PROMPT" in section
+    assert "are not shipped by this version of ai-team" in section
+
+
+def test_usage_guide_names_update_skills_in_mismatch_legacy_and_refresh_passages():
+    """AC-3: the three passages point at `ai-team init --update-skills`."""
+    content = _content()
+    assert (
+        "or run `ai-team init --update-skills` to update the project to <running>."
+        in content
+    )
+    assert "`ai-team init --update-skills` removes those legacy copies" in content
+    assert "ai-team init . --tools <tools> --update-skills" in content
+    assert "ai-team init --force`" not in content.split("### Expected layout")[0]
+    assert "<tools> --force" not in content
