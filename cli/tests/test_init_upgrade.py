@@ -402,3 +402,124 @@ def test_dry_run_reports_legacy_removal_without_removing(tmp_path):
     assert result.exit_code == 0, result.output
     assert f"WOULD REMOVE: {legacy}" in result.output
     assert legacy.is_dir()
+
+
+# T-149
+
+STALE_WARNING_MARKER = "neither updated nor removed"
+
+
+def _add_stale_definitions(target: Path) -> tuple[Path, Path]:
+    stale_skill = target / ".claude" / "skills" / "my-own-skill"
+    stale_skill.mkdir(parents=True)
+    (stale_skill / "SKILL.md").write_text("mine\n", encoding="utf-8")
+    stale_agent = target / ".claude" / "agents" / "my-own-agent.md"
+    stale_agent.write_text("mine\n", encoding="utf-8")
+    return stale_skill, stale_agent
+
+
+def test_skills_update_warns_on_stderr_about_definitions_the_version_does_not_ship(
+    tmp_path,
+):
+    target = _new_project(tmp_path)
+    stale_skill, stale_agent = _add_stale_definitions(target)
+
+    result = _run(target, "--update-skills", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert result.stderr.count(STALE_WARNING_MARKER) == 1
+    assert str(stale_skill) in result.stderr
+    assert str(stale_agent) in result.stderr
+    assert STALE_WARNING_MARKER not in result.stdout
+
+
+def test_skills_update_never_deletes_definitions_the_version_does_not_ship(tmp_path):
+    target = _new_project(tmp_path)
+    stale_skill, stale_agent = _add_stale_definitions(target)
+
+    result = _run(target, "--force", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert (stale_skill / "SKILL.md").read_text(encoding="utf-8") == "mine\n"
+    assert stale_agent.read_text(encoding="utf-8") == "mine\n"
+
+
+def test_no_stale_warning_when_every_definition_is_shipped(tmp_path):
+    target = _new_project(tmp_path)
+
+    result = _run(target, "--update-skills", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert STALE_WARNING_MARKER not in result.stderr
+
+
+def test_no_stale_warning_when_skills_are_not_updated(tmp_path):
+    target = _new_project(tmp_path)
+    _add_stale_definitions(target)
+
+    result = _run(target, "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert STALE_WARNING_MARKER not in result.stderr
+
+
+def test_dry_run_upgrade_starts_with_the_upgrade_case_line(tmp_path):
+    target = _new_project(tmp_path)
+
+    result = _run(target, "--dry-run", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert result.stdout.splitlines()[0] == "CASE: upgrade"
+
+
+def test_dry_run_upgrade_prints_case_then_would_lines_then_the_stale_warning(
+    tmp_path,
+):
+    target = _new_project(tmp_path)
+    stale_skill, _ = _add_stale_definitions(target)
+
+    result = _run(target, "--dry-run", "--update-skills", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    lines = result.stdout.splitlines()
+    assert lines[0] == "CASE: upgrade"
+    assert lines[1].startswith("WOULD ")
+    assert STALE_WARNING_MARKER in result.stderr
+    assert str(stale_skill) in result.stderr
+    assert (stale_skill / "SKILL.md").exists()
+
+
+def test_dry_run_on_an_empty_directory_starts_with_the_new_project_case_line(
+    tmp_path,
+):
+    target = tmp_path / "repo"
+
+    result = _run(target, "--tools", "claude", "--dry-run", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert result.stdout.splitlines()[0] == "CASE: new project"
+    assert result.stdout.splitlines()[1].startswith("WOULD WRITE: ")
+
+
+def test_dry_run_with_existing_scaffold_files_but_no_marker_is_adoption(tmp_path):
+    target = tmp_path / "repo"
+    existing = target / ".claude" / "agents" / "developer.md"
+    existing.parent.mkdir(parents=True)
+    existing.write_text("mine\n", encoding="utf-8")
+
+    result = _run(
+        target, "--tools", "claude", "--dry-run", "--force", "--no-interactive"
+    )
+
+    assert result.exit_code == 0, result.output
+    assert result.stdout.splitlines()[0] == "CASE: adoption"
+    assert f"WOULD OVERWRITE: {existing}" in result.stdout
+
+
+def test_real_run_does_not_print_a_case_line(tmp_path):
+    target = tmp_path / "repo"
+
+    result = _run(target, "--tools", "claude", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert "CASE:" not in result.stdout
