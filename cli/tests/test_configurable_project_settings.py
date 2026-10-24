@@ -103,11 +103,18 @@ def test_force_reinit_keeps_configured_settings_and_unrelated_tables(tmp_path):
     assert "/.trk/" in (target / ".gitignore").read_text(encoding="utf-8").splitlines()
 
 
-def test_reinit_without_force_still_refuses_to_overwrite(tmp_path):
+def test_reinit_without_force_changes_nothing_in_a_non_interactive_upgrade(tmp_path):
     target = tmp_path / "repo"
     assert _init(target).exit_code == 0
+    before = {path: path.read_bytes() for path in target.rglob("*") if path.is_file()}
 
-    assert _init(target).exit_code == 1
+    result = _init(target)
+
+    assert result.exit_code == 0
+    assert "OVERWROTE" not in result.output
+    assert before == {
+        path: path.read_bytes() for path in target.rglob("*") if path.is_file()
+    }
 
 
 def test_generated_output_uses_configured_folder_and_branch(tmp_path):

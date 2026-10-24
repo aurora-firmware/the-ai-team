@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.metadata
 import importlib.resources as resources
 import shutil
+from dataclasses import dataclass
 from pathlib import Path
 
 import tomli_w
@@ -37,6 +39,14 @@ _ROOT_GUIDANCE_FILES = ["CLAUDE.md", "AGENTS.md"]
 # Project skeleton files that belong to the project once written: init creates
 # them only when missing, so a framework upgrade keeps the project's own copy.
 _KEEP_IF_EXISTS_PROJECT_FILES = [Path("docs") / "coding_guidelines.md"]
+
+# The ai-team docs an upgrade offers to refresh, relative to the project directory.
+_PROJECT_DOC_FILES = ["AGENTS.md", "CLAUDE.md", ".gitignore"]
+
+_UPDATE_DOCS_QUESTION = (
+    "Update the ai-team docs (AGENTS.md, CLAUDE.md, .gitignore) in {project_dir}?"
+)
+_UPDATE_SKILLS_QUESTION = "Update the agents and skills for the configured tools?"
 
 _ROOT_GUIDANCE_DECLINED_MESSAGE = (
     "To help agents run your project without guessing, add your test and run "
@@ -115,6 +125,169 @@ def _resolve_tools(tools: str | None, no_interactive: bool) -> list[str]:
         default="claude",
     )
     return _parse_tools(raw)
+
+
+def _configured_tools(marker: dict) -> list[str] | None:
+    """Return the valid ``[init] tools`` of a parsed marker, else None."""
+    value = marker.get("init", {}).get("tools")
+    if isinstance(value, list) and all(tool in _SUPPORTED_TOOLS for tool in value):
+        return list(value)
+    return None
+
+
+def _resolve_upgrade_tools(
+    tools: str | None, marker: dict, no_interactive: bool
+) -> list[str]:
+    """Take the tools from ``--tools``, else from the marker, else ask as for a new run."""
+    if tools is None:
+        configured = _configured_tools(marker)
+        if configured is not None:
+            return configured
+    return _resolve_tools(tools, no_interactive)
+
+
+def _upgraded_marker(
+    existing: dict, project_dir: str, integration_branch: str, tools: list[str]
+) -> dict:
+    """Return *existing* with only the settings that differ from it changed.
+
+    ``framework_version`` is left alone; the version bump belongs to the step
+    that updates the agents and skills.
+    """
+    data = copy.deepcopy(existing)
+    changes = [
+        (
+            "project",
+            "dir",
+            project_dir,
+            marker_project_dir(existing) or DEFAULT_PROJECT_DIR,
+        ),
+        (
+            "git",
+            "integration_branch",
+            integration_branch,
+            marker_integration_branch(existing) or DEFAULT_INTEGRATION_BRANCH,
+        ),
+        ("init", "tools", tools, _configured_tools(existing)),
+    ]
+    for table, key, value, current in changes:
+        if value != current:
+            data.setdefault(table, {})[key] = value
+    return data
+
+
+@dataclass
+class _UpgradeRequest:
+    """Everything one upgrade run needs, gathered once by ``init_command``."""
+
+    target_root: Path
+    scaffolds_path: Path
+    project_dir: str
+    tools: list[str]
+    settings: dict[str, str]
+    existing_marker: dict
+    update_docs: bool
+    update_skills: bool
+    no_interactive: bool
+    dry_run: bool
+
+
+def _would_verb(destination: Path) -> str:
+    return "WOULD OVERWRITE" if destination.exists() else "WOULD WRITE"
+
+
+def _ask_upgrade_question(
+    question: str,
+    is_answered_yes: bool,
+    covered: list[Path],
+    request: _UpgradeRequest,
+) -> bool:
+    """Answer one upgrade question; return True when its files are to be written.
+
+    A dry run never prompts: it names the files an unanswered question would
+    prompt for and, for an answered one, the files it would write.
+    """
+    if is_answered_yes:
+        answer = True
+    elif request.no_interactive:
+        answer = False
+    elif request.dry_run:
+        for destination in covered:
+            typer.echo(f"WOULD PROMPT: {destination}")
+        return False
+    else:
+        answer = typer.confirm(question, default=False)
+
+    if answer and request.dry_run:
+        for destination in covered:
+            typer.echo(f"{_would_verb(destination)}: {destination}")
+        return False
+    return answer
+
+
+def _write_all(plan: list[tuple[Path, Path]], settings: dict[str, str]) -> None:
+    for source, destination in plan:
+        _write_rendered(source, destination, settings)
+
+
+def _upgrade_marker(request: _UpgradeRequest, integration_branch: str) -> None:
+    marker = request.target_root / ".ai-team.toml"
+    data = _upgraded_marker(
+        request.existing_marker, request.project_dir, integration_branch, request.tools
+    )
+    if data == request.existing_marker:
+        return
+    if request.dry_run:
+        typer.echo(f"WOULD OVERWRITE: {marker}")
+        return
+    marker.write_text(tomli_w.dumps(data), encoding="utf-8")
+    _report_overwrite(marker)
+
+
+def _run_upgrade(request: _UpgradeRequest) -> None:
+    """Upgrade a repository that already has ``.ai-team.toml``.
+
+    Settings are kept, a missing project directory is recreated, and the docs
+    and the agents and skills are rewritten only where their question is yes.
+    """
+    project_root = request.target_root / request.project_dir
+    project_plan = _plan_project_copies(
+        request.scaffolds_path / "project", project_root
+    )
+    docs = {project_root / name for name in _PROJECT_DOC_FILES}
+
+    if not project_root.is_dir():
+        if request.dry_run:
+            for _, destination in project_plan:
+                typer.echo(f"{_would_verb(destination)}: {destination}")
+        else:
+            _write_all(project_plan, request.settings)
+        docs_plan = []
+    else:
+        docs_plan = [(s, d) for s, d in project_plan if d in docs]
+
+    skills_plan: list[tuple[Path, Path]] = []
+    for tool in request.tools:
+        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
+            skills_plan.extend(
+                _plan_copies(
+                    request.scaffolds_path / tool / scaffold_subfolder,
+                    request.target_root / destination,
+                )
+            )
+
+    for question, is_yes, plan in (
+        (
+            _UPDATE_DOCS_QUESTION.format(project_dir=request.project_dir),
+            request.update_docs,
+            docs_plan,
+        ),
+        (_UPDATE_SKILLS_QUESTION, request.update_skills, skills_plan),
+    ):
+        if _ask_upgrade_question(question, is_yes, [d for _, d in plan], request):
+            _write_all(plan, request.settings)
+
+    _upgrade_marker(request, request.settings["integration_branch"])
 
 
 def _skill_invocation(skill: str, tools: list[str]) -> str:
@@ -312,6 +485,16 @@ def _remove_legacy_codex_skills(target_root: Path, dry_run: bool) -> None:
         legacy_root.rmdir()
 
 
+def _report_completion(tools: list[str], declined: bool) -> None:
+    typer.echo("Initialization complete.")
+    typer.echo("Next steps:")
+    for line in _next_steps(tools):
+        typer.echo(f"- {line}")
+
+    if declined:
+        typer.echo(f"\nNote: {_ROOT_GUIDANCE_DECLINED_MESSAGE}")
+
+
 @app.callback()
 def init_command(
     path: Path = typer.Argument(Path(".")),
@@ -320,6 +503,16 @@ def init_command(
     dry_run: bool = typer.Option(False, "--dry-run"),
     no_interactive: bool = typer.Option(False, "--no-interactive"),
     create_root_guidance: bool = typer.Option(False, "--create-root-guidance"),
+    update_docs: bool = typer.Option(
+        False,
+        "--update-docs",
+        help="On an upgrade, update the ai-team docs without asking.",
+    ),
+    update_skills: bool = typer.Option(
+        False,
+        "--update-skills",
+        help="On an upgrade, update the agents and skills without asking.",
+    ),
     project_dir: str | None = typer.Option(
         None,
         "--project-dir",
@@ -338,14 +531,20 @@ def init_command(
     kept, so ``--force`` refreshes generated agents and skills without
     rewriting user configuration.
     """
+    target_root = path.resolve()
+    existing_marker = read_marker(target_root)
+    is_upgrade = (target_root / ".ai-team.toml").is_file()
     try:
-        selected_tools = _resolve_tools(tools, no_interactive)
+        if is_upgrade:
+            selected_tools = _resolve_upgrade_tools(
+                tools, existing_marker, no_interactive
+            )
+        else:
+            selected_tools = _resolve_tools(tools, no_interactive)
     except ValueError as exc:
         typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from exc
 
-    target_root = path.resolve()
-    existing_marker = read_marker(target_root)
     project_dir = (
         project_dir or marker_project_dir(existing_marker) or DEFAULT_PROJECT_DIR
     )
@@ -373,6 +572,35 @@ def init_command(
         resources.as_file(scaffolds) as scaffolds_path,
         resources.as_file(sources) as sources_path,
     ):
+        if is_upgrade:
+            _run_upgrade(
+                _UpgradeRequest(
+                    target_root=target_root,
+                    scaffolds_path=scaffolds_path,
+                    project_dir=project_dir,
+                    tools=selected_tools,
+                    settings=settings,
+                    existing_marker=existing_marker,
+                    update_docs=update_docs or force,
+                    update_skills=update_skills or force,
+                    no_interactive=no_interactive,
+                    dry_run=dry_run,
+                )
+            )
+            _ensure_tracker(target_root, tracker_dir, dry_run=dry_run)
+            declined = _handle_root_guidance(
+                target_root,
+                sources_path,
+                no_interactive,
+                create_root_guidance,
+                force,
+                dry_run=dry_run,
+                settings=settings,
+            )
+            if not dry_run:
+                _report_completion(selected_tools, declined)
+            return
+
         planned: list[tuple[Path, Path]] = []
         planned.extend(
             _plan_project_copies(scaffolds_path / "project", target_root / project_dir)
@@ -461,10 +689,4 @@ def init_command(
             settings=settings,
         )
 
-    typer.echo("Initialization complete.")
-    typer.echo("Next steps:")
-    for line in _next_steps(selected_tools):
-        typer.echo(f"- {line}")
-
-    if declined:
-        typer.echo(f"\nNote: {_ROOT_GUIDANCE_DECLINED_MESSAGE}")
+    _report_completion(selected_tools, declined)
