@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -194,8 +194,31 @@ Required behaviour:
   `--integration-branch`) is given, the configured tracker folder is always kept
   (`[tracker] dir` has no `init` flag), and every other setting the user added is
   preserved.
-- Existing destination files are not overwritten without `--force`; `--dry-run` reports
-  what would be written without writing.
+- **Project state (CR-005).** Before writing anything, `init` detects one of three
+  cases from the target repository:
+  - **Upgrade** — `.ai-team.toml` exists. A missing project directory is recreated.
+  - **New project** — no `.ai-team.toml`, and none of the files `init` would write
+    exist yet.
+  - **Adoption** — no `.ai-team.toml`, but some files `init` would write already exist.
+- **Upgrade.** Every setting in `.ai-team.toml` is kept. `init` asks two questions, in
+  this order: update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
+  project directory), then update the agents and skills for the configured tools.
+  `--update-docs` and `--update-skills` answer them ahead of time; `--update-skills`
+  covers agents and skills. With `--no-interactive`, an unanswered question means
+  "no" and that part is left unchanged. When the agents and skills are updated,
+  `framework_version` is set to the running version. Skills and agents in the tool
+  folders that the running version does not ship are never removed; `init` lists them
+  in a warning that says they were neither updated nor removed. Root guidance is
+  offered as for a new project.
+- **New project.** Everything is written, then root guidance is offered, as before.
+- **Adoption.** `.ai-team.toml`, the project directory, and the agents and skills are
+  written. Skills or agents with the same names that already exist are listed together
+  and asked about once; `--force` answers yes; with `--no-interactive` and no
+  `--force` they are skipped and reported. Root guidance is offered as for a new
+  project.
+- `--force` answers yes to every overwrite question. Without it, an existing file is
+  replaced only on a yes. `--dry-run` reports the detected case, then what the real run
+  with the same flags would write, without writing.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -318,3 +341,4 @@ amendment adds:
 |------|-------------|-----|----------------|
 | 2026-10-20 | Moved out of `specs/archive/` as S-009 (was a duplicate `S-001`) and retitled from "CLI-owned framework scaffolds and remove ai-process init export". Removed the completed `ai-process/` export removal as a work item, keeping "never exports `ai-process/`" as an invariant. Component 2 now copies skill `assets/`, `references/` and `scripts/` folders into both exports byte for byte, and the generator never fills placeholders; Component 3 states placeholder rendering by `init` and byte-for-byte copy of non-UTF-8 files. The project skeleton no longer has lifecycle folders (S-006); export paths now refer to S-003's level 1 table instead of naming `.codex/skills/`; the `.ai-team.toml` contract includes `[tracker] dir` and `[git] integration_branch`; the TOML example became prose. Driven by CR-003 §7 and §10 and Architecture Consistency Review finding F3. | The spec was still `approved` in the archive and the only written contract for the generator, but described a lifecycle skeleton and `.codex/skills/` export that S-006 and CR-002 replaced, and the generator silently dropped skill supporting folders (report #20). | None in flight |
 | 2026-10-24 | Project skeleton: `docs/` holds a `coding_guidelines.md` placeholder; Init Command Contract: `init` writes it only when missing and never overwrites it, even with `--force`. Driven by CR-004 item 10 and its Gate 2 finding F1. | Agents and skills already reference the file, but `init` never created it. | None in flight |
+| 2026-10-24 | Init Command Contract: state detection (upgrade, new project, adoption), the upgrade questions and `--update-docs` / `--update-skills`, the `framework_version` bump, the stale-definition warning, the adoption collision question, and `--force` / `--dry-run` per case. Driven by CR-005. | `init` treated every run the same: refuse, or overwrite everything with `--force`, so upgrading overwrote the project's own guidance. | None in flight |
