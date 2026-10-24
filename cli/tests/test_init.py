@@ -138,9 +138,6 @@ def test_init_force_allows_overwriting_existing_files(monkeypatch, tmp_path):
     existing.parent.mkdir(parents=True, exist_ok=True)
     existing.write_text("occupied\n", encoding="utf-8")
 
-    marker = target / ".ai-team.toml"
-    marker.write_text("occupied = true\n", encoding="utf-8")
-
     monkeypatch.chdir(target)
     result = CliRunner().invoke(
         app,
@@ -150,7 +147,7 @@ def test_init_force_allows_overwriting_existing_files(monkeypatch, tmp_path):
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == ""
     assert (target / ".claude" / "skills" / "tdd" / "SKILL.md").is_file()
-    data = tomllib.loads(marker.read_text(encoding="utf-8"))
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
     assert data["project"]["dir"] == "ai-team"
 
 
@@ -820,7 +817,7 @@ def test_force_rerun_reports_existing_files_but_not_newly_created_ones(tmp_path)
 
     assert result.exit_code == 0
     reported = _overwrote_lines(result.output)
-    assert f"OVERWROTE: {target / '.ai-team.toml'}" in reported
+    assert f"OVERWROTE: {target / '.ai-team.toml'}" not in reported
     assert (
         f"OVERWROTE: {target / '.claude' / 'skills' / 'tdd' / 'SKILL.md'}" in reported
     )
@@ -953,12 +950,12 @@ def test_dry_run_non_interactive_without_flag_names_no_missing_root_file(tmp_pat
     assert not _all_would_paths(result.output) & _root_paths(target)
 
 
-def test_dry_run_with_collisions_and_no_force_prints_only_the_refusal(tmp_path):
+def test_dry_run_of_a_non_interactive_upgrade_prints_nothing_to_write(tmp_path):
     target = _initialised_repo_with_custom_root_guidance(tmp_path)
 
     result = _init(target, "--no-interactive", "--dry-run")
 
-    assert result.exit_code == 1
+    assert result.exit_code == 0
     assert "WOULD" not in result.output
 
 
