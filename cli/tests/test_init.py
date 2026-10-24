@@ -60,8 +60,8 @@ def test_init_scaffolds_explicit_target_path_with_claude_and_marker(tmp_path):
     assert not (target / "ai-process").exists()
 
 
-def test_init_refuses_to_overwrite_when_force_is_not_set(monkeypatch, tmp_path):
-    """Init exits non-zero and does not write any files when collisions exist."""
+def test_init_skips_existing_files_when_force_is_not_set(monkeypatch, tmp_path):
+    """Adoption keeps an existing file, reports it on stderr, and writes the rest."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
@@ -74,10 +74,11 @@ def test_init_refuses_to_overwrite_when_force_is_not_set(monkeypatch, tmp_path):
     monkeypatch.chdir(target)
     result = CliRunner().invoke(app, ["init", "--tools", "claude", "--no-interactive"])
 
-    assert result.exit_code != 0
+    assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "occupied\n"
-    assert not (target / ".claude" / "agents" / "planner.md").exists()
-    assert not (target / ".ai-team.toml").exists()
+    assert str(existing) in result.stderr
+    assert (target / ".claude" / "agents" / "planner.md").is_file()
+    assert (target / ".ai-team.toml").is_file()
 
 
 def test_init_dry_run_lists_files_and_writes_nothing(tmp_path):
@@ -284,10 +285,10 @@ def test_init_dry_run_includes_project_guidance_files(tmp_path):
     assert str(target / "ai-team" / "AGENTS.md") in result.output
 
 
-def test_init_refuses_when_project_guidance_file_exists_without_force(
+def test_init_skips_project_guidance_file_when_it_exists_without_force(
     monkeypatch, tmp_path
 ):
-    """AC-4: init exits non-zero when ai-team/CLAUDE.md already exists without --force."""
+    """AC-4: init keeps an existing ai-team/CLAUDE.md without --force and still exits 0."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
@@ -300,9 +301,9 @@ def test_init_refuses_when_project_guidance_file_exists_without_force(
     monkeypatch.chdir(target)
     result = CliRunner().invoke(app, ["init", "--tools", "claude", "--no-interactive"])
 
-    assert result.exit_code != 0
+    assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "occupied\n"
-    assert not (target / ".claude" / "agents" / "planner.md").exists()
+    assert (target / ".claude" / "agents" / "planner.md").is_file()
 
 
 def test_init_force_overwrites_project_guidance_files(monkeypatch, tmp_path):
@@ -400,8 +401,8 @@ def test_init_dry_run_does_not_list_existing_coding_guidelines(tmp_path):
     assert str(existing) in missing.output
 
 
-def test_init_still_refuses_other_skeleton_collisions_when_guidelines_exist(tmp_path):
-    """AC-4: other skeleton files still collide and are overwritten by --force."""
+def test_init_still_skips_other_skeleton_collisions_when_guidelines_exist(tmp_path):
+    """AC-4: other skeleton files are skipped without --force and overwritten by it."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
@@ -411,11 +412,13 @@ def test_init_still_refuses_other_skeleton_collisions_when_guidelines_exist(tmp_
     claude_md.write_text("occupied\n", encoding="utf-8")
     args = ["init", str(target), "--tools", "claude", "--no-interactive"]
 
-    refused = CliRunner().invoke(app, args)
+    skipped = CliRunner().invoke(app, args)
+    assert claude_md.read_text(encoding="utf-8") == "occupied\n"
     forced = CliRunner().invoke(app, [*args, "--force"])
 
-    assert refused.exit_code != 0
-    assert str(guidelines) not in refused.output
+    assert skipped.exit_code == 0
+    assert str(claude_md) in skipped.stderr
+    assert str(guidelines) not in skipped.output
     assert forced.exit_code == 0
     assert claude_md.read_text(encoding="utf-8") != "occupied\n"
     assert guidelines.read_text(encoding="utf-8") == "project rules\n"
