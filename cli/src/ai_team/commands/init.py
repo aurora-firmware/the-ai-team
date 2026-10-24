@@ -264,12 +264,47 @@ def _upgrade_marker(
     _report_overwrite(marker)
 
 
+def _stale_definitions(request: _UpgradeRequest) -> list[Path]:
+    """Return agents and skills in the tool folders that the running version does not ship."""
+    stale: list[Path] = []
+    for tool in request.tools:
+        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
+            shipped = {
+                entry.name
+                for entry in (
+                    request.scaffolds_path / tool / scaffold_subfolder
+                ).iterdir()
+            }
+            installed = request.target_root / destination
+            if not installed.is_dir():
+                continue
+            stale.extend(
+                entry
+                for entry in sorted(installed.iterdir())
+                if entry.name not in shipped
+            )
+    return stale
+
+
+def _warn_about_stale_definitions(stale: list[Path]) -> None:
+    if not stale:
+        return
+    typer.echo(
+        "Warning: these skills or agents are not shipped by this version of ai-team; "
+        "they were neither updated nor removed:\n"
+        + "\n".join(f"- {path}" for path in stale),
+        err=True,
+    )
+
+
 def _run_upgrade(request: _UpgradeRequest) -> None:
     """Upgrade a repository that already has ``.ai-team.toml``.
 
     Settings are kept, a missing project directory is recreated, and the docs
     and the agents and skills are rewritten only where their question is yes.
     """
+    if request.dry_run:
+        typer.echo("CASE: upgrade")
     project_root = request.target_root / request.project_dir
     project_plan = _plan_project_copies(
         request.scaffolds_path / "project", project_root
@@ -315,6 +350,8 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
     is_skills_updated = answers[1]
     if is_skills_updated and "codex" in request.tools:
         _remove_legacy_codex_skills(request.target_root, request.dry_run)
+    if is_skills_updated:
+        _warn_about_stale_definitions(_stale_definitions(request))
     _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
 
 
@@ -648,6 +685,9 @@ def init_command(
         collisions = [
             destination for destination in planned_destinations if destination.exists()
         ]
+
+        if dry_run:
+            typer.echo(f"CASE: {'adoption' if collisions else 'new project'}")
 
         if collisions and not force:
             typer.echo(
