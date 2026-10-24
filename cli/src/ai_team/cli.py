@@ -20,7 +20,7 @@ DEVELOPMENT_WARNING = (
 VERSION_MISMATCH_WARNING = (
     "Warning: .ai-team.toml framework_version {configured} does not match "
     "ai-team {running}. Install ai-team {configured}, or run "
-    "`ai-team init --force` to update the project to {running}."
+    "`ai-team init --update-skills` to update the project to {running}."
 )
 
 

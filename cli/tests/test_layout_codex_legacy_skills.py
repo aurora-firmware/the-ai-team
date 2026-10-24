@@ -45,7 +45,7 @@ def test_reports_legacy_folder_for_framework_owned_codex_skill(tmp_path: Path) -
             1,
             f".codex/skills/{name}",
             f"Legacy Codex skill folder '.codex/skills/{name}' duplicates the framework skill exported to '.agents/skills/{name}'.",
-            "Rerun 'ai-team init --force' to remove the legacy copy.",
+            "Rerun 'ai-team init --update-skills' to remove the legacy copy.",
         )
     ]
 
@@ -84,7 +84,7 @@ def _expected_finding(name: str) -> LayoutFinding:
         1,
         f".codex/skills/{name}",
         f"Legacy Codex skill folder '.codex/skills/{name}' duplicates the framework skill exported to '.agents/skills/{name}'.",
-        "Rerun 'ai-team init --force' to remove the legacy copy.",
+        "Rerun 'ai-team init --update-skills' to remove the legacy copy.",
     )
 
 

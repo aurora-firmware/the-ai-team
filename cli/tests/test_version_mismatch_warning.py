@@ -10,7 +10,7 @@ CONFIGURED_VERSION = "1.0.0"
 MISMATCH_WARNING = (
     f"Warning: .ai-team.toml framework_version {CONFIGURED_VERSION} does not match "
     f"ai-team {RUNNING_VERSION}. Install ai-team {CONFIGURED_VERSION}, or run "
-    f"`ai-team init --force` to update the project to {RUNNING_VERSION}."
+    f"`ai-team init --update-skills` to update the project to {RUNNING_VERSION}."
 )
 DEVELOPMENT_WARNING = (
     "Warning: ai-team is under development. Please report issues at "
