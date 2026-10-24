@@ -297,7 +297,7 @@ def _legacy_codex_skill_findings(contract: LayoutContract) -> list[LayoutFinding
             1,
             f".codex/skills/{name}",
             f"Legacy Codex skill folder '.codex/skills/{name}' duplicates the framework skill exported to '.agents/skills/{name}'.",
-            "Rerun 'ai-team init --force' to remove the legacy copy.",
+            "Rerun 'ai-team init --update-skills' to remove the legacy copy.",
         )
         for name in framework_skill_names("codex")
         if (contract.repo / ".codex" / "skills" / name).is_dir()
