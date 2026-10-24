@@ -36,7 +36,7 @@ differs from the running `ai-team` version (exact string comparison, as in
 once to stderr, after the development warning:
 
 ```text
-Warning: .ai-team.toml framework_version <configured> does not match ai-team <running>. Install ai-team <configured>, or run `ai-team init --force` to update the project to <running>.
+Warning: .ai-team.toml framework_version <configured> does not match ai-team <running>. Install ai-team <configured>, or run `ai-team init --update-skills` to update the project to <running>.
 ```
 
 The warning is skipped when:
@@ -89,8 +89,9 @@ ai-team --version
 
 ## Initialisation
 
-`ai-team init` scaffolds a fresh AI-team repository. Run it from the target
-project's root directory.
+`ai-team init` scaffolds a fresh AI-team repository, adopts a repository that
+already has some of the files, and upgrades one that is already initialised.
+Run it from the target project's root directory.
 
 ```bash
 ai-team init [PATH] [OPTIONS]
@@ -98,13 +99,52 @@ ai-team init [PATH] [OPTIONS]
 
 `PATH` defaults to `.` (the current directory).
 
+### Init cases
+
+`init` looks at the repository and picks one of three cases. The detection
+does not depend on any flag.
+
+| Case | Detected when | What `init` does |
+|---|---|---|
+| Upgrade | `.ai-team.toml` exists in the repository root. | Keeps every configured setting and asks two questions (below). Nothing is overwritten without a yes. |
+| New project | There is no `.ai-team.toml` and none of the files `init` would write exists. | Writes the scaffold, the tracker folder and `.ai-team.toml`. No overwrite question is asked. |
+| Adoption | There is no `.ai-team.toml`, but some of the agent, skill or project files `init` would write already exist. | Lists the existing files and asks once: `Overwrite these existing files?` |
+
+**Upgrade questions.** An upgrade asks, in order:
+
+1. `Update the ai-team docs (AGENTS.md, CLAUDE.md, .gitignore) in <project dir>?`
+2. `Update the agents and skills for the configured tools?`
+
+Each defaults to no. `--update-docs` answers the first yes and `--update-skills`
+answers the second yes without asking; with `--no-interactive` an unanswered
+question is no. A yes on the agents and skills question also bumps
+`[init].framework_version` in `.ai-team.toml` and removes the legacy Codex skill
+copies (see below), so run it to clear the version mismatch warning.
+`docs/coding_guidelines.md` is never overwritten, whatever the answers.
+
+**Adoption question.** Answering no (or running with `--no-interactive`) keeps
+every existing file, writes only the missing ones and lists the skipped files.
+Answering yes overwrites them, and each replaced file is reported as
+`OVERWROTE: <path>`.
+
+**Stale definitions.** After an upgrade updates the agents and skills, any agent
+or skill in the tool folders that this version of `ai-team` does not ship is
+left alone, and `init` writes this warning to stderr:
+
+```text
+Warning: these skills or agents are not shipped by this version of ai-team; they were neither updated nor removed:
+- <path>
+```
+
 ### Flags
 
 | Flag | Description |
 |---|---|
 | `--tools TEXT` | Comma-separated tool names to scaffold (e.g. `claude`, `codex`, `all`, `none`). |
-| `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (existing file, with `--force`), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `CLAUDE.md` or `AGENTS.md` the interactive run would ask about). Root guidance files the real run would skip are not listed, and existing files without `--force` give only the refusal. |
-| `--force` | Overwrite existing files. Without this flag the command refuses to overwrite. On a repository that already has `.ai-team.toml`, the configured `[project] dir`, `[tracker] dir`, `[git] integration_branch`, and any other tables are kept, but `--force` still overwrites the generated agents and skills and the project scaffold (`CLAUDE.md`, `AGENTS.md`, and `.gitignore` inside the project directory), and rewrites `.ai-team.toml`. `docs/coding_guidelines.md` is the exception: it is written only when missing and never overwritten, even with `--force`. Root guidance files follow the table under [Root guidance files](#root-guidance-files). Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
+| `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (existing file, with `--force`), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `CLAUDE.md` or `AGENTS.md`, or a file covered by an upgrade or adoption question, that the interactive run would ask about; a dry run never prompts). The first line reports the detected case: `CASE: upgrade`, `CASE: new project` or `CASE: adoption`. Root guidance files the real run would skip are not listed. |
+| `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch` and any other tables are kept on an upgrade. `docs/coding_guidelines.md` is the exception: it is written only when missing and never overwritten, even with `--force`. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
+| `--update-docs` | On an upgrade, update the ai-team docs without asking. |
+| `--update-skills` | On an upgrade, update the agents and skills without asking. |
 | `--project-dir TEXT` | Artifact folder, at any depth (e.g. `docs/ai-team`). Defaults to the configured `[project] dir`, else `ai-team`. Must be relative and contain no `..`. |
 | `--integration-branch TEXT` | Branch that task, bug, and planning work integrates into. Defaults to the configured `[git] integration_branch`, else `dev-agent`. |
 | `--no-interactive` | Skip all prompts. Requires `--tools` to be provided explicitly. |
@@ -143,8 +183,8 @@ Running `ai-team init . --tools codex` additionally writes:
 Codex skills live in `.agents/skills/`, not `.codex/skills/`. Codex needs a
 release that reads `.agents/skills/`.
 
-Earlier versions wrote Codex skills to `.codex/skills/<name>/`. `ai-team init
---force` removes those legacy copies of framework skills and prints
+Earlier versions wrote Codex skills to `.codex/skills/<name>/`.
+`ai-team init --update-skills` removes those legacy copies of framework skills and prints
 `REMOVED: <folder>` for each one; any other folder under `.codex/skills/` is
 kept and reported as `LEFT IN PLACE: <folder>`. `ai-team check-layout` reports
 leftover legacy copies as a finding.
@@ -484,7 +524,7 @@ planning work integrates into (default `dev-agent`).
 The generated agents and skills name these two settings through the
 `{{project_dir}}` and `{{integration_branch}}` placeholders. `ai-team init`
 fills them in from `.ai-team.toml` when it writes the files, so after changing
-either setting, run `ai-team init . --tools <tools> --force` to refresh them.
+either setting, run `ai-team init . --tools <tools> --update-skills` to refresh them.
 Hand edits to generated files are overwritten by that refresh.
 
 ### Expected layout
