@@ -124,7 +124,8 @@ copies (see below), so run it to clear the version mismatch warning.
 
 **`--tools` on an upgrade.** An explicit `--tools` sets `[init].tools` to the
 given list. The agents and skills of a tool it newly adds are written without a
-question, because nothing existing is overwritten. The agents-and-skills
+question, but only the files that do not exist yet; an existing file of that
+tool, such as one kept from an earlier drop, is never overwritten. The agents-and-skills
 question covers only the tools already configured. A tool dropped from the list
 is removed from `[init].tools`, and its files are left in place.
 
