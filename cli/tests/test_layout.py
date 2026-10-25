@@ -658,16 +658,14 @@ def test_check_layout_returns_ordered_findings_without_modifying_repository(
     assert _snapshot(tmp_path) == before
 
 
-def test_level_1_reports_nothing_for_a_freshly_initialised_all_tools_project(
+def test_level_1_reports_nothing_for_a_freshly_initialised_project(
     tmp_path: Path,
 ) -> None:
     from typer.testing import CliRunner
 
     from ai_team.cli import app
 
-    result = CliRunner().invoke(
-        app, ["init", str(tmp_path), "--tools", "all", "--no-interactive"]
-    )
+    result = CliRunner().invoke(app, ["init", str(tmp_path), "--no-interactive"])
     contract, _ = resolve_layout(tmp_path, current_version=None)
 
     assert result.exit_code == 0
