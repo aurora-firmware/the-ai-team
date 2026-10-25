@@ -1,7 +1,7 @@
 ---
 title: Uninterrupted Change Request and Spec TODO Readiness
 version: '0.2'
-status: approved  # draft | review | approved | superseded
+status: superseded  # draft | review | approved | superseded
 created: '2026-07-05'
 author: planner
 id: S-004
@@ -271,3 +271,4 @@ Accepted CR proceeds to existing task breakdown and Gate 2 flow
 |------|-------------|-----|----------------|
 | 2026-10-20 | The exclusion and configuration requirement on repo-local exported skill copies also name `.agents/`. Wording only. Driven by CR-002. | Codex skills are now exported to `.agents/skills/`. | None in flight |
 | 2026-10-25 | Repo-local tool folders and the generated scaffolds no longer name Codex. Wording only. Driven by CR-007. | Claude is the only export target (ADR-003). | None in flight |
+| 2026-10-26 | Superseded and moved to `specs/archive/`. Its rules now have single owners: the TODO-readiness rule in the `new-spec` and `brainstorm` skills and Gate 1 in `ai-process/processes/quality-gates.md`; the uninterrupted change-request flow in the `change-request` skill and `ai-process/processes/workflow-overview.md`; scaffold synchronisation in S-009. | The spec-format restructure removes rules that other files own; nothing was left for this spec to own. | None |

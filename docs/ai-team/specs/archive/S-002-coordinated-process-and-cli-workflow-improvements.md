@@ -1,7 +1,7 @@
 ---
 title: Coordinated Process and CLI Workflow Improvements
 version: '0.4'
-status: approved  # draft | review | approved | superseded
+status: superseded  # draft | review | approved | superseded
 created: '2026-05-28'
 author: planner
 id: S-002
@@ -258,3 +258,4 @@ Tests fail or command is missing/ambiguous -> escalate to human
 | 2026-10-22 | The init guidance files are `ai-team/CLAUDE.md` and `ai-team/AGENTS.md`, not `project/…`; the `dev-loop` queue uses `ai-team list tasks --state <state>`, not `--filter state`. Version bumped to 0.2 under the spec authoring guide's amendment rule. | The default project folder was renamed from `project` to `ai-team` on 2026-10-16, and `ai-team list` filters by state with `--state`. | None in flight |
 | 2026-10-25 | The init guidance file is `AGENTS.md` only, in the project directory and at the root; `CLAUDE.md` is no longer generated. Driven by CR-007 and ADR-003. | Codex support was dropped and current Claude Code reads `AGENTS.md`. | None in flight |
 | 2026-10-25 | Implementation Order phase 3 names `AGENTS.md` only. Wording only. Driven by the CR-007 spec-truth reconciliation (D1). | The CR-007 amendment missed this line; the merged init generates only `AGENTS.md`. | None in flight |
+| 2026-10-26 | Superseded and moved to `specs/archive/`. Its rules now have single owners: docs and test planning, verification mode, regeneration inside each task and the verification run context in the `spec-breakdown` and `new-task` skills and the task template; the technical Gate 2 focus in the `spec-breakdown-review` skill and `ai-process/processes/quality-gates.md`; the change-request intake in the `change-request` skill and `ai-process/processes/workflow-overview.md`; the init guidance templates in S-009; the dev-loop baseline guard in the `dev-loop` skill; the change-request artifact (command, template, `pending` status) in S-006 REQ-015. | The spec-format restructure removes rules that other files own; nothing was left for this spec to own. | None |
