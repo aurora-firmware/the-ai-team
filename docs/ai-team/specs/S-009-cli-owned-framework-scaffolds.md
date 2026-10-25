@@ -283,7 +283,8 @@ never a symlink.
 
 The generated project skeleton SHALL hold `specs/`, `decisions/` and `docs/`, each kept
 with an empty placeholder file; a `docs/coding_guidelines.md` placeholder with no
-project-specific rules; the project `AGENTS.md`; and a `.gitignore` that ignores the
+project-specific rules; the project `AGENTS.md`, which explains the purpose of the
+generated artifact folders and files; and a `.gitignore` that ignores the
 `.ai-team.lock` sentinel. It SHALL hold no task, bug or change-request folders.
 
 #### AC-005.1 — Skeleton contents
@@ -296,7 +297,8 @@ project-specific rules; the project `AGENTS.md`; and a `.gitignore` that ignores
 `test_sync_script_copies_project_guidance_files_from_source`,
 `test_sync_script_copies_coding_guidelines_placeholder_into_project_docs`,
 `test_package_owned_coding_guidelines_placeholder_has_no_project_specific_rules` and
-`test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` in
+`test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` and
+`test_project_guidance_sources_exist_and_describe_project_artifact_folders` in
 `cli/tests/test_init_scaffolds.py`.
 
 ### REQ-006 — Generator run
@@ -400,7 +402,9 @@ byte without replacement.
 ### REQ-010 — Project settings
 
 `init` SHALL record `[project] dir`, `[tracker] dir`, `[git] integration_branch` and
-`[init] framework_version` in `.ai-team.toml`. On a repository with a marker, it SHALL
+`[init] framework_version` in `.ai-team.toml`, and SHALL write the project skeleton to
+the project directory taken from `--project-dir`, else `[project] dir`, else
+`ai-team`. On a repository with a marker, it SHALL
 keep the configured project directory and integration branch unless the matching flag
 is given, SHALL always keep `[tracker] dir`, and SHALL keep every other setting the
 user added.
@@ -535,7 +539,9 @@ and `test_does_not_ask_about_coding_guidelines_or_root_guidance` in
 `--force` SHALL answer yes to every overwrite question; without it an existing file
 SHALL be replaced only on a yes. `--dry-run` SHALL write nothing, SHALL report the
 detected case and then what the real run with the same flags would write, and SHALL
-print `WOULD PROMPT: <path>` for each file an unanswered question covers.
+print `WOULD PROMPT: <path>` for each file an unanswered question covers. What a yes
+would trigger — the stale-definition warning and the `framework_version` bump — SHALL
+be reported only when a flag, `--force` or `--no-interactive` answers the question.
 
 #### AC-014.1 — Dry run equals real run
 
@@ -555,6 +561,20 @@ print `WOULD PROMPT: <path>` for each file an unanswered question covers.
 
 **Verification:** Test: `test_dry_run_upgrade_prompts_for_each_file_an_unanswered_question_covers`
 in `cli/tests/test_init_upgrade.py`.
+
+#### AC-014.3 — What a yes would trigger
+
+- **Given:** an upgraded project with a skill the running version does not ship
+- **When:** `init --dry-run --update-skills` runs, and `init --dry-run` runs
+  interactively
+- **Then:** the first reports the `framework_version` bump and the stale-definition
+  warning without writing them; the second prints only `WOULD PROMPT` lines for the
+  skills question
+
+**Verification:** Tests: `test_dry_run_reports_the_version_bump_without_writing_it` and
+`test_dry_run_upgrade_prints_case_then_would_lines_then_the_stale_warning` in
+`cli/tests/test_init_upgrade.py`; inspection for the interactive case, which no test
+covers.
 
 ### REQ-015 — Reporting
 
@@ -607,7 +627,8 @@ one as a collision.
 `init` SHALL offer to create a missing root `AGENTS.md` from the root template:
 interactively it asks; `--create-root-guidance` creates it without asking;
 `--no-interactive` without that flag skips it. When the human declines, `init` SHALL
-print follow-up guidance that autonomous loops need documented project commands. An
+print follow-up guidance that autonomous loops need documented project commands. The
+root template SHALL invite the project's commands, including the test command. An
 existing root `AGENTS.md` SHALL be replaced only with `--force` and a yes, or with
 `--force` and `--create-root-guidance`.
 
@@ -648,9 +669,10 @@ unknown option, and SHALL ask no question about it; the scaffolds SHALL contain 
 - **Then:** the first fails as an unknown option; the second asks nothing about
   `ai-process/` and writes no such folder
 
-**Verification:** Tests: `test_init_include_ai_process_is_unknown_option` and
-`test_init_interactive_does_not_prompt_for_ai_process_snapshot` in
-`cli/tests/test_init.py`.
+**Verification:** Tests: `test_init_include_ai_process_is_unknown_option`,
+`test_init_interactive_does_not_prompt_for_ai_process_snapshot` and
+`test_init_defaults_to_cwd_and_scaffolds_project_claude_and_marker` (no `ai-process/`
+written) in `cli/tests/test_init.py`.
 
 ### REQ-019 — No Codex handling
 

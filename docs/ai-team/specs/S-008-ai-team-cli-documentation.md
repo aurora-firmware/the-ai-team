@@ -171,8 +171,9 @@ SHALL state the required Python version.
   locally with the scaffold generator and `uv build`, and the requirement of Python
   3.14 or later
 
-**Verification:** Test: `test_usage_md_covers_installation` in
-`cli/tests/test_usage_guide.py`; inspection for the Python version line.
+**Verification:** Inspection of the Installation section; the smoke test
+`test_usage_md_covers_installation` in `cli/tests/test_usage_guide.py` only checks that
+the section exists.
 
 ### REQ-002 — Initialisation
 
@@ -186,7 +187,8 @@ SHALL state the required Python version.
 - **Then:** it lists every `init` flag that `commands.md` lists, describes the files
   `init` creates, and explains the `.ai-team.toml` marker
 
-**Verification:** Tests: `test_usage_md_covers_init_command`,
+**Verification:** Inspection: compare the flags in the Initialisation section with
+the `init` entry of `commands.md`. Smoke tests: `test_usage_md_covers_init_command`,
 `test_usage_md_describes_ai_team_toml_marker` and
 `test_usage_md_does_not_mention_nonexistent_flags` in
 `cli/tests/test_usage_guide.py`.
@@ -204,10 +206,9 @@ and archive artifacts.
 - **Then:** each of the five sequences has its own section, and every command it
   names exists in `commands.md`
 
-**Verification:** Tests: `test_usage_md_covers_daily_workflows`,
-`test_usage_md_covers_gate5_report_workflow` and
-`test_commands_mentioned_in_usage_exist_in_commands_md` in
-`cli/tests/test_usage_guide.py`.
+**Verification:** Inspection: each sequence has a section, and each command it names
+appears in `commands.md`. Smoke tests: `test_usage_md_covers_daily_workflows` and
+`test_usage_md_covers_gate5_report_workflow` in `cli/tests/test_usage_guide.py`.
 
 ### REQ-004 — Folder structure
 
@@ -224,8 +225,10 @@ resolution order.
 - **Then:** it names each folder above, the marker, and the order in which the CLI
   looks for the project
 
-**Verification:** Tests: the `test_usage_md_describes_*` folder, marker and locator
-tests in `cli/tests/test_usage_guide.py`.
+**Verification:** Inspection of the Project Folder Structure section. The marker and
+locator are also checked by `test_usage_md_describes_ai_team_toml_marker` and
+`test_usage_md_describes_locator_resolution_order` in `cli/tests/test_usage_guide.py`;
+no test checks the tracker folders.
 
 ### REQ-005 — Maintainer section
 
@@ -282,10 +285,10 @@ argument and flag, including the global flags.
   `--help`
 - **Then:** each is found
 
-**Verification:** Tests: `test_commands_md_contains_key_command`,
-`test_commands_md_contains_global_flags` and
-`test_generated_commands_md_contains_check_layout_command` in
-`cli/tests/test_gen_docs.py`.
+**Verification:** Test: `test_committed_commands_md_matches_generated_output` in
+`cli/tests/test_gen_docs.py`, since the generated reference covers every command. Smoke
+tests: `test_commands_md_contains_key_command`, `test_commands_md_contains_global_flags`
+and `test_generated_commands_md_contains_check_layout_command`.
 
 ### REQ-008 — Generated-file header
 
@@ -314,9 +317,9 @@ SHALL reject invalid arguments as defined in Interfaces.
 - **When:** `bash cli/scripts/gen_docs.sh` runs from the repository root
 - **Then:** `cli/docs/commands.md` is rewritten
 
-**Verification:** Tests: `test_gen_docs_script_produces_commands_md` and
-`test_gen_docs_default_output_path_is_committed_commands_md` in
-`cli/tests/test_gen_docs.py`.
+**Verification:** Demonstration: run the script from the repository root and see
+`cli/docs/commands.md` rewritten. `test_gen_docs_default_output_path_is_committed_commands_md`
+in `cli/tests/test_gen_docs.py` checks the default path in the script.
 
 #### AC-009.2 — Relative output path
 
@@ -416,8 +419,8 @@ data, and no generation-time target was agreed.
 2. `cli/tests/test_usage_guide.py` and `cli/tests/test_gen_docs.py` pass, covering
    each required `usage.md` topic, the reference, its header and the generator
    (REQ-001–REQ-009, REQ-012).
-3. Every command `usage.md` names exists in `commands.md`, and no flag it names is
-   missing from it (REQ-002, REQ-003).
+3. Inspection finds every command `usage.md` names in `commands.md`, and
+   `test_usage_md_does_not_mention_nonexistent_flags` passes (REQ-002, REQ-003).
 4. Each action skill that invokes a CLI command has a row in `component-map.md`
    (REQ-010).
 

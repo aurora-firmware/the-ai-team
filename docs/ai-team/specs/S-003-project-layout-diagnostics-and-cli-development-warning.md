@@ -486,10 +486,10 @@ it SHALL report that check as not completed instead of raising an unhandled erro
 
 #### AC-010.1 — All findings in order
 
-- **Given:** a repository with findings at several levels and paths
-- **When:** `check-layout` runs twice
-- **Then:** both runs report every finding in level-then-path order with the four
-  fields
+- **Given:** layout checks that return findings at several levels and paths, in
+  mixed order
+- **When:** `check-layout` renders them
+- **Then:** every finding is reported in level-then-path order with the four fields
 
 **Verification:** Tests:
 `test_check_layout_reports_all_findings_in_level_and_path_order` in
@@ -522,9 +522,9 @@ SHALL exit 1 after reporting all findings when there is at least one.
 
 #### AC-011.2 — Findings
 
-- **Given:** a directory with no `AGENTS.md` and no marker
+- **Given:** layout checks that return at least one finding
 - **When:** `check-layout` runs
-- **Then:** it reports the findings and exits 1
+- **Then:** it reports every finding and exits 1
 
 **Verification:** Test: `test_check_layout_reports_all_findings_in_level_and_path_order`
 in `cli/tests/test_check_layout.py`.
@@ -550,7 +550,7 @@ change any command's stdout, `--json` output or exit code.
 
 #### AC-012.2 — Version lookup failure
 
-- **Given:** the installed version cannot be looked up
+- **Given:** the project layout or the installed version cannot be resolved
 - **When:** a command runs
 - **Then:** no version mismatch warning is written and the command proceeds normally
 
@@ -594,8 +594,7 @@ only local files, and no run-time target was agreed.
 
 - **The installed distribution carries its own version and project scaffold.**
   REQ-004, REQ-005 and REQ-009 compare against them. If the version cannot be read,
-  the mismatch warning is skipped (AC-012.2) and level 4 reports the current version
-  as unavailable.
+  the mismatch warning is skipped (AC-012.2).
 - **S-006 owns the tracker** location, the allowed `status` values and the migration
   procedure that REQ-006 and REQ-007 check against.
 - **S-009 owns the project scaffold** and `init`, whose plain and `--update-skills`

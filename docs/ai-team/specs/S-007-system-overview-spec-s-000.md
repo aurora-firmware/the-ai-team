@@ -206,7 +206,8 @@ checking for S-000 SHALL NOT change the command's result.
   tracker `new` command runs
 - **Then:** stderr holds the hint; stdout holds only the command's own output
 
-**Verification:** Tests: the `*_prints_hint_to_stderr_*` tests and
+**Verification:** Tests: the `*_prints_hint_to_stderr_*` tests,
+`test_hint_is_printed_even_when_config_file_is_present` and
 `test_tracker_new_commands_print_hint_to_stderr_when_no_s_000` in
 `cli/tests/test_missing_overview_hint.py`.
 
@@ -228,28 +229,32 @@ checking for S-000 SHALL NOT change the command's result.
   and changes nothing
 
 **Verification:** Tests: `test_validate_keeps_error_exit_code_when_hint_is_printed`,
-`test_validate_keeps_stdout_and_exit_code_when_existence_check_raises`,
-`test_hint_missing_overview_swallows_existence_check_errors` and
-`test_hint_is_printed_even_when_config_file_is_present` in
+`test_validate_keeps_stdout_and_exit_code_when_existence_check_raises` and
+`test_hint_missing_overview_swallows_existence_check_errors` in
 `cli/tests/test_missing_overview_hint.py`.
 
 ### REQ-005 — S-000 template
 
 The framework SHALL ship a system-overview template, separate from the feature spec
-template, with the seven sections from Interfaces in order, one component example
-showing every component field, and none of the feature-spec sections.
+template, with the seven sections from Interfaces in order; a Components section
+split into `### Solution` and `### Development infrastructure`, each with an example
+component showing its name, responsibility, boundary and the components it works
+with, the infrastructure example adding **Decisions needed**; and none of the
+feature-spec sections.
 
 #### AC-005.1 — Template shape
 
 - **Given:** `cli/src/ai_team/templates/system-overview.md`
 - **When:** its headings are read
-- **Then:** the seven sections appear in order, a component example shows all fields,
-  and no feature-spec heading appears
+- **Then:** the seven sections appear in order, Solution comes before Development
+  infrastructure, the examples show every component field and the infrastructure one
+  has Decisions needed, and no feature-spec heading appears
 
 **Verification:** Tests: `test_system_overview_template_has_the_s000_sections_in_order`,
 `test_system_overview_template_omits_feature_spec_heading` and
 `test_system_overview_template_shows_one_component_example_with_all_fields` in
-`cli/tests/test_templates.py`.
+`cli/tests/test_templates.py`, and `test_template_keeps_seven_sections_and_groups_components`
+in `cli/tests/test_t078_s000_content_contract.py`.
 
 ### REQ-006 — Content contract in the guide
 

@@ -115,8 +115,8 @@ creates.
 **Exposed — commands (REQ-002, REQ-004, REQ-007).**
 - `ai-team tracker path` prints the resolved absolute tracker folder.
 - `ai-team task set-status`, `ai-team bug set-status` and
-  `ai-team change-request set-status <id> <status>` set any allowed status;
-  `--reason` records why. The existing transitions (`task start`, `block`, `unblock`,
+  `ai-team change-request set-status <id> <status>` set any allowed status; for tasks
+  and bugs, `--reason` records why. The existing transitions (`task start`, `block`, `unblock`,
   `complete`; `bug start`, `resolve`) keep their names.
 - `ai-team list tasks|bugs|change-requests --state <s>` filters on the `status` field
   and keeps its JSON row shape: `id`, `title`, `state`, `priority`, `assigned-role`
@@ -130,7 +130,7 @@ creates.
 with status `pending` and today's date, prints the absolute path (or, with `--json`,
 the `id` and `path`), and refuses to overwrite an existing file.
 
-**Exposed — legacy warning (REQ-011). Written to stderr by tracker commands:
+**Exposed — legacy warning (REQ-011).** Written to stderr by tracker commands:
 `Warning: legacy work-item folders still hold files: <folders>. …`, naming the folders
 and the migration procedure.
 
@@ -235,7 +235,7 @@ ADRs SHALL stay in the project directory.
 ### REQ-004 — Status transitions
 
 The CLI SHALL let any allowed status from Interfaces be set through the kind's
-`set-status` command, recording a given `--reason`, and SHALL reject a status outside
+`set-status` command, recording a given `--reason` for tasks and bugs, and SHALL reject a status outside
 the allowed values. A named transition command SHALL reject an unexpected source status
 and SHALL succeed without change when the item is already in the destination status.
 
