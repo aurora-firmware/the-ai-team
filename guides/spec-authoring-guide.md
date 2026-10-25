@@ -28,7 +28,7 @@ Write so all three can do their job from the spec alone, without guessing what y
 
 **Does not belong in the spec:** function signatures, class layouts, full YAML/TOML/JSON config files, complete CI manifests, executable code that *is* the implementation, file-by-file task lists.
 
-**Rare exception:** a code or config block is acceptable when the block *is itself the contract* — a public API schema, a wire-protocol fragment, an externally-fixed configuration key. Mark such blocks **Contract**, not **Example**. If unsure, use prose.
+**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. Internal implementation is never contract material.
 
 If you find yourself pasting a near-complete file, you are writing the implementation. Stop. Describe what the file must guarantee instead.
 
@@ -94,6 +94,10 @@ Almost every spec has at least one exclusion. "No exclusions apply" should be ra
 > - All network access during validation must be limited to the repository's own dependency mirror.
 
 **Weak:** "Use GitHub Actions." (Picks the implementation; better as a constraint: "must integrate with the project's existing PR review surface.")
+
+### Architecture — Alternatives Considered
+
+**Recipe:** list each approach rejected during design and the reason it was rejected. Rejected approaches are rationale; excluded behavior goes in Exclusions. If no alternative was considered, write `None` with the reason.
 
 ### Interfaces
 
@@ -287,6 +291,7 @@ The recipes above are embedded into the CLI sources that fire when `/new-spec` i
 | Section-by-section authoring instructions used by `/new-spec` | `cli/src/ai_team/init/sources/skills/new-spec/SKILL.md` |
 | Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/SKILL.md` |
 | Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/planner.md` |
+| Structural validation of review-ready feature specs | `cli/src/ai_team/core/spec_content.py` |
 | System overview (S-000) document shape | `cli/src/ai_team/templates/system-overview.md` |
 | Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/SKILL.md` |
 

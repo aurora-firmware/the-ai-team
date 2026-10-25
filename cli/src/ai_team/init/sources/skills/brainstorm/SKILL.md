@@ -115,10 +115,11 @@ Skip this step if the direction is clear enough to write the spec.
 The spec becomes durable truth, so the human signs off on the design incrementally, not once at the end.
 Present the chosen approach in these sections, one at a time, each sized to its complexity (a few sentences when straightforward, a short paragraph when nuanced):
 
-1. **What it does** — the outcome and the main behavior.
+1. **What it does** — the outcome, the users and journeys it serves, and the main behavior.
 2. **Scope and exclusions** — an exclusions line with one or more concrete exclusions, or the exact statement "no exclusions apply" when the human confirms there are none.
 3. **Components and interfaces** — the parts that change and how they connect.
-4. **Constraints, error handling, and verification** — the constraints it assumes, how failures are handled, and how success will be observed.
+4. **Constraints and assumptions** — the constraints it must satisfy, the assumptions it relies on, and any quality thresholds the human agrees.
+5. **Behavior examples and verification** — key success, failure, and boundary examples, how failures are handled, and how success will be observed.
 
 After each section ask: "Does this section match your intent?" **Stop and wait for the human's answer before presenting the next section.**
 If the human corrects a section, revise it and confirm it again. If the correction changes an earlier section, return to that section.
@@ -131,13 +132,13 @@ When all sections are approved, state the full approach in two or three sentence
 
 Invoke the `new-spec` skill to create the specification file. Provide the full required input set in the invocation text:
 - `title`: the confirmed spec title
-- `description`: the confirmed approach and all approved behavioral decisions, actors/journeys, acceptance examples, constraints, assumptions, exclusions, and rejected alternatives with rationale from Step 6. Preserve decisions rather than compressing them into an outcome-only summary.
+- `description`: everything the human approved in Step 6 — users and journeys, behavior and its examples, constraints, assumptions, quality thresholds, and exclusions — plus the alternatives rejected in Step 4 with their rationale. Preserve decisions rather than compressing them into an outcome-only summary.
 - `author`: `planner` unless the human provided a different author
 - `status`: `draft`
 
 `new-spec` handles template loading, frontmatter scaffolding, and section-by-section filling. It carries the **content-boundary rule** (no implementation code, config files, or build manifests in the spec body), the **section recipes** for each part of the template, and the **pre-submission checklist** — apply them through that skill rather than re-deriving them here.
 
-When `new-spec` returns, also fill in the alternatives considered and why they were rejected (this is the brainstorm-specific content that the new-spec recipes do not generate).
+When `new-spec` returns, check that Alternatives Considered records every approach rejected in Step 4 and the reason for each.
 
 Scan the created spec for `[TODO]` markers before setting or treating the spec as review-ready.
 - For each human-answerable `[TODO]` marker, ask the human one contextual question tied to that section or requirement.
@@ -161,7 +162,7 @@ Because the human shaped the spec interactively, Gate 1 should be a quick confir
 - Exclusions are explicit.
 - The spec is self-contained: readable without opening other files, except precise references to existing external contracts.
 - Approved discovery decisions survive into identifiable requirements and acceptance scenarios, not only later task criteria.
-- Rejected implementation approaches are recorded as rationale, distinct from out-of-scope behavior.
+- Rejected implementation approaches are recorded in Alternatives Considered, distinct from out-of-scope behavior.
 - The human confirmed the direction before the spec was written.
 - An oversized request was split into sub-projects, and only the first was brainstormed.
 - The human approved the design section by section, not only once at the end.

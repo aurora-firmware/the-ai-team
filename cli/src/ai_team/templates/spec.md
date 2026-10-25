@@ -47,6 +47,13 @@ section recipes and the pre-submission checklist.
 
 [TODO] State the constraints on the design space.
 
+### Alternatives Considered
+
+<!-- Each rejected approach and why it was rejected. Rejecting an approach
+  does not exclude a user capability; excluded behavior belongs in Exclusions. -->
+
+[TODO] Record each rejected approach and the reason, or None with a reason.
+
 ## Interfaces
 
 <!-- Describe this feature's exposed and consumed external contracts with

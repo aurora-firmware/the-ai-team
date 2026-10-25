@@ -432,12 +432,23 @@ ai-team validate --json
 ```
 
 For feature specs in `review` or `approved` status, `validate --specs` also
-checks the spec structure: required nonempty sections (Amendment Log may be
-empty), `REQ-NNN` and `AC-NNN.M` headings and their uniqueness, that each
-scenario sits under its requirement and names a verification method, and
-unresolved placeholders outside comments and code. Drafts are not checked, and
-S-000 follows its separate system-overview contract. These checks establish
-structure, not semantic completeness or human approval.
+checks the spec structure, ignoring comments and code:
+
+- every required section is present once and is not empty (Amendment Log may be
+  empty);
+- Behavioral Requirements has at least one `REQ-NNN — Title` heading, numbered
+  from 001, and each requirement states a SHALL or MUST obligation;
+- Quality Requirements holds requirements or `None` followed by a reason;
+- each requirement has `AC-NNN.M — Title` scenarios with matching numbers,
+  nested under it, with content and a nonempty `**Verification:**` line;
+- requirement and scenario identifiers are unique, and no scenario sits outside
+  a requirement;
+- no TODO, TBD, TBR, or clarification placeholders, and no unchanged template
+  headings, remain.
+
+Drafts are not checked, and S-000 follows its separate system-overview
+contract. These checks establish structure, not semantic completeness or human
+approval.
 
 Exit code is 1 if any error-level finding is reported.
 

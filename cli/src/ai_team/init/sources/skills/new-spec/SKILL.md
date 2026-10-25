@@ -68,7 +68,7 @@ A specification describes **requirements, contracts, and measurable criteria in 
 
 Concrete code, config, and manifests belong in the **tasks** that `spec-breakdown` produces and in the **Developer's output**, not in the spec body.
 
-**Rare exception:** a code or config block is acceptable when the block *is itself the contract* — a public API schema, a wire-protocol fragment, an externally-fixed configuration key. Mark such blocks **Contract**, not **Example**. If in doubt, use prose.
+**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. Internal implementation is never contract material.
 
 If you find yourself pasting a near-complete file into the spec, you are writing the implementation — replace it with prose that describes what the file must guarantee.
 
@@ -105,6 +105,10 @@ Scoped to this spec. Each principle is a **constraint on the design space**, not
 
 Good: "Validation must run in under three minutes on the median PR."
 Bad: "Use GitHub Actions." (That picks the implementation; reframe as a constraint, e.g. "must integrate with the project's existing PR review surface.")
+
+### Architecture — Alternatives Considered
+
+Record each approach rejected during design and the reason it was rejected. A rejected approach is rationale, not an exclusion. If no alternative was considered, write None with the reason.
 
 ### Interfaces
 
