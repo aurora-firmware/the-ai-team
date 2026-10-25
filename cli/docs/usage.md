@@ -528,6 +528,10 @@ relative folder inside the repository, at any depth (for example
 the artifacts inside it. Projects initialised before the default changed keep
 their `dir = "project"` setting and need no change.
 
+To preset settings before the first `ai-team init`, write only the `[project]`,
+`[tracker]` and `[git]` tables and leave out `[init]`: `init` writes `[init]` itself,
+and a marker that already records `[init] tools` is treated as an upgrade.
+
 The `[git] integration_branch` key names the branch that task, bug, and
 planning work integrates into (default `dev-agent`).
 

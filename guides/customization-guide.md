@@ -160,7 +160,7 @@ Create a new directory under `.claude/skills/<name>/` with a `SKILL.md` file. Ad
 
 If you have an existing codebase:
 
-1. Follow the setup guide to create the directory structure alongside your existing code. `ai-team init` detects the adoption case (no `.ai-team.toml`, but some files it would write already exist), lists those files and asks once whether to overwrite them; answer no to keep them and write only the missing ones.
+1. Follow the setup guide to create the directory structure alongside your existing code. `ai-team init` detects the adoption case (no `.ai-team.toml` that records `[init] tools`, but some files it would write already exist), lists those files and asks once whether to overwrite them; answer no to keep them and write only the missing ones.
 2. Your existing source code stays where it is — the framework directories are additive.
 3. Write or update `CLAUDE.md` so agents can find project commands and repository layout.
 4. Migrate existing issues/tasks by creating a task for each open item with `ai-team task new` (they land in the local tracker).

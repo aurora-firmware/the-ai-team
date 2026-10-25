@@ -696,3 +696,9 @@ def test_usage_guide_states_the_pr49_init_rules():
     assert "exists in the repository root and records `[init] tools`" in flat
     assert "a question that covers no files is not asked" in flat
     assert "--update-skills --update-docs` to refresh them" in flat
+
+
+def test_usage_guide_tells_a_preset_marker_to_leave_out_init():
+    """PR #49 re-review: a preset marker must not record `[init]`."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert "leave out `[init]`: `init` writes `[init]` itself" in flat
