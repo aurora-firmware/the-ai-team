@@ -1,3 +1,10 @@
+---
+name: new-spec
+description: Create a new specification document via the ai-team CLI. Use when a feature design is ready to be written up as a spec.
+argument-hint: "[optional: specification title]"
+allowed-tools: Read, Write, Bash, Skill(git-conventions)
+---
+
 # New Spec
 
 Create a new specification document using `ai-team spec new --json`, then fill its body following the section-by-section recipes below.

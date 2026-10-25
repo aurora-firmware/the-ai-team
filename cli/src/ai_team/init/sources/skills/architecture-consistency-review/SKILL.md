@@ -1,3 +1,10 @@
+---
+name: architecture-consistency-review
+description: Check that a created or changed architecture artifact stays consistent with every approved spec and accepted ADR. Use when an ADR is created or accepted, a spec is created or amended, or a change-request proposes a spec amendment.
+allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
+effort: high
+---
+
 # Architecture Consistency Review
 
 **Ownership boundary:** this skill owns the consistency check for a *created or changed architecture artifact* — an ADR, spec, or change-request — confirming it stays consistent with every approved spec and accepted ADR. It does **not** review task plans: Gate 2's `spec-breakdown-review` independently checks task-plan consistency and readiness. The two reviews are separate skills with separate inputs — a changed artifact here, a task plan there.

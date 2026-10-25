@@ -1,3 +1,9 @@
+---
+name: evidence-before-claims
+description: Requires a fresh command and its actual output before any claim that work is complete, passing, fixed, merged, or reviewed. Use before reporting a result, writing an Evidence entry, or recording a gate verdict.
+allowed-tools: Read, Bash
+---
+
 # Evidence Before Claims
 
 Claiming work is done, fixed, passing, or reviewed without fresh evidence is a false report, not a shortcut. Every role's `Evidence:` field and every gate verdict rests on this rule.

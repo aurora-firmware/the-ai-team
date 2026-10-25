@@ -1,3 +1,9 @@
+---
+name: git-conventions
+description: Branch model, commit message format, per-role commit rules, and hard git rules for the AI team. Use whenever any role commits, merges, or creates a branch — consult this skill for the authoritative branch model and commit format.
+allowed-tools: Read
+---
+
 # Git Conventions
 
 These rules apply to all AI roles working within any project that uses this framework.

@@ -1,3 +1,10 @@
+---
+name: change-request
+description: Create a new change-request artifact via the ai-team CLI. Use when a small change does not warrant a full spec.
+argument-hint: "[change request title]"
+allowed-tools: Read, Write, Bash, Skill(git-conventions)
+---
+
 # Change Request
 
 Create a new change-request artifact using `ai-team change-request new --json`, then fill the body with the proposed scope change.

@@ -1,3 +1,10 @@
+---
+name: new-adr
+description: Create a new Architecture Decision Record via the ai-team CLI. Use when an architecture-affecting decision must be recorded or an existing ADR superseded.
+argument-hint: "[optional: decision title]"
+allowed-tools: Read, Write, Bash, Skill(architecture-consistency-review)
+---
+
 # New ADR
 
 Create a new Architecture Decision Record (ADR) using `ai-team adr new --json`.

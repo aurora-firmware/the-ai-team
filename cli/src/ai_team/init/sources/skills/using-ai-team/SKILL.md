@@ -1,3 +1,9 @@
+---
+name: using-ai-team
+description: Establishes how to find and invoke the AI team's skills, and requires matching a skill to the situation before any other action. Use at the start of any request or work item, before clarifying questions, code search, or edits.
+allowed-tools: Read, Glob, Grep, Skill
+---
+
 # Using the AI Team
 
 Find and invoke the AI team's skills before acting. The skills hold the procedures, gates, and artifact rules for this project; acting from memory instead of from the matching skill skips them.

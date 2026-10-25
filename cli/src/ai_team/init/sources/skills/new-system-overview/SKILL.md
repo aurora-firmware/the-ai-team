@@ -1,3 +1,10 @@
+---
+name: new-system-overview
+description: Create the S-000 system overview spec, for a new project or when adopting an existing one into the ai-team process
+argument-hint: "[optional: project name]"
+allowed-tools: Read, Write, Bash, Skill(git-conventions)
+---
+
 # New System Overview
 
 Create the S-000 system overview spec with `ai-team spec new --overview --json`, then fill its seven sections by interviewing the human. S-000 says what the project is, who it serves, and which components make it up. It is written in plain language for a reader who has never seen the project.

@@ -1,3 +1,9 @@
+---
+name: debug
+description: Diagnostic debugging procedure for bugs and unexpected failures. Use before fixing any bug, when tests fail unexpectedly, when code misbehaves, or when an integration failure has been traced to a source branch.
+allowed-tools: Read, Grep, Glob, Edit, Bash
+---
+
 # Debug
 
 This skill is **diagnosis-only**. It ends with a fix contract in the Diagnosis Log. The

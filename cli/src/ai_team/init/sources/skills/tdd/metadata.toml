@@ -1,6 +1,0 @@
-[claude]
-header = """---
-name: tdd
-description: Implements assigned tasks using their planned verification mode, either a test-driven cycle or a recorded design review for prose-only tasks. Applies the test-driven cycle to bug fixes after a Diagnosis Log exists.
-allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(debug), Skill(git-conventions)
----"""

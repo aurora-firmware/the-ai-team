@@ -1,3 +1,10 @@
+---
+name: spec-breakdown-review
+description: Validate a planned task plan before development starts. Use when the Planner has decomposed an approved specification into tasks and Gate 2 must confirm dependency correctness, file conflict risk, ADR consistency, atomicity, and implementation readiness.
+allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
+effort: high
+---
+
 # Gate 2 Preflight
 
 **Ownership boundary:** spec-breakdown-review owns Gate 2 technical readiness — it validates whether a task plan is safe to hand to `/dev-loop`.

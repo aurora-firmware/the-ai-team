@@ -1,3 +1,10 @@
+---
+name: status-report
+description: Generate a Gate 5 project status report on demand by scanning specs, tasks, bugs, decisions, and integration evidence. Human-invoked only — use when a human asks for project status or final merge sign-off context.
+allowed-tools: Read, Glob, Grep, Write, Bash
+disable-model-invocation: true
+---
+
 # Status Report
 
 Reporting is for humans and runs only on demand: the human invokes `/status-report`.

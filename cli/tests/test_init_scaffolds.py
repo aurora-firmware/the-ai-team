@@ -6,7 +6,6 @@ import os
 import shutil
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
 
@@ -37,26 +36,17 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
         / "sources"
         / "skills"
         / "tdd"
-        / "body.md",
-        "# Test Skill Body\n\nRun the TDD cycle.\n",
-    )
-    _write(
-        repo
-        / "cli"
-        / "src"
-        / "ai_team"
-        / "init"
-        / "sources"
-        / "skills"
-        / "tdd"
-        / "metadata.toml",
+        / "SKILL.md",
         (
-            "[claude]\n"
-            'header = """---\n'
+            "---\n"
             "name: tdd\n"
             "description: claude skill\n"
             "allowed-tools: Read\n"
-            '---"""\n'
+            "---\n"
+            "\n"
+            "# Test Skill Body\n"
+            "\n"
+            "Run the TDD cycle.\n"
         ),
     )
     _write(
@@ -157,16 +147,31 @@ def test_sync_script_generates_tool_skill_scaffolds_from_shared_body(
     )
 
     scaffolds_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds"
-    shared_body = "# Test Skill Body\n\nRun the TDD cycle.\n"
+    source_path = repo / "cli/src/ai_team/init/sources/skills/tdd/SKILL.md"
 
-    claude_text = (scaffolds_root / "claude" / "skills" / "tdd" / "SKILL.md").read_text(
-        encoding="utf-8"
-    )
+    exported = scaffolds_root / "claude" / "skills" / "tdd" / "SKILL.md"
 
-    assert claude_text.startswith("---\nname: tdd\ndescription: claude skill\n")
-    assert claude_text.split("\n\n", maxsplit=1)[1] == shared_body
+    assert exported.read_bytes() == source_path.read_bytes()
 
     assert not (scaffolds_root / "claude" / "skills" / "old").exists()
+
+
+def test_sync_script_stops_naming_the_skill_when_skill_md_is_missing(
+    tmp_path: Path,
+) -> None:
+    repo = _setup_fake_repo(tmp_path)
+    (repo / "cli/src/ai_team/init/sources/skills/tdd/SKILL.md").unlink()
+
+    result = subprocess.run(
+        [sys.executable, "cli/scripts/sync_init_scaffolds.py"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert "tdd" in result.stderr
+    assert "SKILL.md" in result.stderr
 
 
 def test_sync_script_copies_package_owned_agents_for_each_tool(tmp_path: Path) -> None:
@@ -396,7 +401,7 @@ def test_package_owned_project_gitignore_source_ignores_the_lock_sentinel() -> N
     assert "docs/reports/" in source_text.splitlines()
 
 
-def test_package_owned_skill_sources_include_body_and_required_metadata() -> None:
+def test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     sources_root = repo_root / "src" / "ai_team" / "init" / "sources" / "skills"
     scaffold_root = (
@@ -415,18 +420,14 @@ def test_package_owned_skill_sources_include_body_and_required_metadata() -> Non
     for skill_name in source_skills:
         skill_source_dir = sources_root / skill_name
 
-        body_files = list(skill_source_dir.glob("body.md"))
-        metadata_files = list(skill_source_dir.glob("metadata.toml"))
-
-        assert len(body_files) == 1
-        assert len(metadata_files) == 1
-
-        body = body_files[0].read_text(encoding="utf-8")
-        assert body.strip()
-        metadata = tomllib.loads(metadata_files[0].read_text(encoding="utf-8"))
-
-        assert isinstance(metadata.get("claude", {}).get("header"), str)
-        assert metadata["claude"]["header"].strip()
+        assert (skill_source_dir / "SKILL.md").is_file()
+        assert not (skill_source_dir / "body.md").exists()
+        assert not (skill_source_dir / "metadata.toml").exists()
+        assert (
+            (skill_source_dir / "SKILL.md")
+            .read_text(encoding="utf-8")
+            .startswith("---\n")
+        )
 
 
 def test_init_scaffolds_export_change_request_skill_and_project_directory() -> None:
@@ -437,8 +438,7 @@ def test_init_scaffolds_export_change_request_skill_and_project_directory() -> N
     )
     scaffold_project = repo_root / "src" / "ai_team" / "init" / "scaffolds" / "project"
 
-    assert (source_skill / "body.md").is_file()
-    assert (source_skill / "metadata.toml").is_file()
+    assert (source_skill / "SKILL.md").is_file()
     # Change-requests live in the local tracker (S-006), not the project scaffold.
     assert not (scaffold_project / "change-requests").exists()
 
@@ -662,7 +662,7 @@ def _spec_breakdown_skill_texts() -> tuple[str, str]:
         / "sources"
         / "skills"
         / "spec-breakdown"
-        / "body.md"
+        / "SKILL.md"
     ).read_text(encoding="utf-8")
     claude = (
         repo_root
@@ -688,7 +688,7 @@ def _spec_breakdown_review_skill_texts() -> tuple[str, str]:
         / "sources"
         / "skills"
         / "spec-breakdown-review"
-        / "body.md"
+        / "SKILL.md"
     ).read_text(encoding="utf-8")
     claude = (
         repo_root
@@ -769,7 +769,7 @@ def _dev_loop_skill_texts() -> tuple[str, str]:
         / "sources"
         / "skills"
         / "dev-loop"
-        / "body.md"
+        / "SKILL.md"
     ).read_text(encoding="utf-8")
     claude = (
         repo_root
@@ -791,7 +791,7 @@ def test_dev_loop_uses_cli_task_state_filter_for_queue_discovery() -> None:
     required_phrases = ("ai-team list tasks --state pending",)
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -807,7 +807,7 @@ def test_dev_loop_discovers_baseline_test_command_before_claiming_task() -> None
     )
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -817,7 +817,7 @@ def test_dev_loop_allows_loop_to_continue_when_baseline_tests_pass() -> None:
     required_phrases = ("baseline test command passes",)
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -833,7 +833,7 @@ def test_dev_loop_asks_user_when_baseline_test_command_missing_or_ambiguous() ->
     )
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -848,7 +848,7 @@ def test_dev_loop_baseline_guard_defines_flexible_discovery_order() -> None:
     )
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -862,7 +862,7 @@ def test_dev_loop_baseline_guard_handles_projects_without_automated_tests() -> N
     )
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -876,7 +876,7 @@ def test_dev_loop_baseline_guard_does_not_restore_rigid_root_claude_policy() -> 
     )
 
     for phrase in forbidden_phrases:
-        assert phrase not in source, f"dev-loop body.md must not include: {phrase!r}"
+        assert phrase not in source, f"dev-loop SKILL.md must not include: {phrase!r}"
         assert phrase not in claude, f"Claude scaffold must not include: {phrase!r}"
 
 
@@ -889,7 +889,7 @@ def test_dev_loop_baseline_guard_runs_once_at_startup_only() -> None:
     )
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -899,7 +899,7 @@ def test_dev_loop_stops_and_reports_when_baseline_tests_fail() -> None:
     required_phrases = ("baseline test command fails",)
 
     for phrase in required_phrases:
-        assert phrase in source, f"dev-loop body.md must include: {phrase!r}"
+        assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
         assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
 
 
@@ -936,7 +936,7 @@ def _new_task_skill_texts() -> tuple[str, str]:
         / "sources"
         / "skills"
         / "new-task"
-        / "body.md"
+        / "SKILL.md"
     ).read_text(encoding="utf-8")
     claude = (
         repo_root

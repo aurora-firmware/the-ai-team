@@ -1,3 +1,10 @@
+---
+name: spec-breakdown
+description: Decompose an approved specification into atomic, independent tasks. Use when a spec needs to be broken into executable work units.
+allowed-tools: Read, Grep, Glob, Write, Bash, Agent, Skill(new-task), Skill(git-conventions)
+effort: high
+---
+
 # Write Plan
 
 **Ownership boundary:** spec-breakdown owns plan coverage (the full set of tasks covers the entire spec), dependency ordering between tasks, and task boundary decisions (splitting or merging units of work).

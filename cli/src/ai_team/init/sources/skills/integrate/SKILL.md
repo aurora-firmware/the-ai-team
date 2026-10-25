@@ -1,3 +1,10 @@
+---
+name: integrate
+description: Integrate a reviewed task or bug branch into a destination branch. Use when a branch's latest Review Verdict is PASS and it must be merged, or when a loop hands a reviewed branch to integration.
+argument-hint: "<branch-or-task-id> [destination-branch]"
+allowed-tools: Read, Grep, Glob, Bash, Skill(merge-conflicts), Skill(new-bug), Skill(git-conventions)
+---
+
 # Integrate
 
 Merge a reviewed task or bug branch into a destination branch after verifying expected behavior and test health.

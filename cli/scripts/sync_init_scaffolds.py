@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import shutil
-import tomllib
 from pathlib import Path
 
 PROJECT_LEAF_DIRS = (
@@ -69,18 +68,6 @@ def _replace_project_skeleton(destination: Path, source: Path) -> None:
     shutil.copy2(coding_guidelines, destination / "docs" / "coding_guidelines.md")
 
 
-def _load_skill_metadata(path: Path) -> dict[str, str]:
-    raw = tomllib.loads(path.read_text(encoding="utf-8"))
-    headers: dict[str, str] = {}
-    for tool in TOOLS:
-        tool_config = raw.get(tool, {})
-        header = tool_config.get("header")
-        if not isinstance(header, str) or not header.strip():
-            raise ValueError(f"Missing [{tool}].header in {path}")
-        headers[tool] = header.strip()
-    return headers
-
-
 def _copy_skill_supporting_folders(skill_dir: Path, skill_output_dir: Path) -> None:
     # Copied verbatim: supporting files are never placeholder-filled.
     for folder_name in SKILL_SUPPORTING_FOLDERS:
@@ -107,25 +94,16 @@ def _replace_generated_skills(source_root: Path, destination_root: Path) -> None
         )
 
     for skill_dir in sorted(path for path in source_root.iterdir() if path.is_dir()):
-        body_path = skill_dir / "body.md"
-        metadata_path = skill_dir / "metadata.toml"
-        if not body_path.is_file():
+        skill_path = skill_dir / "SKILL.md"
+        if not skill_path.is_file():
             raise FileNotFoundError(
-                f"Expected skill body file does not exist: {body_path}"
+                f"Skill '{skill_dir.name}' has no SKILL.md: {skill_path}"
             )
-        if not metadata_path.is_file():
-            raise FileNotFoundError(
-                f"Expected skill metadata file does not exist: {metadata_path}"
-            )
-
-        body = body_path.read_text(encoding="utf-8")
-        headers = _load_skill_metadata(metadata_path)
 
         for tool in TOOLS:
             skill_output_dir = destination_root / tool / "skills" / skill_dir.name
             skill_output_dir.mkdir(parents=True, exist_ok=True)
-            skill_output = headers[tool] + "\n\n" + body
-            (skill_output_dir / "SKILL.md").write_text(skill_output, encoding="utf-8")
+            shutil.copyfile(skill_path, skill_output_dir / "SKILL.md")
             _copy_skill_supporting_folders(skill_dir, skill_output_dir)
 
 

@@ -1,7 +1,0 @@
-[claude]
-header = """---
-name: bug-loop
-description: Fully autonomous bug-fix loop. Picks open bugs one at a time, creates a dedicated branch from the correct base, drives each through diagnosis-first Developer → Reviewer cycles until the reviewer passes, then moves to the next bug. Stops only when the queue is empty or a bug cannot be resolved after full escalation. Use only when the human asks to run the bug-fix loop.
-argument-hint: "[bug-id ...] — optional space-separated bug IDs (e.g., B-001 B-003). If omitted, processes all open bugs."
-allowed-tools: Read, Glob, Grep, Bash, Agent, Skill(integrate), Skill(new-bug), Skill(git-conventions)
----"""

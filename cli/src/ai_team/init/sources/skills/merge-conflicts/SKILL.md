@@ -1,3 +1,9 @@
+---
+name: merge-conflicts
+description: Resolve git merge conflicts preserving the intent of both sides. Use when a merge conflict arises during integration of task or bug branches.
+allowed-tools: Read, Grep, Glob, Edit, Bash
+---
+
 # Conflict Resolution
 
 ## Input Requirements

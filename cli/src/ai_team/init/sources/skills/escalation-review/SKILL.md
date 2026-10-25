@@ -1,3 +1,10 @@
+---
+name: escalation-review
+description: Analyse blocked work after a role has exhausted self-recovery. Use when a Developer, Reviewer, Integrator, Development Loop, or Bug-Fix Loop sends a structured escalation request and the Architect must issue guidance or escalate to a human.
+allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
+effort: high
+---
+
 # Escalation Consultation
 
 ## Input Requirements

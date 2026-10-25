@@ -1,3 +1,10 @@
+---
+name: brainstorm
+description: Explore solution space for a feature request or problem. Use when a new feature needs a design before implementation, or when an existing approach was rejected and alternatives need exploration.
+allowed-tools: Read, Grep, Glob, Write, Skill(new-spec)
+effort: high
+---
+
 # Brainstorm
 
 Interactive design session between the human and the Planner.

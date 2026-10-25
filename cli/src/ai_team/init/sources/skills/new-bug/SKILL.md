@@ -1,3 +1,10 @@
+---
+name: new-bug
+description: Create a new bug report via the ai-team CLI. Use when a defect, regression, or out-of-scope finding must be filed as a bug.
+argument-hint: "[optional: bug title]"
+allowed-tools: Read, Write, Bash
+---
+
 # New Bug
 
 Create a new bug report using `ai-team bug new --json`.

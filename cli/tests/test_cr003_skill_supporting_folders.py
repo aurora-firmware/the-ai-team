@@ -10,12 +10,7 @@ import pytest
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "sync_init_scaffolds.py"
 
-METADATA = """[claude]
-header = \"\"\"---
-name: demo
-description: claude skill
----\"\"\"
-"""
+SKILL_TEXT = "---\nname: demo\ndescription: claude skill\n---\n\n# Body\n"
 
 TEXT_ASSET = "project: {{project_dir}}\nbranch: {{integration_branch}}\n"
 BINARY_ASSET = b"\xff\xfe\x00\x80binary\xc3\x28"
@@ -32,8 +27,7 @@ def _load_sync_module() -> ModuleType:
 def _make_skill(source_root: Path, name: str = "demo") -> Path:
     skill_dir = source_root / name
     skill_dir.mkdir(parents=True)
-    (skill_dir / "body.md").write_text("# Body\n", encoding="utf-8")
-    (skill_dir / "metadata.toml").write_text(METADATA, encoding="utf-8")
+    (skill_dir / "SKILL.md").write_text(SKILL_TEXT, encoding="utf-8")
     return skill_dir
 
 
@@ -63,7 +57,7 @@ def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
     _generate(source_root, destination_root)
 
     exported = destination_root / tool / "skills" / "demo"
-    assert (exported / "SKILL.md").is_file()
+    assert (exported / "SKILL.md").read_text(encoding="utf-8") == SKILL_TEXT
     assert (exported / "assets" / "logo.bin").read_bytes() == BINARY_ASSET
     assert (exported / "assets" / "template.txt").read_bytes() == (
         skill_dir / "assets" / "template.txt"
