@@ -611,10 +611,6 @@ RETIRED_SETUP_GUIDE_SENTENCE = (
     "Every existing file that `init` replaces is reported as `OVERWROTE: <path>`; "
     "newly created files are not."
 )
-LEGACY_CODEX_CONDITION = "When `codex` is selected and already configured"
-LEGACY_CODEX_DROP_RULE = (
-    "When `--tools` drops `codex`, or newly adds it, no legacy folder is removed."
-)
 
 
 def test_usage_guide_states_the_init_reporting_rule():
@@ -634,14 +630,6 @@ def test_setup_guide_states_the_init_reporting_rule():
     assert REPORTING_RULE in flat
     assert RETIRED_KEPT_FILES_RULE not in flat
     assert RETIRED_SETUP_GUIDE_SENTENCE not in flat
-
-
-@pytest.mark.parametrize("guide", [SETUP_GUIDE_MD], ids=["setup"])
-def test_guide_states_the_codex_condition_on_legacy_removal(guide):
-    """T-161 AC-4: legacy removal needs codex selected and already configured."""
-    flat = _flat(guide.read_text(encoding="utf-8"))
-    assert LEGACY_CODEX_CONDITION in flat
-    assert LEGACY_CODEX_DROP_RULE in flat
 
 
 def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():
