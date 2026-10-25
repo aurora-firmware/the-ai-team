@@ -57,10 +57,6 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
     # Package-owned project guidance source fixtures.
     _write(
         repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project" / "AGENTS.md",
-        "# Project Guidance\n\nspecs tasks bugs decisions reports project-local docs\n",
-    )
-    _write(
-        repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project" / "AGENTS.md",
         "# Project Guidance for Agents\n\nspecs tasks bugs decisions reports project-local docs\n",
     )
     _write(
@@ -118,7 +114,7 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
     return repo
 
 
-def test_sync_script_generates_tool_skill_scaffolds_from_shared_body(
+def test_sync_script_copies_each_skill_md_unchanged(
     tmp_path: Path,
 ) -> None:
     repo = _setup_fake_repo(tmp_path)
@@ -157,7 +153,7 @@ def test_sync_script_stops_naming_the_skill_when_skill_md_is_missing(
     assert "SKILL.md" in result.stderr
 
 
-def test_sync_script_copies_package_owned_agents_for_each_tool(tmp_path: Path) -> None:
+def test_sync_script_copies_package_owned_agents(tmp_path: Path) -> None:
     repo = _setup_fake_repo(tmp_path)
 
     subprocess.run(
@@ -220,12 +216,11 @@ def test_sync_script_copies_project_guidance_files_from_source(
     sources_root = repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project"
     project_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds" / "project"
 
-    for file_name in ("AGENTS.md",):
-        source_text = (sources_root / file_name).read_text(encoding="utf-8")
-        scaffold_text = (project_root / file_name).read_text(encoding="utf-8")
-        assert scaffold_text == source_text, (
-            f"scaffolds/project/{file_name} does not match sources/project/{file_name}"
-        )
+    source_text = (sources_root / "AGENTS.md").read_text(encoding="utf-8")
+    scaffold_text = (project_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert scaffold_text == source_text, (
+        "scaffolds/project/AGENTS.md does not match sources/project/AGENTS.md"
+    )
 
 
 def test_sync_script_copies_coding_guidelines_placeholder_into_project_docs(
@@ -446,7 +441,7 @@ def test_sync_script_is_idempotent_for_agent_scaffolds(tmp_path: Path) -> None:
     )
 
     scaffolds_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds"
-    claude_agents = scaffolds_root / "agents"
+    agents_root = scaffolds_root / "agents"
 
     def collect_file_contents(directory: Path) -> dict[str, str]:
         return {
@@ -455,7 +450,7 @@ def test_sync_script_is_idempotent_for_agent_scaffolds(tmp_path: Path) -> None:
             if f.is_file()
         }
 
-    claude_before = collect_file_contents(claude_agents)
+    before = collect_file_contents(agents_root)
 
     subprocess.run(
         [sys.executable, "cli/scripts/sync_init_scaffolds.py"],
@@ -463,10 +458,10 @@ def test_sync_script_is_idempotent_for_agent_scaffolds(tmp_path: Path) -> None:
         check=True,
     )
 
-    claude_after = collect_file_contents(claude_agents)
+    after = collect_file_contents(agents_root)
 
-    assert claude_after == claude_before, (
-        "Claude agent scaffold changed on second run — generator is not idempotent"
+    assert after == before, (
+        "Agent scaffold changed on second run — generator is not idempotent"
     )
 
 
@@ -575,21 +570,18 @@ def test_sync_script_without_arguments_generates_scaffolds(tmp_path: Path) -> No
 def test_package_owned_agent_sources_cover_each_exported_role() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     sources_root = repo_root / "src" / "ai_team" / "init" / "sources" / "agents"
-    claude_source_root = sources_root
-    claude_scaffold_root = (
-        repo_root / "src" / "ai_team" / "init" / "scaffolds" / "agents"
-    )
+    scaffold_root = repo_root / "src" / "ai_team" / "init" / "scaffolds" / "agents"
 
-    expected_roles = sorted(path.stem for path in claude_scaffold_root.glob("*.md"))
-    claude_source_roles = sorted(path.stem for path in claude_source_root.glob("*.md"))
+    expected_roles = sorted(path.stem for path in scaffold_root.glob("*.md"))
+    source_roles = sorted(path.stem for path in sources_root.glob("*.md"))
 
-    assert claude_source_roles == expected_roles
+    assert source_roles == expected_roles
 
     for role_name in expected_roles:
-        claude_source = claude_source_root / f"{role_name}.md"
-        claude_scaffold = claude_scaffold_root / f"{role_name}.md"
+        source = sources_root / f"{role_name}.md"
+        scaffold = scaffold_root / f"{role_name}.md"
 
-        assert claude_source.read_text(encoding="utf-8") == claude_scaffold.read_text(
+        assert source.read_text(encoding="utf-8") == scaffold.read_text(
             encoding="utf-8"
         )
 
@@ -629,7 +621,7 @@ def _spec_breakdown_skill_texts() -> tuple[str, str]:
         / "spec-breakdown"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    claude = (
+    export = (
         repo_root
         / "src"
         / "ai_team"
@@ -639,7 +631,7 @@ def _spec_breakdown_skill_texts() -> tuple[str, str]:
         / "spec-breakdown"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    return source, claude
+    return source, export
 
 
 def _spec_breakdown_review_skill_texts() -> tuple[str, str]:
@@ -654,7 +646,7 @@ def _spec_breakdown_review_skill_texts() -> tuple[str, str]:
         / "spec-breakdown-review"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    claude = (
+    export = (
         repo_root
         / "src"
         / "ai_team"
@@ -664,11 +656,11 @@ def _spec_breakdown_review_skill_texts() -> tuple[str, str]:
         / "spec-breakdown-review"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    return source, claude
+    return source, export
 
 
 def test_spec_breakdown_skill_requires_docs_planning_during_task_creation() -> None:
-    source, claude = _spec_breakdown_skill_texts()
+    source, export = _spec_breakdown_skill_texts()
     required_phrases = (
         "consider documentation updates as implementation work derived from the approved spec",
         "not as a prerequisite before creating tasks",
@@ -676,11 +668,11 @@ def test_spec_breakdown_skill_requires_docs_planning_during_task_creation() -> N
 
     for phrase in required_phrases:
         assert phrase in source, f"spec-breakdown source must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_skill_covers_test_planning_and_optional_omission() -> None:
-    source, claude = _spec_breakdown_skill_texts()
+    source, export = _spec_breakdown_skill_texts()
     required_phrases = (
         "consider test updates and verification changes as implementation work derived from the approved spec",
         "If documentation or test updates are not needed, omit them without placeholder tasks",
@@ -688,11 +680,11 @@ def test_spec_breakdown_skill_covers_test_planning_and_optional_omission() -> No
 
     for phrase in required_phrases:
         assert phrase in source, f"spec-breakdown source must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_review_focuses_gate_2_on_technical_readiness() -> None:
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "focus findings only on technical task-plan readiness",
         "Do not fail Gate 2 for product-scope concerns that do not block technical readiness",
@@ -703,11 +695,11 @@ def test_spec_breakdown_review_focuses_gate_2_on_technical_readiness() -> None:
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_review_preserves_existing_output_format_and_verdicts() -> None:
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "Result: PASS | FAIL | BLOCKED | ESCALATE",
         "Spec reviewed: {{project_dir}}/specs/<file>",
@@ -719,7 +711,7 @@ def test_spec_breakdown_review_preserves_existing_output_format_and_verdicts() -
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def _dev_loop_skill_texts() -> tuple[str, str]:
@@ -734,7 +726,7 @@ def _dev_loop_skill_texts() -> tuple[str, str]:
         / "dev-loop"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    claude = (
+    export = (
         repo_root
         / "src"
         / "ai_team"
@@ -744,22 +736,22 @@ def _dev_loop_skill_texts() -> tuple[str, str]:
         / "dev-loop"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    return source, claude
+    return source, export
 
 
 def test_dev_loop_uses_cli_task_state_filter_for_queue_discovery() -> None:
     """AC-1: Queue discovery uses ai-team list tasks --state pending, not raw filesystem."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = ("ai-team list tasks --state pending",)
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_discovers_baseline_test_command_before_claiming_task() -> None:
     """AC-2: Loop reads project guidance before claiming a task."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = (
         "baseline test command",
         "project-specific guidance",
@@ -769,22 +761,22 @@ def test_dev_loop_discovers_baseline_test_command_before_claiming_task() -> None
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_allows_loop_to_continue_when_baseline_tests_pass() -> None:
     """AC-3: Loop continues to task selection when baseline test command passes."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = ("baseline test command passes",)
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_asks_user_when_baseline_test_command_missing_or_ambiguous() -> None:
     """AC-4 / F-3: Loop asks for clarification on missing or ambiguous commands."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = (
         "ask the human for one of these before claiming a task",
         "BLOCKED: no automated baseline test command is documented."
@@ -795,12 +787,12 @@ def test_dev_loop_asks_user_when_baseline_test_command_missing_or_ambiguous() ->
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_baseline_guard_defines_flexible_discovery_order() -> None:
     """F-1: Step 2 defines a flexible project guidance discovery order."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = (
         "Read root project guidance files that exist",
         "Read any project-local docs referenced by those files",
@@ -810,12 +802,12 @@ def test_dev_loop_baseline_guard_defines_flexible_discovery_order() -> None:
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_baseline_guard_handles_projects_without_automated_tests() -> None:
     """F-1: Step 2 can proceed with explicit no-automated-test confirmation."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = (
         "If the human confirms that no automated baseline test is available",
         "record that confirmation in the loop summary",
@@ -824,12 +816,12 @@ def test_dev_loop_baseline_guard_handles_projects_without_automated_tests() -> N
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_baseline_guard_does_not_restore_rigid_root_claude_policy() -> None:
     """F-2: Step 2 must not restore the rigid root-CLAUDE-only policy."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     forbidden_phrases = (
         "ONLY from the root `CLAUDE.md`",
         "exactly one fenced command block",
@@ -838,12 +830,12 @@ def test_dev_loop_baseline_guard_does_not_restore_rigid_root_claude_policy() -> 
 
     for phrase in forbidden_phrases:
         assert phrase not in source, f"dev-loop SKILL.md must not include: {phrase!r}"
-        assert phrase not in claude, f"Claude scaffold must not include: {phrase!r}"
+        assert phrase not in export, f"Skill export must not include: {phrase!r}"
 
 
 def test_dev_loop_baseline_guard_runs_once_at_startup_only() -> None:
     """F-4: Step 2 states the guard runs once at startup, not between tasks, with rationale."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = (
         "The baseline guard runs once at loop startup."
         " It is NOT re-checked between tasks.",
@@ -851,17 +843,17 @@ def test_dev_loop_baseline_guard_runs_once_at_startup_only() -> None:
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_dev_loop_stops_and_reports_when_baseline_tests_fail() -> None:
     """AC-5: Loop stops and reports failing command and output when baseline tests fail."""
-    source, claude = _dev_loop_skill_texts()
+    source, export = _dev_loop_skill_texts()
     required_phrases = ("baseline test command fails",)
 
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop SKILL.md must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_project_guidance_sources_exist_and_describe_project_artifact_folders() -> None:
@@ -876,15 +868,14 @@ def test_project_guidance_sources_exist_and_describe_project_artifact_folders() 
         "project-local docs",
     )
 
-    for guidance_file_name in ("AGENTS.md",):
-        guidance_path = source_root / guidance_file_name
-        assert guidance_path.is_file(), f"Missing source template: {guidance_path}"
+    guidance_path = source_root / "AGENTS.md"
+    assert guidance_path.is_file(), f"Missing source template: {guidance_path}"
 
-        guidance_text = guidance_path.read_text(encoding="utf-8")
-        for term in required_terms:
-            assert term in guidance_text, (
-                f"{guidance_file_name} must describe {term!r} in project guidance"
-            )
+    guidance_text = guidance_path.read_text(encoding="utf-8")
+    for term in required_terms:
+        assert term in guidance_text, (
+            f"AGENTS.md must describe {term!r} in project guidance"
+        )
 
 
 def _new_task_skill_texts() -> tuple[str, str]:
@@ -899,7 +890,7 @@ def _new_task_skill_texts() -> tuple[str, str]:
         / "new-task"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    claude = (
+    export = (
         repo_root
         / "src"
         / "ai_team"
@@ -909,7 +900,7 @@ def _new_task_skill_texts() -> tuple[str, str]:
         / "new-task"
         / "SKILL.md"
     ).read_text(encoding="utf-8")
-    return source, claude
+    return source, export
 
 
 # AC-1: ownership boundaries
@@ -917,7 +908,7 @@ def _new_task_skill_texts() -> tuple[str, str]:
 
 def test_spec_breakdown_states_plan_coverage_ownership_boundary() -> None:
     """AC-1: spec-breakdown body states it owns plan coverage, dependencies, task boundaries."""
-    source, claude = _spec_breakdown_skill_texts()
+    source, export = _spec_breakdown_skill_texts()
     required_phrases = (
         "spec-breakdown owns",
         "new-task",
@@ -925,12 +916,12 @@ def test_spec_breakdown_states_plan_coverage_ownership_boundary() -> None:
 
     for phrase in required_phrases:
         assert phrase in source, f"spec-breakdown source must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_new_task_states_per_task_shape_ownership_boundary() -> None:
     """AC-1: new-task body states it owns per-task shape and references spec-breakdown for plan-level rules."""
-    source, claude = _new_task_skill_texts()
+    source, export = _new_task_skill_texts()
     required_phrases = (
         "enforces per-task shape",
         "spec-breakdown",
@@ -939,14 +930,14 @@ def test_new_task_states_per_task_shape_ownership_boundary() -> None:
 
     for phrase in required_phrases:
         assert phrase in source, f"new-task source must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_review_states_gate_2_technical_readiness_ownership_boundary() -> (
     None
 ):
     """AC-1: spec-breakdown-review body states it owns Gate 2 technical readiness."""
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "spec-breakdown-review owns",
         "Gate 2 technical readiness",
@@ -956,7 +947,7 @@ def test_spec_breakdown_review_states_gate_2_technical_readiness_ownership_bound
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 # AC-2: EARS references point to task template, not "the new-task skill"
@@ -966,20 +957,20 @@ def test_spec_breakdown_ears_reference_points_to_task_template_not_new_task_skil
     None
 ):
     """AC-2: spec-breakdown EARS reference points to the CLI-created task file, not 'the new-task skill'."""
-    source, claude = _spec_breakdown_skill_texts()
+    source, export = _spec_breakdown_skill_texts()
 
     task_template_phrases = ("task file the CLI created",)
     forbidden_phrase = "documented in the new-task skill"
 
     for phrase in task_template_phrases:
         assert phrase in source, f"spec-breakdown source must include: {phrase!r}"
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
     assert forbidden_phrase not in source, (
         f"spec-breakdown source must not include: {forbidden_phrase!r}"
     )
-    assert forbidden_phrase not in claude, (
-        f"Claude scaffold must not include: {forbidden_phrase!r}"
+    assert forbidden_phrase not in export, (
+        f"Skill export must not include: {forbidden_phrase!r}"
     )
 
 
@@ -987,7 +978,7 @@ def test_spec_breakdown_review_ears_reference_points_to_task_template_not_new_ta
     None
 ):
     """AC-2: spec-breakdown-review EARS reference points to the CLI-created task file, not 'the new-task skill'."""
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
 
     task_template_phrases = ("task file the CLI creates",)
 
@@ -995,7 +986,7 @@ def test_spec_breakdown_review_ears_reference_points_to_task_template_not_new_ta
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 # AC-3: Gate 2 output section states architect role envelope wraps Findings block
@@ -1005,7 +996,7 @@ def test_spec_breakdown_review_output_states_architect_envelope_wraps_findings_b
     None
 ):
     """AC-3: spec-breakdown-review output section states architect role envelope wraps Findings block."""
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "architect",
         "envelope",
@@ -1016,14 +1007,14 @@ def test_spec_breakdown_review_output_states_architect_envelope_wraps_findings_b
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_review_output_does_not_duplicate_result_summary_fields() -> (
     None
 ):
     """AC-3: spec-breakdown-review output section states no duplicated Result/Summary fields."""
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "no duplicated Result",
         "Result/Summary",
@@ -1033,7 +1024,7 @@ def test_spec_breakdown_review_output_does_not_duplicate_result_summary_fields()
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 # AC-4: spec-coverage check appears before dependency and file-conflict checks
@@ -1041,7 +1032,7 @@ def test_spec_breakdown_review_output_does_not_duplicate_result_summary_fields()
 
 def test_spec_breakdown_review_includes_spec_coverage_check() -> None:
     """AC-4: spec-breakdown-review body includes a spec-coverage check (plan covers the whole spec)."""
-    source, claude = _spec_breakdown_review_skill_texts()
+    source, export = _spec_breakdown_review_skill_texts()
     required_phrases = (
         "spec coverage",
         "covers the",
@@ -1051,7 +1042,7 @@ def test_spec_breakdown_review_includes_spec_coverage_check() -> None:
         assert phrase in source, (
             f"spec-breakdown-review source must include: {phrase!r}"
         )
-        assert phrase in claude, f"Claude scaffold must include: {phrase!r}"
+        assert phrase in export, f"Skill export must include: {phrase!r}"
 
 
 def test_spec_breakdown_review_spec_coverage_check_precedes_dependency_and_conflict_checks() -> (

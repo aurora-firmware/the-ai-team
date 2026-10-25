@@ -7,8 +7,8 @@ import pytest
 from tests.source_paths import skill_export_path, skill_source_text
 
 COPIES = {
-    "source": skill_source_text("tdd"),
-    "claude": skill_export_path("tdd").read_text(encoding="utf-8"),
+    "source": lambda: skill_source_text("tdd"),
+    "export": lambda: skill_export_path("tdd").read_text(encoding="utf-8"),
 }
 DESIGN_REVIEW_RECORD = (
     "**Design-review record** — for design-review tasks, the Work Log handoff "
@@ -89,17 +89,17 @@ def test_input_and_quality_sections_distinguish_design_review_tasks():
     )
 
 
-@pytest.mark.parametrize("copy", COPIES.values(), ids=COPIES.keys())
+@pytest.mark.parametrize("copy", COPIES)
 def test_output_format_pins_design_review_record_and_test_task_qualifiers(copy):
-    output = flat(section_of(copy, "## Output Format"))
+    output = flat(section_of(COPIES[copy](), "## Output Format"))
     assert DESIGN_REVIEW_RECORD in output
     assert "**Test files** — for test tasks, one or more" in output
     assert "**Implementation files** — for test tasks, production code" in output
 
 
-@pytest.mark.parametrize("copy", COPIES.values(), ids=COPIES.keys())
+@pytest.mark.parametrize("copy", COPIES)
 def test_quality_criteria_scope_test_bullets_to_test_tasks(copy):
-    quality = section_of(copy, "## Quality Criteria")
+    quality = section_of(COPIES[copy](), "## Quality Criteria")
     bullets = {flat(line) for line in quality.splitlines() if line.startswith("- ")}
     for start in TEST_ONLY_BULLET_STARTS:
         matching = [b for b in bullets if b.startswith(start)]

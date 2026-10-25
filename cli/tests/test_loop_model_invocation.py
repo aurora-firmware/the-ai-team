@@ -16,10 +16,6 @@ LOOP_SENTENCES = {
 FLAG = "disable-model-invocation"
 
 
-def _source_header(skill: str) -> str:
-    return skill_frontmatter(skill)
-
-
 def _scaffold_header(skill: str) -> str:
     text = skill_export_path(skill).read_text(encoding="utf-8")
     return text.split("\n---\n", 1)[0]
@@ -33,7 +29,7 @@ def _description(header: str) -> str:
 
 def test_loop_headers_do_not_disable_model_invocation_in_sources() -> None:
     for skill in LOOP_SENTENCES:
-        assert FLAG not in _source_header(skill), f"{skill} source carries {FLAG}"
+        assert FLAG not in skill_frontmatter(skill), f"{skill} source carries {FLAG}"
 
 
 def test_loop_headers_do_not_disable_model_invocation_in_scaffolds() -> None:
@@ -43,12 +39,12 @@ def test_loop_headers_do_not_disable_model_invocation_in_scaffolds() -> None:
 
 def test_loop_descriptions_end_with_explicit_human_request_sentence() -> None:
     for skill, sentence in LOOP_SENTENCES.items():
-        for header in (_source_header(skill), _scaffold_header(skill)):
+        for header in (skill_frontmatter(skill), _scaffold_header(skill)):
             assert _description(header).endswith(sentence), skill
 
 
 def test_bug_loop_description_no_longer_invites_auto_selection() -> None:
-    for header in (_source_header("bug-loop"), _scaffold_header("bug-loop")):
+    for header in (skill_frontmatter("bug-loop"), _scaffold_header("bug-loop")):
         assert "Use this whenever there are open bugs to fix" not in header
 
 
@@ -79,4 +75,4 @@ def test_using_ai_team_rule_and_status_report_flag_unchanged() -> None:
         "`dev-loop` and `bug-loop` start only when the human invokes them. "
         "Never start either on your own."
     ) in body
-    assert f"{FLAG}: true" in _source_header("status-report")
+    assert f"{FLAG}: true" in skill_frontmatter("status-report")

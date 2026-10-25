@@ -360,19 +360,19 @@ def test_init_still_skips_other_skeleton_collisions_when_guidelines_exist(tmp_pa
     target = tmp_path / "repo"
     target.mkdir()
     guidelines = _write_existing_guidelines(target)
-    claude_md = target / "ai-team" / "AGENTS.md"
-    claude_md.write_text("occupied\n", encoding="utf-8")
+    agents_md = target / "ai-team" / "AGENTS.md"
+    agents_md.write_text("occupied\n", encoding="utf-8")
     args = ["init", str(target), "--no-interactive"]
 
     skipped = CliRunner().invoke(app, args)
-    assert claude_md.read_text(encoding="utf-8") == "occupied\n"
+    assert agents_md.read_text(encoding="utf-8") == "occupied\n"
     forced = CliRunner().invoke(app, [*args, "--force"])
 
     assert skipped.exit_code == 0
-    assert str(claude_md) in skipped.stderr
+    assert str(agents_md) in skipped.stderr
     assert str(guidelines) not in skipped.output
     assert forced.exit_code == 0
-    assert claude_md.read_text(encoding="utf-8") != "occupied\n"
+    assert agents_md.read_text(encoding="utf-8") != "occupied\n"
     assert guidelines.read_text(encoding="utf-8") == "project rules\n"
 
 
@@ -497,8 +497,8 @@ def test_force_flag_overwrites_existing_root_guidance_files(tmp_path):
 
     target = tmp_path / "repo"
     target.mkdir()
-    existing_claude = target / "AGENTS.md"
-    existing_claude.write_text("old content\n", encoding="utf-8")
+    existing_agents_md = target / "AGENTS.md"
+    existing_agents_md.write_text("old content\n", encoding="utf-8")
 
     result = CliRunner().invoke(
         app,
@@ -512,7 +512,7 @@ def test_force_flag_overwrites_existing_root_guidance_files(tmp_path):
     )
 
     assert result.exit_code == 0
-    assert existing_claude.read_text(encoding="utf-8") != "old content\n"
+    assert existing_agents_md.read_text(encoding="utf-8") != "old content\n"
 
 
 def test_init_scaffolds_project_gitignore_ignoring_the_lock_sentinel(tmp_path):
@@ -606,8 +606,7 @@ def test_init_configures_tracker_and_ignores_it_idempotently(tmp_path):
 def _repo_with_custom_root_guidance(tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
-    for name in ("AGENTS.md",):
-        (target / name).write_text("custom\n", encoding="utf-8")
+    (target / "AGENTS.md").write_text("custom\n", encoding="utf-8")
     return target
 
 
@@ -744,8 +743,7 @@ def _would_lines(output, verb):
 def _initialised_repo_with_custom_root_guidance(tmp_path):
     target = tmp_path / "repo"
     _init(target, "--no-interactive", "--create-root-guidance")
-    for name in ("AGENTS.md",):
-        (target / name).write_text("custom\n", encoding="utf-8")
+    (target / "AGENTS.md").write_text("custom\n", encoding="utf-8")
     return target
 
 
@@ -833,8 +831,7 @@ def test_dry_run_non_interactive_force_create_root_guidance_distinguishes_new_fi
 def test_dry_run_without_force_names_no_existing_root_file_in_either_mode(tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
-    for name in ("AGENTS.md",):
-        (target / name).write_text("custom\n", encoding="utf-8")
+    (target / "AGENTS.md").write_text("custom\n", encoding="utf-8")
 
     interactive = _init(target, "--dry-run")
     non_interactive = _init(target, "--no-interactive", "--dry-run")

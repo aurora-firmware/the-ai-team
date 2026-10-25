@@ -8,7 +8,11 @@ import pytest
 
 from tests.source_paths import agent_source_path
 
-PLANNER_SOURCES = [pytest.param(agent_source_path("planner"), id="claude")]
+
+@pytest.fixture
+def path() -> Path:
+    return agent_source_path("planner")
+
 
 NON_PLANNER_ROLES = ["developer", "reviewer", "integrator"]
 DEVELOPER_BOOTSTRAP_EXCEPTION = "a task whose source spec is S-000"
@@ -22,7 +26,6 @@ def _flat(path: Path) -> str:
     return " ".join(_text(path).split())
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_reads_approved_s000_at_session_start_before_other_specs(path):
     text = _flat(path)
 
@@ -31,7 +34,6 @@ def test_planner_reads_approved_s000_at_session_start_before_other_specs(path):
     assert "before other specs" in text
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_lists_the_new_system_overview_skill(path):
     assert "`new-system-overview`" in _text(path)
 
@@ -46,7 +48,6 @@ def test_claude_planner_frontmatter_skills_include_new_system_overview():
     assert "new-system-overview" in frontmatter_skills.split()
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_proposes_s000_first_for_a_project_with_no_specs(path):
     text = _flat(path)
 
@@ -54,12 +55,10 @@ def test_planner_proposes_s000_first_for_a_project_with_no_specs(path):
     assert "proposes writing S-000 first" in text
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_does_not_require_s000_when_specs_exist(path):
     assert "S-000 stays optional when specs exist" in _flat(path)
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_quality_bar_holds_s000_to_gate_1_criteria_replacing_task_derivation(
     path,
 ):
@@ -82,7 +81,6 @@ def test_non_planner_roles_do_not_mention_s000(role):
     assert "S-000" not in text
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_states_the_three_steps_after_s000_gate_1(path):
     text = _flat(path)
 
@@ -93,7 +91,6 @@ def test_planner_states_the_three_steps_after_s000_gate_1(path):
     assert "brownfield" in text
 
 
-@pytest.mark.parametrize("path", PLANNER_SOURCES)
 def test_planner_states_s000_merges_after_gate_1_as_exception_to_gate_2(path):
     text = _flat(path)
 
