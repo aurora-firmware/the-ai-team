@@ -197,11 +197,12 @@ def test_inline_verification_command_is_valid(monkeypatch, tmp_path):
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
-def test_invalid_status_cannot_skip_feature_content_validation(monkeypatch, tmp_path):
-    _write_spec(tmp_path, feature_spec_body(), status="ready")
+@pytest.mark.parametrize("spec_id", ["S-001", "S-000"])
+def test_invalid_status_is_reported_once_for_every_spec(monkeypatch, tmp_path, spec_id):
+    _write_spec(tmp_path, feature_spec_body(), status="ready", spec_id=spec_id)
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
-    assert "spec-status-invalid" in {f["code"] for f in findings}
+    assert [f["code"] for f in findings] == ["status-invalid"]
 
 
 def test_duplicate_sections_are_rejected(monkeypatch, tmp_path):
@@ -227,12 +228,13 @@ def test_subsection_heading_alone_does_not_fill_a_required_section(
     )
 
 
+@pytest.mark.parametrize("disposition", ["It should be fast.", "None", "None."])
 def test_quality_disposition_must_use_requirements_or_explicit_non_applicability(
-    monkeypatch, tmp_path
+    monkeypatch, tmp_path, disposition
 ):
     body = feature_spec_body().replace(
         "## Quality Requirements\n\nNone — not applicable to this feature.",
-        "## Quality Requirements\n\nIt should be fast.",
+        f"## Quality Requirements\n\n{disposition}",
     )
     _write_spec(tmp_path, body)
     exit_code, findings = _validate(monkeypatch, tmp_path)
@@ -268,6 +270,9 @@ def test_todo_domain_language_is_not_an_unresolved_placeholder(
         "  TODO: define behavior",
         "1. TBD",
         "- [ ] TODO: define behavior",
+        "- Export formats\n    - [TODO] agree on formats",
+        "- Export formats\n\n    [TODO] agree on formats",
+        "- Export formats\n\t- TBD",
     ],
 )
 def test_explicit_unresolved_markers_still_block_review(monkeypatch, tmp_path, marker):
@@ -314,3 +319,26 @@ def test_acceptance_in_the_document_preamble_is_not_skipped(monkeypatch, tmp_pat
     assert exit_code == 1
     codes = {f["code"] for f in findings}
     assert {"spec-acceptance-orphan", "spec-acceptance-duplicate"} <= codes
+
+
+def test_indented_code_block_is_not_prose(monkeypatch, tmp_path):
+    body = feature_spec_body().replace(
+        "Prevent disclosure of workspace records.",
+        "Prevent disclosure of workspace records.\n\n    ### REQ-009 — Literal\n    [TODO]",
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ("REQ-001 — Deny unauthorized exports", "REQ-001 — Requirement title"),
+        ("AC-001.1 — Access denied", "AC-001.1 — Scenario title"),
+    ],
+)
+def test_template_heading_titles_are_placeholders(monkeypatch, tmp_path, old, new):
+    _write_spec(tmp_path, feature_spec_body().replace(old, new))
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    assert "spec-placeholder" in {f["code"] for f in findings}

@@ -21,10 +21,15 @@ FEATURE_SECTIONS = (
     "Open Questions",
     "Amendment Log",
 )
+SPEC_STATUSES = ("draft", "review", "approved", "superseded")
 Issue = tuple[str, str]
 REQ_HEADING = re.compile(r"REQ-(\d{3}) — \S.*")
 AC_HEADING = re.compile(r"AC-(\d{3})\.([1-9]\d*) — \S.*")
 VERIFICATION = re.compile(r"^\*\*Verification:\*\*[ \t]*(\S[^\n]*)$", re.M)
+LIST_ITEM = re.compile(r"^ {0,3}(?:[-+*]|\d+[.)])[ \t]")
+TEMPLATE_TITLE = re.compile(
+    r"^ {0,3}#{3,4} (?:REQ|AC)-[\d.]+ — (?:Requirement|Scenario) title[ \t]*$", re.M
+)
 
 
 def _prose(text: str) -> str:
@@ -33,6 +38,8 @@ def _prose(text: str) -> str:
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
     lines = []
     fence = ""
+    indented_code = in_list = False
+    previous_blank = True
     for line in text.splitlines():
         marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
         if fence:
@@ -44,10 +51,23 @@ def _prose(text: str) -> str:
             ):
                 fence = ""
             continue
+        blank = not line.strip()
         if marker:
             fence = marker[1]
-        elif not line.startswith(("    ", "\t")):
+        elif line.startswith(("    ", "\t")) and (
+            indented_code or (previous_blank and not in_list)
+        ):
+            # Indented code, unless the indentation continues a list item.
+            indented_code = True
+        else:
+            if not blank:
+                indented_code = False
+                if not line.startswith((" ", "\t")):
+                    in_list = bool(LIST_ITEM.match(line)) or (
+                        in_list and not previous_blank
+                    )
             lines.append(line)
+        previous_blank = blank
     return "\n".join(lines)
 
 
@@ -181,7 +201,7 @@ def _requirement_issues(sections: list[tuple[str, str]]) -> list[Issue]:
             section == "Quality Requirements"
             and not blocks
             and text
-            and not re.match(r"None\b", text, re.I)
+            and not re.match(r"None\b\W*\w", text, re.I)
         ):
             issues.append(
                 (
@@ -227,13 +247,6 @@ def _requirement_issues(sections: list[tuple[str, str]]) -> list[Issue]:
 
 def validate_feature_content(text: str, *, status: str) -> list[Issue]:
     """Return structural findings without rewriting the artifact."""
-    if status not in ("draft", "review", "approved", "superseded"):
-        return [
-            (
-                "spec-status-invalid",
-                f"Invalid feature-spec status '{status}'; use draft, review, approved, or superseded.",
-            )
-        ]
     if status not in ("review", "approved"):
         return []
     prose = _prose(text)
@@ -249,11 +262,11 @@ def validate_feature_content(text: str, *, status: str) -> list[Issue]:
         r"(?:TODO|TBD|TBR)(?:[ \t]*:|[ \t]*$)",
         placeholder_text,
         re.I | re.M,
-    ):
+    ) or TEMPLATE_TITLE.search(prose):
         issues.append(
             (
                 "spec-placeholder",
-                "Resolve TODO/TBD/TBR and clarification placeholders before review or approval.",
+                "Resolve TODO/TBD/TBR, clarification, and template-title placeholders before review or approval.",
             )
         )
     return issues
