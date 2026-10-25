@@ -122,11 +122,40 @@ def test_s000_section_requires_decisions_needed_and_asks_without_answering() -> 
     assert "asks technology questions and never answers them" in section
 
 
-def test_s000_section_states_users_scope_and_flat_list_validity() -> None:
+def test_s000_section_states_users_scope() -> None:
     section = _s000_section().lower()
     assert "users names the users of the solution" in section
-    assert "single flat components list" in section
-    assert "stays valid" in section
+
+
+FLAT_LIST_SOURCES = [
+    GUIDE_PATH,
+    REPO_ROOT / "cli" / "src" / "ai_team" / "templates" / "system-overview.md",
+    REPO_ROOT
+    / "cli"
+    / "src"
+    / "ai_team"
+    / "init"
+    / "sources"
+    / "skills"
+    / "new-system-overview"
+    / "SKILL.md",
+    REPO_ROOT
+    / "cli"
+    / "src"
+    / "ai_team"
+    / "init"
+    / "sources"
+    / "skills"
+    / "architecture-consistency-review"
+    / "SKILL.md",
+]
+
+
+def test_no_source_keeps_a_flat_component_list_valid() -> None:
+    """S-007 0.3: an S-000 without the component groups is not grandfathered."""
+    for path in FLAT_LIST_SOURCES:
+        text = " ".join(path.read_text(encoding="utf-8").lower().split())
+        assert "stays valid" not in text, f"{path} still grandfathers a flat list"
 
 
 def test_template_keeps_seven_sections_and_groups_components() -> None:
