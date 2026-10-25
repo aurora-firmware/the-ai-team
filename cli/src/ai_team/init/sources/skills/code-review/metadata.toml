@@ -5,11 +5,3 @@ description: Two-stage code review for completed tasks and bug fixes. Use when a
 allowed-tools: Read, Edit, Grep, Glob, Bash, Skill(new-bug)
 effort: high
 ---"""
-
-[codex]
-header = """---
-name: code-review
-description: Two-stage code review for completed tasks and bug fixes. Use when a Developer submits work and the Reviewer must check task acceptance or bug diagnosis criteria before reviewing code quality.
-allowed-tools: Read, Edit, Grep, Glob, Bash, Skill(new-bug)
-effort: high
----"""

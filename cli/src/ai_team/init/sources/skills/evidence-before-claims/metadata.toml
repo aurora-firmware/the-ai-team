@@ -4,10 +4,3 @@ name: evidence-before-claims
 description: Requires a fresh command and its actual output before any claim that work is complete, passing, fixed, merged, or reviewed. Use before reporting a result, writing an Evidence entry, or recording a gate verdict.
 allowed-tools: Read, Bash
 ---"""
-
-[codex]
-header = """---
-name: evidence-before-claims
-description: Requires a fresh command and its actual output before any claim that work is complete, passing, fixed, merged, or reviewed. Use before reporting a result, writing an Evidence entry, or recording a gate verdict.
-allowed-tools: Read, Bash
----"""

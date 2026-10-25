@@ -14,20 +14,13 @@ def test_claude_exports_agents_and_skills_under_dot_claude() -> None:
     )
 
 
-def test_codex_exports_skills_to_agents_skills_and_agents_to_dot_codex() -> None:
-    assert TOOL_EXPORT_PATHS["codex"] == (
-        ("agents", ".codex/agents"),
-        ("skills", ".agents/skills"),
-    )
-
-
-def test_framework_skill_names_match_packaged_codex_skill_folders() -> None:
+def test_framework_skill_names_match_packaged_claude_skill_folders() -> None:
     skills_root = (
         resources.files("ai_team.init")
         .joinpath("scaffolds")
-        .joinpath("codex", "skills")
+        .joinpath("claude", "skills")
     )
     packaged = sorted(entry.name for entry in skills_root.iterdir() if entry.is_dir())
 
     assert packaged
-    assert framework_skill_names("codex") == packaged
+    assert framework_skill_names("claude") == packaged
