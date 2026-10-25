@@ -113,7 +113,7 @@ Merge enabled / blocked by check status
 Do not paste a real configuration file. The Developer writes the file against the project's conventions; this section tells them what the file must guarantee.
 
 **Strong:**
-> - **Test command.** Must be discoverable from the project's `CLAUDE.md` or `ai-team/docs/coding_guidelines.md`. The CI runner must read it from there, not hard-code it. If not found, the runner must fail with an actionable error rather than guessing.
+> - **Test command.** Must be discoverable from the project's `AGENTS.md` or `ai-team/docs/coding_guidelines.md`. The CI runner must read it from there, not hard-code it. If not found, the runner must fail with an actionable error rather than guessing.
 
 **Weak:** a 20-line `ci.yml` snippet.
 
@@ -216,7 +216,7 @@ PR opened or updated → CI runner triggers → results posted as PR check →
 ★ Reviewer approves → merge enabled iff check passes.
 
 ## Configuration Requirements
-- **Test command.** Must be discoverable from `CLAUDE.md` or `ai-team/docs/coding_guidelines.md`.
+- **Test command.** Must be discoverable from `AGENTS.md` or `ai-team/docs/coding_guidelines.md`.
   If not found, the runner must fail with an actionable error.
 - **Trigger event filter.** Must be configurable to PR-opened, PR-updated, and rerun-on-request.
 - **Network policy.** During validation, network access must be limited to the project's dependency mirror.
