@@ -1,6 +1,6 @@
 ---
 title: Coordinated Process and CLI Workflow Improvements
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-28'
 author: planner
@@ -245,7 +245,7 @@ Tests fail or command is missing/ambiguous -> escalate to human
 |---|---|---|
 | 1 | Update process and skill guidance so spec breakdown plans docs/tests work and Gate 2 review remains technical. | Nothing |
 | 2 | Add the change-request artifact contract, CLI support, and process references at a high level. | Phase 1 |
-| 3 | Add stable guidance-file templates and init behavior for project and root `CLAUDE.md` / `AGENTS.md`. | Phase 1 |
+| 3 | Add stable guidance-file templates and init behavior for project and root `AGENTS.md`. | Phase 1 |
 | 4 | Update dev-loop to use CLI task listing and enforce baseline test discovery/pass before starting. | Phases 1 and 3 |
 | 5 | Update CLI docs, setup/customization guides, generated scaffolds, and tests for all new behavior. | Phases 2-4 |
 
@@ -257,3 +257,4 @@ Tests fail or command is missing/ambiguous -> escalate to human
 | 2026-10-20 | Component 1: each task's verification mode is chosen during breakdown (test, or a design review whose Verification section lists the source spec, accepted ADRs and S-000 when it exists); each task regenerates the scaffolds and docs its change affects and lists `cli/docs/commands.md` when it changes a command's arguments, options or help; Verification lines run from the repository root in a fresh shell, one line at a time. Component 3: Gate 2 accepts a named design review for a prose-only task. Driven by CR-003 (report #8, #10, #12) and its Architecture Consistency Review findings F2 and F6. | A documentation-only task had no TDD path, so the Developer added an undeclared test that broke CI; a Verification block failed when run as one script; command-option tasks omitted `commands.md` and a final regeneration task found nothing to do; Gate 2 required a test or command for every task. | None in flight |
 | 2026-10-22 | The init guidance files are `ai-team/CLAUDE.md` and `ai-team/AGENTS.md`, not `project/…`; the `dev-loop` queue uses `ai-team list tasks --state <state>`, not `--filter state`. Version bumped to 0.2 under the spec authoring guide's amendment rule. | The default project folder was renamed from `project` to `ai-team` on 2026-10-16, and `ai-team list` filters by state with `--state`. | None in flight |
 | 2026-10-25 | The init guidance file is `AGENTS.md` only, in the project directory and at the root; `CLAUDE.md` is no longer generated. Driven by CR-007 and ADR-003. | Codex support was dropped and current Claude Code reads `AGENTS.md`. | None in flight |
+| 2026-10-25 | Implementation Order phase 3 names `AGENTS.md` only. Wording only. Driven by the CR-007 spec-truth reconciliation (D1). | The CR-007 amendment missed this line; the merged init generates only `AGENTS.md`. | None in flight |

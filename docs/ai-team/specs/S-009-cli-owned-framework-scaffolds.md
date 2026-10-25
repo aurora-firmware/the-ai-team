@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.6'
+version: '0.7'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -281,7 +281,7 @@ Run the scaffold generator
   ↓
 Generated scaffolds update under cli/src/ai_team/init/scaffolds/
   ↓
-Run the tests (scaffolds match a fresh generation; shared bodies; init behaviour)
+Run the tests (scaffolds match a fresh generation; supporting folders reach the export; init behaviour)
   ↓
 Commit the source change, the generated output, and test/doc updates together
 ```
@@ -355,7 +355,7 @@ amendment adds:
 
 | Phase | What | Depends On |
 |---|---|---|
-| 1 | The generator copies skill supporting folders into both exports, with a fixture-skill test. | Nothing |
+| 1 | The generator copies skill supporting folders into the export, with a fixture-skill test. | Nothing |
 | 2 | `init` copies non-UTF-8 scaffold files byte for byte, with a test. | Nothing |
 | 3 | `guides/skill_template.md` states the export and placeholder rules. | Phases 1-2 |
 
@@ -389,3 +389,4 @@ The CR-007 amendment adds:
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 sixth re-run: N11 resolved (usage.md:235 and setup-guide.md:78 now state that only an adoption lists kept files, excluding root guidance and coding_guidelines.md, 3fb64634); Init Command Contract matches init.py, usage.md, commands.md, setup-guide.md and customization-guide.md | none |
 | 2026-10-25 | Init Command Contract: the upgrade case needs a `.ai-team.toml` that records `[init] tools`; a hand-written marker without it is a first run (new project or adoption) that keeps its settings; an upgrade question that covers no files is not asked. Driven by the PR #49 review. | A preset marker made the first init an upgrade that never recorded `framework_version`, and `--update-skills` stamped the version without updating any file. | None in flight |
 | 2026-10-25 | Claude is the only export target: no `--tools` option or `[init] tools` key, and project-state detection keys off `[init] framework_version`; each skill is one source `SKILL.md` copied as is (no `body.md` + `metadata.toml` merge); sources and scaffolds lose the per-tool folder level (`sources/agents/*.md`, `scaffolds/{project,agents,skills}/`); the project and root guidance template is `AGENTS.md` only; the legacy Codex removal and newly-added-tool upgrade rules are dropped, with no Codex compatibility. Driven by CR-007 and ADR-003. | The human dropped Codex support and asked to simplify the two-tool design. | None in flight |
+| 2026-10-25 | Maintainer Asset Flow and the CR-003 Implementation Order no longer name shared bodies or two exports. Wording only. Driven by the CR-007 spec-truth reconciliation (D2). | Two-tool leftovers the CR-007 amendment missed; the generator copies each `SKILL.md` into one export. | None in flight |
