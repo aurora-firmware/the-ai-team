@@ -183,3 +183,24 @@ def test_system_overview_template_points_at_nothing_outside_the_project() -> Non
 
     assert "Spec Authoring Guide" not in content
     assert "Boundary rule" in content
+
+
+DELIVERED_TREES = (
+    REPO_ROOT / "cli/src/ai_team/templates",
+    REPO_ROOT / "cli/src/ai_team/init/sources",
+    REPO_ROOT / "cli/src/ai_team/init/scaffolds",
+)
+UNDELIVERED_REFERENCES = ("Spec Authoring Guide", "guides/", "ai-process/")
+
+
+def test_delivered_files_do_not_refer_to_documents_init_never_delivers() -> None:
+    offenders = [
+        f"{path.relative_to(REPO_ROOT)}: {reference}"
+        for tree in DELIVERED_TREES
+        for path in sorted(tree.rglob("*"))
+        if path.is_file()
+        for reference in UNDELIVERED_REFERENCES
+        if reference in path.read_text(encoding="utf-8", errors="ignore")
+    ]
+
+    assert offenders == []
