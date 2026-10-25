@@ -377,7 +377,9 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
             _write_all(plan, request.settings)
 
     is_skills_updated = answers[1]
-    if is_skills_updated and "codex" in configured_tools:
+    # Dropping codex, or adding it in this run, never removes legacy folders.
+    is_codex_kept = "codex" in configured_tools and "codex" in request.tools
+    if is_skills_updated and is_codex_kept:
         _remove_legacy_codex_skills(request.target_root, request.dry_run)
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))

@@ -404,6 +404,71 @@ def test_dry_run_reports_legacy_removal_without_removing(tmp_path):
     assert legacy.is_dir()
 
 
+# T-161: legacy removal needs codex selected and already configured
+
+
+def test_dropping_codex_with_update_skills_keeps_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="claude,codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude", "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+    assert "REMOVED: " not in result.output
+
+
+def test_dropping_codex_with_force_keeps_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="claude,codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude", "--force", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+
+
+def test_dry_run_dropping_codex_reports_no_legacy_removal(tmp_path):
+    target = _new_project(tmp_path, tools="claude,codex")
+    _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude", "--dry-run", "--update-skills")
+
+    assert result.exit_code == 0, result.output
+    assert "WOULD REMOVE: " not in result.output
+
+
+def test_newly_adding_codex_with_force_keeps_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude,codex", "--force", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+
+
+def test_newly_adding_codex_with_update_skills_keeps_legacy_skills(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert legacy.is_dir()
+
+
+def test_keeping_codex_alongside_claude_removes_legacy_skills_on_update(tmp_path):
+    target = _new_project(tmp_path, tools="claude,codex")
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert not legacy.exists()
+    assert f"REMOVED: {legacy}" in result.output
+
+
 # T-149
 
 STALE_WARNING_MARKER = "neither updated nor removed"
