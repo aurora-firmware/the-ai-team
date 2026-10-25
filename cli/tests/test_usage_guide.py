@@ -540,3 +540,22 @@ def test_usage_guide_names_update_skills_in_mismatch_legacy_and_refresh_passages
     assert "ai-team init . --tools <tools> --update-skills" in content
     assert "ai-team init --force`" not in content.split("### Expected layout")[0]
     assert "<tools> --force" not in content
+
+
+def test_usage_md_describes_root_guidance_as_an_adoption_trigger():
+    content = _content()
+    adoption_row = next(
+        line for line in content.splitlines() if line.startswith("| Adoption |")
+    )
+    assert "CLAUDE.md" in adoption_row
+    assert "AGENTS.md" in adoption_row
+
+
+def test_usage_md_states_no_interactive_needs_tools_only_without_marker_tools():
+    content = _content()
+    flag_row = next(
+        line for line in content.splitlines() if line.startswith("| `--no-interactive`")
+    )
+    assert "Requires `--tools` to be provided explicitly" not in flag_row
+    assert "`.ai-team.toml`" in flag_row
+    assert "`--tools`" in flag_row

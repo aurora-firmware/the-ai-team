@@ -174,3 +174,39 @@ def test_reports_kept_files_with_the_same_message_when_no_interactive(tmp_path):
     assert KEPT_MESSAGE in result.stderr
     assert "--force" not in result.stderr
     assert str(existing[0]) in result.stderr
+
+
+def test_dry_run_reports_adoption_when_only_root_guidance_exists(tmp_path):
+    for filename in ("CLAUDE.md", "AGENTS.md"):
+        root_guidance = tmp_path / filename
+        root_guidance.write_text(OCCUPIED, encoding="utf-8")
+
+        result = _init([*_base_args(tmp_path), "--dry-run", "--no-interactive"])
+
+        assert result.exit_code == 0
+        assert "CASE: adoption" in result.output.splitlines()
+        assert "CASE: new project" not in result.output.splitlines()
+        root_guidance.unlink()
+
+
+def test_root_guidance_alone_does_not_trigger_the_overwrite_question(tmp_path):
+    (root_claude,) = _occupy(tmp_path, "CLAUDE.md")
+
+    result = _init(_base_args(tmp_path), input_text="n\nn\n")
+
+    assert result.exit_code == 0
+    assert "Overwrite these existing files?" not in result.output
+    assert root_claude.read_text(encoding="utf-8") == OCCUPIED
+    assert (tmp_path / "ai-team" / "specs" / ".gitkeep").exists()
+
+
+def test_dry_run_handles_existing_root_guidance_through_its_own_table(tmp_path):
+    (root_claude,) = _occupy(tmp_path, "CLAUDE.md")
+
+    result = _init([*_base_args(tmp_path), "--dry-run"])
+    forced = _init([*_base_args(tmp_path), "--dry-run", "--force"])
+
+    assert "CASE: adoption" in result.output.splitlines()
+    assert str(root_claude) not in result.output
+    assert "Overwrite these existing files?" not in result.output
+    assert f"WOULD PROMPT: {root_claude}" in forced.output

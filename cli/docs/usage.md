@@ -108,7 +108,7 @@ does not depend on any flag.
 |---|---|---|
 | Upgrade | `.ai-team.toml` exists in the repository root. | Keeps every configured setting and asks two questions (below). Nothing is overwritten without a yes. |
 | New project | There is no `.ai-team.toml` and none of the files `init` would write exists. | Writes the scaffold, the tracker folder and `.ai-team.toml`. No overwrite question is asked. |
-| Adoption | There is no `.ai-team.toml`, but some of the agent, skill or project files `init` would write already exist. | Lists the existing files and asks once: `Overwrite these existing files?` |
+| Adoption | There is no `.ai-team.toml`, but some files `init` would write already exist: agent, skill or project files, or a root `CLAUDE.md` or `AGENTS.md`. | Lists the existing agent, skill and project files and asks once: `Overwrite these existing files?` Root `CLAUDE.md` and `AGENTS.md` are not part of that question; they follow the table under [Root guidance files](#root-guidance-files). |
 
 **Upgrade questions.** An upgrade asks, in order:
 
@@ -147,7 +147,7 @@ Warning: these skills or agents are not shipped by this version of ai-team; they
 | `--update-skills` | On an upgrade, update the agents and skills without asking. |
 | `--project-dir TEXT` | Artifact folder, at any depth (e.g. `docs/ai-team`). Defaults to the configured `[project] dir`, else `ai-team`. Must be relative and contain no `..`. |
 | `--integration-branch TEXT` | Branch that task, bug, and planning work integrates into. Defaults to the configured `[git] integration_branch`, else `dev-agent`. |
-| `--no-interactive` | Skip all prompts. Requires `--tools` to be provided explicitly. |
+| `--no-interactive` | Skip all prompts. Requires `--tools` unless `.ai-team.toml` already names the tools, as on an upgrade. |
 | `--create-root-guidance` | Create root `CLAUDE.md` and `AGENTS.md` from starter templates without prompting, in interactive and non-interactive mode. Existing files are replaced only together with `--force`. Defaults to false. |
 
 ### What gets scaffolded
