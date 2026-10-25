@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -33,6 +33,7 @@ creates.
 |---|---|---|---|---|
 | Development and bug loops (agents) | Claim, log, review and complete work items without lifecycle commits or branch switches | P1 | Every state change is an `ai-team` command; Work Logs and verdicts are appended to the tracker file from any branch | REQ-003, REQ-004, REQ-007, REQ-008, REQ-013 |
 | Planner | Create a task plan that the development loop cannot pick up before Gate 2 | P1 | Planned tasks stay out of the `pending` queue until set to `pending` | REQ-005, REQ-014 |
+| Planner taking a small change | Record it as a change-request instead of a full spec | P1 | `ai-team change-request new` creates a pending change-request in the tracker from the bundled template | REQ-015 |
 | Developer or Reviewer in a separate worktree | See the same work items as the loop in the main checkout | P1 | Every worktree resolves the same tracker folder | REQ-001, REQ-002 |
 | Human setting up a project | Get a working tracker with no manual configuration | P1 | `ai-team init` configures, creates and git-ignores the tracker | REQ-009 |
 | Human or agent with an existing project | Move legacy work items into the tracker | P2 | Commands warn until migration is done, and a documented procedure guides it | REQ-011, REQ-012 |
@@ -124,7 +125,12 @@ creates.
 - A command that cannot find an ID reports the tracker folder it searched and exits
   non-zero.
 
-**Exposed — legacy warning (REQ-011).** Written to stderr by tracker commands:
+**Exposed — `ai-team change-request new <title>` (REQ-015).** Creates
+`<tracker>/change-requests/CR-NNN-<slug>.md` from the bundled change-request template
+with status `pending` and today's date, prints the absolute path (or, with `--json`,
+the `id` and `path`), and refuses to overwrite an existing file.
+
+**Exposed — legacy warning (REQ-011). Written to stderr by tracker commands:
 `Warning: legacy work-item folders still hold files: <folders>. …`, naming the folders
 and the migration procedure.
 
@@ -499,6 +505,36 @@ form of a spec reference.
 `test_list_spec_filter_matches_every_form_of_a_spec_reference` in
 `cli/tests/test_tracker.py`.
 
+### REQ-015 — Creating a change-request
+
+`ai-team change-request new <title>` SHALL create a change-request in the tracker's
+`change-requests/` folder from the bundled change-request template, with the next
+`CR-NNN` ID, the given title, status `pending` and today's date, and SHALL refuse to
+overwrite an existing file.
+
+#### AC-015.1 — Creation
+
+- **Given:** a project with no change-requests
+- **When:** `ai-team change-request new "Add dark mode"` runs
+- **Then:** `CR-001-add-dark-mode.md` exists in the tracker with title `Add dark mode`,
+  status `pending` and today's date, and its absolute path is printed
+
+**Verification:** Tests: `test_change_request_new_creates_file_and_prints_absolute_path`
+and `test_change_request_new_writes_metadata_into_frontmatter` in
+`cli/tests/test_change_request_new.py`.
+
+#### AC-015.2 — JSON output and no overwrite
+
+- **Given:** a project, and one where the target file already exists
+- **When:** `change-request new --json` runs in the first, and `change-request new` in
+  the second
+- **Then:** the first prints only the `id` and `path`; the second fails and leaves
+  the file unchanged
+
+**Verification:** Tests: `test_change_request_new_json_flag_emits_id_and_path_without_table`
+and `test_change_request_new_refuses_to_overwrite_existing_path` in
+`cli/tests/test_change_request_new.py`.
+
 ## Quality Requirements
 
 None. The tracker is a local, single-user folder of Markdown files: no security,
@@ -545,7 +581,7 @@ writes was agreed.
 6. While a legacy `tasks/`, `bugs/`, `change-requests/`, or `archive/` folder in the project directory still holds a markdown file, every tracker command prints a warning to stderr naming the folder and the migration procedure; once the folders are empty or gone, no warning is printed (REQ-011).
 7. Following the migration procedure on this repository moves every task, bug, and change-request out of `docs/ai-team/` into the tracker with contents unchanged except `status` corrected from the folder where the two disagreed, and `ai-team validate` reports no findings afterwards (REQ-012).
 8. In the generated skills, no step commits a task, bug, or change-request file, and no step switches branches to record lifecycle state (REQ-013).
-9. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-014).
+9. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-015).
 
 ## Implementation Order
 
@@ -565,3 +601,4 @@ None.
 - **2026-10-22 (consistency review):** the "Skills never touch tracker paths directly" principle now allows loop scratch files that are not work items: review packages under `<tracker>/review-packages/` (written by `dev-loop` and `bug-loop`), located with `ai-team tracker path`; the System Diagram shows the folder. Version bumped to 0.2 under the spec authoring guide's amendment rule. Driven by the loops already writing `<tracker-path>/review-packages/<id>.md`, which the principle forbade.
 - **2026-10-25 (CR-007):** the "Skills never touch tracker paths directly" principle drops the Codex sandbox sentence; every agent lists `Bash` in its `tools:`. Version bumped to 0.3. Driven by CR-007 and ADR-003: Claude is the only export target.
 - **2026-10-25 (format restructure):** restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (tracker layout, allowed statuses, commands, legacy warning), Behavioral Requirements REQ-001–REQ-014 with acceptance scenarios, Quality Requirements, Assumptions and Dependencies and Open Questions; renamed Measurable Success Criteria to Success Criteria and linked each to its requirements; the Components section became requirements; the migration-command exclusion is stated explicitly. Format restructure only, no scope change, so the version is unchanged.
+- **2026-10-26 (S-002 superseded):** added REQ-015, creating a change-request with `ai-team change-request new`, moved from the superseded S-002, which introduced the change-request artifact; the command already behaves this way. Version bumped to 0.4.
