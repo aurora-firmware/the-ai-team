@@ -151,6 +151,14 @@ def test_resolve_layout_reports_marker_faults_and_uses_safe_conventions(
     assert any(expected_problem in finding.problem.lower() for finding in findings)
 
 
+def test_missing_marker_finding_does_not_mention_tool_settings(tmp_path: Path) -> None:
+    _, findings = resolve_layout(tmp_path, current_version="1.2.3")
+
+    missing = [f for f in findings if f.path == ".ai-team.toml"]
+    assert missing
+    assert all("tool" not in f.problem.lower() for f in missing)
+
+
 def test_level_1_reports_every_missing_current_scaffold_directory_and_allows_extra(
     tmp_path: Path,
 ) -> None:
