@@ -352,121 +352,16 @@ def test_dry_run_reports_the_version_bump_without_writing_it(tmp_path):
     assert _marker_data(target)["init"]["framework_version"] == OLD_VERSION
 
 
-def test_skills_update_for_codex_removes_and_reports_legacy_skills(tmp_path):
+def test_skills_update_leaves_a_framework_named_codex_skill_folder_in_place(tmp_path):
     target = _new_project(tmp_path, tools="codex")
     legacy = _add_legacy_codex_skill(target)
 
     result = _run(target, "--update-skills", input="n\n")
 
     assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-    assert f"REMOVED: {legacy}" in result.output
-
-
-def test_force_upgrade_for_codex_removes_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-
-
-def test_legacy_codex_skills_stay_when_skills_are_not_updated(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_legacy_codex_skills_stay_when_tool_is_not_codex(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_dry_run_reports_legacy_removal_without_removing(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--dry-run", "--update-skills")
-
-    assert result.exit_code == 0, result.output
-    assert f"WOULD REMOVE: {legacy}" in result.output
-    assert legacy.is_dir()
-
-
-# T-161: legacy removal needs codex selected and already configured
-
-
-def test_dropping_codex_with_update_skills_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-    assert "REMOVED: " not in result.output
-
-
-def test_dropping_codex_with_force_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_dry_run_dropping_codex_reports_no_legacy_removal(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--dry-run", "--update-skills")
-
-    assert result.exit_code == 0, result.output
-    assert "WOULD REMOVE: " not in result.output
-
-
-def test_newly_adding_codex_with_force_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_newly_adding_codex_with_update_skills_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_keeping_codex_alongside_claude_removes_legacy_skills_on_update(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-    assert f"REMOVED: {legacy}" in result.output
+    assert (legacy / "SKILL.md").read_text(encoding="utf-8") == "legacy\n"
+    for line in ("REMOVED", "LEFT IN PLACE", "WOULD REMOVE"):
+        assert line not in result.output
 
 
 # T-149
