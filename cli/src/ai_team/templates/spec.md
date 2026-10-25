@@ -14,8 +14,7 @@ This spec describes requirements and measurable criteria in prose.
 It is not the implementation. Do not paste full configuration files,
 build manifests, or implementation code into the sections below.
 Concrete code belongs in the tasks the spec-breakdown skill produces
-and in the Developer's output. See the Spec Authoring Guide for the
-content contract this template implements.
+and in the Developer's output.
 -->
 
 ## Purpose
