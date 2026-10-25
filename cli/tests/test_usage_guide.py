@@ -313,22 +313,56 @@ def test_commands_md_does_not_list_include_ai_process():
 
 
 # ---------------------------------------------------------------------------
-# T-040 AC-2: usage.md documents codex scaffolding
+# T-173 AC-1: usage.md describes the Claude-only init
 # ---------------------------------------------------------------------------
 
 
-def test_usage_md_documents_codex_agents_scaffold():
-    """usage.md must document that --tools codex scaffolds .codex/agents/."""
-    assert ".codex/agents" in _content(), (
-        "usage.md must document that ai-team init --tools codex scaffolds .codex/agents/"
-    )
+@pytest.mark.parametrize(
+    "retired",
+    [
+        "codex",
+        "--tools",
+        "[init] tools",
+        "[init].tools",
+        ".codex/",
+        ".agents/",
+        "$name",
+    ],
+)
+def test_usage_md_has_no_codex_or_tools_text(retired):
+    """usage.md must not mention Codex, --tools, [init] tools, .codex/ or .agents/."""
+    assert retired.lower() not in _lower(), f"usage.md still mentions {retired!r}"
 
 
-def test_usage_md_documents_codex_skills_scaffold():
-    """usage.md must document that --tools codex scaffolds .agents/skills/."""
-    assert ".agents/skills" in _content(), (
-        "usage.md must document that ai-team init --tools codex scaffolds .agents/skills/"
-    )
+def test_usage_md_says_init_always_writes_the_claude_folders():
+    """usage.md must say init always writes .claude/agents/ and .claude/skills/."""
+    flat = _flat(_init_section())
+    assert "always writes `.claude/agents/` and `.claude/skills/`" in flat
+
+
+def test_usage_md_names_agents_md_as_the_only_guidance_file():
+    """AC-2: AGENTS.md is the only guidance file init generates and check-layout requires."""
+    flat = _flat(_init_section())
+    assert "`AGENTS.md` is the only guidance file `init` generates" in flat
+    assert "CLAUDE.md" not in _content()
+    level_three = _content().split("3. **Level 3")[1].split("4. **Level 4")[0]
+    assert "root `AGENTS.md`" in _flat(level_three)
+
+
+def test_usage_md_describes_the_flat_source_and_scaffold_layout():
+    """AC-3: sources are skills/<name>/SKILL.md and agents/*.md; scaffolds are project/, agents/, skills/."""
+    flat = _flat(_content())
+    assert "`sources/skills/<name>/SKILL.md`" in flat
+    assert "`sources/agents/*.md`" in flat
+    assert "`scaffolds/{project,agents,skills}/`" in flat
+    assert "scaffolds/claude" not in flat
+
+
+def test_usage_md_states_an_upgrade_is_detected_from_framework_version():
+    """AC-4: init detects an upgrade from [init] framework_version."""
+    flat = _flat(_init_section())
+    assert "records `[init] framework_version`" in flat
+    assert "detects an upgrade from `[init] framework_version`" in flat
 
 
 # ---------------------------------------------------------------------------
@@ -516,7 +550,7 @@ def test_init_flags_document_update_flags_and_force_as_yes_to_every_question():
     assert "| `--update-skills` |" in section
     assert "Overwrite these existing files?" in section
     assert "yes to every overwrite question" in section
-    assert "Update the agents and skills for the configured tools?" in section
+    assert "Update the agents and skills?" in section
     assert "never overwritten" in section
 
 
@@ -529,17 +563,15 @@ def test_init_section_documents_dry_run_case_lines_and_stale_warning():
     assert "are not shipped by this version of ai-team" in section
 
 
-def test_usage_guide_names_update_skills_in_mismatch_legacy_and_refresh_passages():
+def test_usage_guide_names_update_skills_in_mismatch_and_refresh_passages():
     """AC-3: the three passages point at `ai-team init --update-skills`."""
     content = _content()
     assert (
         "or run `ai-team init --update-skills` to update the project to <running>."
         in content
     )
-    assert "`ai-team init --update-skills` removes those legacy copies" in content
-    assert "ai-team init . --tools <tools> --update-skills" in content
+    assert "ai-team init . --update-skills --update-docs" in content
     assert "ai-team init --force`" not in content.split("### Expected layout")[0]
-    assert "<tools> --force" not in content
 
 
 def test_usage_md_describes_root_guidance_as_an_adoption_trigger():
@@ -547,34 +579,8 @@ def test_usage_md_describes_root_guidance_as_an_adoption_trigger():
     adoption_row = next(
         line for line in content.splitlines() if line.startswith("| Adoption |")
     )
-    assert "CLAUDE.md" in adoption_row
     assert "AGENTS.md" in adoption_row
-
-
-def test_usage_md_states_no_interactive_needs_tools_only_without_marker_tools():
-    content = _content()
-    flag_row = next(
-        line for line in content.splitlines() if line.startswith("| `--no-interactive`")
-    )
-    assert "Requires `--tools` to be provided explicitly" not in flag_row
-    assert "`.ai-team.toml`" in flag_row
-    assert "`--tools`" in flag_row
-
-
-def test_usage_md_describes_tools_on_an_upgrade():
-    section = _init_section()
-    paragraph = next(
-        block
-        for block in section.split("\n\n")
-        if block.startswith("**`--tools` on an upgrade.**")
-    )
-    flat = " ".join(paragraph.split())
-    assert "sets `[init].tools` to the given list" in flat
-    assert "newly adds are written without a question" in flat
-    assert "only the files that do not exist yet" in flat
-    assert "never overwritten" in flat
-    assert "covers only the tools already configured" in flat
-    assert "removed from `[init].tools`, and its files are left in place" in flat
+    assert "CLAUDE.md" not in adoption_row
 
 
 # ---------------------------------------------------------------------------
@@ -630,22 +636,12 @@ def test_setup_guide_states_the_init_reporting_rule():
     assert RETIRED_SETUP_GUIDE_SENTENCE not in flat
 
 
-@pytest.mark.parametrize("guide", [USAGE_MD, SETUP_GUIDE_MD], ids=["usage", "setup"])
+@pytest.mark.parametrize("guide", [SETUP_GUIDE_MD], ids=["setup"])
 def test_guide_states_the_codex_condition_on_legacy_removal(guide):
     """T-161 AC-4: legacy removal needs codex selected and already configured."""
     flat = _flat(guide.read_text(encoding="utf-8"))
     assert LEGACY_CODEX_CONDITION in flat
     assert LEGACY_CODEX_DROP_RULE in flat
-
-
-def test_usage_guide_upgrade_question_names_the_codex_condition():
-    """T-161 AC-4: the upgrade-question passage no longer states unconditional removal."""
-    flat = _flat(_init_section())
-    assert "framework_version` in `.ai-team.toml` and removes the legacy" not in flat
-    assert (
-        "and, when `codex` is selected and already configured, removes the legacy "
-        "Codex skill copies" in flat
-    )
 
 
 def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():
@@ -681,19 +677,12 @@ def test_usage_guide_dry_run_would_overwrite_covers_every_approved_overwrite():
     )
 
 
-def test_usage_guide_states_new_project_legacy_codex_removal():
-    """S-009 Legacy Codex skills: a new project removes legacy folders only with --force."""
-    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
-    assert (
-        "A new project that selects `codex` removes them only when `--force` is passed."
-        in flat
-    )
-
-
 def test_usage_guide_states_the_pr49_init_rules():
     """PR #49 review: a preset marker is a first run; empty questions are not asked."""
     flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
-    assert "exists in the repository root and records `[init] tools`" in flat
+    assert (
+        "exists in the repository root and records `[init] framework_version`" in flat
+    )
     assert "a question that covers no files is not asked" in flat
     assert "--update-skills --update-docs` to refresh them" in flat
 
