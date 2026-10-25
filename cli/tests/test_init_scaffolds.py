@@ -763,7 +763,6 @@ def test_dev_loop_discovers_baseline_test_command_before_claiming_task() -> None
     required_phrases = (
         "baseline test command",
         "project-specific guidance",
-        "CLAUDE.md",
         "AGENTS.md",
         "{{project_dir}}/docs/coding_guidelines.md",
     )

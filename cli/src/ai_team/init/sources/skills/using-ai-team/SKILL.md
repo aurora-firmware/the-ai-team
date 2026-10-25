@@ -62,7 +62,7 @@ If a precondition is missing, stop and report which artifact is missing and whic
 1. Invoke the matching skill and follow it exactly. If it carries a checklist, work through it in order.
 2. When several skills match, invoke the process skill first (`brainstorm`, `debug`, `spec-breakdown`) and the implementation skill (`tdd`) after it.
 3. When no row matches, proceed without a skill. Do not invent a match.
-4. Instructions from the human and the project's root `CLAUDE.md` or `AGENTS.md` take precedence over a skill. Skills take precedence over default behavior.
+4. Instructions from the human and the project's root `AGENTS.md` take precedence over a skill. Skills take precedence over default behavior.
 
 ## Output Format
 
