@@ -225,12 +225,15 @@ Required behaviour:
   and asked about once; `--force` answers yes. Whenever the question is not answered
   yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
   reported on stderr. Root guidance is offered as for a new project.
-- **Legacy Codex skills.** When `codex` is selected and an agents-and-skills overwrite
+- **Legacy Codex skills.** When `codex` is selected, was already configured before the
+  run (on an upgrade, in `[init] tools`; an adoption has no prior configuration), and an
+  agents-and-skills overwrite
   is approved (on an upgrade by a yes, `--update-skills` or `--force`; on an adoption
   by a yes or `--force`), `init` removes the legacy framework-owned
   `.codex/skills/<name>/` folders. Folders the framework does not own are left in
   place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
-  `WOULD REMOVE`.
+  `WOULD REMOVE`. When `codex` is dropped from `--tools`, or newly added by it, no
+  legacy folder is removed.
 - `--force` answers yes to every overwrite question. Without it, an existing file is
   replaced only on a yes. `--dry-run` reports the detected case, then what the real run
   with the same flags would write, without writing. An unanswered question prints
@@ -241,8 +244,12 @@ Required behaviour:
   `WROTE: <path>` and each existing file it replaces as `OVERWROTE: <path>`, so the real
   run reports the same files its dry run lists as `WOULD WRITE` and `WOULD OVERWRITE`.
   This covers skeleton files, a newly added tool's agents and skills, files written on a
-  yes to an upgrade question, and root guidance. Existing files that are kept are
-  reported on stderr.
+  yes to an upgrade question, root guidance and `.ai-team.toml`. The tracker folder and
+  the root `.gitignore` rule (S-006) are reported as `CREATED: <path>` or
+  `UPDATED: <path>`, matching the dry run's `WOULD CREATE` and `WOULD UPDATE`. Only an
+  adoption lists the existing files it keeps, on stderr; on an upgrade, files kept
+  because a question was not answered yes, a newly added tool's existing files, kept root
+  guidance and an existing `docs/coding_guidelines.md` are not listed.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -372,3 +379,5 @@ amendment adds:
 | 2026-10-25 | Init Command Contract: an upgrade writes every missing project-skeleton file no question covers, without a question, and reports it as `WROTE`; for a tool newly added by `--tools`, only its missing agents and skills are written and its existing files are kept. Driven by the CR-005 spec-truth reconciliation re-run (N1). | The completed work (T-157, T-158) was right and more precise than the text. | Follow-up task for N2 |
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 second re-run: N1 and N2 resolved (S-009 amendment, T-159); usage.md:232 and setup-guide.md:78 overstate WROTE reporting for question-approved and root-guidance writes (escalated); usage.md:233 says skipped files are unreported though an adoption lists them (follow-up task); S-009 omits WROTE for a newly added tool's files (amend) | none |
 | 2026-10-25 | Init Command Contract: added the Reporting rule. The real run prints `WROTE` for every file it creates and `OVERWROTE` for every file it replaces, matching its dry run, and kept files are reported on stderr. Driven by the CR-005 spec-truth reconciliation second re-run (N3, human decision: option B; N5). | The real run reported fewer files than its dry run listed, and the docs overstated it. | Follow-up task for N3 and N4 |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 third re-run: N3 and N5 resolved (T-160, S-009 Reporting rule); N4's false sentence removed, but the kept-files-on-stderr rule (S-009, usage.md:230, setup-guide.md:78) holds only for an adoption (escalated, N6); legacy Codex folders removed when codex is dropped (follow-up task, N7); root .gitignore created without WROTE (escalated, N8) | none |
+| 2026-10-25 | Init Command Contract: only an adoption lists the kept files on stderr (N6, human decision: option A); the real run reports the tracker folder and root `.gitignore` rule as `CREATED` / `UPDATED` (N8, option B); legacy Codex removal requires `codex` to be selected and already configured, so dropping or newly adding it removes nothing (N7, human decision). Driven by the CR-005 spec-truth reconciliation third re-run. | The Reporting rule promised kept-file reporting the code only does for an adoption, and left the tracker writes unreported; the legacy removal keyed on the prior configuration alone. | Follow-up task for N6, N7 and N8 |
