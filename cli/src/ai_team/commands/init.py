@@ -22,7 +22,7 @@ from ai_team.core.config import (
     render_placeholders,
 )
 from ai_team.core.locator import DEFAULT_PROJECT_DIR
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS
+from ai_team.core.tool_paths import EXPORT_PATHS
 from ai_team.core.tracker import DEFAULT_TRACKER_DIR, resolve_tracker_dir
 
 NAME = "init"
@@ -31,9 +31,6 @@ app = typer.Typer(
     invoke_without_command=True,
     context_settings={"allow_interspersed_args": True},
 )
-
-# The only tool init exports to; the scaffolds and export folders are keyed by it.
-_EXPORT_TOOL = "claude"
 
 _ROOT_GUIDANCE_FILES = ["CLAUDE.md", "AGENTS.md"]
 
@@ -210,12 +207,10 @@ def _upgrade_marker(
 def _stale_definitions(request: _UpgradeRequest) -> list[Path]:
     """Return agents and skills in the Claude folders that the running version does not ship."""
     stale: list[Path] = []
-    for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[_EXPORT_TOOL]:
+    for scaffold_subfolder, destination in EXPORT_PATHS:
         shipped = {
             entry.name
-            for entry in (
-                request.scaffolds_path / _EXPORT_TOOL / scaffold_subfolder
-            ).iterdir()
+            for entry in (request.scaffolds_path / scaffold_subfolder).iterdir()
         }
         installed = request.target_root / destination
         if not installed.is_dir():
@@ -253,10 +248,10 @@ def _plan_tool_copies(
 ) -> list[tuple[Path, Path]]:
     """Return the (source, destination) pairs of every agent and skill."""
     plan: list[tuple[Path, Path]] = []
-    for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[_EXPORT_TOOL]:
+    for scaffold_subfolder, destination in EXPORT_PATHS:
         plan.extend(
             _plan_copies(
-                scaffolds_path / _EXPORT_TOOL / scaffold_subfolder,
+                scaffolds_path / scaffold_subfolder,
                 target_root / destination,
             )
         )

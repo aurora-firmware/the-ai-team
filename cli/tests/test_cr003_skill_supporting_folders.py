@@ -6,8 +6,6 @@ import importlib.util
 from pathlib import Path
 from types import ModuleType
 
-import pytest
-
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "sync_init_scaffolds.py"
 
 SKILL_TEXT = "---\nname: demo\ndescription: claude skill\n---\n\n# Body\n"
@@ -45,9 +43,8 @@ def _generate(source_root: Path, destination_root: Path) -> None:
     _load_sync_module()._replace_generated_skills(source_root, destination_root)
 
 
-@pytest.mark.parametrize("tool", ["claude"])
 def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
-    tmp_path: Path, tool: str
+    tmp_path: Path,
 ) -> None:
     source_root = tmp_path / "sources"
     skill_dir = _make_skill(source_root)
@@ -56,7 +53,7 @@ def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
 
     _generate(source_root, destination_root)
 
-    exported = destination_root / tool / "skills" / "demo"
+    exported = destination_root / "skills" / "demo"
     assert (exported / "SKILL.md").read_text(encoding="utf-8") == SKILL_TEXT
     assert (exported / "assets" / "logo.bin").read_bytes() == BINARY_ASSET
     assert (exported / "assets" / "template.txt").read_bytes() == (
@@ -68,9 +65,8 @@ def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
     )
 
 
-@pytest.mark.parametrize("tool", ["claude"])
 def test_leaves_placeholders_unchanged_in_copied_supporting_files(
-    tmp_path: Path, tool: str
+    tmp_path: Path,
 ) -> None:
     source_root = tmp_path / "sources"
     _add_supporting_folders(_make_skill(source_root))
@@ -78,13 +74,12 @@ def test_leaves_placeholders_unchanged_in_copied_supporting_files(
 
     _generate(source_root, destination_root)
 
-    copied = destination_root / tool / "skills" / "demo" / "assets" / "template.txt"
+    copied = destination_root / "skills" / "demo" / "assets" / "template.txt"
     assert copied.read_text(encoding="utf-8") == TEXT_ASSET
 
 
-@pytest.mark.parametrize("tool", ["claude"])
 def test_does_not_export_other_files_or_folders_in_skill_directory(
-    tmp_path: Path, tool: str
+    tmp_path: Path,
 ) -> None:
     source_root = tmp_path / "sources"
     skill_dir = _make_skill(source_root)
@@ -96,7 +91,7 @@ def test_does_not_export_other_files_or_folders_in_skill_directory(
 
     _generate(source_root, destination_root)
 
-    exported = destination_root / tool / "skills" / "demo"
+    exported = destination_root / "skills" / "demo"
     assert sorted(path.name for path in exported.iterdir()) == [
         "SKILL.md",
         "assets",
@@ -105,10 +100,7 @@ def test_does_not_export_other_files_or_folders_in_skill_directory(
     ]
 
 
-@pytest.mark.parametrize("tool", ["claude"])
-def test_ignores_pycache_and_ds_store_in_supporting_folders(
-    tmp_path: Path, tool: str
-) -> None:
+def test_ignores_pycache_and_ds_store_in_supporting_folders(tmp_path: Path) -> None:
     source_root = tmp_path / "sources"
     skill_dir = _make_skill(source_root)
     _add_supporting_folders(skill_dir)
@@ -119,14 +111,13 @@ def test_ignores_pycache_and_ds_store_in_supporting_folders(
 
     _generate(source_root, destination_root)
 
-    exported = destination_root / tool / "skills" / "demo"
+    exported = destination_root / "skills" / "demo"
     assert not (exported / "scripts" / "__pycache__").exists()
     assert not (exported / "assets" / ".DS_Store").exists()
 
 
-@pytest.mark.parametrize("tool", ["claude"])
 def test_exports_only_skill_md_when_skill_has_no_supporting_folders(
-    tmp_path: Path, tool: str
+    tmp_path: Path,
 ) -> None:
     source_root = tmp_path / "sources"
     _make_skill(source_root)
@@ -134,7 +125,7 @@ def test_exports_only_skill_md_when_skill_has_no_supporting_folders(
 
     _generate(source_root, destination_root)
 
-    exported = destination_root / tool / "skills" / "demo"
+    exported = destination_root / "skills" / "demo"
     assert [path.name for path in exported.iterdir()] == ["SKILL.md"]
 
 
@@ -147,7 +138,7 @@ def test_copies_only_the_supporting_folders_that_exist(tmp_path: Path) -> None:
 
     _generate(source_root, destination_root)
 
-    exported = destination_root / "claude" / "skills" / "demo"
+    exported = destination_root / "skills" / "demo"
     assert sorted(path.name for path in exported.iterdir()) == [
         "SKILL.md",
         "references",
@@ -179,7 +170,7 @@ def test_excludes_every_shared_ignore_pattern_from_supporting_folder_and_replace
     module._replace_generated_skills(source_root, destination_root)
     module._replace_tree(agents_dir, replaced_tree)
 
-    exported_scripts = destination_root / "claude" / "skills" / "demo" / "scripts"
+    exported_scripts = destination_root / "skills" / "demo" / "scripts"
     for name in module.COPY_IGNORE_PATTERNS:
         assert not (exported_scripts / name).exists()
         assert not (replaced_tree / name).exists()
