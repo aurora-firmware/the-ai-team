@@ -649,3 +649,32 @@ def test_level_1_reports_nothing_for_a_freshly_initialised_all_tools_project(
 
     assert result.exit_code == 0
     assert check_level_1(contract) == []
+
+
+def test_level_1_suggests_update_skills_for_a_missing_tool_directory(
+    tmp_path: Path,
+) -> None:
+    _write_marker(tmp_path, tools=("codex",))
+    _create_current_scaffold(tmp_path, ("codex",))
+    shutil.rmtree(tmp_path / ".codex" / "agents")
+    contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
+
+    findings = check_level_1(contract)
+
+    fixes = {finding.path: finding.suggested_fix for finding in findings}
+    assert "ai-team init --update-skills" in fixes[".codex/agents"]
+
+
+def test_level_1_suggests_plain_init_for_a_missing_project_directory(
+    tmp_path: Path,
+) -> None:
+    _write_marker(tmp_path, tools=("codex",))
+    _create_current_scaffold(tmp_path, ("codex",))
+    shutil.rmtree(tmp_path / "ai-team" / "specs")
+    contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
+
+    findings = check_level_1(contract)
+
+    fixes = {finding.path: finding.suggested_fix for finding in findings}
+    assert "--update-skills" not in fixes["ai-team/specs"]
+    assert "ai-team init" in fixes["ai-team/specs"]

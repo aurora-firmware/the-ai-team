@@ -249,6 +249,13 @@ def _expected_directories(contract: LayoutContract) -> list[Path]:
     return expected
 
 
+def _missing_directory_fix(contract: LayoutContract, path: Path) -> str:
+    """Suggest the init command that recreates a missing scaffold directory."""
+    if path.is_relative_to(contract.project_dir):
+        return "Create the directory by restoring the current scaffold or rerunning 'ai-team init'."
+    return "Create the directory by restoring the current scaffold or running 'ai-team init --update-skills'."
+
+
 def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
     """Report an unignored in-repository tracker and unmigrated legacy folders."""
 
@@ -335,7 +342,7 @@ def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
                     1,
                     display_path,
                     f"Required scaffold directory '{display_path}' is missing.",
-                    "Create the directory by restoring the current scaffold or rerunning 'ai-team init' with the configured tools.",
+                    _missing_directory_fix(contract, path),
                 )
             )
     return sorted(findings, key=_sort_key)
