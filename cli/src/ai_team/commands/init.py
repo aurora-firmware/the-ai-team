@@ -713,7 +713,11 @@ def init_command(
         collisions = [destination for _, destination in planned if destination.exists()]
 
         if dry_run:
-            typer.echo(f"CASE: {'adoption' if collisions else 'new project'}")
+            has_root_guidance = any(
+                (target_root / filename).exists() for filename in _ROOT_GUIDANCE_FILES
+            )
+            is_adoption = bool(collisions) or has_root_guidance
+            typer.echo(f"CASE: {'adoption' if is_adoption else 'new project'}")
 
         overwrite = _decide_adoption_overwrite(
             collisions, force, no_interactive, dry_run
