@@ -75,8 +75,9 @@ pipx install --force dist/*.whl
 `sync_init_scaffolds.py` regenerates the bundled scaffolds in
 `cli/src/ai_team/init/scaffolds/` from the package-owned sources in
 `cli/src/ai_team/init/sources/` so that `ai-team init` ships up-to-date
-scaffolds. It never reads the repository's `.claude/` folder, so edit the sources and re-run it rather than editing the generated
-output. Always run it before `uv build`.
+scaffolds. It never reads the repository's `.claude/` folder, so edit the
+sources and re-run it rather than editing the generated output. Always run it
+before `uv build`.
 
 ### Verify the install
 
@@ -609,8 +610,9 @@ uv run pytest tests/test_task_new.py -v
 ### How to maintain scaffold sources
 
 The scaffold files shipped inside the package are **package-owned copies** —
-they are not read from the repository's `.claude/` tree at runtime. This means any change to the canonical agent or skill
-definitions must be reflected in the bundled snapshots before the next release.
+they are not read from the repository's `.claude/` tree at runtime. This
+means any change to the canonical agent or skill definitions must be reflected
+in the bundled snapshots before the next release.
 
 The generator script `scripts/sync_init_scaffolds.py` keeps the snapshots
 in sync. It reads from:
