@@ -237,6 +237,12 @@ Required behaviour:
   `WOULD PROMPT: <path>` for each file it covers. What a yes would trigger (the legacy
   removal, the stale-definition warning, the `framework_version` bump) is reported only
   when a flag, `--force` or `--no-interactive` answers the question.
+- **Reporting.** In every case, each file the real run creates is reported on stdout as
+  `WROTE: <path>` and each existing file it replaces as `OVERWROTE: <path>`, so the real
+  run reports the same files its dry run lists as `WOULD WRITE` and `WOULD OVERWRITE`.
+  This covers skeleton files, a newly added tool's agents and skills, files written on a
+  yes to an upgrade question, and root guidance. Existing files that are kept are
+  reported on stderr.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -364,3 +370,5 @@ amendment adds:
 | 2026-10-25 | Init Command Contract: legacy Codex removal on an approved agents-and-skills overwrite; dry-run reporting of unanswered questions; adoption reports kept files whenever the question is not answered yes; on an upgrade an explicit `--tools` sets `[init] tools` and writes a newly added tool's agents and skills without a question (human decision, option B). Driven by the CR-005 spec-truth reconciliation (F1, F2, F3a, F6). | The completed work was right on F1, F2 and F3a; the human decided F6. | Follow-up tasks for F3b, F4, F5 and F6 |
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 re-run: F1–F6 resolved (T-155 to T-158); upgrade text omits per-file skeleton recreation and the newly-added-tool missing-files-only rule (amend); usage.md and setup-guide.md say new files are not reported, but upgrade prints WROTE (follow-up task) | none |
 | 2026-10-25 | Init Command Contract: an upgrade writes every missing project-skeleton file no question covers, without a question, and reports it as `WROTE`; for a tool newly added by `--tools`, only its missing agents and skills are written and its existing files are kept. Driven by the CR-005 spec-truth reconciliation re-run (N1). | The completed work (T-157, T-158) was right and more precise than the text. | Follow-up task for N2 |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 second re-run: N1 and N2 resolved (S-009 amendment, T-159); usage.md:232 and setup-guide.md:78 overstate WROTE reporting for question-approved and root-guidance writes (escalated); usage.md:233 says skipped files are unreported though an adoption lists them (follow-up task); S-009 omits WROTE for a newly added tool's files (amend) | none |
+| 2026-10-25 | Init Command Contract: added the Reporting rule. The real run prints `WROTE` for every file it creates and `OVERWROTE` for every file it replaces, matching its dry run, and kept files are reported on stderr. Driven by the CR-005 spec-truth reconciliation second re-run (N3, human decision: option B; N5). | The real run reported fewer files than its dry run listed, and the docs overstated it. | Follow-up task for N3 and N4 |
