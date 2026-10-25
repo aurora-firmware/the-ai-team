@@ -19,15 +19,13 @@ from ai_team.core.locator import find_project_root
 
 
 def _init(target: Path, *extra: str):
-    return CliRunner().invoke(
-        app, ["init", str(target), "--tools", "all", "--no-interactive", *extra]
-    )
+    return CliRunner().invoke(app, ["init", str(target), "--no-interactive", *extra])
 
 
 def _generated_text(target: Path) -> str:
     files = [
         path
-        for folder in (".claude", ".codex", ".agents", "docs")
+        for folder in (".claude", "docs")
         for path in (target / folder).rglob("*")
         if path.is_file()
     ]

@@ -14,14 +14,14 @@ from typer.testing import CliRunner
 def test_init_defaults_to_cwd_and_scaffolds_project_claude_and_marker(
     monkeypatch, tmp_path
 ):
-    """`ai-team init --tools claude --no-interactive` scaffolds cwd."""
+    """`ai-team init --no-interactive` scaffolds cwd."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
     target.mkdir()
     monkeypatch.chdir(target)
 
-    result = CliRunner().invoke(app, ["init", "--tools", "claude", "--no-interactive"])
+    result = CliRunner().invoke(app, ["init", "--no-interactive"])
 
     marker = target / ".ai-team.toml"
 
@@ -35,20 +35,20 @@ def test_init_defaults_to_cwd_and_scaffolds_project_claude_and_marker(
 
     data = tomllib.loads(marker.read_text(encoding="utf-8"))
     assert data["project"]["dir"] == "ai-team"
-    assert data["init"]["tools"] == ["claude"]
+    assert "tools" not in data["init"]
     assert "include_ai_process" not in data["init"]
     assert isinstance(data["init"]["framework_version"], str)
     assert data["init"]["framework_version"]
 
 
 def test_init_scaffolds_explicit_target_path_with_claude_and_marker(tmp_path):
-    """`ai-team init <path> --tools claude --no-interactive` scaffolds target path."""
+    """`ai-team init <path> --no-interactive` scaffolds target path."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
+        ["init", str(target), "--no-interactive"],
     )
 
     marker = target / ".ai-team.toml"
@@ -72,7 +72,7 @@ def test_init_skips_existing_files_when_force_is_not_set(monkeypatch, tmp_path):
     existing.write_text("occupied\n", encoding="utf-8")
 
     monkeypatch.chdir(target)
-    result = CliRunner().invoke(app, ["init", "--tools", "claude", "--no-interactive"])
+    result = CliRunner().invoke(app, ["init", "--no-interactive"])
 
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "occupied\n"
@@ -91,8 +91,6 @@ def test_init_dry_run_lists_files_and_writes_nothing(tmp_path):
         [
             "init",
             str(target),
-            "--tools",
-            "claude",
             "--no-interactive",
             "--dry-run",
         ],
@@ -119,8 +117,6 @@ def test_init_include_ai_process_is_unknown_option(tmp_path):
         [
             "init",
             str(target),
-            "--tools",
-            "claude",
             "--no-interactive",
             "--include-ai-process",
         ],
@@ -142,7 +138,7 @@ def test_init_force_allows_overwriting_existing_files(monkeypatch, tmp_path):
     monkeypatch.chdir(target)
     result = CliRunner().invoke(
         app,
-        ["init", "--tools", "claude", "--no-interactive", "--force"],
+        ["init", "--no-interactive", "--force"],
     )
 
     assert result.exit_code == 0
@@ -152,91 +148,54 @@ def test_init_force_allows_overwriting_existing_files(monkeypatch, tmp_path):
     assert data["project"]["dir"] == "ai-team"
 
 
-def test_init_tools_codex_scaffolds_codex_agents_and_skills(tmp_path):
-    """`--tools codex` scaffolds .codex/agents/ and .agents/skills/ directories."""
+def test_init_rejects_the_tools_option_and_writes_nothing(tmp_path):
+    """`--tools` is an unknown option: Typer rejects it before init writes anything."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
     result = CliRunner().invoke(
-        app,
-        ["init", str(target), "--tools", "codex", "--no-interactive"],
+        app, ["init", str(target), "--tools", "claude", "--no-interactive"]
     )
 
-    assert result.exit_code == 0
-    assert (target / ".codex" / "agents" / "planner.toml").is_file()
-    assert (target / ".agents" / "skills" / "tdd" / "SKILL.md").is_file()
-    assert (target / ".agents" / "skills" / "change-request" / "SKILL.md").is_file()
-    assert not (target / "ai-team" / "change-requests").exists()
-    assert not (target / ".claude").exists()
-    assert not (target / "ai-process").exists()
+    assert result.exit_code == 2
+    assert "No such option" in result.output
+    assert not target.exists()
 
 
-def test_init_tools_codex_does_not_create_codex_skills_directory(tmp_path):
-    """Codex skills go to .agents/skills, never .codex/skills."""
+def test_init_writes_only_claude_agents_and_skills_non_interactively(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    result = CliRunner().invoke(
-        app,
-        ["init", str(target), "--tools", "codex", "--no-interactive"],
-    )
-
-    assert result.exit_code == 0
-    assert not (target / ".codex" / "skills").exists()
-
-
-def test_init_tools_claude_keeps_claude_agents_and_skills(tmp_path):
-    """`--tools claude` still writes .claude/agents and .claude/skills."""
-    from ai_team.cli import app
-
-    target = tmp_path / "repo"
-    result = CliRunner().invoke(
-        app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
-    )
+    result = CliRunner().invoke(app, ["init", str(target), "--no-interactive"])
 
     assert result.exit_code == 0
     assert (target / ".claude" / "agents" / "planner.md").is_file()
     assert (target / ".claude" / "skills" / "tdd" / "SKILL.md").is_file()
+    assert not (target / ".codex").exists()
     assert not (target / ".agents").exists()
 
 
-def test_init_tools_codex_scaffolds_real_files_not_symlinks(tmp_path):
-    """`--tools codex` writes real files, not symlinks, under .codex/ and .agents/."""
+def test_init_interactive_writes_claude_files_without_asking_for_tools(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    CliRunner().invoke(
-        app,
-        ["init", str(target), "--tools", "codex", "--no-interactive"],
-    )
-
-    agent_file = target / ".codex" / "agents" / "planner.toml"
-    skill_file = target / ".agents" / "skills" / "tdd" / "SKILL.md"
-    assert agent_file.is_file() and not agent_file.is_symlink()
-    assert skill_file.is_file() and not skill_file.is_symlink()
-
-
-def test_init_tools_all_scaffolds_both_claude_and_codex(tmp_path):
-    """`--tools all` scaffolds both .claude/ and .codex/ directories."""
-    from ai_team.cli import app
-
-    target = tmp_path / "repo"
-    result = CliRunner().invoke(
-        app,
-        ["init", str(target), "--tools", "all", "--no-interactive"],
-    )
+    result = CliRunner().invoke(app, ["init", str(target)], input="y\ny\n")
 
     assert result.exit_code == 0
+    assert "tools" not in result.output.lower()
     assert (target / ".claude" / "agents" / "planner.md").is_file()
-    assert (target / ".codex" / "agents" / "planner.toml").is_file()
-    assert not (target / "ai-process").exists()
+    assert (target / ".claude" / "skills" / "tdd" / "SKILL.md").is_file()
+    assert not (target / ".codex").exists()
 
-    data = __import__("tomllib").loads(
-        (target / ".ai-team.toml").read_text(encoding="utf-8")
-    )
-    assert set(data["init"]["tools"]) == {"claude", "codex"}
-    assert "include_ai_process" not in data["init"]
+
+def test_init_never_adds_tools_to_the_marker(tmp_path):
+    from ai_team.cli import app
+
+    target = tmp_path / "repo"
+    CliRunner().invoke(app, ["init", str(target), "--no-interactive"])
+
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+    assert "tools" not in data["init"]
 
 
 def test_init_interactive_does_not_prompt_for_ai_process_snapshot(tmp_path):
@@ -244,11 +203,11 @@ def test_init_interactive_does_not_prompt_for_ai_process_snapshot(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # Provide tools answer + two root-guidance confirmations (CLAUDE.md, AGENTS.md).
+    # Provide two root-guidance confirmations (CLAUDE.md, AGENTS.md).
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\ny\ny\n",
+        input="y\ny\n",
     )
 
     assert result.exit_code == 0
@@ -262,7 +221,7 @@ def test_init_creates_project_guidance_files(tmp_path):
     target = tmp_path / "repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
+        ["init", str(target), "--no-interactive"],
     )
 
     assert result.exit_code == 0
@@ -277,7 +236,7 @@ def test_init_dry_run_includes_project_guidance_files(tmp_path):
     target = tmp_path / "new-repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive", "--dry-run"],
+        ["init", str(target), "--no-interactive", "--dry-run"],
     )
 
     assert result.exit_code == 0
@@ -299,7 +258,7 @@ def test_init_skips_project_guidance_file_when_it_exists_without_force(
     existing.write_text("occupied\n", encoding="utf-8")
 
     monkeypatch.chdir(target)
-    result = CliRunner().invoke(app, ["init", "--tools", "claude", "--no-interactive"])
+    result = CliRunner().invoke(app, ["init", "--no-interactive"])
 
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "occupied\n"
@@ -318,9 +277,7 @@ def test_init_force_overwrites_project_guidance_files(monkeypatch, tmp_path):
     existing.write_text("old content\n", encoding="utf-8")
 
     monkeypatch.chdir(target)
-    result = CliRunner().invoke(
-        app, ["init", "--tools", "claude", "--no-interactive", "--force"]
-    )
+    result = CliRunner().invoke(app, ["init", "--no-interactive", "--force"])
 
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") != "old content\n"
@@ -339,9 +296,7 @@ def test_init_writes_coding_guidelines_placeholder_when_missing(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    result = CliRunner().invoke(
-        app, ["init", str(target), "--tools", "claude", "--no-interactive"]
-    )
+    result = CliRunner().invoke(app, ["init", str(target), "--no-interactive"])
 
     assert result.exit_code == 0
     written = target / "ai-team" / "docs" / "coding_guidelines.md"
@@ -357,9 +312,7 @@ def test_init_keeps_existing_coding_guidelines_without_counting_a_collision(tmp_
     target.mkdir()
     existing = _write_existing_guidelines(target)
 
-    result = CliRunner().invoke(
-        app, ["init", str(target), "--tools", "claude", "--no-interactive"]
-    )
+    result = CliRunner().invoke(app, ["init", str(target), "--no-interactive"])
 
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "project rules\n"
@@ -375,7 +328,7 @@ def test_init_force_keeps_existing_coding_guidelines(tmp_path):
     existing = _write_existing_guidelines(target)
 
     result = CliRunner().invoke(
-        app, ["init", str(target), "--tools", "claude", "--no-interactive", "--force"]
+        app, ["init", str(target), "--no-interactive", "--force"]
     )
 
     assert result.exit_code == 0
@@ -390,7 +343,7 @@ def test_init_dry_run_does_not_list_existing_coding_guidelines(tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
     existing = _write_existing_guidelines(target)
-    args = ["init", str(target), "--tools", "claude", "--no-interactive", "--dry-run"]
+    args = ["init", str(target), "--no-interactive", "--dry-run"]
 
     kept = CliRunner().invoke(app, args)
     existing.unlink()
@@ -410,7 +363,7 @@ def test_init_still_skips_other_skeleton_collisions_when_guidelines_exist(tmp_pa
     guidelines = _write_existing_guidelines(target)
     claude_md = target / "ai-team" / "CLAUDE.md"
     claude_md.write_text("occupied\n", encoding="utf-8")
-    args = ["init", str(target), "--tools", "claude", "--no-interactive"]
+    args = ["init", str(target), "--no-interactive"]
 
     skipped = CliRunner().invoke(app, args)
     assert claude_md.read_text(encoding="utf-8") == "occupied\n"
@@ -432,11 +385,11 @@ def test_interactive_init_prompts_to_create_root_claude_md_when_missing(tmp_path
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # Provide: tools="claude", create CLAUDE.md=yes, create AGENTS.md=yes
+    # Provide: create CLAUDE.md=yes, create AGENTS.md=yes
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\ny\ny\n",
+        input="y\ny\n",
     )
 
     assert result.exit_code == 0
@@ -449,11 +402,11 @@ def test_interactive_init_prompts_to_create_root_agents_md_when_missing(tmp_path
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # Provide: tools="claude", create CLAUDE.md=yes, create AGENTS.md=yes
+    # Provide: create CLAUDE.md=yes, create AGENTS.md=yes
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\ny\ny\n",
+        input="y\ny\n",
     )
 
     assert result.exit_code == 0
@@ -468,7 +421,7 @@ def test_non_interactive_init_skips_root_guidance_by_default(tmp_path):
     target = tmp_path / "repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
+        ["init", str(target), "--no-interactive"],
     )
 
     assert result.exit_code == 0
@@ -486,8 +439,6 @@ def test_non_interactive_init_creates_root_guidance_with_flag(tmp_path):
         [
             "init",
             str(target),
-            "--tools",
-            "claude",
             "--no-interactive",
             "--create-root-guidance",
         ],
@@ -503,11 +454,11 @@ def test_declining_root_guidance_prints_followup_message(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # tools="claude", CLAUDE.md=no, AGENTS.md=no
+    # CLAUDE.md=no, AGENTS.md=no
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\nn\nn\n",
+        input="n\nn\n",
     )
 
     assert result.exit_code == 0
@@ -531,7 +482,7 @@ def test_root_guidance_file_already_exists_is_not_overwritten(tmp_path):
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\ny\ny\n",
+        input="y\ny\n",
     )
 
     assert result.exit_code == 0
@@ -553,7 +504,7 @@ def test_root_guidance_file_existing_agents_md_is_not_overwritten(tmp_path):
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="claude\ny\n",
+        input="y\n",
     )
 
     assert result.exit_code == 0
@@ -570,8 +521,6 @@ def test_root_guidance_file_created_from_stable_template(tmp_path):
         [
             "init",
             str(target),
-            "--tools",
-            "claude",
             "--no-interactive",
             "--create-root-guidance",
         ],
@@ -597,8 +546,6 @@ def test_force_flag_overwrites_existing_root_guidance_files(tmp_path):
         [
             "init",
             str(target),
-            "--tools",
-            "claude",
             "--no-interactive",
             "--create-root-guidance",
             "--force",
@@ -616,7 +563,7 @@ def test_init_scaffolds_project_gitignore_ignoring_the_lock_sentinel(tmp_path):
     target = tmp_path / "repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
+        ["init", str(target), "--no-interactive"],
     )
 
     assert result.exit_code == 0
@@ -636,7 +583,7 @@ def test_ai_team_lock_sentinel_is_not_untracked_after_task_creation(
     target = tmp_path / "repo"
     result = CliRunner().invoke(
         app,
-        ["init", str(target), "--tools", "claude", "--no-interactive"],
+        ["init", str(target), "--no-interactive"],
     )
     assert result.exit_code == 0
 
@@ -681,7 +628,7 @@ def test_init_configures_tracker_and_ignores_it_idempotently(tmp_path):
     for extra in ([], ["--force"]):
         result = CliRunner().invoke(
             app,
-            ["init", str(target), "--tools", "claude", "--no-interactive", *extra],
+            ["init", str(target), "--no-interactive", *extra],
         )
         assert result.exit_code == 0, result.output
 
@@ -712,9 +659,7 @@ def _overwrote_lines(output):
 def _init(target, *flags, input=None):
     from ai_team.cli import app
 
-    return CliRunner().invoke(
-        app, ["init", str(target), "--tools", "claude", *flags], input=input
-    )
+    return CliRunner().invoke(app, ["init", str(target), *flags], input=input)
 
 
 def test_interactive_force_overwrites_and_reports_root_guidance_on_yes(tmp_path):

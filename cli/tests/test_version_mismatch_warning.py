@@ -38,7 +38,7 @@ def make_project(tmp_path, marker_text):
 
 
 def marker_with_version(version):
-    return f'[init]\ntools = ["claude"]\nframework_version = "{version}"\n'
+    return f'[init]\nframework_version = "{version}"\n'
 
 
 def run(monkeypatch, tmp_path, args):
@@ -129,7 +129,7 @@ def test_no_warning_for_init_with_mismatched_marker(
     result = run(
         monkeypatch,
         tmp_path,
-        ["init", "--force", "--no-interactive", "--tools", "claude"],
+        ["init", "--force", "--no-interactive"],
     )
 
     assert result.exit_code == 0

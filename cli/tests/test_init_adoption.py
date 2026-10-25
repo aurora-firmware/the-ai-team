@@ -26,7 +26,7 @@ def _init(args: list[str], input_text: str | None = None):
 
 
 def _base_args(target: Path) -> list[str]:
-    return [str(target), "--tools", "claude"]
+    return [str(target)]
 
 
 def test_asks_once_listing_every_existing_file_and_overwrites_on_yes(tmp_path):
@@ -285,8 +285,8 @@ def test_real_run_reports_the_tracker_lines_its_dry_run_lists(tmp_path):
     dry_target = tmp_path / "dry"
     real_target = tmp_path / "real"
 
-    dry = _init([str(dry_target), "--tools", "claude", "--no-interactive", "--dry-run"])
-    real = _init([str(real_target), "--tools", "claude", "--no-interactive"])
+    dry = _init([str(dry_target), "--no-interactive", "--dry-run"])
+    real = _init([str(real_target), "--no-interactive"])
 
     dry_reports = _tracker_reports(
         dry.output, dry_target, {"WOULD CREATE": "CREATED", "WOULD UPDATE": "UPDATED"}

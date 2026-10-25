@@ -274,7 +274,6 @@ $ ai-team init [OPTIONS] [PATH] COMMAND [ARGS]...
 
 **Options**:
 
-* `--tools TEXT`
 * `--force`
 * `--dry-run`
 * `--no-interactive`
