@@ -595,8 +595,10 @@ REPORTING_RULE = (
     "(`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as "
     "`CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it "
     "adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). "
-    "Only an adoption lists the existing files it keeps, on stderr; an upgrade does "
-    "not list the files it keeps."
+    "Only an adoption lists kept files, on stderr: the existing agent, skill and "
+    "project-skeleton files its overwrite question kept. Kept root guidance and an "
+    "existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no "
+    "kept files."
 )
 RETIRED_KEPT_FILES_RULE = "and every existing file it keeps on stderr"
 RETIRED_SETUP_GUIDE_SENTENCE = (

@@ -232,7 +232,7 @@ Existing root guidance files are never overwritten unless `--force` is also pass
 | `--force` | prompts; overwritten on yes | left untouched |
 | `--force --create-root-guidance` | overwritten, no prompt | overwritten, no prompt |
 
-Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists the existing files it keeps, on stderr; an upgrade does not list the files it keeps. The `WROTE` and `OVERWROTE` lines cover root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
+Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance and an existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no kept files. The `WROTE` and `OVERWROTE` lines cover root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
 
 ### Example: preview then initialise
 
