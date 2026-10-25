@@ -218,27 +218,6 @@ def test_package_data_dirs_are_importable_as_packages():
     assert scaffolds_pkg is not None
 
 
-def test_codex_scaffold_package_data_is_reachable():
-    """
-    Codex scaffold package data (agents/ and skills/) is reachable via
-    importlib.resources so that `ai-team init --tools codex` can copy them
-    from the installed package without touching pyproject.toml.
-    """
-    import importlib.resources as res
-
-    scaffolds = res.files("ai_team.init") / "scaffolds"
-
-    codex_agents = scaffolds / "codex" / "agents"
-    codex_skills = scaffolds / "codex" / "skills"
-
-    # The traversables must be navigable to a known agent and skill file.
-    planner_toml = codex_agents / "planner.toml"
-    tdd_skill = codex_skills / "tdd" / "SKILL.md"
-
-    assert planner_toml.is_file(), "codex agents/planner.toml not reachable"
-    assert tdd_skill.is_file(), "codex skills/tdd/SKILL.md not reachable"
-
-
 def test_missing_project_root_prints_clean_error_and_exits_1(monkeypatch, tmp_path):
     """A command run outside any project reports the locator error, not a traceback."""
     from ai_team.cli import app

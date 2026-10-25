@@ -11,7 +11,7 @@ This guide walks you through bootstrapping a new project using the AI team frame
 ## Prerequisites
 
 - A git repository for your new project.
-- Claude Code (or another AI agent platform that reads `CLAUDE.md`).
+- Claude Code.
 - `pipx` installed (`python -m pip install --user pipx` if needed).
 
 ## Setup Steps
@@ -55,40 +55,38 @@ replace it with placeholders if needed.
 In your target repository, run `ai-team init` to export the bundled agent and skill definitions and create the project folders:
 
 ```bash
-ai-team init . --tools claude --no-interactive --create-root-guidance
+ai-team init . --no-interactive --create-root-guidance
 ```
 
 This exports from the CLI package scaffold sources:
 
 - **Agent definitions** into `.claude/agents/`
 - **Skill definitions** into `.claude/skills/<name>/SKILL.md`
-- **Project directory** `ai-team/` (or the folder set by `--project-dir`) with `specs/`, `decisions/`, and `docs/` folders and its own `CLAUDE.md`, `AGENTS.md`, and `.gitignore`
+- **Project directory** `ai-team/` (or the folder set by `--project-dir`) with `specs/`, `decisions/`, and `docs/` folders and its own `AGENTS.md` and `.gitignore`
 - **`.ai-team.toml`** configuration file
 
-Tasks, bugs, and change-requests do not live in the project directory. They live in the local tracker, outside version control. `ai-team init` also configures it: it writes `[tracker] dir = ".ai-team/tracker"` to `.ai-team.toml`, creates the folder, and adds `/.ai-team/` to `.gitignore`. To use a different artifact folder (at any depth, such as `docs/ai-team`) or integration branch, pass `--project-dir` and `--integration-branch` to `ai-team init`, or set `[project] dir` and `[git] integration_branch` in `.ai-team.toml` before running it; leave out `[init]`, which `init` writes itself. `ai-team init` keeps existing values. To upgrade an installed project, re-run `ai-team init`: when `.ai-team.toml` exists and records `[init] tools` it asks whether to update the ai-team docs (`ai-team/CLAUDE.md`, `ai-team/AGENTS.md`, `ai-team/.gitignore`) and whether to update the agents and skills, each defaulting to no, and keeps every configured value. Pass `--update-docs` or `--update-skills` to answer a question yes without asking (`--update-skills` also clears the framework version mismatch warning), or `--force` to answer every question yes. When `codex` is selected and already configured, updating the agents and skills also removes the legacy copies of framework skills that earlier versions wrote for Codex (see the CLI usage guide). When `--tools` drops `codex`, or newly adds it, no legacy folder is removed. `docs/coding_guidelines.md` in the project directory is never overwritten, even with `--force`, because the project bootstrap fills it in. Generated agents and skills carry the configured folder and branch, so re-run `ai-team init --update-skills --update-docs` after changing either, rather than editing the generated files by hand.
-
-For OpenAI Codex compatibility, add `--tools codex` (or `--tools claude,codex`) to also export `.codex/agents/*.toml` Codex agent files and the Codex skills in `.agents/skills/`. Those TOML files translate each Claude-style agent into Codex's custom-agent schema: `name`, `description`, and `developer_instructions`, with optional Codex-native settings such as `model` and `model_reasoning_effort`. A Codex subagent takes its sandbox and approval settings from the parent session, not from the agent file. The roles that create files or commit — Architect, Planner, Developer, Reviewer, and Integrator — need a parent Codex session that allows writes.
+Tasks, bugs, and change-requests do not live in the project directory. They live in the local tracker, outside version control. `ai-team init` also configures it: it writes `[tracker] dir = ".ai-team/tracker"` to `.ai-team.toml`, creates the folder, and adds `/.ai-team/` to `.gitignore`. To use a different artifact folder (at any depth, such as `docs/ai-team`) or integration branch, pass `--project-dir` and `--integration-branch` to `ai-team init`, or set `[project] dir` and `[git] integration_branch` in `.ai-team.toml` before running it; leave out `[init]`, which `init` writes itself. `ai-team init` keeps existing values. To upgrade an installed project, re-run `ai-team init`: when `.ai-team.toml` exists and records `[init] framework_version` it asks whether to update the ai-team docs (`ai-team/AGENTS.md`, `ai-team/.gitignore`) and whether to update the agents and skills, each defaulting to no, and keeps every configured value. Pass `--update-docs` or `--update-skills` to answer a question yes without asking (`--update-skills` also clears the framework version mismatch warning), or `--force` to answer every question yes. `docs/coding_guidelines.md` in the project directory is never overwritten, even with `--force`, because the project bootstrap fills it in. Generated agents and skills carry the configured folder and branch, so re-run `ai-team init --update-skills --update-docs` after changing either, rather than editing the generated files by hand.
 
 The `ai-process/` specification documents are not exported. They live in the AI team definition meta-repository and serve as the authoritative spec for the rules the agents and skills implement. You do not need them in your project.
 
-### Step 3: Create Your Project's CLAUDE.md and AGENTS.md
+### Step 3: Create Your Project's AGENTS.md
 
-Create a `CLAUDE.md` and `AGENTS.md` in your project root. The test instructions in these files are especially important: `dev-loop` starts baseline command discovery from root project guidance, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, `dev-loop` will ask the human for the intended command or for explicit confirmation that no automated baseline test is available before claiming a task.
+Create an `AGENTS.md` in your project root. `AGENTS.md` is the only generated guidance file, and the one `ai-team check-layout` level 3 requires. The test instructions in this file are especially important: `dev-loop` starts baseline command discovery from root project guidance, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, `dev-loop` will ask the human for the intended command or for explicit confirmation that no automated baseline test is available before claiming a task.
 
-The Step 2 command already created starter versions of both root guidance files (`--create-root-guidance`) if they were missing. Request them on that first `init` run; on an initialized project, `--create-root-guidance` adds missing ones later. Existing root guidance files are never overwritten unless `--force` is also set: `--force` alone prompts in interactive mode and leaves them untouched with `--no-interactive`, while `--force --create-root-guidance` overwrites them without prompting. Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance and an existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no kept files.
+The Step 2 command already created a starter root `AGENTS.md` (`--create-root-guidance`) if it was missing. Request it on that first `init` run; on an initialized project, `--create-root-guidance` adds it later if missing. An existing root `AGENTS.md` is never overwritten unless `--force` is also set: `--force` alone prompts in interactive mode and leaves it untouched with `--no-interactive`, while `--force --create-root-guidance` overwrites it without prompting. Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance and an existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no kept files.
 
-The starter `CLAUDE.md` and `AGENTS.md` follow the root guidance template in the CLI package (`cli/src/ai_team/init/sources/root/CLAUDE.md`). `ai-team check-layout` requires these `##` sections in each file: `Build and Install`, `Test`, `Run`, `Lint and Format`, and `Key Conventions`. If you write the files by hand, use the same headings and fill in your project's commands and conventions.
+The starter `AGENTS.md` follows the root guidance template in the CLI package (`cli/src/ai_team/init/sources/root/AGENTS.md`). `ai-team check-layout` requires these `##` sections in the file: `Build and Install`, `Test`, `Run`, `Lint and Format`, and `Key Conventions`. If you write the file by hand, use the same headings and fill in your project's commands and conventions.
 
 ### Step 4: Customize for Your Stack
 
-**Baseline test instructions** — Fill in the command agents should run to execute the test suite. Put it in root guidance (`CLAUDE.md` or `AGENTS.md`) or clearly reference a project-local doc that contains it. `dev-loop` reads project guidance at startup; if the command is missing or ambiguous, the loop asks for human clarification before claiming a task. If your project has no automated tests, state that explicitly so the loop can record the confirmation and continue.
+**Baseline test instructions** — Fill in the command agents should run to execute the test suite. Put it in root guidance (`AGENTS.md`) or clearly reference a project-local doc that contains it. `dev-loop` reads project guidance at startup; if the command is missing or ambiguous, the loop asks for human clarification before claiming a task. If your project has no automated tests, state that explicitly so the loop can record the confirmation and continue.
 
 **`ai-team/docs/coding_guidelines.md`** — `ai-team init` scaffolds this file as a placeholder; do not create it by hand. It is filled in by the project bootstrap (see Step 7) once S-000 is approved, with project-specific rules:
 - Stack and framework conventions.
 - Formatter, linter, and dependency policy.
 - Naming conventions and file layout.
 - Testing conventions and where test fixtures live.
-- Any commands not already listed in `CLAUDE.md`.
+- Any commands not already listed in `AGENTS.md`.
 
 Keep `ai-process/guidelines/coding-standards.md` as the framework's general, language-agnostic baseline unless you intentionally fork the process.
 
@@ -131,7 +129,7 @@ Run this sequence from a clean shell to confirm the package builds, installs, an
 ```bash
 cd cli && python scripts/sync_init_scaffolds.py && uv build \
   && pipx install --force dist/*.whl \
-  && d=$(mktemp -d) && ai-team init "$d" --tools claude --no-interactive \
+  && d=$(mktemp -d) && ai-team init "$d" --no-interactive \
   && ai-team --version && (cd "$d" && ai-team status) \
   && test -d "$d/ai-team" && test -d "$d/.claude" && test -f "$d/.ai-team.toml"
 ```

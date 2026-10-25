@@ -2,19 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-CLI = Path(__file__).resolve().parents[1]
-BODY = (
-    CLI
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "spec-breakdown-review"
-    / "body.md"
-)
+from tests.source_paths import skill_source_text
 
 
 def flat(text: str) -> str:
@@ -22,7 +10,7 @@ def flat(text: str) -> str:
 
 
 def step(heading: str) -> str:
-    text = BODY.read_text(encoding="utf-8")
+    text = skill_source_text("spec-breakdown-review")
     start = text.index(heading)
     end = text.find("\n### ", start + 1)
     return flat(text[start:] if end == -1 else text[start:end])

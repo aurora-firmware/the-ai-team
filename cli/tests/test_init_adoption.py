@@ -26,7 +26,7 @@ def _init(args: list[str], input_text: str | None = None):
 
 
 def _base_args(target: Path) -> list[str]:
-    return [str(target), "--tools", "claude"]
+    return [str(target)]
 
 
 def test_asks_once_listing_every_existing_file_and_overwrites_on_yes(tmp_path):
@@ -56,7 +56,7 @@ def test_keeps_existing_files_when_the_question_is_answered_no(tmp_path):
 
 def test_does_not_ask_about_coding_guidelines_or_root_guidance(tmp_path):
     guidelines, root_claude = _occupy(
-        tmp_path, "ai-team/docs/coding_guidelines.md", "CLAUDE.md"
+        tmp_path, "ai-team/docs/coding_guidelines.md", "AGENTS.md"
     )
 
     result = _init([*_base_args(tmp_path), "--no-interactive"])
@@ -105,7 +105,7 @@ def _written(output: str) -> set[str]:
 def test_dry_run_prints_would_prompt_for_each_covered_file_when_interactive(tmp_path):
     existing = _occupy(tmp_path, "ai-team/specs/.gitkeep", ".claude/agents/planner.md")
 
-    result = _init([*_base_args(tmp_path), "--dry-run"], input_text="n\nn\n")
+    result = _init([*_base_args(tmp_path), "--dry-run"], input_text="n\n")
 
     assert result.exit_code == 0
     assert "CASE: adoption" in result.output.splitlines()
@@ -177,7 +177,7 @@ def test_reports_kept_files_with_the_same_message_when_no_interactive(tmp_path):
 
 
 def test_dry_run_reports_adoption_when_only_root_guidance_exists(tmp_path):
-    for filename in ("CLAUDE.md", "AGENTS.md"):
+    for filename in ("AGENTS.md",):
         root_guidance = tmp_path / filename
         root_guidance.write_text(OCCUPIED, encoding="utf-8")
 
@@ -190,9 +190,9 @@ def test_dry_run_reports_adoption_when_only_root_guidance_exists(tmp_path):
 
 
 def test_root_guidance_alone_does_not_trigger_the_overwrite_question(tmp_path):
-    (root_claude,) = _occupy(tmp_path, "CLAUDE.md")
+    (root_claude,) = _occupy(tmp_path, "AGENTS.md")
 
-    result = _init(_base_args(tmp_path), input_text="n\nn\n")
+    result = _init(_base_args(tmp_path), input_text="n\n")
 
     assert result.exit_code == 0
     assert "Overwrite these existing files?" not in result.output
@@ -201,7 +201,7 @@ def test_root_guidance_alone_does_not_trigger_the_overwrite_question(tmp_path):
 
 
 def test_dry_run_handles_existing_root_guidance_through_its_own_table(tmp_path):
-    (root_claude,) = _occupy(tmp_path, "CLAUDE.md")
+    (root_claude,) = _occupy(tmp_path, "AGENTS.md")
 
     result = _init([*_base_args(tmp_path), "--dry-run"])
     forced = _init([*_base_args(tmp_path), "--dry-run", "--force"])
@@ -285,8 +285,8 @@ def test_real_run_reports_the_tracker_lines_its_dry_run_lists(tmp_path):
     dry_target = tmp_path / "dry"
     real_target = tmp_path / "real"
 
-    dry = _init([str(dry_target), "--tools", "claude", "--no-interactive", "--dry-run"])
-    real = _init([str(real_target), "--tools", "claude", "--no-interactive"])
+    dry = _init([str(dry_target), "--no-interactive", "--dry-run"])
+    real = _init([str(real_target), "--no-interactive"])
 
     dry_reports = _tracker_reports(
         dry.output, dry_target, {"WOULD CREATE": "CREATED", "WOULD UPDATE": "UPDATED"}

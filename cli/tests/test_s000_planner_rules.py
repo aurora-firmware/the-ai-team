@@ -6,19 +6,9 @@ from pathlib import Path
 
 import pytest
 
-AGENTS_DIR = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "agents"
-)
+from tests.source_paths import agent_source_path
 
-PLANNER_SOURCES = [
-    pytest.param(AGENTS_DIR / "claude" / "planner.md", id="claude"),
-    pytest.param(AGENTS_DIR / "codex" / "planner.toml", id="codex"),
-]
+PLANNER_SOURCES = [pytest.param(agent_source_path("planner"), id="claude")]
 
 NON_PLANNER_ROLES = ["developer", "reviewer", "integrator"]
 DEVELOPER_BOOTSTRAP_EXCEPTION = "a task whose source spec is S-000"
@@ -49,7 +39,7 @@ def test_planner_lists_the_new_system_overview_skill(path):
 def test_claude_planner_frontmatter_skills_include_new_system_overview():
     frontmatter_skills = next(
         line
-        for line in _text(AGENTS_DIR / "claude" / "planner.md").splitlines()
+        for line in _text(agent_source_path("planner")).splitlines()
         if line.startswith("skills:")
     )
 
@@ -83,11 +73,8 @@ def test_planner_quality_bar_holds_s000_to_gate_1_criteria_replacing_task_deriva
 
 
 @pytest.mark.parametrize("role", NON_PLANNER_ROLES)
-@pytest.mark.parametrize("platform,suffix", [("claude", "md"), ("codex", "toml")])
-def test_non_planner_roles_do_not_mention_s000(role, platform, suffix):
-    path = AGENTS_DIR / platform / f"{role}.{suffix}"
-
-    text = _text(path)
+def test_non_planner_roles_do_not_mention_s000(role):
+    text = _text(agent_source_path(role))
     if role == "developer":
         assert text.count(DEVELOPER_BOOTSTRAP_EXCEPTION) == 1
         text = text.replace(DEVELOPER_BOOTSTRAP_EXCEPTION, "")

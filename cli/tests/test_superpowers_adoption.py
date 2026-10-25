@@ -8,17 +8,18 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tests.source_paths import agent_source_path, skill_source_text
+
 CLI = Path(__file__).resolve().parents[1]
 REPO = CLI.parent
-SOURCES = CLI / "src" / "ai_team" / "init" / "sources"
 
 
 def skill(name: str) -> str:
-    return (SOURCES / "skills" / name / "body.md").read_text(encoding="utf-8")
+    return skill_source_text(name)
 
 
 def agent(name: str) -> str:
-    return (SOURCES / "agents" / "claude" / f"{name}.md").read_text(encoding="utf-8")
+    return agent_source_path(name).read_text(encoding="utf-8")
 
 
 # -- Phase 1: rationalization tables and review calibration ------------------
@@ -95,14 +96,10 @@ def test_evidence_skill_has_gate_function_and_common_failures():
 
 def test_every_role_wires_evidence_into_its_output_envelope():
     for role in ("architect", "developer", "integrator", "planner", "reviewer"):
-        claude = agent(role)
-        codex = (SOURCES / "agents" / "codex" / f"{role}.toml").read_text(
-            encoding="utf-8"
-        )
-        assert "evidence-before-claims" in claude.split("---")[1], role
-        for text in (claude, codex):
-            assert "evidence-before-claims" in text, role
-            assert "its actual output" in text, role
+        text = agent(role)
+        assert "evidence-before-claims" in text.split("---")[1], role
+        assert "evidence-before-claims" in text, role
+        assert "its actual output" in text, role
 
 
 def test_loops_apply_context_and_cost_engineering():

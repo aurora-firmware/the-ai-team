@@ -1,7 +1,8 @@
 ---
 id: ADR-001
 title: Codex skill frontmatter retains full parity with Claude
-status: accepted
+status: superseded
+superseded_by: ADR-003
 created: '2026-06-05'
 ---
 

@@ -22,7 +22,7 @@ from ai_team.core.config import (
     render_placeholders,
 )
 from ai_team.core.locator import DEFAULT_PROJECT_DIR
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS, framework_skill_names
+from ai_team.core.tool_paths import EXPORT_PATHS
 from ai_team.core.tracker import DEFAULT_TRACKER_DIR, resolve_tracker_dir
 
 NAME = "init"
@@ -32,25 +32,23 @@ app = typer.Typer(
     context_settings={"allow_interspersed_args": True},
 )
 
-_SUPPORTED_TOOLS = ["claude", "codex"]
-
-_ROOT_GUIDANCE_FILES = ["CLAUDE.md", "AGENTS.md"]
+_ROOT_GUIDANCE_FILES = ["AGENTS.md"]
 
 # Project skeleton files that belong to the project once written: init creates
 # them only when missing, so a framework upgrade keeps the project's own copy.
 _KEEP_IF_EXISTS_PROJECT_FILES = [Path("docs") / "coding_guidelines.md"]
 
 # The ai-team docs an upgrade offers to refresh, relative to the project directory.
-_PROJECT_DOC_FILES = ["AGENTS.md", "CLAUDE.md", ".gitignore"]
+_PROJECT_DOC_FILES = ["AGENTS.md", ".gitignore"]
 
 _UPDATE_DOCS_QUESTION = (
-    "Update the ai-team docs (AGENTS.md, CLAUDE.md, .gitignore) in {project_dir}?"
+    "Update the ai-team docs (AGENTS.md, .gitignore) in {project_dir}?"
 )
-_UPDATE_SKILLS_QUESTION = "Update the agents and skills for the configured tools?"
+_UPDATE_SKILLS_QUESTION = "Update the agents and skills?"
 
 _ROOT_GUIDANCE_DECLINED_MESSAGE = (
     "To help agents run your project without guessing, add your test and run "
-    "commands to a root CLAUDE.md and AGENTS.md. "
+    "commands to a root AGENTS.md. "
     "See `ai-team init --create-root-guidance` to generate starter templates."
 )
 
@@ -92,65 +90,10 @@ def _plan_project_copies(source: Path, project_root: Path) -> list[tuple[Path, P
     ]
 
 
-def _parse_tools(value: str) -> list[str]:
-    token = value.strip().lower()
-    if token == "all":
-        return _SUPPORTED_TOOLS[:]
-    if token == "none":
-        return []
-
-    result: list[str] = []
-    for chunk in token.split(","):
-        name = chunk.strip().lower()
-        if not name:
-            continue
-        if name not in _SUPPORTED_TOOLS:
-            raise ValueError(
-                f"Unsupported tool '{name}'. Supported values: "
-                + ", ".join(_SUPPORTED_TOOLS + ["all", "none"])
-            )
-        if name not in result:
-            result.append(name)
-    return result
-
-
-def _resolve_tools(tools: str | None, no_interactive: bool) -> list[str]:
-    if tools is not None:
-        return _parse_tools(tools)
-    if no_interactive:
-        raise ValueError("When --no-interactive is set, you must provide --tools.")
-
-    raw = typer.prompt(
-        "Select tools (comma-separated, all, none)",
-        default="claude",
-    )
-    return _parse_tools(raw)
-
-
-def _configured_tools(marker: dict) -> list[str] | None:
-    """Return the valid ``[init] tools`` of a parsed marker, else None."""
-    value = marker.get("init", {}).get("tools")
-    if isinstance(value, list) and all(tool in _SUPPORTED_TOOLS for tool in value):
-        return list(value)
-    return None
-
-
-def _resolve_upgrade_tools(
-    tools: str | None, marker: dict, no_interactive: bool
-) -> list[str]:
-    """Take the tools from ``--tools``, else from the marker, else ask as for a new run."""
-    if tools is None:
-        configured = _configured_tools(marker)
-        if configured is not None:
-            return configured
-    return _resolve_tools(tools, no_interactive)
-
-
 def _upgraded_marker(
     existing: dict,
     project_dir: str,
     integration_branch: str,
-    tools: list[str],
     is_skills_updated: bool,
 ) -> dict:
     """Return *existing* with only the settings that differ from it changed.
@@ -172,7 +115,6 @@ def _upgraded_marker(
             integration_branch,
             marker_integration_branch(existing) or DEFAULT_INTEGRATION_BRANCH,
         ),
-        ("init", "tools", tools, _configured_tools(existing)),
     ]
     if is_skills_updated:
         changes.append(
@@ -196,7 +138,6 @@ class _UpgradeRequest:
     target_root: Path
     scaffolds_path: Path
     project_dir: str
-    tools: list[str]
     settings: dict[str, str]
     existing_marker: dict
     update_docs: bool
@@ -252,7 +193,6 @@ def _upgrade_marker(
         request.existing_marker,
         request.project_dir,
         integration_branch,
-        request.tools,
         is_skills_updated,
     )
     if data == request.existing_marker:
@@ -265,24 +205,19 @@ def _upgrade_marker(
 
 
 def _stale_definitions(request: _UpgradeRequest) -> list[Path]:
-    """Return agents and skills in the tool folders that the running version does not ship."""
+    """Return agents and skills in the Claude folders that the running version does not ship."""
     stale: list[Path] = []
-    for tool in request.tools:
-        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
-            shipped = {
-                entry.name
-                for entry in (
-                    request.scaffolds_path / tool / scaffold_subfolder
-                ).iterdir()
-            }
-            installed = request.target_root / destination
-            if not installed.is_dir():
-                continue
-            stale.extend(
-                entry
-                for entry in sorted(installed.iterdir())
-                if entry.name not in shipped
-            )
+    for scaffold_subfolder, destination in EXPORT_PATHS:
+        shipped = {
+            entry.name
+            for entry in (request.scaffolds_path / scaffold_subfolder).iterdir()
+        }
+        installed = request.target_root / destination
+        if not installed.is_dir():
+            continue
+        stale.extend(
+            entry for entry in sorted(installed.iterdir()) if entry.name not in shipped
+        )
     return stale
 
 
@@ -309,18 +244,17 @@ def _recreate_missing_skeleton(
 
 
 def _plan_tool_copies(
-    tools: list[str], request: _UpgradeRequest
+    scaffolds_path: Path, target_root: Path
 ) -> list[tuple[Path, Path]]:
-    """Return the (source, destination) pairs of every agent and skill of *tools*."""
+    """Return the (source, destination) pairs of every agent and skill."""
     plan: list[tuple[Path, Path]] = []
-    for tool in tools:
-        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
-            plan.extend(
-                _plan_copies(
-                    request.scaffolds_path / tool / scaffold_subfolder,
-                    request.target_root / destination,
-                )
+    for scaffold_subfolder, destination in EXPORT_PATHS:
+        plan.extend(
+            _plan_copies(
+                scaffolds_path / scaffold_subfolder,
+                target_root / destination,
             )
+        )
     return plan
 
 
@@ -348,17 +282,7 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
         recreated = project_plan
     _recreate_missing_skeleton(recreated, request)
 
-    configured_tools = _configured_tools(request.existing_marker) or []
-    added_tools = [tool for tool in request.tools if tool not in configured_tools]
-    skills_plan = _plan_tool_copies(
-        [tool for tool in request.tools if tool in configured_tools], request
-    )
-    # No question covers a newly added tool, so only its missing files are
-    # written: a tool dropped earlier keeps its files, and they stay untouched.
-    added_plan = [
-        (s, d) for s, d in _plan_tool_copies(added_tools, request) if not d.exists()
-    ]
-    _recreate_missing_skeleton(added_plan, request)
+    skills_plan = _plan_tool_copies(request.scaffolds_path, request.target_root)
 
     answers: list[bool] = []
     for question, is_yes, plan in (
@@ -381,10 +305,6 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
             _write_all(plan, request.settings)
 
     is_skills_updated = answers[1]
-    # Dropping codex, or adding it in this run, never removes legacy folders.
-    is_codex_kept = "codex" in configured_tools and "codex" in request.tools
-    if is_skills_updated and is_codex_kept:
-        _remove_legacy_codex_skills(request.target_root, request.dry_run)
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))
     _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
@@ -419,24 +339,16 @@ def _report_skipped(skipped: list[Path]) -> None:
     )
 
 
-def _skill_invocation(skill: str, tools: list[str]) -> str:
-    """Return how to invoke ``skill`` in the configured tools.
-
-    Claude Code runs a skill as ``/name``; Codex has no per-skill slash command
-    and runs it as ``$name``. With no tool configured, keep the ``/name`` form.
-    """
-    if tools == ["codex"]:
-        return f"${skill}"
-    if "claude" in tools and "codex" in tools:
-        return f"/{skill} (Claude Code) or ${skill} (Codex)"
+def _skill_invocation(skill: str) -> str:
+    """Return how to invoke ``skill``: Claude Code runs a skill as ``/name``."""
     return f"/{skill}"
 
 
-def _next_steps(tools: list[str]) -> list[str]:
+def _next_steps() -> list[str]:
     return [
-        f"Run {_skill_invocation('brainstorm', tools)} to explore the request and constraints.",
-        f"Run {_skill_invocation('spec-breakdown', tools)} to break the approved spec into tasks.",
-        f"Run {_skill_invocation('dev-loop', tools)} to execute tasks through review and integration.",
+        f"Run {_skill_invocation('brainstorm')} to explore the request and constraints.",
+        f"Run {_skill_invocation('spec-breakdown')} to break the approved spec into tasks.",
+        f"Run {_skill_invocation('dev-loop')} to execute tasks through review and integration.",
     ]
 
 
@@ -592,39 +504,10 @@ def _handle_root_guidance(
     return declined
 
 
-def _remove_legacy_codex_skills(target_root: Path, dry_run: bool) -> None:
-    """Remove framework skill copies left in ``.codex/skills`` by older releases.
-
-    Codex lists same-named skills from ``.codex/skills`` and ``.agents/skills``
-    side by side, so the old framework copies would show every skill twice.
-    Folders the framework does not own are left alone, and the legacy root is
-    removed only once it is empty. With *dry_run* nothing changes.
-    """
-    legacy_root = target_root / ".codex" / "skills"
-    if not legacy_root.is_dir():
-        return
-
-    framework_names = set(framework_skill_names("codex"))
-    for folder in sorted(path for path in legacy_root.iterdir() if path.is_dir()):
-        if folder.name not in framework_names:
-            typer.echo(f"LEFT IN PLACE: {folder}")
-        elif dry_run:
-            typer.echo(f"WOULD REMOVE: {folder}")
-        else:
-            if folder.is_symlink():
-                folder.unlink()
-            else:
-                shutil.rmtree(folder)
-            typer.echo(f"REMOVED: {folder}")
-
-    if not dry_run and not any(legacy_root.iterdir()):
-        legacy_root.rmdir()
-
-
-def _report_completion(tools: list[str], declined: bool) -> None:
+def _report_completion(declined: bool) -> None:
     typer.echo("Initialization complete.")
     typer.echo("Next steps:")
-    for line in _next_steps(tools):
+    for line in _next_steps():
         typer.echo(f"- {line}")
 
     if declined:
@@ -634,7 +517,6 @@ def _report_completion(tools: list[str], declined: bool) -> None:
 @app.callback()
 def init_command(
     path: Path = typer.Argument(Path(".")),
-    tools: str | None = typer.Option(None, "--tools"),
     force: bool = typer.Option(False, "--force"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     no_interactive: bool = typer.Option(False, "--no-interactive"),
@@ -669,21 +551,10 @@ def init_command(
     """
     target_root = path.resolve()
     existing_marker = read_marker(target_root)
-    # Only a marker that records the tools comes from an earlier init; one the
-    # user wrote by hand to preset settings is a first run, not an upgrade.
-    is_upgrade = (target_root / ".ai-team.toml").is_file() and bool(
-        _configured_tools(existing_marker)
-    )
-    try:
-        if is_upgrade:
-            selected_tools = _resolve_upgrade_tools(
-                tools, existing_marker, no_interactive
-            )
-        else:
-            selected_tools = _resolve_tools(tools, no_interactive)
-    except ValueError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from exc
+    # Only a marker that records the framework version comes from an earlier
+    # init; one the user wrote by hand to preset settings is a first run, not
+    # an upgrade.
+    is_upgrade = bool(existing_marker.get("init", {}).get("framework_version"))
 
     project_dir = (
         project_dir or marker_project_dir(existing_marker) or DEFAULT_PROJECT_DIR
@@ -718,7 +589,6 @@ def init_command(
                     target_root=target_root,
                     scaffolds_path=scaffolds_path,
                     project_dir=project_dir,
-                    tools=selected_tools,
                     settings=settings,
                     existing_marker=existing_marker,
                     update_docs=update_docs or force,
@@ -738,7 +608,7 @@ def init_command(
                 settings=settings,
             )
             if not dry_run:
-                _report_completion(selected_tools, declined)
+                _report_completion(declined)
             return
 
         planned: list[tuple[Path, Path]] = []
@@ -746,14 +616,7 @@ def init_command(
             _plan_project_copies(scaffolds_path / "project", target_root / project_dir)
         )
 
-        for tool in selected_tools:
-            for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
-                planned.extend(
-                    _plan_copies(
-                        scaffolds_path / tool / scaffold_subfolder,
-                        target_root / destination,
-                    )
-                )
+        planned.extend(_plan_tool_copies(scaffolds_path, target_root))
 
         marker = target_root / ".ai-team.toml"
         collisions = [destination for _, destination in planned if destination.exists()]
@@ -768,7 +631,6 @@ def init_command(
         overwrite = _decide_adoption_overwrite(
             collisions, force, no_interactive, dry_run
         )
-        is_overwrite_approved = force or (bool(collisions) and bool(overwrite))
         if overwrite:
             to_write = planned
         else:
@@ -784,8 +646,6 @@ def init_command(
             for destination in collisions if overwrite is None else []:
                 typer.echo(f"WOULD PROMPT: {destination}")
             typer.echo(f"WOULD WRITE: {marker}")
-            if force and "codex" in selected_tools:
-                _remove_legacy_codex_skills(target_root, dry_run=True)
             _handle_root_guidance(
                 target_root,
                 sources_path,
@@ -799,8 +659,6 @@ def init_command(
             return
 
         _write_all(to_write, settings)
-        if is_overwrite_approved and "codex" in selected_tools:
-            _remove_legacy_codex_skills(target_root, dry_run=False)
 
         # Keep every setting the user already configured; only the values this
         # command owns (project, tracker, git, init) are refreshed.
@@ -819,7 +677,6 @@ def init_command(
         }
         marker_data["init"] = {
             **existing_marker.get("init", {}),
-            "tools": selected_tools,
             "framework_version": importlib.metadata.version("ai-team"),
         }
         marker_existed = marker.exists()
@@ -839,4 +696,4 @@ def init_command(
             settings=settings,
         )
 
-    _report_completion(selected_tools, declined)
+    _report_completion(declined)

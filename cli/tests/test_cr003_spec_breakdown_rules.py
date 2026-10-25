@@ -2,35 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from tests.source_paths import skill_export_path, skill_source_text
 
-CLI = Path(__file__).resolve().parents[1]
-SOURCE = (
-    CLI
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "spec-breakdown"
-    / "body.md"
-)
-SCAFFOLDS = [
-    CLI
-    / "src"
-    / "ai_team"
-    / "init"
-    / "scaffolds"
-    / tool
-    / "skills"
-    / "spec-breakdown"
-    / "SKILL.md"
-    for tool in ("claude", "codex")
-]
+SOURCE = skill_source_text("spec-breakdown")
+SCAFFOLD = skill_export_path("spec-breakdown").read_text(encoding="utf-8")
 
 
-def flat(path: Path) -> str:
-    return " ".join(path.read_text(encoding="utf-8").split())
+def flat(text: str) -> str:
+    return " ".join(text.split())
 
 
 def step3_bullet(text: str) -> str:
@@ -81,8 +60,7 @@ def test_verification_pitfall_accepts_named_design_review():
 
 
 def test_generated_scaffolds_carry_the_verification_mode_rule():
-    for scaffold in SCAFFOLDS:
-        assert "**Verification mode**" in flat(scaffold)
+    assert "**Verification mode**" in flat(SCAFFOLD)
 
 
 def step3_text(text: str) -> str:
@@ -118,15 +96,14 @@ def test_step3_command_change_lists_the_projects_generated_command_reference():
 
 
 def test_regeneration_wording_does_not_hardcode_this_repositorys_files():
-    for path in [SOURCE, *SCAFFOLDS]:
-        text = path.read_text(encoding="utf-8")
+    for text in [SOURCE, SCAFFOLD]:
         assert "cli/docs/commands.md" not in text
         assert "gen_docs.sh" not in text
 
 
 def test_step6_no_longer_claims_the_architect_does_not_run_commands():
-    for path in [SOURCE, *SCAFFOLDS]:
-        assert "does not run commands" not in step6_text(flat(path))
+    for text in [SOURCE, SCAFFOLD]:
+        assert "does not run commands" not in step6_text(flat(text))
 
 
 def test_step6_architect_receives_absolute_task_paths_ai_team_reported():

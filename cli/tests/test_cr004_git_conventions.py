@@ -6,19 +6,11 @@ from pathlib import Path
 
 import pytest
 
+from tests.source_paths import skill_source_text
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SKILL_BODY = (
-    REPO_ROOT
-    / "cli"
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "git-conventions"
-    / "body.md"
-)
-GUIDELINE = REPO_ROOT / "ai-process" / "guidelines" / "git-conventions.md"
+SKILL_BODY = skill_source_text("git-conventions")
+GUIDELINE = (REPO_ROOT / "ai-process" / "guidelines" / "git-conventions.md").read_text()
 
 MERGE_RULE_MARKER = "The Planner merges the planning branch into"
 TABLE_ROW_MARKER = "One merge commit per planning branch"
@@ -28,9 +20,9 @@ DOCUMENTS = {"skill": SKILL_BODY, "guideline": GUIDELINE}
 MARKERS = [MERGE_RULE_MARKER, TABLE_ROW_MARKER, NEVER_CARRIES_MARKER]
 
 
-def _statement(path: Path, marker: str) -> str:
-    matches = [line for line in path.read_text().splitlines() if marker in line]
-    assert len(matches) == 1, f"{path}: expected one line with {marker!r}"
+def _statement(text: str, marker: str) -> str:
+    matches = [line for line in text.splitlines() if marker in line]
+    assert len(matches) == 1, f"expected one line with {marker!r}"
     return matches[0]
 
 
@@ -57,7 +49,5 @@ def test_merge_rule_keeps_gate_2_and_no_ff_for_other_planning_branches(
 
 
 def test_skill_names_integration_branch_by_placeholder_in_exception() -> None:
-    text = SKILL_BODY.read_text()
-
-    assert "dev-agent" not in text
+    assert "dev-agent" not in SKILL_BODY
     assert "{{integration_branch}}" in _statement(SKILL_BODY, MERGE_RULE_MARKER)

@@ -3,18 +3,11 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
-SKILLS = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-)
-USING = (SKILLS / "using-ai-team" / "body.md").read_text(encoding="utf-8")
-BRAINSTORM = (SKILLS / "brainstorm" / "body.md").read_text(encoding="utf-8")
+from tests.source_paths import skill_source_text
+
+USING = skill_source_text("using-ai-team")
+BRAINSTORM = skill_source_text("brainstorm")
 
 
 def _step_zero_opening_paragraph(body: str) -> str:

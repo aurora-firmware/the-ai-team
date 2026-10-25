@@ -5,16 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-BODY_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "spec-breakdown"
-    / "body.md"
-)
+from tests.source_paths import skill_source_text
 
 EXPECTED_HEADINGS = [
     "# Write Plan",
@@ -35,7 +26,7 @@ EXPECTED_HEADINGS = [
 
 
 def _body() -> str:
-    return BODY_PATH.read_text(encoding="utf-8")
+    return skill_source_text("spec-breakdown")
 
 
 def _section(heading: str) -> str:
@@ -136,17 +127,7 @@ def test_step_headings_are_unchanged_with_exactly_one_step_zero():
 def test_gate2_coverage_for_s000_is_the_bootstrap_scope():
     """Gate 2 coverage for S-000 covers the bootstrap scope only, in every rule text."""
     repo = Path(__file__).resolve().parents[2]
-    review = (
-        repo
-        / "cli"
-        / "src"
-        / "ai_team"
-        / "init"
-        / "sources"
-        / "skills"
-        / "spec-breakdown-review"
-        / "body.md"
-    ).read_text(encoding="utf-8")
+    review = skill_source_text("spec-breakdown-review")
     gates = (repo / "ai-process" / "processes" / "quality-gates.md").read_text(
         encoding="utf-8"
     )

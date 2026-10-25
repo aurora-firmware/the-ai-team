@@ -19,30 +19,20 @@ def _run(target: Path, *flags: str, input: str | None = None):
     return CliRunner().invoke(app, ["init", str(target), *flags], input=input)
 
 
-def _new_project(tmp_path: Path, tools: str = "claude") -> Path:
+def _new_project(tmp_path: Path) -> Path:
     """A fresh project whose root guidance exists, so upgrades ask nothing about it."""
     target = tmp_path / "repo"
-    result = _run(
-        target, "--tools", tools, "--no-interactive", "--create-root-guidance"
-    )
+    result = _run(target, "--no-interactive", "--create-root-guidance")
     assert result.exit_code == 0, result.output
     return target
 
 
 def _doc_files(target: Path) -> list[Path]:
-    return [
-        target / "ai-team" / name for name in ("AGENTS.md", "CLAUDE.md", ".gitignore")
-    ]
+    return [target / "ai-team" / name for name in ("AGENTS.md", ".gitignore")]
 
 
 def _exported_files(target: Path) -> list[Path]:
-    return sorted(
-        path
-        for folder in (".claude", ".codex", ".agents")
-        if (target / folder).is_dir()
-        for path in (target / folder).rglob("*")
-        if path.is_file()
-    )
+    return sorted(path for path in (target / ".claude").rglob("*") if path.is_file())
 
 
 def _mark_custom(paths: list[Path]) -> None:
@@ -75,6 +65,16 @@ def test_upgrade_asks_for_docs_then_for_agents_and_skills(tmp_path):
     assert DOCS_PROMPT in output
     assert SKILLS_PROMPT in output
     assert output.index(DOCS_PROMPT) < output.index(SKILLS_PROMPT)
+
+
+def test_upgrade_docs_question_names_only_agents_md_and_gitignore(tmp_path):
+    target = _new_project(tmp_path)
+
+    result = _run(target, input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert "(AGENTS.md, .gitignore)" in result.output
+    assert "CLAUDE.md" not in result.output
 
 
 def test_upgrade_writes_only_the_docs_when_only_the_docs_question_is_yes(tmp_path):
@@ -112,7 +112,7 @@ def test_upgrade_recreates_a_missing_project_directory(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert (target / "ai-team" / "specs" / ".gitkeep").is_file()
-    assert (target / "ai-team" / "CLAUDE.md").is_file()
+    assert (target / "ai-team" / "AGENTS.md").is_file()
 
 
 # AC-2
@@ -175,8 +175,8 @@ def test_no_interactive_upgrade_changes_nothing_and_reports_nothing(tmp_path):
     assert "WROTE" not in result.output
 
 
-def test_no_interactive_upgrade_takes_the_tools_from_the_marker(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
+def test_no_interactive_upgrade_restores_a_missing_claude_skill(tmp_path):
+    target = _new_project(tmp_path)
     removed = _exported_files(target)[0]
     removed.unlink()
 
@@ -184,19 +184,20 @@ def test_no_interactive_upgrade_takes_the_tools_from_the_marker(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert removed.is_file()
-    assert not (target / ".claude").exists()
+    assert not (target / ".codex").exists()
+    assert not (target / ".agents").exists()
 
 
 def test_upgrade_rewrites_the_marker_when_an_explicit_setting_changes(tmp_path):
     target = _new_project(tmp_path)
 
-    result = _run(target, "--no-interactive", "--tools", "all")
+    result = _run(target, "--no-interactive", "--integration-branch", "develop")
 
     marker = target / ".ai-team.toml"
     assert result.exit_code == 0, result.output
     assert f"OVERWROTE: {marker}" in result.output
     data = tomllib.loads(marker.read_text(encoding="utf-8"))
-    assert data["init"]["tools"] == ["claude", "codex"]
+    assert data["git"]["integration_branch"] == "develop"
 
 
 def test_upgrade_keeps_the_marker_bytes_when_no_setting_changes(tmp_path):
@@ -208,8 +209,6 @@ def test_upgrade_keeps_the_marker_bytes_when_no_setting_changes(tmp_path):
         target,
         "--force",
         "--no-interactive",
-        "--tools",
-        "claude",
         "--integration-branch",
         "dev-agent",
     )
@@ -352,121 +351,16 @@ def test_dry_run_reports_the_version_bump_without_writing_it(tmp_path):
     assert _marker_data(target)["init"]["framework_version"] == OLD_VERSION
 
 
-def test_skills_update_for_codex_removes_and_reports_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
+def test_skills_update_leaves_a_framework_named_codex_skill_folder_in_place(tmp_path):
+    target = _new_project(tmp_path)
     legacy = _add_legacy_codex_skill(target)
 
     result = _run(target, "--update-skills", input="n\n")
 
     assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-    assert f"REMOVED: {legacy}" in result.output
-
-
-def test_force_upgrade_for_codex_removes_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-
-
-def test_legacy_codex_skills_stay_when_skills_are_not_updated(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_legacy_codex_skills_stay_when_tool_is_not_codex(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_dry_run_reports_legacy_removal_without_removing(tmp_path):
-    target = _new_project(tmp_path, tools="codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--dry-run", "--update-skills")
-
-    assert result.exit_code == 0, result.output
-    assert f"WOULD REMOVE: {legacy}" in result.output
-    assert legacy.is_dir()
-
-
-# T-161: legacy removal needs codex selected and already configured
-
-
-def test_dropping_codex_with_update_skills_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-    assert "REMOVED: " not in result.output
-
-
-def test_dropping_codex_with_force_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_dry_run_dropping_codex_reports_no_legacy_removal(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude", "--dry-run", "--update-skills")
-
-    assert result.exit_code == 0, result.output
-    assert "WOULD REMOVE: " not in result.output
-
-
-def test_newly_adding_codex_with_force_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--force", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_newly_adding_codex_with_update_skills_keeps_legacy_skills(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert legacy.is_dir()
-
-
-def test_keeping_codex_alongside_claude_removes_legacy_skills_on_update(tmp_path):
-    target = _new_project(tmp_path, tools="claude,codex")
-    legacy = _add_legacy_codex_skill(target)
-
-    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert not legacy.exists()
-    assert f"REMOVED: {legacy}" in result.output
+    assert (legacy / "SKILL.md").read_text(encoding="utf-8") == "legacy\n"
+    for line in ("REMOVED", "LEFT IN PLACE", "WOULD REMOVE"):
+        assert line not in result.output
 
 
 # T-149
@@ -559,7 +453,7 @@ def test_dry_run_on_an_empty_directory_starts_with_the_new_project_case_line(
 ):
     target = tmp_path / "repo"
 
-    result = _run(target, "--tools", "claude", "--dry-run", "--no-interactive")
+    result = _run(target, "--dry-run", "--no-interactive")
 
     assert result.exit_code == 0, result.output
     assert result.stdout.splitlines()[0] == "CASE: new project"
@@ -572,9 +466,7 @@ def test_dry_run_with_existing_scaffold_files_but_no_marker_is_adoption(tmp_path
     existing.parent.mkdir(parents=True)
     existing.write_text("mine\n", encoding="utf-8")
 
-    result = _run(
-        target, "--tools", "claude", "--dry-run", "--force", "--no-interactive"
-    )
+    result = _run(target, "--dry-run", "--force", "--no-interactive")
 
     assert result.exit_code == 0, result.output
     assert result.stdout.splitlines()[0] == "CASE: adoption"
@@ -584,7 +476,7 @@ def test_dry_run_with_existing_scaffold_files_but_no_marker_is_adoption(tmp_path
 def test_real_run_does_not_print_a_case_line(tmp_path):
     target = tmp_path / "repo"
 
-    result = _run(target, "--tools", "claude", "--no-interactive")
+    result = _run(target, "--no-interactive")
 
     assert result.exit_code == 0, result.output
     assert "CASE:" not in result.stdout
@@ -682,124 +574,6 @@ def test_docs_yes_still_overwrites_the_docs_files_it_covers(tmp_path):
     assert _is_refreshed(_doc_files(target))
 
 
-# T-158: --tools on an upgrade
-
-
-def _marker_tools(target: Path) -> list[str]:
-    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
-    return data["init"]["tools"]
-
-
-def test_upgrade_with_a_new_tool_writes_its_files_without_asking_and_records_it(
-    tmp_path,
-):
-    target = _new_project(tmp_path, tools="claude")
-    assert not (target / ".codex").exists()
-
-    result = _run(target, "--tools", "claude,codex", input="n\nn\n")
-
-    assert result.exit_code == 0, result.output
-    assert any(path.is_file() for path in (target / ".codex").rglob("*"))
-    assert _marker_tools(target) == ["claude", "codex"]
-
-
-def test_upgrade_with_a_new_tool_writes_it_under_no_interactive(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-
-    result = _run(target, "--tools", "claude,codex", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert any(path.is_file() for path in (target / ".codex").rglob("*"))
-    assert _marker_tools(target) == ["claude", "codex"]
-
-
-def test_upgrade_with_a_new_tool_asks_the_skills_question_once_for_configured_tools(
-    tmp_path,
-):
-    target = _new_project(tmp_path, tools="claude")
-    claude_files = [p for p in _exported_files(target) if ".claude" in p.parts]
-    _mark_custom(claude_files)
-
-    result = _run(target, "--tools", "claude,codex", input="n\nn\n")
-
-    assert result.exit_code == 0, result.output
-    assert result.output.lower().count(SKILLS_PROMPT) == 1
-    assert _is_custom(claude_files)
-
-
-def test_upgrade_with_a_new_tool_refreshes_configured_tools_only_on_a_yes(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    claude_files = [p for p in _exported_files(target) if ".claude" in p.parts]
-    _mark_custom(claude_files)
-
-    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
-
-    assert result.exit_code == 0, result.output
-    assert _is_refreshed(claude_files)
-
-
-def test_dry_run_upgrade_with_a_new_tool_reports_would_write_for_its_files(tmp_path):
-    target = _new_project(tmp_path, tools="claude")
-    before = _snapshot(target)
-
-    result = _run(target, "--tools", "claude,codex", "--dry-run", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    would_write = [
-        line for line in result.output.splitlines() if line.startswith("WOULD WRITE:")
-    ]
-    assert would_write
-    assert all(".codex" in line or ".agents" in line for line in would_write)
-    assert _snapshot(target) == before
-    assert not (target / ".codex").exists()
-
-
-def test_upgrade_dropping_a_tool_removes_it_from_the_marker_and_keeps_its_files(
-    tmp_path,
-):
-    target = _new_project(tmp_path, tools="claude,codex")
-    codex_files = [p for p in _exported_files(target) if ".claude" not in p.parts]
-    assert codex_files
-
-    result = _run(target, "--tools", "claude", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert _marker_tools(target) == ["claude"]
-    assert all(path.is_file() for path in codex_files)
-
-
-def test_readding_a_dropped_tool_keeps_its_existing_files_and_writes_missing_ones(
-    tmp_path,
-):
-    target = _new_project(tmp_path, tools="claude,codex")
-    codex_files = [p for p in _exported_files(target) if ".claude" not in p.parts]
-    edited, missing = codex_files[0], codex_files[1]
-    edited.write_text("custom\n", encoding="utf-8")
-    missing.unlink()
-    _run(target, "--tools", "claude", "--no-interactive")
-
-    result = _run(target, "--tools", "claude,codex", "--no-interactive")
-
-    assert result.exit_code == 0, result.output
-    assert _is_custom([edited])
-    assert missing.is_file()
-    assert f"OVERWROTE: {edited}" not in result.output
-    assert f"WROTE: {missing}" in result.output
-
-
-def test_dry_run_readding_a_dropped_tool_does_not_report_existing_files_as_overwritten(
-    tmp_path,
-):
-    target = _new_project(tmp_path, tools="claude,codex")
-    _run(target, "--tools", "claude", "--no-interactive")
-
-    result = _run(target, "--tools", "claude,codex", "--no-interactive", "--dry-run")
-
-    assert result.exit_code == 0, result.output
-    assert "WOULD OVERWRITE: " + str(target / ".codex") not in result.output
-    assert "WOULD OVERWRITE: " + str(target / ".agents") not in result.output
-
-
 # T-160: every created file is reported as WROTE, matching the dry run
 
 
@@ -842,14 +616,14 @@ def test_upgrade_reports_a_missing_skill_written_on_a_yes_as_wrote(tmp_path):
 
 def test_upgrade_reports_root_guidance_created_by_the_flag_as_wrote(tmp_path):
     target = _new_project(tmp_path)
-    (target / "CLAUDE.md").unlink()
+    (target / "AGENTS.md").unlink()
 
     result = _run(target, "--no-interactive", "--create-root-guidance")
 
     assert result.exit_code == 0, result.output
-    assert (target / "CLAUDE.md").is_file()
-    assert str(target / "CLAUDE.md") in _reported(result.output, "WROTE")
-    assert str(target / "AGENTS.md") not in _reported(result.output, "WROTE")
+    assert (target / "AGENTS.md").is_file()
+    assert str(target / "AGENTS.md") in _reported(result.output, "WROTE")
+    assert str(target / "CLAUDE.md") not in _reported(result.output, "WROTE")
 
 
 def test_upgrade_real_run_reports_every_file_its_dry_run_would_write(tmp_path):
@@ -886,29 +660,31 @@ def _preset_marker(tmp_path: Path) -> Path:
     return target
 
 
-def test_a_marker_without_tools_is_a_first_run_that_records_the_version(tmp_path):
+def test_a_marker_without_a_framework_version_is_a_first_run_that_records_it(tmp_path):
     target = _preset_marker(tmp_path)
 
-    preview = _run(target, "--tools", "claude", "--no-interactive", "--dry-run")
-    result = _run(target, "--tools", "claude", "--no-interactive")
+    preview = _run(target, "--no-interactive", "--dry-run")
+    result = _run(target, "--no-interactive")
 
     assert "CASE: new project" in preview.output
     assert result.exit_code == 0, result.output
     data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
     assert data["project"]["dir"] == "ai-team"
-    assert data["init"]["tools"] == ["claude"]
+    assert "tools" not in data.get("init", {})
     assert data["init"]["framework_version"] == importlib.metadata.version("ai-team")
     assert "dir" in data["tracker"]
 
 
-def test_a_marker_without_tools_with_existing_skills_is_an_adoption(tmp_path):
+def test_a_marker_without_a_framework_version_with_existing_skills_is_an_adoption(
+    tmp_path,
+):
     target = _preset_marker(tmp_path)
     skill = target / ".claude" / "skills" / "brainstorm" / "SKILL.md"
     skill.parent.mkdir(parents=True)
     skill.write_text("custom\n", encoding="utf-8")
 
-    preview = _run(target, "--tools", "claude", "--no-interactive", "--dry-run")
-    result = _run(target, "--tools", "claude", "--update-skills", "--no-interactive")
+    preview = _run(target, "--no-interactive", "--dry-run")
+    result = _run(target, "--update-skills", "--no-interactive")
 
     assert "CASE: adoption" in preview.output
     assert result.exit_code == 0, result.output
@@ -928,3 +704,51 @@ def test_upgrade_skips_the_docs_question_when_the_project_directory_was_recreate
     assert DOCS_PROMPT not in result.output.lower()
     assert SKILLS_PROMPT in result.output.lower()
     assert DOCS_PROMPT not in preview.output.lower()
+
+
+# T-168: state comes from [init] framework_version; [init] tools is never read
+
+
+def _marker_with_tools(tmp_path: Path, extra_init: str = "") -> Path:
+    target = tmp_path / "repo"
+    target.mkdir()
+    (target / ".ai-team.toml").write_text(
+        f'[init]\ntools = ["codex"]\n{extra_init}', encoding="utf-8"
+    )
+    return target
+
+
+def test_a_marker_with_tools_but_no_framework_version_is_a_first_run(tmp_path):
+    target = _marker_with_tools(tmp_path)
+
+    preview = _run(target, "--no-interactive", "--dry-run")
+    result = _run(target, "--no-interactive")
+
+    assert "CASE: new project" in preview.output
+    assert result.exit_code == 0, result.output
+    assert (target / ".claude" / "agents").is_dir()
+    assert _marker_data(target)["init"]["tools"] == ["codex"]
+
+
+def test_a_marker_with_a_framework_version_is_an_upgrade_without_tools(tmp_path):
+    target = _new_project(tmp_path)
+    assert "tools" not in _marker_data(target)["init"]
+
+    preview = _run(target, "--no-interactive", "--dry-run")
+
+    assert "CASE: upgrade" in preview.output
+
+
+def test_an_upgrade_keeps_a_leftover_tools_value_unchanged(tmp_path):
+    target = _marker_with_tools(tmp_path, 'framework_version = "0.0.1"\n')
+
+    preview = _run(target, "--no-interactive", "--dry-run", "--update-skills")
+    result = _run(target, "--no-interactive", "--update-skills")
+
+    assert "CASE: upgrade" in preview.output
+    assert result.exit_code == 0, result.output
+    data = _marker_data(target)
+    assert data["init"]["tools"] == ["codex"]
+    assert data["init"]["framework_version"] == _running_version()
+    assert not (target / ".codex").exists()
+    assert not (target / ".agents").exists()

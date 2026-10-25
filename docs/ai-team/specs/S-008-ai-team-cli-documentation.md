@@ -1,6 +1,6 @@
 ---
 title: "ai-team CLI Documentation"
-version: "0.2"
+version: "0.3"
 status: approved
 created: 2026-05-14
 author: planner
@@ -90,7 +90,7 @@ What this specification explicitly does NOT cover:
 **Estimated size:** Medium.
 **Interfaces:** Consumes nothing programmatically. Must cover, at minimum:
 - **Installation** — installing a published release and a local build (the scaffold generator plus `uv build` flow), and the Python version requirement.
-- **Initialisation** — `ai-team init` and its flags (`--tools`, `--project-dir`, `--integration-branch`, `--create-root-guidance`, `--no-interactive`, `--dry-run`, `--force`), what gets scaffolded, and the `.ai-team.toml` marker.
+- **Initialisation** — `ai-team init` and its flags (`--project-dir`, `--integration-branch`, `--create-root-guidance`, `--no-interactive`, `--dry-run`, `--force`), what gets scaffolded, and the `.ai-team.toml` marker.
 - **Daily workflows** — task-oriented sequences (create-and-ship a task, file-and-resolve a bug, file a change-request, generate a Gate 5 report, validate and archive), not an exhaustive flag list.
 - **Expected folder structure** — the project directory (`[project] dir`, default `ai-team`) with `specs/` (and `archive/`), `decisions/` and `docs/`; the local tracker folder (`[tracker] dir`) with its `tasks/`, `bugs/`, `change-requests/` and `archive/` folders, where state is the `status` field (S-006); the `.ai-team.toml` marker; and the locator resolution order.
 - **Maintainer section** — module map, how to add a new command, how to run tests, how to build and release, and how to regenerate `commands.md`.
@@ -158,3 +158,4 @@ None. The three questions left open at approval are answered from the repository
 |------|-------------|-----|----------------|
 | 2026-07-05 | Replaced stale repo-local `.claude/` ownership wording with package-owned scaffold source ownership. | S-004 architecture consistency review found the archived documentation spec contradicted the approved scaffold ownership model. | none |
 | 2026-10-20 | Moved out of `specs/archive/` as S-008 (it had no ID). Removed the delivered Component 5 (archive the development spec) and the one-time authoring flow; replaced `--include-ai-process` with the current `init` flags; replaced the folder-based `tasks/`/`bugs/` structure with the project directory plus the S-006 tracker; added the CI drift check (S-010) as a design principle; resolved the three open questions from `cli/scripts/gen_docs.sh`, `cli/pyproject.toml` and `.github/workflows/ci.yml`; the TOML example became prose. Driven by CR-003 §10 and Architecture Consistency Review finding F4. | The spec was still `approved` in the archive and the only written contract for `cli/docs/`, but described a removed flag, the pre-S-006 folder structure and completed work. | None in flight |
+| 2026-10-25 | Initialisation no longer lists `--tools`. Driven by CR-007. | `init` has no tool selection (S-009, ADR-003). | None in flight |

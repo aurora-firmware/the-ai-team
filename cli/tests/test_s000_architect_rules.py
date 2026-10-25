@@ -6,19 +6,9 @@ from pathlib import Path
 
 import pytest
 
-AGENTS_DIR = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "agents"
-)
+from tests.source_paths import agent_source_path
 
-ARCHITECT_SOURCES = [
-    pytest.param(AGENTS_DIR / "claude" / "architect.md", id="claude"),
-    pytest.param(AGENTS_DIR / "codex" / "architect.toml", id="codex"),
-]
+ARCHITECT_SOURCES = [pytest.param(agent_source_path("architect"), id="claude")]
 
 NON_ARCHITECT_ROLES = ["developer", "reviewer", "integrator"]
 DEVELOPER_BOOTSTRAP_EXCEPTION = "a task whose source spec is S-000"
@@ -51,11 +41,8 @@ def test_architect_uses_s000_as_reference_for_the_consistency_check(path):
 
 
 @pytest.mark.parametrize("role", NON_ARCHITECT_ROLES)
-@pytest.mark.parametrize("platform,suffix", [("claude", "md"), ("codex", "toml")])
-def test_non_architect_roles_do_not_mention_s000(role, platform, suffix):
-    path = AGENTS_DIR / platform / f"{role}.{suffix}"
-
-    text = _text(path)
+def test_non_architect_roles_do_not_mention_s000(role):
+    text = _text(agent_source_path(role))
     if role == "developer":
         assert text.count(DEVELOPER_BOOTSTRAP_EXCEPTION) == 1
         text = text.replace(DEVELOPER_BOOTSTRAP_EXCEPTION, "")

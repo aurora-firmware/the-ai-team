@@ -1,6 +1,6 @@
 ---
 title: Project layout diagnostics and CLI development warning
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-06-24'
 author: planner
@@ -83,7 +83,7 @@ CLI invocation
 |---|---|---|
 | CLI development warning | Tells users the CLI is evolving and where to report defects. | Emitted exactly once for every process invocation, including help, version, successful commands, failed commands, and commands using JSON output. |
 | Version mismatch warning | Tells users and agents that the project's scaffolds were written by a different CLI version than the one running. | Emitted once, on stderr, after the development warning, only when `.ai-team.toml` records a `framework_version` that differs from the running CLI. Never changes stdout, JSON output, or the exit code. |
-| Layout contract resolver | Determines the repository root, configured project directory, selected AI tools, expected scaffold directories, and running CLI version. | Consumes `.ai-team.toml` when present and the current installed package contract; does not consult the network. |
+| Layout contract resolver | Determines the repository root, configured project directory, expected scaffold directories, and running CLI version. | Consumes `.ai-team.toml` when present and the current installed package contract; does not consult the network. |
 | Layout checks | Evaluate the four validation levels without modifying the repository. | Later levels report blocked or missing prerequisites clearly instead of crashing. |
 | Issue reporter | Aggregates findings into human-readable CLI output. | Each finding exposes level, path, problem, and suggested fix; a clean project has an unambiguous success result. |
 
@@ -97,7 +97,7 @@ CLI invocation
 
 ### Component 2: Layout Contract Resolution
 
-**Purpose:** Resolve the expected repository structure and tool-specific guidance from local configuration and the installed CLI.
+**Purpose:** Resolve the expected repository structure and root guidance from local configuration and the installed CLI.
 **Estimated size:** Medium.
 **Interfaces:** Project locator, `.ai-team.toml`, packaged scaffold contract, and installed distribution version.
 
@@ -132,9 +132,9 @@ User invokes any ai-team command
 
 User invokes ai-team check-layout
   ↓
-Resolve repository root, .ai-team.toml, selected tools, and installed version
+Resolve repository root, .ai-team.toml, and installed version
   ↓
-Check level 1: all expected project and selected-tool directories exist, and
+Check level 1: all expected project, agent and skill directories exist, and
   the tracker and legacy work-item folders are where S-006 expects them
   ↓
 Check level 2: all managed artifact files have valid names and frontmatter
@@ -155,21 +155,11 @@ not be completed rather than raising an unhandled exception.
 
 1. **Level 1 — expected directories and tracker placement.** The repository must contain the
    configured project directory and every directory in the current CLI project
-   scaffold. For each tool named in `.ai-team.toml`, its current
-   agent and skill scaffold directories must also exist, at the export paths
-   below. Extra directories are permitted and are not findings. A missing
+   scaffold, plus the agent directory `.claude/agents/` and the skill directory
+   `.claude/skills/`. `[init] tools` is never read (CR-007). Extra directories,
+   including any Codex folder, are permitted and are not findings. A missing
    `docs/coding_guidelines.md` in the project directory is a finding; the
    suggested fix is to create it from the scaffold placeholder (CR-004).
-
-   | Tool | Agents | Skills |
-   |---|---|---|
-   | `claude` | `.claude/agents/` | `.claude/skills/` |
-   | `codex` | `.codex/agents/` | `.agents/skills/` |
-
-   For a configured `codex` tool, a legacy `.codex/skills/<name>/` folder whose
-   name is a framework-owned skill is a finding; the suggested fix is to rerun
-   `ai-team init --update-skills`. Legacy folders for skills the framework does not own
-   are not findings.
 
    Tasks, bugs, and change requests live in the local tracker (S-006), not in
    the project directory. Two tracker conditions are level 1 findings: a
@@ -188,9 +178,8 @@ not be completed rather than raising an unhandled exception.
    only checked for presence. The `status` field is the only lifecycle state
    (S-006), so no folder is compared with it. Scaffold
    placeholders such as `.gitkeep` and non-artifact documentation are ignored.
-3. **Level 3 — root guidance.** A configured `claude` tool requires root
-   `CLAUDE.md`; a configured `codex` tool requires root `AGENTS.md`; configuring
-   both requires both files. Each relevant file must contain non-placeholder
+3. **Level 3 — root guidance.** The repository requires root `AGENTS.md`;
+   root `CLAUDE.md` is neither required nor read (CR-007). The file must contain non-placeholder
    guidance under `Build and Install`, `Test`, `Run`, `Lint and Format`, and
    `Key Conventions`. Missing files, missing sections, or sections that retain
    only starter-template placeholder text are findings.
@@ -215,19 +204,19 @@ project. Those marker cases remain level 4 findings.
 
 ## Configuration Requirements
 
-- **What must exist:** The repository marker identifying the project directory,
-  configured tools, and scaffold framework version.
+- **What must exist:** The repository marker identifying the project directory
+  and scaffold framework version.
   **Where it lives:** Root `.ai-team.toml`.
   **Constraints:** The project directory is a usable relative directory name;
-  configured tools are supported by the running CLI; the framework version is
+  `[init] tools` is not read; the framework version is
   compared exactly with the installed distribution version, both by level 4
   and by the version mismatch warning.
   **Missing-value behaviour:** Record an actionable finding and continue every
   check that can still be evaluated safely from repository conventions. The
   version mismatch warning is skipped.
 
-- **What must exist:** Root guidance for each configured AI tool.
-  **Where it lives:** Root `CLAUDE.md` for Claude and root `AGENTS.md` for Codex.
+- **What must exist:** Root project guidance.
+  **Where it lives:** Root `AGENTS.md`.
   **Constraints:** Required sections contain project-specific, non-placeholder
   guidance; no command in those sections is executed by `check-layout`.
   **Missing-value behaviour:** Record an actionable finding naming the missing
@@ -250,6 +239,7 @@ project. Those marker cases remain level 4 findings.
 | 3 | Expose `ai-team check-layout` with deterministic reporting, suggested fixes, and clean/issue exit behavior. | Phase 2 |
 | 4 | Update user and generated command documentation, then verify the complete CLI test, lint, scaffold-sync, and build checks. | Phases 1-3 |
 | 5 | Add the version mismatch warning, and move the level 1 Codex skill path to `.agents/skills/` with the legacy-folder finding (CR-002). | Phases 1-4 |
+| 6 | Drop tool selection: level 1 expects the Claude agent and skill directories and loses the legacy Codex finding; level 3 requires root `AGENTS.md` only (CR-007). | Phases 1-5 |
 
 ## Amendment Log
 
@@ -262,3 +252,4 @@ project. Those marker cases remain level 4 findings.
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005: warning and legacy-fix texts hold; level-1 "rerun ai-team init" fix for missing scaffold directories no longer works on an upgrade (follow-up task with S-009 F5) | none |
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 re-run: version-mismatch warning, legacy fix (--update-skills) and level-1 directory fixes hold; a plain init upgrade recreates missing project dirs, --update-skills restores tool dirs (T-157) | none |
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 fifth re-run: version-mismatch warning, level-1 directory fixes and the legacy Codex fix (--update-skills, finding reported only when codex is configured) still hold after T-161 | none |
+| 2026-10-25 | Claude is the only export target: the resolver no longer reads `[init] tools`; level 1 always expects `.claude/agents/` and `.claude/skills/` and drops the per-tool table and the legacy Codex skill finding; level 3 and the guidance configuration require root `AGENTS.md` only, with `CLAUDE.md` neither required nor read. Driven by CR-007 and ADR-003. | Codex support was dropped and the generated guidance file is `AGENTS.md`, which current Claude Code reads. | None in flight |

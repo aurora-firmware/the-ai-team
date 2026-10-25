@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-CLI = Path(__file__).resolve().parents[1]
-BODY = CLI / "src" / "ai_team" / "init" / "sources" / "skills" / "new-task" / "body.md"
+from tests.source_paths import skill_source_text
 
 
 def body() -> str:
-    return BODY.read_text(encoding="utf-8")
+    return skill_source_text("new-task")
 
 
 def flat(text: str) -> str:

@@ -14,7 +14,7 @@ from typing import Literal
 
 from ai_team.core.config import is_valid_project_dir
 from ai_team.core.locator import DEFAULT_PROJECT_DIR, ProjectRoot
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS, framework_skill_names
+from ai_team.core.tool_paths import EXPORT_PATHS
 from ai_team.core.tracker import (
     MIGRATION_GUIDE,
     is_inside,
@@ -24,8 +24,7 @@ from ai_team.core.tracker import (
 from ai_team.core.validate import Finding as ArtifactFinding
 from ai_team.core.validate import validate_project
 
-_SUPPORTED_TOOLS = ("claude", "codex")
-_GUIDANCE_BY_TOOL = {"claude": "CLAUDE.md", "codex": "AGENTS.md"}
+_GUIDANCE_FILENAME = "AGENTS.md"
 _GUIDANCE_HEADINGS = (
     "Build and Install",
     "Test",
@@ -57,12 +56,10 @@ class LayoutContract:
     repo: Path
     marker: Path
     project_dir: Path
-    tools: tuple[str, ...]
     configured_version: str | None
     current_version: str | None
     raw_configured_version: object = field(default=None, repr=False)
     marker_status: _Status = field(default="valid", repr=False)
-    tools_status: _Status = field(default="valid", repr=False)
     version_status: _Status = field(default="valid", repr=False)
 
 
@@ -118,7 +115,6 @@ def resolve_layout(
             )
 
     project_value: object = None
-    tools_value: object = None
     version_value: object = None
     if marker_status == "valid" and isinstance(data, dict):
         project_table = data.get("project")
@@ -126,7 +122,6 @@ def resolve_layout(
         if isinstance(project_table, dict):
             project_value = project_table.get("dir")
         if isinstance(init_table, dict):
-            tools_value = init_table.get("tools")
             version_value = init_table.get("framework_version")
 
     project_dir_name = DEFAULT_PROJECT_DIR
@@ -142,45 +137,6 @@ def resolve_layout(
                     f"Set [project].dir to a relative directory path inside the repository without '..', such as '{DEFAULT_PROJECT_DIR}' or 'docs/{DEFAULT_PROJECT_DIR}'.",
                 )
             )
-
-    selected_tools: list[str] = []
-    tools_status: _Status = "valid"
-    if marker_status == "valid":
-        if not isinstance(tools_value, list):
-            tools_status = "missing" if tools_value is None else "invalid"
-            findings.append(
-                _finding(
-                    1,
-                    ".ai-team.toml",
-                    "Marker value [init].tools is missing or invalid; no tool directories can be selected safely.",
-                    "Set [init].tools to an array containing supported tool names: 'claude' and/or 'codex'.",
-                )
-            )
-        else:
-            invalid_tools = [
-                value
-                for value in tools_value
-                if not isinstance(value, str) or value not in _SUPPORTED_TOOLS
-            ]
-            for value in tools_value:
-                if (
-                    isinstance(value, str)
-                    and value in _SUPPORTED_TOOLS
-                    and value not in selected_tools
-                ):
-                    selected_tools.append(value)
-            if invalid_tools:
-                tools_status = "invalid"
-                findings.append(
-                    _finding(
-                        1,
-                        ".ai-team.toml",
-                        f"Marker contains unsupported or invalid configured tools: {invalid_tools!r}.",
-                        "Keep only supported tool names: 'claude' and/or 'codex'.",
-                    )
-                )
-    else:
-        tools_status = marker_status
 
     version_status: _Status = "valid"
     configured_version: str | None = None
@@ -201,12 +157,10 @@ def resolve_layout(
             repo=repo,
             marker=marker,
             project_dir=repo / project_dir_name,
-            tools=tuple(selected_tools),
             configured_version=configured_version,
             current_version=installed_version,
             raw_configured_version=version_value,
             marker_status=marker_status,
-            tools_status=tools_status,
             version_status=version_status,
         ),
         sorted(findings, key=_sort_key),
@@ -236,16 +190,15 @@ def _expected_directories(contract: LayoutContract) -> list[Path]:
         contract.project_dir / relative
         for relative in _resource_directories(scaffold_root.joinpath("project"))
     )
-    for tool in contract.tools:
-        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
-            destination_root = contract.repo / destination
-            expected.append(destination_root)
-            expected.extend(
-                destination_root / relative
-                for relative in _resource_directories(
-                    scaffold_root.joinpath(tool, scaffold_subfolder)
-                )
+    for scaffold_subfolder, destination in EXPORT_PATHS:
+        destination_root = contract.repo / destination
+        expected.append(destination_root)
+        expected.extend(
+            destination_root / relative
+            for relative in _resource_directories(
+                scaffold_root.joinpath(scaffold_subfolder)
             )
+        )
     return expected
 
 
@@ -294,23 +247,6 @@ def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
     return findings
 
 
-def _legacy_codex_skill_findings(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report framework skill copies left in .codex/skills after the move to .agents/skills."""
-
-    if "codex" not in contract.tools:
-        return []
-    return [
-        _finding(
-            1,
-            f".codex/skills/{name}",
-            f"Legacy Codex skill folder '.codex/skills/{name}' duplicates the framework skill exported to '.agents/skills/{name}'.",
-            "Rerun 'ai-team init --update-skills' to remove the legacy copy.",
-        )
-        for name in framework_skill_names("codex")
-        if (contract.repo / ".codex" / "skills" / name).is_dir()
-    ]
-
-
 def _coding_guidelines_findings(contract: LayoutContract) -> list[LayoutFinding]:
     """Report a missing docs/coding_guidelines.md; any existing content is accepted."""
 
@@ -332,7 +268,6 @@ def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
     """Report missing directories, tracker ignore problems, and legacy folders."""
 
     findings = _tracker_findings(contract)
-    findings.extend(_legacy_codex_skill_findings(contract))
     findings.extend(_coding_guidelines_findings(contract))
     for path in _expected_directories(contract):
         if not path.is_dir():
@@ -451,67 +386,54 @@ def _is_placeholder_section(content: str, starter_content: str) -> bool:
 
 
 def check_level_3(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report missing or placeholder root guidance for configured tools."""
+    """Report missing or placeholder root AGENTS.md guidance."""
 
-    findings: list[LayoutFinding] = []
-    if contract.tools_status != "valid":
-        findings.append(
+    filename = _GUIDANCE_FILENAME
+    path = contract.repo / filename
+    if not path.is_file():
+        return [
             _finding(
                 3,
-                ".ai-team.toml",
-                "Root guidance selection is blocked by missing or invalid configured tools.",
-                "Set [init].tools to an array containing 'claude' and/or 'codex', then rerun the layout check.",
+                filename,
+                f"Root guidance file '{filename}' is missing.",
+                f"Create '{filename}' and fill every required project-guidance section.",
             )
-        )
+        ]
 
-    for tool in contract.tools:
-        filename = _GUIDANCE_BY_TOOL[tool]
-        path = contract.repo / filename
-        if not path.is_file():
+    try:
+        content = path.read_text(encoding="utf-8")
+        starter_sections = _starter_guidance_sections(filename)
+    except (OSError, UnicodeError) as exc:
+        return [
+            _finding(
+                3,
+                filename,
+                f"Root guidance checks for '{filename}' are blocked: {exc}",
+                "Restore a readable UTF-8 guidance file, then rerun the layout check.",
+            )
+        ]
+
+    findings: list[LayoutFinding] = []
+    sections = _markdown_sections(content)
+    for heading in _GUIDANCE_HEADINGS:
+        if heading not in sections:
             findings.append(
                 _finding(
                     3,
                     filename,
-                    f"Configured tool '{tool}' requires root guidance file '{filename}', but it is missing.",
-                    f"Create '{filename}' and fill every required project-guidance section.",
+                    f"Root guidance file '{filename}' is missing required section '{heading}'.",
+                    f"Add a '## {heading}' section containing project-specific guidance.",
                 )
             )
-            continue
-
-        try:
-            content = path.read_text(encoding="utf-8")
-            starter_sections = _starter_guidance_sections(filename)
-        except (OSError, UnicodeError) as exc:
+        elif _is_placeholder_section(sections[heading], starter_sections[heading]):
             findings.append(
                 _finding(
                     3,
                     filename,
-                    f"Root guidance checks for '{filename}' are blocked: {exc}",
-                    "Restore a readable UTF-8 guidance file, then rerun the layout check.",
+                    f"Required section '{heading}' in '{filename}' contains only starter-template placeholder content.",
+                    f"Replace the '{heading}' placeholder with project-specific guidance.",
                 )
             )
-            continue
-
-        sections = _markdown_sections(content)
-        for heading in _GUIDANCE_HEADINGS:
-            if heading not in sections:
-                findings.append(
-                    _finding(
-                        3,
-                        filename,
-                        f"Root guidance file '{filename}' is missing required section '{heading}'.",
-                        f"Add a '## {heading}' section containing project-specific guidance.",
-                    )
-                )
-            elif _is_placeholder_section(sections[heading], starter_sections[heading]):
-                findings.append(
-                    _finding(
-                        3,
-                        filename,
-                        f"Required section '{heading}' in '{filename}' contains only starter-template placeholder content.",
-                        f"Replace the '{heading}' placeholder with project-specific guidance.",
-                    )
-                )
     return sorted(findings, key=_sort_key)
 
 

@@ -2,22 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-DEV_LOOP_BODY = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "dev-loop"
-    / "body.md"
-)
+from tests.source_paths import skill_source_text
 
 
 def _step_3_text() -> str:
-    body = DEV_LOOP_BODY.read_text(encoding="utf-8")
+    body = skill_source_text("dev-loop")
     start = body.index("### Step 3: Pick the Next Task")
     end = body.index("### Step 4:")
     return body[start:end]
@@ -38,5 +27,5 @@ def test_step_3_treats_none_entry_as_no_dependencies() -> None:
 
 
 def test_dev_loop_body_does_not_describe_dependencies_as_a_field() -> None:
-    body = DEV_LOOP_BODY.read_text(encoding="utf-8")
+    body = skill_source_text("dev-loop")
     assert "listed in `dependencies`" not in body

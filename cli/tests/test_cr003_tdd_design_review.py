@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-CLI = Path(__file__).resolve().parents[1]
-INIT = CLI / "src" / "ai_team" / "init"
-BODY = INIT / "sources" / "skills" / "tdd" / "body.md"
-COPIES = [
-    BODY,
-    INIT / "scaffolds" / "claude" / "skills" / "tdd" / "SKILL.md",
-    INIT / "scaffolds" / "codex" / "skills" / "tdd" / "SKILL.md",
-]
+from tests.source_paths import skill_export_path, skill_source_text
+
+COPIES = {
+    "source": skill_source_text("tdd"),
+    "claude": skill_export_path("tdd").read_text(encoding="utf-8"),
+}
 DESIGN_REVIEW_RECORD = (
     "**Design-review record** — for design-review tasks, the Work Log handoff "
     "names the documents checked, each conflict found and how it was fixed, "
@@ -29,7 +25,7 @@ TEST_ONLY_BULLET_STARTS = (
 
 
 def body() -> str:
-    return BODY.read_text(encoding="utf-8")
+    return skill_source_text("tdd")
 
 
 def flat(text: str) -> str:
@@ -93,17 +89,17 @@ def test_input_and_quality_sections_distinguish_design_review_tasks():
     )
 
 
-@pytest.mark.parametrize("path", COPIES, ids=lambda p: p.parent.parent.parent.name)
-def test_output_format_pins_design_review_record_and_test_task_qualifiers(path):
-    output = flat(section_of(path.read_text(encoding="utf-8"), "## Output Format"))
+@pytest.mark.parametrize("copy", COPIES.values(), ids=COPIES.keys())
+def test_output_format_pins_design_review_record_and_test_task_qualifiers(copy):
+    output = flat(section_of(copy, "## Output Format"))
     assert DESIGN_REVIEW_RECORD in output
     assert "**Test files** — for test tasks, one or more" in output
     assert "**Implementation files** — for test tasks, production code" in output
 
 
-@pytest.mark.parametrize("path", COPIES, ids=lambda p: p.parent.parent.parent.name)
-def test_quality_criteria_scope_test_bullets_to_test_tasks(path):
-    quality = section_of(path.read_text(encoding="utf-8"), "## Quality Criteria")
+@pytest.mark.parametrize("copy", COPIES.values(), ids=COPIES.keys())
+def test_quality_criteria_scope_test_bullets_to_test_tasks(copy):
+    quality = section_of(copy, "## Quality Criteria")
     bullets = {flat(line) for line in quality.splitlines() if line.startswith("- ")}
     for start in TEST_ONLY_BULLET_STARTS:
         matching = [b for b in bullets if b.startswith(start)]
