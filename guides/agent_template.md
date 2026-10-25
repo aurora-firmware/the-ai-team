@@ -52,27 +52,13 @@ Every agent in this framework uses exactly these nine sections, in this order:
 8. `## Quality Bar`
 9. `## Output Format`
 
-A role that must read something before any other work may add one optional `## Session Start` section between `## Skills` and `## Decision Authority`. The Codex file carries the same content under `Session start:`.
+A role that must read something before any other work may add one optional `## Session Start` section between `## Skills` and `## Decision Authority`.
 
-## `.claude/agents` vs `.codex/agents`
+## Agent Source Files
 
-The role definition is the same in both systems, but the file format is different.
-
-**Claude format** stores each agent as Markdown in `.claude/agents/<role>.md`:
-- YAML frontmatter carries `name`, `description`, `tools`, `model`, and `skills`.
+Each agent is one Markdown file under `cli/src/ai_team/init/sources/agents/<role>.md`, exported to `.claude/agents/<role>.md`:
+- YAML frontmatter carries `name`, `description`, `tools`, `model`, and `skills`; `tools` and `skills` are first-class frontmatter fields.
 - The agent body contains the nine canonical sections in Markdown.
-
-**Codex format** stores each agent as TOML in `.codex/agents/<role>.toml`:
-- Top-level TOML keys carry selector and runtime fields such as `name`, `description`, `developer_instructions`, and optional Codex-native settings like `model` and `model_reasoning_effort`.
-- A Codex subagent takes its sandbox and approval settings from the parent session, not from a custom agent file. The roles that create files or commit — Architect, Planner, Developer, Reviewer, and Integrator — need a parent Codex session that allows writes.
-- The role contract that appears as Markdown sections in Claude is flattened into the `developer_instructions` string.
-
-Mapping rules:
-- Keep the same role name and caller-facing description in both formats.
-- Preserve the same authority, scope, escalation rules, quality bar, and output format.
-- In `.claude/agents`, `tools` and `skills` are first-class frontmatter fields.
-- In `.codex/agents`, mention tool expectations and skill usage inside `developer_instructions` unless Codex adds a separate field you intentionally adopt.
-- Treat the Claude Markdown file as the more readable authoring format and the Codex TOML file as a platform-specific translation of the same contract.
 
 ## Agent File Template
 

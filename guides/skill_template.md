@@ -72,9 +72,9 @@ Only create `assets/`, `references/`, or `scripts/` when the skill needs them. D
 
 ### Export Rules for Skills in This Repository
 
-Of a source skill directory under `cli/src/ai_team/init/sources/skills/<name>/`, only `body.md`, `metadata.toml` and the `assets/`, `references/` and `scripts/` folders are exported. Any other file in that directory stays in the source tree.
+A source skill is one `SKILL.md` (frontmatter plus body) under `cli/src/ai_team/init/sources/skills/<name>/`, with optional `assets/`, `references/` and `scripts/` folders. Only those are exported. Any other file in that directory stays in the source tree.
 
-The supporting folders reach both the Claude and the Codex export, next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}` and `{{integration_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
+The supporting folders reach the export next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}` and `{{integration_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
 
 ## Canonical Section Order
 
@@ -249,14 +249,6 @@ description: Use this when needed.     # no specifics
 `disable-model-invocation`:
 - Set to `true` for human-only actions such as `status-report`. Do not set it on orchestrators: they stay model-invocable so a human can delegate a loop to an agent, and the `using-ai-team` rule forbids starting one unasked.
 - Do not set it to `true` on a skill referenced through another skill's `Skill(<name>)` declaration. The target must remain model-invocable for that in-process call to work.
-
-### Codex frontmatter parity (ADR-001)
-
-The `[codex]` section header in every exported `SKILL.md` keeps the **full frontmatter key
-set** — `allowed-tools`, `argument-hint`, `effort`, and `disable-model-invocation` — in
-full parity with the `[claude]` section. Do not strip keys from Codex headers. In
-particular, skill-to-skill wiring expressed as `Skill(<name>)` in `allowed-tools` must
-be preserved unchanged in both sections.
 
 ## Explicit Skill Invocation
 
