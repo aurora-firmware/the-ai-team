@@ -1,6 +1,6 @@
-# Project Guidance for Agents
+# Project Guidance for Claude
 
-This file provides agents with the commands and conventions they need to work in
+This file provides Claude with the commands and conventions it needs to work in
 this repository. Fill in each section so agents can run the project without
 guessing.
 

@@ -28,9 +28,7 @@ def _new_project(tmp_path: Path) -> Path:
 
 
 def _doc_files(target: Path) -> list[Path]:
-    return [
-        target / "ai-team" / name for name in ("AGENTS.md", "CLAUDE.md", ".gitignore")
-    ]
+    return [target / "ai-team" / name for name in ("AGENTS.md", ".gitignore")]
 
 
 def _exported_files(target: Path) -> list[Path]:
@@ -69,6 +67,16 @@ def test_upgrade_asks_for_docs_then_for_agents_and_skills(tmp_path):
     assert output.index(DOCS_PROMPT) < output.index(SKILLS_PROMPT)
 
 
+def test_upgrade_docs_question_names_only_agents_md_and_gitignore(tmp_path):
+    target = _new_project(tmp_path)
+
+    result = _run(target, input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert "(AGENTS.md, .gitignore)" in result.output
+    assert "CLAUDE.md" not in result.output
+
+
 def test_upgrade_writes_only_the_docs_when_only_the_docs_question_is_yes(tmp_path):
     target = _new_project(tmp_path)
     docs, exported = _doc_files(target), _exported_files(target)
@@ -104,7 +112,7 @@ def test_upgrade_recreates_a_missing_project_directory(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert (target / "ai-team" / "specs" / ".gitkeep").is_file()
-    assert (target / "ai-team" / "CLAUDE.md").is_file()
+    assert (target / "ai-team" / "AGENTS.md").is_file()
 
 
 # AC-2
@@ -608,14 +616,14 @@ def test_upgrade_reports_a_missing_skill_written_on_a_yes_as_wrote(tmp_path):
 
 def test_upgrade_reports_root_guidance_created_by_the_flag_as_wrote(tmp_path):
     target = _new_project(tmp_path)
-    (target / "CLAUDE.md").unlink()
+    (target / "AGENTS.md").unlink()
 
     result = _run(target, "--no-interactive", "--create-root-guidance")
 
     assert result.exit_code == 0, result.output
-    assert (target / "CLAUDE.md").is_file()
-    assert str(target / "CLAUDE.md") in _reported(result.output, "WROTE")
-    assert str(target / "AGENTS.md") not in _reported(result.output, "WROTE")
+    assert (target / "AGENTS.md").is_file()
+    assert str(target / "AGENTS.md") in _reported(result.output, "WROTE")
+    assert str(target / "CLAUDE.md") not in _reported(result.output, "WROTE")
 
 
 def test_upgrade_real_run_reports_every_file_its_dry_run_would_write(tmp_path):

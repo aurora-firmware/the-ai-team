@@ -50,7 +50,7 @@ def _replace_project_skeleton(destination: Path, source: Path) -> None:
         leaf_dir.mkdir(parents=True, exist_ok=True)
         (leaf_dir / ".gitkeep").write_text("", encoding="utf-8")
 
-    for root_file in ("CLAUDE.md", "AGENTS.md", ".gitignore"):
+    for root_file in ("AGENTS.md", ".gitignore"):
         src = source / root_file
         if not src.is_file():
             raise FileNotFoundError(

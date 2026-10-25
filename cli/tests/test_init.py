@@ -102,7 +102,6 @@ def test_init_dry_run_lists_files_and_writes_nothing(tmp_path):
     assert f"WOULD CREATE: {target / '.ai-team' / 'tracker'}" in result.output
     assert str(target / ".claude" / "agents" / "planner.md") in result.output
     assert str(target / ".ai-team.toml") in result.output
-    assert str(target / "CLAUDE.md") not in result.output
     assert str(target / "AGENTS.md") not in result.output
     assert not target.exists()
 
@@ -203,11 +202,11 @@ def test_init_interactive_does_not_prompt_for_ai_process_snapshot(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # Provide two root-guidance confirmations (CLAUDE.md, AGENTS.md).
+    # Provide one root-guidance confirmation (AGENTS.md).
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="y\ny\n",
+        input="y\n",
     )
 
     assert result.exit_code == 0
@@ -215,7 +214,7 @@ def test_init_interactive_does_not_prompt_for_ai_process_snapshot(tmp_path):
 
 
 def test_init_creates_project_guidance_files(tmp_path):
-    """AC-3: init writes ai-team/CLAUDE.md and ai-team/AGENTS.md."""
+    """AC-3: init writes ai-team/AGENTS.md and no ai-team/CLAUDE.md."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
@@ -225,12 +224,12 @@ def test_init_creates_project_guidance_files(tmp_path):
     )
 
     assert result.exit_code == 0
-    assert (target / "ai-team" / "CLAUDE.md").is_file()
     assert (target / "ai-team" / "AGENTS.md").is_file()
+    assert not (target / "ai-team" / "CLAUDE.md").exists()
 
 
 def test_init_dry_run_includes_project_guidance_files(tmp_path):
-    """AC-3: dry-run output lists ai-team/CLAUDE.md and ai-team/AGENTS.md."""
+    """AC-3: dry-run output lists ai-team/AGENTS.md and not ai-team/CLAUDE.md."""
     from ai_team.cli import app
 
     target = tmp_path / "new-repo"
@@ -240,20 +239,20 @@ def test_init_dry_run_includes_project_guidance_files(tmp_path):
     )
 
     assert result.exit_code == 0
-    assert str(target / "ai-team" / "CLAUDE.md") in result.output
     assert str(target / "ai-team" / "AGENTS.md") in result.output
+    assert str(target / "ai-team" / "CLAUDE.md") not in result.output
 
 
 def test_init_skips_project_guidance_file_when_it_exists_without_force(
     monkeypatch, tmp_path
 ):
-    """AC-4: init keeps an existing ai-team/CLAUDE.md without --force and still exits 0."""
+    """AC-4: init keeps an existing ai-team/AGENTS.md without --force and still exits 0."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
     target.mkdir()
 
-    existing = target / "ai-team" / "CLAUDE.md"
+    existing = target / "ai-team" / "AGENTS.md"
     existing.parent.mkdir(parents=True, exist_ok=True)
     existing.write_text("occupied\n", encoding="utf-8")
 
@@ -272,7 +271,7 @@ def test_init_force_overwrites_project_guidance_files(monkeypatch, tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
 
-    existing = target / "ai-team" / "CLAUDE.md"
+    existing = target / "ai-team" / "AGENTS.md"
     existing.parent.mkdir(parents=True, exist_ok=True)
     existing.write_text("old content\n", encoding="utf-8")
 
@@ -316,7 +315,7 @@ def test_init_keeps_existing_coding_guidelines_without_counting_a_collision(tmp_
 
     assert result.exit_code == 0
     assert existing.read_text(encoding="utf-8") == "project rules\n"
-    assert (target / "ai-team" / "CLAUDE.md").is_file()
+    assert (target / "ai-team" / "AGENTS.md").is_file()
 
 
 def test_init_force_keeps_existing_coding_guidelines(tmp_path):
@@ -361,7 +360,7 @@ def test_init_still_skips_other_skeleton_collisions_when_guidelines_exist(tmp_pa
     target = tmp_path / "repo"
     target.mkdir()
     guidelines = _write_existing_guidelines(target)
-    claude_md = target / "ai-team" / "CLAUDE.md"
+    claude_md = target / "ai-team" / "AGENTS.md"
     claude_md.write_text("occupied\n", encoding="utf-8")
     args = ["init", str(target), "--no-interactive"]
 
@@ -380,33 +379,16 @@ def test_init_still_skips_other_skeleton_collisions_when_guidelines_exist(tmp_pa
 # ── Root guidance file tests (T-050) ─────────────────────────────────────────
 
 
-def test_interactive_init_prompts_to_create_root_claude_md_when_missing(tmp_path):
-    """AC-1: interactive init asks whether to create root CLAUDE.md when absent."""
-    from ai_team.cli import app
-
-    target = tmp_path / "repo"
-    # Provide: create CLAUDE.md=yes, create AGENTS.md=yes
-    result = CliRunner().invoke(
-        app,
-        ["init", str(target)],
-        input="y\ny\n",
-    )
-
-    assert result.exit_code == 0
-    assert "CLAUDE.md" in result.output
-    assert (target / "CLAUDE.md").is_file()
-
-
 def test_interactive_init_prompts_to_create_root_agents_md_when_missing(tmp_path):
     """AC-2: interactive init asks whether to create root AGENTS.md when absent."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # Provide: create CLAUDE.md=yes, create AGENTS.md=yes
+    # Provide: create AGENTS.md=yes
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="y\ny\n",
+        input="y\n",
     )
 
     assert result.exit_code == 0
@@ -425,7 +407,6 @@ def test_non_interactive_init_skips_root_guidance_by_default(tmp_path):
     )
 
     assert result.exit_code == 0
-    assert not (target / "CLAUDE.md").exists()
     assert not (target / "AGENTS.md").exists()
 
 
@@ -445,8 +426,8 @@ def test_non_interactive_init_creates_root_guidance_with_flag(tmp_path):
     )
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").is_file()
     assert (target / "AGENTS.md").is_file()
+    assert not (target / "CLAUDE.md").exists()
 
 
 def test_declining_root_guidance_prints_followup_message(tmp_path):
@@ -454,41 +435,19 @@ def test_declining_root_guidance_prints_followup_message(tmp_path):
     from ai_team.cli import app
 
     target = tmp_path / "repo"
-    # CLAUDE.md=no, AGENTS.md=no
+    # AGENTS.md=no
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
-        input="n\nn\n",
+        input="n\n",
     )
 
     assert result.exit_code == 0
-    assert not (target / "CLAUDE.md").exists()
     assert not (target / "AGENTS.md").exists()
     # Should print guidance about documenting project commands
-    assert "CLAUDE.md" in result.output or "AGENTS.md" in result.output
+    assert "AGENTS.md" in result.output
+    assert "CLAUDE.md" not in result.output
     assert "commands" in result.output.lower()
-
-
-def test_root_guidance_file_already_exists_is_not_overwritten(tmp_path):
-    """AC-5: existing root CLAUDE.md is not replaced when interactive init runs."""
-    from ai_team.cli import app
-
-    target = tmp_path / "repo"
-    target.mkdir()
-    existing_claude = target / "CLAUDE.md"
-    existing_claude.write_text("existing content\n", encoding="utf-8")
-
-    # Even answering "yes" to prompts, existing files must not be replaced
-    result = CliRunner().invoke(
-        app,
-        ["init", str(target)],
-        input="y\ny\n",
-    )
-
-    assert result.exit_code == 0
-    assert existing_claude.read_text(encoding="utf-8") == "existing content\n"
-    # Should not prompt about CLAUDE.md since it already exists
-    # (the prompt should only appear for AGENTS.md since CLAUDE.md exists)
 
 
 def test_root_guidance_file_existing_agents_md_is_not_overwritten(tmp_path):
@@ -500,7 +459,7 @@ def test_root_guidance_file_existing_agents_md_is_not_overwritten(tmp_path):
     existing_agents = target / "AGENTS.md"
     existing_agents.write_text("existing agents content\n", encoding="utf-8")
 
-    # AGENTS.md exists so no prompt for it; answer for CLAUDE.md only
+    # AGENTS.md exists so no prompt for it
     result = CliRunner().invoke(
         app,
         ["init", str(target)],
@@ -512,7 +471,7 @@ def test_root_guidance_file_existing_agents_md_is_not_overwritten(tmp_path):
 
 
 def test_root_guidance_file_created_from_stable_template(tmp_path):
-    """Root CLAUDE.md must be created from the stable template with command documentation guidance."""
+    """Root AGENTS.md must be created from the stable template with command documentation guidance."""
     from ai_team.cli import app
 
     target = tmp_path / "repo"
@@ -527,7 +486,7 @@ def test_root_guidance_file_created_from_stable_template(tmp_path):
     )
 
     assert result.exit_code == 0
-    content = (target / "CLAUDE.md").read_text(encoding="utf-8")
+    content = (target / "AGENTS.md").read_text(encoding="utf-8")
     # Template must invite projects to record test/run commands
     assert "test" in content.lower() or "command" in content.lower()
 
@@ -538,7 +497,7 @@ def test_force_flag_overwrites_existing_root_guidance_files(tmp_path):
 
     target = tmp_path / "repo"
     target.mkdir()
-    existing_claude = target / "CLAUDE.md"
+    existing_claude = target / "AGENTS.md"
     existing_claude.write_text("old content\n", encoding="utf-8")
 
     result = CliRunner().invoke(
@@ -647,7 +606,7 @@ def test_init_configures_tracker_and_ignores_it_idempotently(tmp_path):
 def _repo_with_custom_root_guidance(tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
-    for name in ("CLAUDE.md", "AGENTS.md"):
+    for name in ("AGENTS.md",):
         (target / name).write_text("custom\n", encoding="utf-8")
     return target
 
@@ -665,22 +624,20 @@ def _init(target, *flags, input=None):
 def test_interactive_force_overwrites_and_reports_root_guidance_on_yes(tmp_path):
     target = _repo_with_custom_root_guidance(tmp_path)
 
-    result = _init(target, "--force", input="y\ny\n")
+    result = _init(target, "--force", input="y\n")
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") != "custom\n"
-    assert f"OVERWROTE: {target / 'CLAUDE.md'}" in result.output
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") != "custom\n"
     assert f"OVERWROTE: {target / 'AGENTS.md'}" in result.output
 
 
 def test_interactive_force_keeps_and_does_not_report_root_guidance_on_no(tmp_path):
     target = _repo_with_custom_root_guidance(tmp_path)
 
-    result = _init(target, "--force", input="n\nn\n")
+    result = _init(target, "--force", input="n\n")
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") == "custom\n"
-    assert f"OVERWROTE: {target / 'CLAUDE.md'}" not in result.output
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") == "custom\n"
     assert f"OVERWROTE: {target / 'AGENTS.md'}" not in result.output
 
 
@@ -693,8 +650,7 @@ def test_interactive_force_with_create_root_guidance_overwrites_without_prompt(
 
     assert result.exit_code == 0
     assert "Create root" not in result.output
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") != "custom\n"
-    assert f"OVERWROTE: {target / 'CLAUDE.md'}" in result.output
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") != "custom\n"
     assert f"OVERWROTE: {target / 'AGENTS.md'}" in result.output
 
 
@@ -707,8 +663,8 @@ def test_interactive_create_root_guidance_creates_missing_files_without_prompt(
 
     assert result.exit_code == 0
     assert "Create root" not in result.output
-    assert (target / "CLAUDE.md").is_file()
     assert (target / "AGENTS.md").is_file()
+    assert not (target / "CLAUDE.md").exists()
 
 
 def test_non_interactive_force_with_create_root_guidance_overwrites_and_reports(
@@ -719,8 +675,7 @@ def test_non_interactive_force_with_create_root_guidance_overwrites_and_reports(
     result = _init(target, "--force", "--no-interactive", "--create-root-guidance")
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") != "custom\n"
-    assert f"OVERWROTE: {target / 'CLAUDE.md'}" in result.output
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") != "custom\n"
     assert f"OVERWROTE: {target / 'AGENTS.md'}" in result.output
 
 
@@ -730,7 +685,7 @@ def test_non_interactive_force_without_flag_leaves_root_guidance_untouched(tmp_p
     result = _init(target, "--force", "--no-interactive")
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") == "custom\n"
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") == "custom\n"
     assert (target / "AGENTS.md").read_text(encoding="utf-8") == "custom\n"
     assert f"OVERWROTE: {target / 'CLAUDE.md'}" not in result.output
 
@@ -743,7 +698,7 @@ def test_create_root_guidance_without_force_leaves_existing_files_untouched(
     result = _init(target, "--create-root-guidance")
 
     assert result.exit_code == 0
-    assert (target / "CLAUDE.md").read_text(encoding="utf-8") == "custom\n"
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") == "custom\n"
     assert _overwrote_lines(result.output) == []
 
 
@@ -769,7 +724,6 @@ def test_force_rerun_reports_existing_files_but_not_newly_created_ones(tmp_path)
     assert (
         f"OVERWROTE: {target / '.claude' / 'skills' / 'tdd' / 'SKILL.md'}" in reported
     )
-    assert f"OVERWROTE: {target / 'CLAUDE.md'}" in reported
     assert f"OVERWROTE: {target / 'AGENTS.md'}" not in reported
     assert result.output.index("OVERWROTE:") < result.output.index(
         "Initialization complete."
@@ -790,13 +744,13 @@ def _would_lines(output, verb):
 def _initialised_repo_with_custom_root_guidance(tmp_path):
     target = tmp_path / "repo"
     _init(target, "--no-interactive", "--create-root-guidance")
-    for name in ("CLAUDE.md", "AGENTS.md"):
+    for name in ("AGENTS.md",):
         (target / name).write_text("custom\n", encoding="utf-8")
     return target
 
 
 def _root_paths(target):
-    return {str(target / "CLAUDE.md"), str(target / "AGENTS.md")}
+    return {str(target / "AGENTS.md")}
 
 
 def _all_would_paths(output):
@@ -873,14 +827,13 @@ def test_dry_run_non_interactive_force_create_root_guidance_distinguishes_new_fi
         target, "--force", "--no-interactive", "--create-root-guidance", "--dry-run"
     )
 
-    assert str(target / "CLAUDE.md") in _would_lines(result.output, "WOULD OVERWRITE")
     assert str(target / "AGENTS.md") in _would_lines(result.output, "WOULD WRITE")
 
 
 def test_dry_run_without_force_names_no_existing_root_file_in_either_mode(tmp_path):
     target = tmp_path / "repo"
     target.mkdir()
-    for name in ("CLAUDE.md", "AGENTS.md"):
+    for name in ("AGENTS.md",):
         (target / name).write_text("custom\n", encoding="utf-8")
 
     interactive = _init(target, "--dry-run")
