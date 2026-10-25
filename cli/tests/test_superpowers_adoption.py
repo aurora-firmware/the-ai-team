@@ -164,6 +164,7 @@ def test_owning_spec_records_the_phase_3_amendment_before_the_change():
         / "docs"
         / "ai-team"
         / "specs"
+        / "archive"
         / "S-002-coordinated-process-and-cli-workflow-improvements.md"
     ).read_text(encoding="utf-8")
 
