@@ -26,7 +26,7 @@ The `ai-process/` specification documents (process docs, guidelines, architectur
 
 Artifact templates (for example task, bug, spec, and ADR templates) are bundled in the `ai-team` CLI and rendered by commands such as `ai-team task new`. They are not copied into your project and there is no project-level override, so changing a template means changing `cli/src/ai_team/templates/` in the framework.
 
-Exported skill files in `.claude/skills/` and `.agents/skills/` may be edited for your project, but they are overwritten only when an upgrade updates the agents and skills (you answer yes to that question, or pass `--update-skills` or `--force`).
+Exported skill files in `.claude/skills/` and `.agents/skills/` may be edited for your project, but they are overwritten only when an upgrade updates the agents and skills (you answer yes to that question, or pass `--update-skills` or `--force`), or on an adoption answered yes or run with `--force`.
 
 ### Must Customize
 

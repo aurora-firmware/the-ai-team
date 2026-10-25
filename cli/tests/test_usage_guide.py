@@ -575,3 +575,70 @@ def test_usage_md_describes_tools_on_an_upgrade():
     assert "never overwritten" in flat
     assert "covers only the tools already configured" in flat
     assert "removed from `[init].tools`, and its files are left in place" in flat
+
+
+# ---------------------------------------------------------------------------
+# CR-005: init reporting docs (T-159)
+# ---------------------------------------------------------------------------
+
+SETUP_GUIDE_MD = REPO_ROOT / "guides" / "setup-guide.md"
+CUSTOMIZATION_GUIDE_MD = REPO_ROOT / "guides" / "customization-guide.md"
+
+
+def _flat(text: str) -> str:
+    return " ".join(text.split())
+
+
+def test_usage_guide_reports_recreated_and_added_files_as_wrote():
+    """AC-1: usage.md says an upgrade reports recreated and added files as WROTE."""
+    flat = _flat(_content())
+    assert (
+        "Newly created files and declined or skipped files are not reported" not in flat
+    )
+    assert (
+        "An upgrade reports each file it recreates or adds as `WROTE: <path>` "
+        "(`WOULD WRITE` in a dry run)" in flat
+    )
+
+
+def test_setup_guide_reports_recreated_and_added_files_as_wrote():
+    """AC-1: setup-guide.md says an upgrade reports recreated and added files as WROTE."""
+    flat = _flat(SETUP_GUIDE_MD.read_text(encoding="utf-8"))
+    assert "newly created files are not" not in flat
+    assert (
+        "An upgrade reports each file it recreates or adds as `WROTE: <path>` "
+        "(`WOULD WRITE` in a dry run)" in flat
+    )
+
+
+def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():
+    """AC-2: the Upgrade row covers missing project-skeleton files."""
+    row = next(
+        line for line in _content().splitlines() if line.startswith("| Upgrade |")
+    )
+    assert (
+        "Missing project-skeleton files that no question covers are written "
+        "without a question and never overwritten" in row
+    )
+
+
+def test_customization_guide_states_when_skills_are_overwritten():
+    """AC-3: skills are overwritten on an upgrade update, or an adoption yes or --force."""
+    flat = _flat(CUSTOMIZATION_GUIDE_MD.read_text(encoding="utf-8"))
+    assert (
+        "when an upgrade updates the agents and skills (you answer yes to that "
+        "question, or pass `--update-skills` or `--force`), or on an adoption "
+        "answered yes or run with `--force`" in flat
+    )
+
+
+def test_usage_guide_dry_run_would_overwrite_covers_every_approved_overwrite():
+    """AC-4: the --dry-run row says WOULD OVERWRITE covers --update-docs and --update-skills."""
+    row = next(
+        line for line in _content().splitlines() if line.startswith("| `--dry-run`")
+    )
+    assert "existing file, with --force" not in row
+    assert (
+        "`WOULD OVERWRITE` (every approved overwrite, including `--update-docs` "
+        "and `--update-skills` on an upgrade)" in row
+    )

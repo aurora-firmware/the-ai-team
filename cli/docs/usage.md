@@ -106,7 +106,7 @@ does not depend on any flag.
 
 | Case | Detected when | What `init` does |
 |---|---|---|
-| Upgrade | `.ai-team.toml` exists in the repository root. | Keeps every configured setting and asks two questions (below). Nothing is overwritten without a yes. |
+| Upgrade | `.ai-team.toml` exists in the repository root. | Keeps every configured setting and asks two questions (below). Nothing is overwritten without a yes. Missing project-skeleton files that no question covers are written without a question and never overwritten. |
 | New project | There is no `.ai-team.toml` and none of the files `init` would write exists. | Writes the scaffold, the tracker folder and `.ai-team.toml`. No overwrite question is asked. |
 | Adoption | There is no `.ai-team.toml`, but some files `init` would write already exist: agent, skill or project files, or a root `CLAUDE.md` or `AGENTS.md`. | Lists the existing agent, skill and project files and asks once: `Overwrite these existing files?` Root `CLAUDE.md` and `AGENTS.md` are not part of that question; they follow the table under [Root guidance files](#root-guidance-files). |
 
@@ -148,7 +148,7 @@ Warning: these skills or agents are not shipped by this version of ai-team; they
 | Flag | Description |
 |---|---|
 | `--tools TEXT` | Comma-separated tool names to scaffold (e.g. `claude`, `codex`, `all`, `none`). |
-| `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (existing file, with `--force`), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `CLAUDE.md` or `AGENTS.md`, or a file covered by an upgrade or adoption question, that the interactive run would ask about; a dry run never prompts). The first line reports the detected case: `CASE: upgrade`, `CASE: new project` or `CASE: adoption`. Root guidance files the real run would skip are not listed. |
+| `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (every approved overwrite, including `--update-docs` and `--update-skills` on an upgrade), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `CLAUDE.md` or `AGENTS.md`, or a file covered by an upgrade or adoption question, that the interactive run would ask about; a dry run never prompts). The first line reports the detected case: `CASE: upgrade`, `CASE: new project` or `CASE: adoption`. Root guidance files the real run would skip are not listed. |
 | `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch` and any other tables are kept on an upgrade. `docs/coding_guidelines.md` is the exception: it is written only when missing and never overwritten, even with `--force`. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
 | `--update-docs` | On an upgrade, update the ai-team docs without asking. |
 | `--update-skills` | On an upgrade, update the agents and skills without asking. |
@@ -229,7 +229,8 @@ Existing root guidance files are never overwritten unless `--force` is also pass
 
 Every existing file that `init` replaces (root guidance, generated agents and
 skills, `.ai-team.toml`) is reported on stdout as `OVERWROTE: <absolute path>`.
-Newly created files and declined or skipped files are not reported.
+An upgrade reports each file it recreates or adds as `WROTE: <path>` (`WOULD WRITE` in a dry run).
+Declined or skipped files are not reported.
 
 ### Example: preview then initialise
 
