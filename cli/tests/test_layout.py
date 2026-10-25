@@ -18,7 +18,7 @@ from ai_team.core.layout import (
     check_level_4,
     resolve_layout,
 )
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS
+from ai_team.core.tool_paths import EXPORT_PATHS
 
 
 def _write_marker(
@@ -40,10 +40,7 @@ def _write_marker(
 def _create_current_scaffold(repo: Path) -> None:
     scaffold_root = resources.files("ai_team.init").joinpath("scaffolds")
     exports = [("project", "ai-team")]
-    exports.extend(
-        (f"claude/{subfolder}", destination)
-        for subfolder, destination in TOOL_EXPORT_PATHS["claude"]
-    )
+    exports.extend((subfolder, destination) for subfolder, destination in EXPORT_PATHS)
     for source_name, destination_name in exports:
         source = scaffold_root.joinpath(source_name)
         for entry in source.rglob("*"):

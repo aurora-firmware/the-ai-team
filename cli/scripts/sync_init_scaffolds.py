@@ -15,8 +15,6 @@ PROJECT_LEAF_DIRS = (
     "docs",
 )
 
-TOOLS = ("claude",)
-
 SKILL_SUPPORTING_FOLDERS = ("assets", "references", "scripts")
 
 COPY_IGNORE_PATTERNS = ("__pycache__", ".DS_Store")
@@ -82,11 +80,10 @@ def _copy_skill_supporting_folders(skill_dir: Path, skill_output_dir: Path) -> N
 
 def _replace_generated_skills(source_root: Path, destination_root: Path) -> None:
     destination_root.mkdir(parents=True, exist_ok=True)
-    for tool in TOOLS:
-        tool_skill_root = destination_root / tool / "skills"
-        if tool_skill_root.exists():
-            shutil.rmtree(tool_skill_root)
-        tool_skill_root.mkdir(parents=True, exist_ok=True)
+    skill_root = destination_root / "skills"
+    if skill_root.exists():
+        shutil.rmtree(skill_root)
+    skill_root.mkdir(parents=True, exist_ok=True)
 
     if not source_root.is_dir():
         raise FileNotFoundError(
@@ -100,11 +97,10 @@ def _replace_generated_skills(source_root: Path, destination_root: Path) -> None
                 f"Skill '{skill_dir.name}' has no SKILL.md: {skill_path}"
             )
 
-        for tool in TOOLS:
-            skill_output_dir = destination_root / tool / "skills" / skill_dir.name
-            skill_output_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(skill_path, skill_output_dir / "SKILL.md")
-            _copy_skill_supporting_folders(skill_dir, skill_output_dir)
+        skill_output_dir = skill_root / skill_dir.name
+        skill_output_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(skill_path, skill_output_dir / "SKILL.md")
+        _copy_skill_supporting_folders(skill_dir, skill_output_dir)
 
 
 def sync_init_scaffolds(cli_root: Path) -> None:
@@ -118,10 +114,7 @@ def sync_init_scaffolds(cli_root: Path) -> None:
         sources_root / "skills",
         scaffolds_root,
     )
-    _replace_tree(
-        sources_root / "agents" / "claude",
-        scaffolds_root / "claude" / "agents",
-    )
+    _replace_tree(sources_root / "agents", scaffolds_root / "agents")
 
 
 def main() -> None:

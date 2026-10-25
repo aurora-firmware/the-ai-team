@@ -50,15 +50,7 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
         ),
     )
     _write(
-        repo
-        / "cli"
-        / "src"
-        / "ai_team"
-        / "init"
-        / "sources"
-        / "agents"
-        / "claude"
-        / "planner.md",
+        repo / "cli" / "src" / "ai_team" / "init" / "sources" / "agents" / "planner.md",
         "claude planner\n",
     )
 
@@ -103,7 +95,6 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "old"
         / "SKILL.md",
@@ -114,15 +105,7 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
         "old\n",
     )
     _write(
-        repo
-        / "cli"
-        / "src"
-        / "ai_team"
-        / "init"
-        / "scaffolds"
-        / "claude"
-        / "agents"
-        / "old.md",
+        repo / "cli" / "src" / "ai_team" / "init" / "scaffolds" / "agents" / "old.md",
         "old\n",
     )
 
@@ -149,11 +132,11 @@ def test_sync_script_generates_tool_skill_scaffolds_from_shared_body(
     scaffolds_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds"
     source_path = repo / "cli/src/ai_team/init/sources/skills/tdd/SKILL.md"
 
-    exported = scaffolds_root / "claude" / "skills" / "tdd" / "SKILL.md"
+    exported = scaffolds_root / "skills" / "tdd" / "SKILL.md"
 
     assert exported.read_bytes() == source_path.read_bytes()
 
-    assert not (scaffolds_root / "claude" / "skills" / "old").exists()
+    assert not (scaffolds_root / "skills" / "old").exists()
 
 
 def test_sync_script_stops_naming_the_skill_when_skill_md_is_missing(
@@ -185,11 +168,11 @@ def test_sync_script_copies_package_owned_agents_for_each_tool(tmp_path: Path) -
 
     scaffolds_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds"
 
-    assert (scaffolds_root / "claude" / "agents" / "planner.md").read_text(
+    assert (scaffolds_root / "agents" / "planner.md").read_text(
         encoding="utf-8"
     ) == "claude planner\n"
 
-    assert not (scaffolds_root / "claude" / "agents" / "old.md").exists()
+    assert not (scaffolds_root / "agents" / "old.md").exists()
 
 
 def test_sync_script_replaces_project_with_empty_lifecycle_skeleton(
@@ -404,9 +387,7 @@ def test_package_owned_project_gitignore_source_ignores_the_lock_sentinel() -> N
 def test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     sources_root = repo_root / "src" / "ai_team" / "init" / "sources" / "skills"
-    scaffold_root = (
-        repo_root / "src" / "ai_team" / "init" / "scaffolds" / "claude" / "skills"
-    )
+    scaffold_root = repo_root / "src" / "ai_team" / "init" / "scaffolds" / "skills"
 
     expected_skills = sorted(
         path.name for path in scaffold_root.iterdir() if path.is_dir()
@@ -448,7 +429,6 @@ def test_init_scaffolds_export_change_request_skill_and_project_directory() -> N
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "change-request"
         / "SKILL.md"
@@ -467,7 +447,7 @@ def test_sync_script_is_idempotent_for_agent_scaffolds(tmp_path: Path) -> None:
     )
 
     scaffolds_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds"
-    claude_agents = scaffolds_root / "claude" / "agents"
+    claude_agents = scaffolds_root / "agents"
 
     def collect_file_contents(directory: Path) -> dict[str, str]:
         return {
@@ -596,9 +576,9 @@ def test_sync_script_without_arguments_generates_scaffolds(tmp_path: Path) -> No
 def test_package_owned_agent_sources_cover_each_exported_role() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     sources_root = repo_root / "src" / "ai_team" / "init" / "sources" / "agents"
-    claude_source_root = sources_root / "claude"
+    claude_source_root = sources_root
     claude_scaffold_root = (
-        repo_root / "src" / "ai_team" / "init" / "scaffolds" / "claude" / "agents"
+        repo_root / "src" / "ai_team" / "init" / "scaffolds" / "agents"
     )
 
     expected_roles = sorted(path.stem for path in claude_scaffold_root.glob("*.md"))
@@ -618,22 +598,8 @@ def test_package_owned_agent_sources_cover_each_exported_role() -> None:
 def test_planner_agents_document_todo_ready_architecture_review_handoff() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     planner_paths = (
-        repo_root
-        / "src"
-        / "ai_team"
-        / "init"
-        / "sources"
-        / "agents"
-        / "claude"
-        / "planner.md",
-        repo_root
-        / "src"
-        / "ai_team"
-        / "init"
-        / "scaffolds"
-        / "claude"
-        / "agents"
-        / "planner.md",
+        repo_root / "src" / "ai_team" / "init" / "sources" / "agents" / "planner.md",
+        repo_root / "src" / "ai_team" / "init" / "scaffolds" / "agents" / "planner.md",
     )
     required_phrases = (
         "human-answerable `[TODO]` markers are resolved and before Gate 1 approval",
@@ -670,7 +636,6 @@ def _spec_breakdown_skill_texts() -> tuple[str, str]:
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "spec-breakdown"
         / "SKILL.md"
@@ -696,7 +661,6 @@ def _spec_breakdown_review_skill_texts() -> tuple[str, str]:
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "spec-breakdown-review"
         / "SKILL.md"
@@ -777,7 +741,6 @@ def _dev_loop_skill_texts() -> tuple[str, str]:
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "dev-loop"
         / "SKILL.md"
@@ -944,7 +907,6 @@ def _new_task_skill_texts() -> tuple[str, str]:
         / "ai_team"
         / "init"
         / "scaffolds"
-        / "claude"
         / "skills"
         / "new-task"
         / "SKILL.md"

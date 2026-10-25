@@ -28,12 +28,12 @@ def skill_frontmatter(name: str) -> str:
 
 
 def skill_export_path(name: str) -> Path:
-    return _SCAFFOLDS / "claude" / "skills" / name / "SKILL.md"
+    return _SCAFFOLDS / "skills" / name / "SKILL.md"
 
 
 def agent_source_path(role: str) -> Path:
-    return _INIT_ROOT / "sources" / "agents" / "claude" / f"{role}.md"
+    return _INIT_ROOT / "sources" / "agents" / f"{role}.md"
 
 
 def agent_export_path(role: str) -> Path:
-    return _SCAFFOLDS / "claude" / "agents" / f"{role}.md"
+    return _SCAFFOLDS / "agents" / f"{role}.md"
