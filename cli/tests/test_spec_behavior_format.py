@@ -291,6 +291,13 @@ def test_todo_domain_language_is_not_an_unresolved_placeholder(
         "[TBR]",
         "[NEEDS CLARIFICATION: limits]",
         "TODO: define behavior",
+        "TBD",
+        "TBR",
+        "TODO",
+        "- TODO: define behavior",
+        "  TODO: define behavior",
+        "1. TBD",
+        "- [ ] TODO: define behavior",
     ],
 )
 def test_explicit_unresolved_markers_still_block_review(monkeypatch, tmp_path, marker):

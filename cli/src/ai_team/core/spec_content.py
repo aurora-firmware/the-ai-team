@@ -257,7 +257,9 @@ def validate_feature_content(
     )
     placeholder_text = re.sub(r"(`+).*?\1", "", prose)
     if re.search(
-        r"\[(?:TODO|TBD|TBR)(?:\s*:[^\]\n]*)?\]|\[NEEDS CLARIFICATION\b|^(?:TODO|TBD|TBR)\s*:",
+        r"\[(?:TODO|TBD|TBR)(?:[ \t]*:[^\]\n]*)?\]|\[NEEDS CLARIFICATION\b"
+        r"|^[ \t]*(?:(?:[-+*]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?)?"
+        r"(?:TODO|TBD|TBR)(?:[ \t]*:|[ \t]*$)",
         placeholder_text,
         re.I | re.M,
     ):
