@@ -1,7 +1,0 @@
-[claude]
-header = """---
-name: architecture-consistency-review
-description: Check that a created or changed architecture artifact stays consistent with every approved spec and accepted ADR. Use when an ADR is created or accepted, a spec is created or amended, or a change-request proposes a spec amendment.
-allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
-effort: high
----"""
