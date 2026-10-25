@@ -378,7 +378,7 @@ def _decide_adoption_overwrite(
 
 def _report_skipped(skipped: list[Path]) -> None:
     typer.echo(
-        "Skipped existing files (not overwritten without --force):\n"
+        "Kept existing files (not overwritten):\n"
         + "\n".join(f"- {path}" for path in skipped),
         err=True,
     )

@@ -151,3 +151,26 @@ def test_dry_run_with_force_lists_existing_files_as_overwritten(tmp_path):
     assert "WOULD PROMPT: " + str(existing[0]) not in result.output
     for path in existing:
         assert f"WOULD OVERWRITE: {path}" in result.output
+
+
+KEPT_MESSAGE = "Kept existing files (not overwritten):"
+
+
+def test_reports_kept_files_on_stderr_without_naming_force_when_answered_no(tmp_path):
+    existing = _occupy(tmp_path, "ai-team/specs/.gitkeep")
+
+    result = _init(_base_args(tmp_path), input_text="n\nn\nn\n")
+
+    assert KEPT_MESSAGE in result.stderr
+    assert "--force" not in result.stderr
+    assert str(existing[0]) in result.stderr
+
+
+def test_reports_kept_files_with_the_same_message_when_no_interactive(tmp_path):
+    existing = _occupy(tmp_path, "ai-team/specs/.gitkeep")
+
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert KEPT_MESSAGE in result.stderr
+    assert "--force" not in result.stderr
+    assert str(existing[0]) in result.stderr
