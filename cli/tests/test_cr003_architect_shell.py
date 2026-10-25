@@ -5,29 +5,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from tests.source_paths import agent_export_path, agent_source_path
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CLAUDE_SOURCE_AGENT = (
-    REPO_ROOT
-    / "cli"
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "agents"
-    / "claude"
-    / "architect.md"
-)
-CLAUDE_SCAFFOLD_AGENT = (
-    REPO_ROOT
-    / "cli"
-    / "src"
-    / "ai_team"
-    / "init"
-    / "scaffolds"
-    / "claude"
-    / "agents"
-    / "architect.md"
-)
+CLAUDE_SOURCE_AGENT = agent_source_path("architect")
+CLAUDE_SCAFFOLD_AGENT = agent_export_path("architect")
 AGENT_TEMPLATE = REPO_ROOT / "guides" / "agent_template.md"
 
 EXPECTED_ARCHITECT_TOOLS_LINE = "tools: Read, Write, Edit, Glob, Grep, Bash"

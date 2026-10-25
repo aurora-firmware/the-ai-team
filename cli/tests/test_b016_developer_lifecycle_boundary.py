@@ -7,44 +7,28 @@ Fix Verification (from the bug report):
   `git add`/commit, with the `new-bug` exception stated explicitly.
 - `git-conventions` lists lifecycle-file commits from an implementation branch
   under Hard Rules.
-- Both Claude and Codex Developer definitions carry the same boundary.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-SOURCE_AGENTS = REPO_ROOT / "src" / "ai_team" / "init" / "sources" / "agents"
-SCAFFOLD_ROOT = REPO_ROOT / "src" / "ai_team" / "init" / "scaffolds"
-SOURCE_SKILLS = REPO_ROOT / "src" / "ai_team" / "init" / "sources" / "skills"
-
-
-def _claude_developer_texts() -> tuple[str, str]:
-    source = (SOURCE_AGENTS / "claude" / "developer.md").read_text(encoding="utf-8")
-    scaffold = (SCAFFOLD_ROOT / "claude" / "agents" / "developer.md").read_text(
-        encoding="utf-8"
-    )
-    return source, scaffold
+from tests.source_paths import (
+    agent_export_path,
+    agent_source_path,
+    skill_export_path,
+    skill_source_text,
+)
 
 
-def _codex_developer_texts() -> tuple[str, str]:
-    source = (SOURCE_AGENTS / "codex" / "developer.toml").read_text(encoding="utf-8")
-    scaffold = (SCAFFOLD_ROOT / "codex" / "agents" / "developer.toml").read_text(
-        encoding="utf-8"
-    )
-    return source, scaffold
+def _developer_texts() -> tuple[str, str]:
+    source = agent_source_path("developer").read_text(encoding="utf-8")
+    export = agent_export_path("developer").read_text(encoding="utf-8")
+    return source, export
 
 
-def _git_conventions_texts() -> tuple[str, str, str]:
-    source = (SOURCE_SKILLS / "git-conventions" / "body.md").read_text(encoding="utf-8")
-    claude_scaffold = (
-        SCAFFOLD_ROOT / "claude" / "skills" / "git-conventions" / "SKILL.md"
-    ).read_text(encoding="utf-8")
-    codex_scaffold = (
-        SCAFFOLD_ROOT / "codex" / "skills" / "git-conventions" / "SKILL.md"
-    ).read_text(encoding="utf-8")
-    return source, claude_scaffold, codex_scaffold
+def _git_conventions_texts() -> tuple[str, str]:
+    source = skill_source_text("git-conventions")
+    export = skill_export_path("git-conventions").read_text(encoding="utf-8")
+    return source, export
 
 
 def _hard_rules_section(body: str) -> str:
@@ -67,8 +51,8 @@ def _common_pitfalls_section(body: str) -> str:
 
 
 def _never_touch_line(body: str) -> str:
-    """Extract the 'Never touch' line/row from a Folder Scope block, whether it
-    is a markdown table row (Claude) or a plain bullet line (Codex)."""
+    """Extract the 'Never touch' line/row from a Folder Scope block, from the
+    Folder Scope markdown table."""
     for line in body.splitlines():
         if "Never touch" in line:
             return line
@@ -83,7 +67,7 @@ def _never_touch_line(body: str) -> str:
 def test_claude_developer_never_touch_lists_lifecycle_paths() -> None:
     """The Claude Developer 'Never touch' entry must name tracker work items
     (tasks, bugs, change-requests) as out of bounds."""
-    for text in _claude_developer_texts():
+    for text in _developer_texts():
         never_touch = _never_touch_line(text)
         assert never_touch, "Claude developer.md must contain a 'Never touch' line"
         assert "tracker files" in never_touch
@@ -93,7 +77,7 @@ def test_claude_developer_never_touch_lists_lifecycle_paths() -> None:
 def test_claude_developer_never_touch_states_new_bug_exception() -> None:
     """The 'Never touch' row must state the bug-creation exception via the
     new-bug skill explicitly, not just omit it silently."""
-    for text in _claude_developer_texts():
+    for text in _developer_texts():
         never_touch = _never_touch_line(text)
         assert "creating a bug" in never_touch
         assert "new-bug" in never_touch
@@ -103,41 +87,7 @@ def test_claude_developer_never_touch_forbids_git_add_and_commit() -> None:
     """The 'Never touch' row must state explicitly that git add/commit under
     these lifecycle paths is forbidden from an implementation branch, not just
     Write/Edit."""
-    for text in _claude_developer_texts():
-        never_touch = _never_touch_line(text)
-        assert "git add" in never_touch
-        assert "commit" in never_touch
-        assert "implementation branch" in never_touch
-
-
-# ---------------------------------------------------------------------------
-# AC-2: Codex Developer Folder scope carries the identical boundary
-# ---------------------------------------------------------------------------
-
-
-def test_codex_developer_never_touch_lists_lifecycle_paths() -> None:
-    """The Codex Developer 'Never touch' entry must name tracker work items
-    (tasks, bugs, change-requests) as out of bounds."""
-    for text in _codex_developer_texts():
-        never_touch = _never_touch_line(text)
-        assert never_touch, "Codex developer.toml must contain a 'Never touch' line"
-        assert "tracker files" in never_touch
-        assert "tasks, bugs, change-requests" in never_touch
-
-
-def test_codex_developer_never_touch_states_new_bug_exception() -> None:
-    """The Codex 'Never touch' line must state the bug-creation exception via
-    the new-bug skill explicitly."""
-    for text in _codex_developer_texts():
-        never_touch = _never_touch_line(text)
-        assert "creating a bug" in never_touch
-        assert "new-bug" in never_touch
-
-
-def test_codex_developer_never_touch_forbids_git_add_and_commit() -> None:
-    """The Codex 'Never touch' line must state explicitly that git add/commit
-    under these lifecycle paths is forbidden from an implementation branch."""
-    for text in _codex_developer_texts():
+    for text in _developer_texts():
         never_touch = _never_touch_line(text)
         assert "git add" in never_touch
         assert "commit" in never_touch
@@ -172,17 +122,14 @@ def test_git_conventions_common_pitfalls_no_longer_owns_the_rule() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _both_developer_never_touch_lines() -> list[str]:
-    return [
-        _never_touch_line(text)
-        for text in (*_claude_developer_texts(), *_codex_developer_texts())
-    ]
+def _developer_never_touch_lines() -> list[str]:
+    return [_never_touch_line(text) for text in _developer_texts()]
 
 
 def test_developer_never_touch_allows_docs_listed_by_an_s000_task() -> None:
     """The docs/ path is writable only when a task whose source spec is S-000
     lists it in Files to Touch."""
-    for line in _both_developer_never_touch_lines():
+    for line in _developer_never_touch_lines():
         assert "{{project_dir}}/docs/" in line
         assert "source spec is S-000" in line
         assert "Files to Touch" in line
@@ -190,7 +137,7 @@ def test_developer_never_touch_allows_docs_listed_by_an_s000_task() -> None:
 
 def test_developer_never_touch_keeps_specs_and_decisions_without_exception() -> None:
     """specs/ and decisions/ stay off limits, with no exception stated."""
-    for line in _both_developer_never_touch_lines():
+    for line in _developer_never_touch_lines():
         assert "`{{project_dir}}/specs/`" in line
         assert "`{{project_dir}}/decisions/`" in line
         assert "without exception" in line
