@@ -7,7 +7,7 @@ allowed-tools: Read
 # Git Conventions
 
 These rules apply to all AI roles working within any project that uses this framework.
-Project-specific commit scopes and any overrides belong in the project's own `CLAUDE.md`.
+Project-specific commit scopes and any overrides belong in the project's own `AGENTS.md`.
 
 ## Branch Model
 
@@ -52,7 +52,7 @@ When an approved spec already on `{{integration_branch}}` needs a breakdown and 
 ```
 
 - **type** — `feat`, `fix`, `test`, `docs`, `chore`
-- **component** — architecture area (project-specific; see project `CLAUDE.md`)
+- **component** — architecture area (project-specific; see project `AGENTS.md`)
 - **description** — imperative, lowercase, no period, ≤ 72 chars total
 
 The branch name already carries task and role context — do not repeat it in the message.
