@@ -330,6 +330,10 @@ ai-team spec new "Billing reconciliation" --author "planner" --status draft
 ai-team adr new "Use PostgreSQL for ledger storage" --status proposed
 ```
 
+`spec new` writes a draft scaffold of a feature spec. The spec-writing agent
+fills it through the exported `new-spec` skill, which follows the authoring
+contract in the framework's spec authoring guide.
+
 ### System overview (S-000)
 
 S-000 is the project's system overview. Create it once with:
@@ -337,22 +341,6 @@ S-000 is the project's system overview. Create it once with:
 ```bash
 ai-team spec new --overview
 ```
-
-Feature specs include sections for actors and
-journeys, behavioral and quality requirements, external contracts, assumptions,
-and open questions. The CLI writes a draft scaffold; the spec-writing agent
-fills it using the exported `new-spec` instructions. Requirements use stable
-`REQ-NNN` headings with linked `AC-NNN.M` acceptance scenarios and an explicit
-verification method. Public schemas can define contracts without prescribing
-internal implementation.
-
-Run `ai-team validate --specs` before handoff. For feature specs in `review` or
-`approved` status, it checks required nonempty sections (Amendment Log may be
-empty), REQ/AC structure and uniqueness, scenario ownership, verification methods,
-and unresolved placeholders outside comments and code. Draft scaffolds can be
-incomplete. All feature specs are checked against these requirements at review
-and approval. S-000 is the system overview and follows its separate contract.
-These checks establish structure, not semantic completeness or human approval.
 
 The title is optional with `--overview`; the spec is created from the
 system-overview template. Agents can do the same through the
@@ -442,6 +430,14 @@ ai-team validate --change-requests
 # Emit JSON for scripting
 ai-team validate --json
 ```
+
+For feature specs in `review` or `approved` status, `validate --specs` also
+checks the spec structure: required nonempty sections (Amendment Log may be
+empty), `REQ-NNN` and `AC-NNN.M` headings and their uniqueness, that each
+scenario sits under its requirement and names a verification method, and
+unresolved placeholders outside comments and code. Drafts are not checked, and
+S-000 follows its separate system-overview contract. These checks establish
+structure, not semantic completeness or human approval.
 
 Exit code is 1 if any error-level finding is reported.
 
@@ -592,6 +588,7 @@ The `ai_team` package lives in `cli/src/ai_team/` and is structured as:
 | `ai_team.core.models` | Dataclasses for task, bug, spec, and ADR frontmatter. |
 | `ai_team.core.templates` | Loads bundled Markdown templates from the package. |
 | `ai_team.core.validate` | Artifact metadata validation logic. |
+| `ai_team.core.spec_content` | Structural checks for feature-spec bodies. |
 | `ai_team.templates/` | Bundled Markdown artifact templates (task, bug, spec, adr, report). |
 | `ai_team.init/` | Scaffold data for `ai-team init`. |
 | `ai_team.init.scaffolds/` | Package-owned snapshots: `scaffolds/{project,agents,skills}/`. |

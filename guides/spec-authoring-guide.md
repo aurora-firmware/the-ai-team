@@ -45,11 +45,9 @@ Each requirement has one or more acceptance headings `#### AC-NNN.M — Scenario
 Each scenario states concrete conditions and expected results, normally Given/When/Then, and includes `**Verification:**` naming a test, demonstration, inspection, or analysis that can establish the result.
 Numbering identifies obligations; it does not make vague prose precise.
 
-Run `ai-team validate --specs` before review.
-For feature specs in `review` or `approved`, the CLI checks required nonempty sections, requirement and acceptance structure, duplicate identifiers, acceptance ownership, and unresolved placeholders outside comments and code.
-Draft scaffolds may contain placeholders.
-All feature specs are checked against the same requirements when ready for review or approval.
-These checks do not establish completeness, feasibility, or correctness: the author and reviewer still evaluate those properties.
+Run `ai-team validate --specs` once the spec is in `review`; drafts may still contain placeholders.
+The CLI usage guide lists what the validator checks.
+Those checks are structural only: the author and reviewer still evaluate completeness, feasibility, and correctness.
 
 ## How to write each section
 

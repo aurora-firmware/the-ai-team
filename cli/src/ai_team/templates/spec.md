@@ -11,12 +11,8 @@ author: "[Author name or agent role]"
 
 <!--
 Describe observable requirements and measurable outcomes, not implementation
-files or task lists. Public schemas and protocol fragments may be included as
-Contract material. Keep REQ identifiers stable across amendments; use the same
-identifier space for behavioral and quality requirements. Each REQ has at least
-one AC-NNN.M scenario and a Verification method. Replace every TODO before
-review, then run ai-team validate --specs. Draft scaffolds may be incomplete;
-structural checks apply to feature specs in review or approved status.
+files or task lists. Fill this draft with the new-spec skill, which carries the
+section recipes and the pre-submission checklist.
 -->
 
 ## Purpose

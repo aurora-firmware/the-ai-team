@@ -148,10 +148,7 @@ If any human-answerable `[TODO]` markers remain, explicitly report the blocker a
 - The spec must not hand the spec to Architecture Consistency Review while those markers remain.
 - The spec must not hand the spec to Gate 1 approval while those markers remain.
 
-Do not hand off unresolved behavior, contract, acceptance, or feasibility questions merely because they are non-human-answerable; investigate them or explicitly report the blocker.
-Only internal design investigations that cannot change approved behavior may remain in Open Questions, with an owner and resolution condition and no placeholder markers.
-Confirm that all approved behavior is captured as REQ obligations and concrete AC scenarios before updating the spec `status` to `review`.
-Run `ai-team validate --specs` after that update, and resolve findings before handoff without rewriting unrelated specs.
+Before updating the spec `status` to `review`, confirm that every decision approved in Step 6 appears in the spec, then complete the `new-spec` handoff steps.
 
 Only then is the document ready for Architecture Consistency Review and Gate 1 confirmation.
 Because the human shaped the spec interactively, Gate 1 should be a quick confirmation — not a cold review.

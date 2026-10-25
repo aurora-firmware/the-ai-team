@@ -42,13 +42,13 @@ When invoked directly by a human and required fields are missing, ask only for t
 
 4. Open the created spec file and fill its body sections from the supplied `description`, using the **content-boundary rule** and the **section recipes** below. Leave any section that still needs exploration marked `[TODO]`.
 
-5. Run the **pre-submission checklist** (below) against the filled spec, including `ai-team validate --specs` once its status is `review`. Validate again after revisions; fix findings without rewriting unrelated existing specs. Fix any unchecked item before returning. Leave items genuinely unresolvable marked `[TODO]`.
+5. Run the **pre-submission checklist** (below) against the filled spec. Fix any unchecked item before returning. Leave items genuinely unresolvable marked `[TODO]`; step 6 decides whether they block handoff.
 
 6. Inspect the draft for human-answerable `[TODO]` markers before any review handoff.
    - Human-answerable `[TODO]` markers must be resolved before Architecture Consistency Review.
    - Every unresolved question affecting behavior, contracts, acceptance, or feasibility also blocks handoff, even if it needs technical investigation rather than a human answer.
    - Only internal design investigations that cannot change approved behavior may remain in Open Questions; each needs an owner and resolution condition. No unresolved placeholder markers may remain in a review-ready feature spec.
-   - Once ready for handoff, set status to `review` and run `ai-team validate --specs`; fix this spec's findings before handing it on. Only explicit human approval permits status `approved`. Report unrelated findings without rewriting those specs.
+   - Once ready for handoff, set status to `review` and run `ai-team validate --specs`; fix this spec's findings and validate again after each revision. Report findings in other specs without rewriting them. Only explicit human approval permits status `approved`.
    - If any human-answerable `[TODO]` markers remain, explicitly report the blocker and stop instead of handing the draft to Architecture Consistency Review or Gate 1 approval.
 
 7. Confirm the created file exists, commit it on the planning branch (`docs(specs): add <id> draft`), and return the CLI response values (`id` and `path`) and the planning branch name.
@@ -199,4 +199,4 @@ Before returning the created spec, confirm every item:
 - [ ] **Implementation Order has coarse phases**, not tasks.
 - [ ] **Amendment Log is empty** (until amendments arrive after Gate 1).
 
-Items genuinely unresolvable at write-time may be left `[TODO]`, but human-answerable `[TODO]` markers block Architecture Consistency Review and Gate 1 until they are resolved. Everything else must be checked before returning.
+Items genuinely unresolvable at write-time may be left `[TODO]` in a draft, but a spec in `review` contains no placeholder markers (step 6). Everything else must be checked before returning.

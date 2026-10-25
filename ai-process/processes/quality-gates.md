@@ -17,8 +17,10 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - The proposed solution addresses the stated problem.
 - Architecture is described with enough detail to derive tasks.
 - Exclusions are explicitly stated.
-- No unresolved open questions. For feature specs, the only exception is an owned internal design investigation that cannot change approved behavior and has an explicit resolution condition; questions affecting behavior, contracts, acceptance, or feasibility must be resolved.
+- No unresolved open questions.
 - No remaining human-answerable `[TODO]` markers.
+
+**Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec-authoring-guide.md`.
 
 **S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that the architecture is detailed enough to derive tasks:
 - The content is in plain language.
@@ -30,10 +32,6 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - There is no unresolved `[TODO]`.
 
 **On failure:** Return to Planner with feedback for revision.
-
-For feature specs, Gate 1 also requires stable REQ identifiers, one obligation per requirement, linked AC scenarios and verification methods, explicit confirmed assumptions, sufficient external contracts, and no unresolved behavior or feasibility questions.
-The author runs `ai-team validate --specs` on the review-ready document and also checks completeness and feasibility semantically; structural validation is not approval.
-S-000 follows its system-overview criteria.
 
 ## Gate 2: Task Plan Preflight
 
