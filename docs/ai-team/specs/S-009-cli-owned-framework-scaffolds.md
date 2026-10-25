@@ -225,14 +225,12 @@ Required behaviour:
   and asked about once; `--force` answers yes. Whenever the question is not answered
   yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
   reported on stderr. Root guidance is offered as for a new project.
-- **Legacy Codex skills.** When `codex` is selected, was already configured before the
-  run (on an upgrade, in `[init] tools`; an adoption has no prior configuration), and an
-  agents-and-skills overwrite
-  is approved (on an upgrade by a yes, `--update-skills` or `--force`; on an adoption
-  by a yes or `--force`), `init` removes the legacy framework-owned
-  `.codex/skills/<name>/` folders. Folders the framework does not own are left in
-  place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
-  `WOULD REMOVE`. When `codex` is dropped from `--tools`, or newly added by it, no
+- **Legacy Codex skills.** `init` removes the legacy framework-owned
+  `.codex/skills/<name>/` folders when `codex` is selected and an agents-and-skills
+  overwrite is approved: on an upgrade, by a yes, `--update-skills` or `--force`, and only
+  if `codex` was already in `[init] tools` before the run; on an adoption, by a yes or
+  `--force`. Folders the framework does not own are left in place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
+  `WOULD REMOVE`. On an upgrade where `--tools` drops `codex` or newly adds it, no
   legacy folder is removed.
 - `--force` answers yes to every overwrite question. Without it, an existing file is
   replaced only on a yes. `--dry-run` reports the detected case, then what the real run
@@ -381,3 +379,4 @@ amendment adds:
 | 2026-10-25 | Init Command Contract: added the Reporting rule. The real run prints `WROTE` for every file it creates and `OVERWROTE` for every file it replaces, matching its dry run, and kept files are reported on stderr. Driven by the CR-005 spec-truth reconciliation second re-run (N3, human decision: option B; N5). | The real run reported fewer files than its dry run listed, and the docs overstated it. | Follow-up task for N3 and N4 |
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 third re-run: N3 and N5 resolved (T-160, S-009 Reporting rule); N4's false sentence removed, but the kept-files-on-stderr rule (S-009, usage.md:230, setup-guide.md:78) holds only for an adoption (escalated, N6); legacy Codex folders removed when codex is dropped (follow-up task, N7); root .gitignore created without WROTE (escalated, N8) | none |
 | 2026-10-25 | Init Command Contract: only an adoption lists the kept files on stderr (N6, human decision: option A); the real run reports the tracker folder and root `.gitignore` rule as `CREATED` / `UPDATED` (N8, option B); legacy Codex removal requires `codex` to be selected and already configured, so dropping or newly adding it removes nothing (N7, human decision). Driven by the CR-005 spec-truth reconciliation third re-run. | The Reporting rule promised kept-file reporting the code only does for an adoption, and left the tracker writes unreported; the legacy removal keyed on the prior configuration alone. | Follow-up task for N6, N7 and N8 |
+| 2026-10-25 | Legacy Codex skills: reworded so the "already configured" condition applies only to an upgrade; an adoption removes on a yes or `--force`. Wording only, from the T-161 review. | The previous text could be read as "an adoption never removes", against the code and `usage.md`. | None in flight |
