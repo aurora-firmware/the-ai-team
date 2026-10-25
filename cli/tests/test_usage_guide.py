@@ -559,3 +559,19 @@ def test_usage_md_states_no_interactive_needs_tools_only_without_marker_tools():
     assert "Requires `--tools` to be provided explicitly" not in flag_row
     assert "`.ai-team.toml`" in flag_row
     assert "`--tools`" in flag_row
+
+
+def test_usage_md_describes_tools_on_an_upgrade():
+    section = _init_section()
+    paragraph = next(
+        block
+        for block in section.split("\n\n")
+        if block.startswith("**`--tools` on an upgrade.**")
+    )
+    flat = " ".join(paragraph.split())
+    assert "sets `[init].tools` to the given list" in flat
+    assert "newly adds are written without a question" in flat
+    assert "only the files that do not exist yet" in flat
+    assert "never overwritten" in flat
+    assert "covers only the tools already configured" in flat
+    assert "removed from `[init].tools`, and its files are left in place" in flat

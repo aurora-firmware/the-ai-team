@@ -300,7 +300,7 @@ def _warn_about_stale_definitions(stale: list[Path]) -> None:
 def _recreate_missing_skeleton(
     plan: list[tuple[Path, Path]], request: _UpgradeRequest
 ) -> None:
-    """Write skeleton files that are missing and that no upgrade question covers."""
+    """Write files that are missing and that no upgrade question covers."""
     if request.dry_run:
         for _, destination in plan:
             typer.echo(f"{_would_verb(destination)}: {destination}")
@@ -308,6 +308,22 @@ def _recreate_missing_skeleton(
         _write_all(plan, request.settings)
         for _, destination in plan:
             typer.echo(f"WROTE: {destination}")
+
+
+def _plan_tool_copies(
+    tools: list[str], request: _UpgradeRequest
+) -> list[tuple[Path, Path]]:
+    """Return the (source, destination) pairs of every agent and skill of *tools*."""
+    plan: list[tuple[Path, Path]] = []
+    for tool in tools:
+        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
+            plan.extend(
+                _plan_copies(
+                    request.scaffolds_path / tool / scaffold_subfolder,
+                    request.target_root / destination,
+                )
+            )
+    return plan
 
 
 def _run_upgrade(request: _UpgradeRequest) -> None:
@@ -334,15 +350,17 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
         recreated = project_plan
     _recreate_missing_skeleton(recreated, request)
 
-    skills_plan: list[tuple[Path, Path]] = []
-    for tool in request.tools:
-        for scaffold_subfolder, destination in TOOL_EXPORT_PATHS[tool]:
-            skills_plan.extend(
-                _plan_copies(
-                    request.scaffolds_path / tool / scaffold_subfolder,
-                    request.target_root / destination,
-                )
-            )
+    configured_tools = _configured_tools(request.existing_marker) or []
+    added_tools = [tool for tool in request.tools if tool not in configured_tools]
+    skills_plan = _plan_tool_copies(
+        [tool for tool in request.tools if tool in configured_tools], request
+    )
+    # No question covers a newly added tool, so only its missing files are
+    # written: a tool dropped earlier keeps its files, and they stay untouched.
+    added_plan = [
+        (s, d) for s, d in _plan_tool_copies(added_tools, request) if not d.exists()
+    ]
+    _recreate_missing_skeleton(added_plan, request)
 
     answers: list[bool] = []
     for question, is_yes, plan in (
@@ -361,7 +379,7 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
             _write_all(plan, request.settings)
 
     is_skills_updated = answers[1]
-    if is_skills_updated and "codex" in request.tools:
+    if is_skills_updated and "codex" in configured_tools:
         _remove_legacy_codex_skills(request.target_root, request.dry_run)
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))
