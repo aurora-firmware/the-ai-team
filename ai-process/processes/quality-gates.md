@@ -17,7 +17,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - The proposed solution addresses the stated problem.
 - Architecture is described with enough detail to derive tasks.
 - Exclusions are explicitly stated.
-- No unresolved open questions.
+- No unresolved open questions. For `behavior-v1` feature specs, the only exception is an owned internal design investigation that cannot change approved behavior and has an explicit resolution condition; questions affecting behavior, contracts, acceptance, or feasibility must be resolved.
 - No remaining human-answerable `[TODO]` markers.
 
 **S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that the architecture is detailed enough to derive tasks:

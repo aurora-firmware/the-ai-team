@@ -95,9 +95,8 @@ def _section_issues(sections: list[tuple[str, str]]) -> list[Issue]:
     return issues
 
 
-def _acceptance_issues(number: str, body: str) -> tuple[list[Issue], list[str]]:
+def _acceptance_issues(number: str, body: str) -> list[Issue]:
     issues = []
-    identifiers = []
     cases = _blocks(body, 4)
     if not cases:
         return [
@@ -105,7 +104,7 @@ def _acceptance_issues(number: str, body: str) -> tuple[list[Issue], list[str]]:
                 "spec-acceptance-missing",
                 f"REQ-{number} needs at least one '#### AC-{number}.1 — Title' scenario.",
             )
-        ], []
+        ]
     for title, scenario in cases:
         match = AC_HEADING.fullmatch(title)
         if not match:
@@ -117,7 +116,6 @@ def _acceptance_issues(number: str, body: str) -> tuple[list[Issue], list[str]]:
             )
             continue
         identifier = f"AC-{match[1]}.{match[2]}"
-        identifiers.append(identifier)
         if match[1] != number:
             issues.append(
                 (
@@ -141,13 +139,37 @@ def _acceptance_issues(number: str, body: str) -> tuple[list[Issue], list[str]]:
                     f"{identifier} needs concrete acceptance conditions and outcomes.",
                 )
             )
+    return issues
+
+
+def _acceptance_inventory(
+    sections: list[tuple[str, str]],
+) -> tuple[list[Issue], list[str]]:
+    """Inventory every AC, including accidentally misnested ones."""
+    issues = []
+    identifiers = []
+    for section, text in sections:
+        prefix = text
+        if section in ("Behavioral Requirements", "Quality Requirements"):
+            prefix = re.split(r"(?m)^ {0,3}### ", text, maxsplit=1)[0]
+        for title, _ in _blocks(prefix, 4):
+            if title.startswith("AC-"):
+                issues.append(
+                    (
+                        "spec-acceptance-orphan",
+                        f"Acceptance '{title}' must appear beneath its REQ-NNN in Behavioral Requirements or Quality Requirements.",
+                    )
+                )
+        for title, _ in _blocks(text, 4):
+            match = AC_HEADING.fullmatch(title)
+            if match:
+                identifiers.append(f"AC-{match[1]}.{match[2]}")
     return issues, identifiers
 
 
 def _requirement_issues(sections: list[tuple[str, str]]) -> list[Issue]:
-    issues = []
+    issues, acceptance = _acceptance_inventory(sections)
     requirements = []
-    acceptance = []
     for section, text in sections:
         if section not in ("Behavioral Requirements", "Quality Requirements"):
             continue
@@ -191,9 +213,7 @@ def _requirement_issues(sections: list[tuple[str, str]]) -> list[Issue]:
                         f"REQ-{number} needs an explicit SHALL or MUST obligation before its acceptance scenarios.",
                     )
                 )
-            case_issues, identifiers = _acceptance_issues(number, body)
-            issues.extend(case_issues)
-            acceptance.extend(identifiers)
+            issues.extend(_acceptance_issues(number, body))
     for identifiers, kind in (
         (requirements, "requirement"),
         (acceptance, "acceptance"),
@@ -231,9 +251,16 @@ def validate_feature_content(
         return []
     prose = _prose(text)
     sections = _blocks(prose, 2)
-    issues = _section_issues(sections) + _requirement_issues(sections)
+    preamble = re.split(r"(?m)^ {0,3}## ", prose, maxsplit=1)[0]
+    issues = _section_issues(sections) + _requirement_issues(
+        [("", preamble), *sections]
+    )
     placeholder_text = re.sub(r"(`+).*?\1", "", prose)
-    if re.search(r"\b(?:TODO|TBD|TBR)\b|\[NEEDS CLARIFICATION", placeholder_text, re.I):
+    if re.search(
+        r"\[(?:TODO|TBD|TBR)(?:\s*:[^\]\n]*)?\]|\[NEEDS CLARIFICATION\b|^(?:TODO|TBD|TBR)\s*:",
+        placeholder_text,
+        re.I | re.M,
+    ):
         issues.append(
             (
                 "spec-placeholder",

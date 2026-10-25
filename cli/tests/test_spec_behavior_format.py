@@ -268,3 +268,69 @@ def test_quality_disposition_must_use_requirements_or_explicit_non_applicability
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-quality-disposition" in {f["code"] for f in findings}
+
+
+@pytest.mark.parametrize("term", ["todo", "Todo", "TODO"])
+def test_todo_domain_language_is_not_an_unresolved_placeholder(
+    monkeypatch, tmp_path, term
+):
+    body = _body().replace(
+        "Prevent disclosure of workspace records.",
+        f"Users manage {term} lists and mark {term} items complete.",
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+@pytest.mark.parametrize(
+    "marker",
+    [
+        "[TODO]",
+        "[TODO: define behavior]",
+        "[TBD]",
+        "[TBR]",
+        "[NEEDS CLARIFICATION: limits]",
+        "TODO: define behavior",
+    ],
+)
+def test_explicit_unresolved_markers_still_block_review(monkeypatch, tmp_path, marker):
+    _write_spec(
+        tmp_path, _body().replace("Prevent disclosure of workspace records.", marker)
+    )
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    assert "spec-placeholder" in {f["code"] for f in findings}
+
+
+@pytest.mark.parametrize(
+    "section", ["Behavioral Requirements", "Quality Requirements", "Workflow"]
+)
+def test_acceptance_scenarios_without_a_requirement_owner_are_rejected(
+    monkeypatch, tmp_path, section
+):
+    orphan = REQUIREMENT[REQUIREMENT.index("####") :].replace("AC-001", "AC-999")
+    body = _body().replace(f"## {section}\n", f"## {section}\n\n{orphan}\n")
+    _write_spec(tmp_path, body)
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    assert "spec-acceptance-orphan" in {f["code"] for f in findings}
+
+
+def test_orphan_acceptance_ids_are_included_in_duplicate_checks(monkeypatch, tmp_path):
+    orphan = REQUIREMENT[REQUIREMENT.index("####") :]
+    body = _body().replace(
+        "## Behavioral Requirements\n", f"## Behavioral Requirements\n\n{orphan}\n"
+    )
+    _write_spec(tmp_path, body)
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    assert "spec-acceptance-duplicate" in {f["code"] for f in findings}
+
+
+def test_acceptance_in_the_document_preamble_is_not_skipped(monkeypatch, tmp_path):
+    orphan = REQUIREMENT[REQUIREMENT.index("####") :]
+    _write_spec(tmp_path, orphan + "\n" + _body())
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    codes = {f["code"] for f in findings}
+    assert {"spec-acceptance-orphan", "spec-acceptance-duplicate"} <= codes
