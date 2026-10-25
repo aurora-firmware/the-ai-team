@@ -9,23 +9,19 @@ from pathlib import Path
 
 import pytest
 
-INIT_DIR = Path(__file__).resolve().parents[1] / "src" / "ai_team" / "init"
+from tests.source_paths import agent_export_path, agent_source_path
 
-DEVELOPER_FILES = [
-    INIT_DIR / "sources" / "agents" / "claude" / "developer.md",
-    INIT_DIR / "sources" / "agents" / "codex" / "developer.toml",
-    INIT_DIR / "scaffolds" / "claude" / "agents" / "developer.md",
-    INIT_DIR / "scaffolds" / "codex" / "agents" / "developer.toml",
-]
+DEVELOPER_FILES = {
+    "source": agent_source_path("developer"),
+    "export": agent_export_path("developer"),
+}
 
 
 def _text(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8").split())
 
 
-@pytest.mark.parametrize(
-    "path", DEVELOPER_FILES, ids=lambda p: p.parent.parent.name + "/" + p.name
-)
+@pytest.mark.parametrize("path", DEVELOPER_FILES.values(), ids=DEVELOPER_FILES.keys())
 def test_evidence_rule_accepts_artifact_read_for_document_claims(path: Path) -> None:
     text = _text(path)
     assert "a claim without a fresh command and its actual output" not in text
@@ -35,9 +31,7 @@ def test_evidence_rule_accepts_artifact_read_for_document_claims(path: Path) -> 
     ) in text
 
 
-@pytest.mark.parametrize(
-    "path", DEVELOPER_FILES, ids=lambda p: p.parent.parent.name + "/" + p.name
-)
+@pytest.mark.parametrize("path", DEVELOPER_FILES.values(), ids=DEVELOPER_FILES.keys())
 def test_evidence_template_names_the_document_claim_form(path: Path) -> None:
     text = _text(path)
     assert (
