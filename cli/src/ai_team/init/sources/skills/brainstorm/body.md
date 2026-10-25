@@ -124,7 +124,7 @@ When all sections are approved, state the full approach in two or three sentence
 
 Invoke the `new-spec` skill to create the specification file. Provide the full required input set in the invocation text:
 - `title`: the confirmed spec title
-- `description`: a concise summary of the confirmed approach, alternatives rejected, exclusions, and constraints from Step 6
+- `description`: the confirmed approach and all approved behavioral decisions, actors/journeys, acceptance examples, constraints, assumptions, exclusions, and rejected alternatives with rationale from Step 6. Preserve decisions rather than compressing them into an outcome-only summary.
 - `author`: `planner` unless the human provided a different author
 - `status`: `draft`
 
@@ -141,8 +141,10 @@ If any human-answerable `[TODO]` markers remain, explicitly report the blocker a
 - The spec must not hand the spec to Architecture Consistency Review while those markers remain.
 - The spec must not hand the spec to Gate 1 approval while those markers remain.
 
-Mark any remaining non-human-answerable open details with `[TODO]` when they still need later investigation.
-Once no human-answerable `[TODO]` markers remain, update the spec `status` to `review`.
+Do not hand off unresolved behavior, contract, acceptance, or feasibility questions merely because they are non-human-answerable; investigate them or explicitly report the blocker.
+Only internal design investigations that cannot change approved behavior may remain in Open Questions, with an owner and resolution condition and no placeholder markers.
+Confirm that all approved behavior is captured as REQ obligations and concrete AC scenarios before updating the spec `status` to `review`.
+Run `ai-team validate --specs` after that update, and resolve findings before handoff without rewriting unrelated specs.
 
 Only then is the document ready for Architecture Consistency Review and Gate 1 confirmation.
 Because the human shaped the spec interactively, Gate 1 should be a quick confirmation — not a cold review.
@@ -153,7 +155,9 @@ Because the human shaped the spec interactively, Gate 1 should be a quick confir
 - At least two alternatives were genuinely considered (not strawmen).
 - The chosen approach has clear rationale tied to the human's stated priorities.
 - Exclusions are explicit.
-- The spec is self-contained: readable without opening other files.
+- The spec is self-contained: readable without opening other files, except precise references to existing external contracts.
+- Approved discovery decisions survive into identifiable requirements and acceptance scenarios, not only later task criteria.
+- Rejected implementation approaches are recorded as rationale, distinct from out-of-scope behavior.
 - The human confirmed the direction before the spec was written.
 - An oversized request was split into sub-projects, and only the first was brainstormed.
 - The human approved the design section by section, not only once at the end.

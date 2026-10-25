@@ -31,6 +31,10 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 **On failure:** Return to Planner with feedback for revision.
 
+For newly generated feature specs marked `spec-format: behavior-v1`, Gate 1 also requires stable REQ identifiers, one obligation per requirement, linked AC scenarios and verification methods, explicit confirmed assumptions, sufficient external contracts, and no unresolved behavior or feasibility questions.
+The author runs `ai-team validate --specs` on the review-ready document and also checks completeness and feasibility semantically; structural validation is not approval.
+Existing specs without the marker retain their authoring contract and are not rewritten solely to adopt it; S-000 retains its own overview criteria.
+
 ## Gate 2: Task Plan Preflight
 
 **When:** After the Planner writes the task plan from either an approved specification or an approved change-request, before the development loop starts. Follow-up tasks routed by spec-truth reconciliation are exempt: they are created `pending`, and the reconciliation re-run checks them (ADR-002).

@@ -373,6 +373,23 @@ S-000 is the project's system overview. Create it once with:
 ai-team spec new --overview
 ```
 
+New feature specs include `spec-format: behavior-v1` and sections for actors and
+journeys, behavioral and quality requirements, external contracts, assumptions,
+and open questions. The CLI writes a draft scaffold; the spec-writing agent
+fills it using the exported `new-spec` instructions. Requirements use stable
+`REQ-NNN` headings with linked `AC-NNN.M` acceptance scenarios and an explicit
+verification method. Public schemas can define contracts without prescribing
+internal implementation.
+
+Run `ai-team validate --specs` before handoff. For marked specs in `review` or
+`approved` status, it checks required nonempty sections (Amendment Log may be
+empty), REQ/AC structure and uniqueness, scenario ownership, verification methods,
+and unresolved placeholders outside comments and code. Draft scaffolds can be
+incomplete. Unsupported format values are errors. Existing specs without the
+marker retain metadata validation; adopting projects do not have to rewrite
+their approved specs. S-000 has no feature-format marker. These checks establish
+structure, not semantic completeness or human approval.
+
 The title is optional with `--overview`; the spec is created from the
 system-overview template. Agents can do the same through the
 `new-system-overview` skill.

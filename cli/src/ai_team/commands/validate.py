@@ -11,7 +11,8 @@ from ai_team.render import console, print_json
 
 NAME = "validate"
 app = typer.Typer(
-    help="Validate artifact metadata and cross-references.", invoke_without_command=True
+    help="Validate artifact metadata, cross-references, and versioned feature-spec structure.",
+    invoke_without_command=True,
 )
 
 

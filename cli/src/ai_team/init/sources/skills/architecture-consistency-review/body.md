@@ -57,6 +57,10 @@ Read every accepted ADR in `{{project_dir}}/decisions/` and every approved spec 
 
 For each binding artifact, decide whether the changed artifact contradicts it — asserts a different decision for the same concern, removes a guarantee another artifact relies on, or restates a rule with different content. Record each contradiction with the specific artifact, the conflicting statements, and which one is now intended to be authoritative.
 
+For a new or amended behavior-v1 feature spec, also assess its own requirement completeness, consistent terminology, feasibility, mutually compatible constraints, assumptions, and acceptance coverage; a lack of conflicts with other documents alone does not establish readiness.
+Check that unresolved behavioral or feasibility questions have been resolved, and that public contract references are precise.
+Use the new-spec authoring contract rather than imposing the new format on legacy specs or S-000.
+
 ### Step 3b: Check Against S-000
 
 When an approved S-000 exists, also confirm that a new or changed spec stays within S-000's purpose and respects each component's boundary and responsibility. Report a violation as drift and route it as Step 4 says. When a spec needs something S-000 does not cover, report it as either an S-000 amendment or a spec cut back to scope, naming which.
@@ -78,8 +82,8 @@ The Architect reports findings and routing; the Architect never edits specs dire
 
 ### Step 5: Produce the Verdict
 
-- No contradiction → `PASS`: the change is consistent with the binding set.
-- Contradictions with a clear owner and routing → `FAIL` with the named corrections.
+- No contradiction or feature-readiness gap → `PASS`: the change is consistent with the binding set.
+- Contradictions or feature-readiness gaps with a clear owner and routing → `FAIL` with the named corrections.
 - A contradiction that requires changing an approved spec beyond an in-flight amendment → `ESCALATE`. A completion-mode amendment of a stale spec is a `FAIL` routed to the Planner.
 - A contradiction that would change approved change-request intent → `ESCALATE` to the Human so the CR can be revised, rejected, or reaffirmed.
 - In completion mode, a drift where it is unclear whether the spec or the completed work is authoritative, where both need to change, or that a re-run still finds after its follow-up tasks completed → `ESCALATE` to the Human to decide.

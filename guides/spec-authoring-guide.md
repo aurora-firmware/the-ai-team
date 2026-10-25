@@ -32,6 +32,25 @@ Write so all three can do their job from the spec alone, without guessing what y
 
 If you find yourself pasting a near-complete file, you are writing the implementation. Stop. Describe what the file must guarantee instead.
 
+## Feature specification contract
+
+New feature specs carry `spec-format: behavior-v1` in frontmatter, separate from their amendment `version`.
+Existing specs without this field retain their existing format; S-000 uses its own seven-section overview contract and carries no feature-format marker.
+Do not rewrite old specifications merely to adopt this format.
+
+Every observable obligation has a stable `REQ-NNN` identifier and one behavior, with normative SHALL or MUST wording.
+Keep rationale separate from the obligation.
+Use the same identifier space for behavioral and quality requirements; never renumber or reuse identifiers after approval.
+Record removed requirements and affected identifiers in the Amendment Log.
+Each requirement has one or more acceptance headings `#### AC-NNN.M — Scenario title`, where NNN matches its requirement and M is a positive scenario number.
+Each scenario states concrete conditions and expected results, normally Given/When/Then, and includes `**Verification:**` naming a test, demonstration, inspection, or analysis that can establish the result.
+Numbering identifies obligations; it does not make vague prose precise.
+
+Run `ai-team validate --specs` before review.
+For marked feature specs in `review` or `approved`, the CLI checks required nonempty sections, requirement and acceptance structure, duplicate identifiers, acceptance ownership, and unresolved placeholders outside comments and code.
+Draft scaffolds may contain placeholders; unknown feature-format values are errors.
+These checks do not establish completeness, feasibility, or correctness: the author and reviewer still evaluate those properties.
+
 ## How to write each section
 
 The spec template follows this structure. The recipes below tell you how to write each section well, with a strong and a weak example for each.
@@ -49,9 +68,15 @@ The spec template follows this structure. The recipes below tell you how to writ
 
 **Weak:** "Add CI to the project." (No problem, no outcome, no success metric.)
 
+### Users and Journeys
+
+Identify each relevant actor, including downstream systems, their goal, and the end-to-end journey this feature changes.
+Name the priority and independent acceptance outcome of each journey; reference the REQ identifiers that establish that outcome.
+S-000 supplies the system context, but this section records the feature-specific experience.
+
 ### Exclusions
 
-**Strategy:** for every alternative considered during brainstorm, name what was rejected and why. For every scope-expanding question you heard ("should we also…?"), record the answer as an exclusion.
+**Strategy:** record each behavior deliberately outside scope with its reason. Keep rejected implementation approaches and their rationale distinct from exclusions: choosing one design does not automatically exclude a user capability.
 
 Almost every spec has at least one exclusion. "No exclusions apply" should be rare, and should follow an explicit confirmation from the human.
 
@@ -74,17 +99,16 @@ Almost every spec has at least one exclusion. "No exclusions apply" should be ra
 
 ### Interfaces
 
-**Recipe:** cover the component or feature of this spec only; system-wide structure lives in S-000. Three lines max:
-
-- **Purpose:** one sentence — what it does.
-- **Estimated size:** a complexity hint (small / medium / large, or a rough effort estimate).
-- **Interfaces:** what it exposes and what it consumes, named at the interface level.
-
-Do not list functions. Do not list fields. Do not describe other components; point to S-000 instead.
+**Recipe:** describe the external contracts exposed and consumed by this feature, with detail proportional to ambiguity and risk.
+Include relevant inputs, outputs, validation, error outcomes, authorization, and compatibility guarantees; reference the REQ identifiers that own them.
+A precise referenced public schema is acceptable when its location and contract version are unambiguous.
+Public field definitions and protocol fragments are allowed as **Contract** material; internal function lists, private class layouts, and implementation inventories are not.
+There is no fixed line limit.
+Do not repeat other components' internals; use S-000 for system-wide context.
 
 ### Workflow
 
-**Recipe:** end-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark human gates with ★. Show error paths if a failure mode is interesting.
+**Recipe:** end-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark human gates with ★. Include applicable failure, boundary, empty-input, concurrent-access, and state-dependent paths, referencing their requirement identifiers.
 
 **Strong:**
 ```
@@ -100,6 +124,21 @@ Merge enabled / blocked by check status
 ```
 
 **Weak:** a code-flow walkthrough of one CI runner.
+
+### Behavioral Requirements
+
+Use `### REQ-001 — Short title` headings for one observable behavior each.
+State the triggering event or state and the required outcome, using EARS when helpful.
+Under each requirement, add concrete `#### AC-001.1 — Scenario title` cases and a `**Verification:**` description for each case.
+Include the applicable success, rejection, boundary, and recovery cases rather than restating the requirement as its only example.
+Every approved discovery decision about behavior must appear in a requirement; task decomposition must not invent missing product decisions.
+
+### Quality Requirements
+
+Use the same REQ and AC conventions for applicable security, privacy, accessibility, performance, reliability, compatibility, and recovery guarantees.
+Specify measurement conditions and thresholds when agreed; never invent targets or copy arbitrary example numbers.
+Review each category and document meaningful non-applicability briefly; do not manufacture requirements to fill a template.
+If none apply, state that conclusion and its reason instead of leaving placeholder requirements.
 
 ### Configuration Requirements
 
@@ -117,9 +156,15 @@ Do not paste a real configuration file. The Developer writes the file against th
 
 **Weak:** a 20-line `ci.yml` snippet.
 
+### Assumptions and Dependencies
+
+Record explicit assumptions, their confirmation or validation basis, and external dependencies and their failure implications.
+An assumption that determines behavior or feasibility must be confirmed before approval.
+State `None` with a reason when there are none; do not silently omit this review.
+
 ### Success Criteria
 
-**Recipe:** a numbered list of criteria that together show the spec is satisfied. Each one is measurable; see [How to write measurable success criteria](#how-to-write-measurable-success-criteria).
+**Recipe:** a numbered list of measurable overall outcomes linked to the requirements that deliver them. These outcomes complement, rather than replace, per-requirement acceptance scenarios. Each one is measurable; see [How to write measurable success criteria](#how-to-write-measurable-success-criteria).
 
 ### Implementation Order
 
@@ -136,9 +181,16 @@ A phase is not a task. The `spec-breakdown` skill produces the actual tasks from
 
 **Weak:** a list of file paths and the functions to edit in each.
 
+### Open Questions
+
+Before review or approval, resolve every question affecting required behavior, external contracts, acceptance, or feasibility, including technical questions the human cannot answer directly.
+Record only deferred internal design investigations here, each with an owner and resolution condition; they must not change approved behavior.
+Write `None` when no investigations remain.
+Human-answerable `[TODO]` markers must be resolved before Architecture Consistency Review; unresolved behavioral questions block it regardless of who can answer them.
+
 ### Amendment Log
 
-**Recipe:** leave the table empty when the spec is first written. Add rows only after Gate 1 approval, when scope changes while tasks are in flight. Each row: date, what changed, why, affected tasks. Each amendment bumps the spec's minor `version` (for example `0.1` → `0.2`). A spec-truth reconciliation row records a verdict, changes no scope, and does not bump `version`.
+**Recipe:** leave the table empty when the spec is first written. Add rows only after Gate 1 approval, when scope changes while tasks are in flight. Each row: date, what changed, why, affected requirements and tasks. Each amendment bumps the spec's minor `version` (for example `0.1` → `0.2`). A spec-truth reconciliation row records a verdict, changes no scope, and does not bump `version`.
 
 ## The system overview spec (S-000)
 
@@ -184,56 +236,28 @@ If you cannot describe how to check whether a criterion is met, the criterion is
 
 ## Worked example (compact)
 
-Feature request: "Run our test suite automatically on every PR so we stop merging broken code."
+The following is a requirement block, not a complete specification.
+The rest of the template still records purpose, journeys, exclusions, contracts, assumptions, and overall outcomes.
 
 ```markdown
-## Purpose
-PR reviewers cannot tell whether a change breaks the test suite without running it
-locally, so broken tests reach `main`. The last two releases were delayed by lint
-and test failures discovered post-merge. After this spec is satisfied, every PR
-targeting `main` displays an automated check whose pass/fail status reflects the
-full test and lint suite, and the merge button is disabled until the check passes.
+## Behavioral Requirements
 
-## Exclusions
-- **Release pipelines.** Excluded; covered by a separate forthcoming spec.
-- **Coverage reporting.** Excluded; team has not agreed on a threshold.
-- **Self-hosted runners.** Excluded; the project's CI surface is project-hosted.
+### REQ-001 — Reject unauthorized exports
 
-## Architecture
-### Design Principles
-- Validation must run in under three minutes on the median PR.
-- The pipeline must reject unknown configuration keys instead of silently ignoring them.
-- The test command must be discovered from project documentation, not hard-coded.
+WHEN an actor requests an export for a workspace they cannot access,
+THE SYSTEM SHALL reject the request without returning workspace records.
 
-## Interfaces
-### CI Runner
-Purpose: Run the project's full test and lint suite on a PR's HEAD commit.
-Estimated size: medium.
-Interfaces: consumes PR events; emits a runner result with pass/fail + log URL.
+#### AC-001.1 — Workspace access denied
 
-## Workflow
-PR opened or updated → CI runner triggers → results posted as PR check →
-★ Reviewer approves → merge enabled iff check passes.
+- **Given:** an actor without access to workspace A
+- **When:** the actor requests an export from workspace A
+- **Then:** the request is rejected and no workspace records are returned
 
-## Configuration Requirements
-- **Test command.** Must be discoverable from `CLAUDE.md` or `ai-team/docs/coding_guidelines.md`.
-  If not found, the runner must fail with an actionable error.
-- **Trigger event filter.** Must be configurable to PR-opened, PR-updated, and rerun-on-request.
-- **Network policy.** During validation, network access must be limited to the project's dependency mirror.
-
-## Success Criteria
-1. Every PR targeting `main` shows a check that passed or failed within five minutes of opening.
-2. A PR with a failing test cannot be merged.
-
-## Implementation Order
-| Phase | What | Depends on |
-|---|---|---|
-| 1 | PR-validation pipeline runs on every PR and reports its result. | — |
-| 2 | Merge button is blocked when the pipeline fails. | Phase 1 |
-| 3 | Pipeline results visible in the project status dashboard. | Phase 1 |
+**Verification:** an authorization acceptance test for AC-001.1.
 ```
 
-This is ~40 lines, has no implementation code, no YAML, no function names — and it is sufficient for the Planner to derive tasks for the runner and the merge-block configuration.
+The identifier lets a journey, task, review, and test refer to the same obligation.
+The scenario records an observable outcome without prescribing the implementation.
 
 ## Pre-submission checklist
 
@@ -243,13 +267,17 @@ Before declaring the spec ready for Gate 1, the author confirms each of these:
 - [ ] **At least one exclusion.** Or a human-confirmed "no exclusions apply" statement.
 - [ ] **Each design principle is a constraint, not an implementation choice.**
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Where a literal value is the contract, it is labelled **Contract**.
-- [ ] **Every requirement is measurable.** An outside reader can describe how to verify it.
-- [ ] **Interfaces are described for this spec's own component or feature**, at the interface level. No method signatures, no attribute lists.
+- [ ] **Every requirement is measurable.** Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
+- [ ] **Discovery decisions are preserved.** Actors, journeys, applicable failure cases, and quality constraints are recorded and linked to requirements.
+- [ ] **Assumptions and dependencies are explicit.** Behavior-affecting premises are confirmed; deferred internal investigations have an owner and resolution condition.
+- [ ] **No unresolved behavioral questions remain**, regardless of who can answer them.
+- [ ] **Structural validation passes.** Run `ai-team validate --specs`; also review completeness, consistent terminology, feasibility, and contradictions semantically.
+- [ ] **Interfaces are described for this spec's own component or feature**, with sufficient externally observable contract detail. Public schemas may be named or included as Contract material; internal implementation inventories are excluded.
 - [ ] **Success Criteria are listed**, each one measurable.
 - [ ] **Implementation Order has coarse phases**, not tasks.
 - [ ] **Amendment Log is empty** (until amendments arrive after Gate 1).
 
-If every box is checked, the spec is ready for Gate 1.
+If every box is checked and Architect consistency findings are resolved, the spec is ready for human Gate 1 approval.
 
 ## Implementations of this guide
 
@@ -261,6 +289,7 @@ The recipes above are embedded into the CLI sources that fire when `/new-spec` i
 | Section-by-section authoring instructions used by `/new-spec` | `cli/src/ai_team/init/sources/skills/new-spec/body.md` |
 | Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/body.md` |
 | Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/claude/planner.md` |
+| Codex Planner role quality bar | `cli/src/ai_team/init/sources/agents/codex/planner.toml` |
 | System overview (S-000) document shape | `cli/src/ai_team/templates/system-overview.md` |
 | Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/body.md` |
 
