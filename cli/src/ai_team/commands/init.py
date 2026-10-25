@@ -32,23 +32,23 @@ app = typer.Typer(
     context_settings={"allow_interspersed_args": True},
 )
 
-_ROOT_GUIDANCE_FILES = ["CLAUDE.md", "AGENTS.md"]
+_ROOT_GUIDANCE_FILES = ["AGENTS.md"]
 
 # Project skeleton files that belong to the project once written: init creates
 # them only when missing, so a framework upgrade keeps the project's own copy.
 _KEEP_IF_EXISTS_PROJECT_FILES = [Path("docs") / "coding_guidelines.md"]
 
 # The ai-team docs an upgrade offers to refresh, relative to the project directory.
-_PROJECT_DOC_FILES = ["AGENTS.md", "CLAUDE.md", ".gitignore"]
+_PROJECT_DOC_FILES = ["AGENTS.md", ".gitignore"]
 
 _UPDATE_DOCS_QUESTION = (
-    "Update the ai-team docs (AGENTS.md, CLAUDE.md, .gitignore) in {project_dir}?"
+    "Update the ai-team docs (AGENTS.md, .gitignore) in {project_dir}?"
 )
 _UPDATE_SKILLS_QUESTION = "Update the agents and skills?"
 
 _ROOT_GUIDANCE_DECLINED_MESSAGE = (
     "To help agents run your project without guessing, add your test and run "
-    "commands to a root CLAUDE.md and AGENTS.md. "
+    "commands to a root AGENTS.md. "
     "See `ai-team init --create-root-guidance` to generate starter templates."
 )
 

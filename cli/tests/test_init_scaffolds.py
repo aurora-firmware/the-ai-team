@@ -56,7 +56,7 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
 
     # Package-owned project guidance source fixtures.
     _write(
-        repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project" / "CLAUDE.md",
+        repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project" / "AGENTS.md",
         "# Project Guidance\n\nspecs tasks bugs decisions reports project-local docs\n",
     )
     _write(
@@ -192,7 +192,6 @@ def test_sync_script_replaces_project_with_empty_lifecycle_skeleton(
         Path("decisions/.gitkeep"),
         Path("docs/.gitkeep"),
         Path("docs/coding_guidelines.md"),
-        Path("CLAUDE.md"),
         Path("AGENTS.md"),
         Path(".gitignore"),
     }
@@ -209,7 +208,7 @@ def test_sync_script_replaces_project_with_empty_lifecycle_skeleton(
 def test_sync_script_copies_project_guidance_files_from_source(
     tmp_path: Path,
 ) -> None:
-    """AC-1 & AC-2: Generator copies CLAUDE.md and AGENTS.md from sources/project/."""
+    """AC-1 & AC-2: Generator copies AGENTS.md from sources/project/."""
     repo = _setup_fake_repo(tmp_path)
 
     subprocess.run(
@@ -221,7 +220,7 @@ def test_sync_script_copies_project_guidance_files_from_source(
     sources_root = repo / "cli" / "src" / "ai_team" / "init" / "sources" / "project"
     project_root = repo / "cli" / "src" / "ai_team" / "init" / "scaffolds" / "project"
 
-    for file_name in ("CLAUDE.md", "AGENTS.md"):
+    for file_name in ("AGENTS.md",):
         source_text = (sources_root / file_name).read_text(encoding="utf-8")
         scaffold_text = (project_root / file_name).read_text(encoding="utf-8")
         assert scaffold_text == source_text, (
@@ -878,7 +877,7 @@ def test_project_guidance_sources_exist_and_describe_project_artifact_folders() 
         "project-local docs",
     )
 
-    for guidance_file_name in ("CLAUDE.md", "AGENTS.md"):
+    for guidance_file_name in ("AGENTS.md",):
         guidance_path = source_root / guidance_file_name
         assert guidance_path.is_file(), f"Missing source template: {guidance_path}"
 

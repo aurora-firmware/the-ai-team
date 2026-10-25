@@ -24,7 +24,7 @@ from ai_team.core.tracker import (
 from ai_team.core.validate import Finding as ArtifactFinding
 from ai_team.core.validate import validate_project
 
-_GUIDANCE_FILENAME = "CLAUDE.md"
+_GUIDANCE_FILENAME = "AGENTS.md"
 _GUIDANCE_HEADINGS = (
     "Build and Install",
     "Test",
@@ -386,7 +386,7 @@ def _is_placeholder_section(content: str, starter_content: str) -> bool:
 
 
 def check_level_3(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report missing or placeholder root CLAUDE.md guidance."""
+    """Report missing or placeholder root AGENTS.md guidance."""
 
     filename = _GUIDANCE_FILENAME
     path = contract.repo / filename

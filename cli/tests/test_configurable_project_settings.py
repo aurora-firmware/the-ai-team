@@ -128,8 +128,7 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
 
     assert result.exit_code == 0, result.output
     text = _generated_text(target) + "\n".join(
-        (target / name).read_text(encoding="utf-8")
-        for name in ("CLAUDE.md", "AGENTS.md")
+        (target / name).read_text(encoding="utf-8") for name in ("AGENTS.md",)
     )
     assert "{{" not in text
     assert "docs/ai-team/specs/" in text
@@ -170,7 +169,7 @@ def test_integration_branch_reads_marker_and_ignores_invalid_values(tmp_path):
 def test_check_layout_validates_nested_project_dir_levels_1_and_2(tmp_path):
     target = tmp_path / "repo"
     assert _init(target, "--project-dir", "docs/ai-team").exit_code == 0
-    (target / "CLAUDE.md").write_text("x", encoding="utf-8")
+    (target / "AGENTS.md").write_text("x", encoding="utf-8")
 
     contract, findings = resolve_layout(target)
 
