@@ -221,15 +221,16 @@ Required behaviour:
   offered as for a new project.
 - **New project.** Everything is written, then root guidance is offered, as before.
 - **Adoption.** `.ai-team.toml`, the project directory, and the agents and skills are
-  written. Skills or agents with the same names that already exist are listed together
-  and asked about once; `--force` answers yes. Whenever the question is not answered
+  written. The existing agent, skill and project-skeleton files `init` would write are
+  listed together and asked about once; `--force` answers yes. Root guidance and an
+  existing `docs/coding_guidelines.md` are not part of that question. Whenever the question is not answered
   yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
   reported on stderr. Root guidance is offered as for a new project.
 - **Legacy Codex skills.** `init` removes the legacy framework-owned
   `.codex/skills/<name>/` folders when `codex` is selected and an agents-and-skills
   overwrite is approved: on an upgrade, by a yes, `--update-skills` or `--force`, and only
   if `codex` was already in `[init] tools` before the run; on an adoption, by a yes or
-  `--force`. Folders the framework does not own are left in place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
+  `--force`; on a new project, by `--force`. Folders the framework does not own are left in place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
   `WOULD REMOVE`. On an upgrade where `--tools` drops `codex` or newly adds it, no
   legacy folder is removed.
 - `--force` answers yes to every overwrite question. Without it, an existing file is
@@ -244,10 +245,11 @@ Required behaviour:
   This covers skeleton files, a newly added tool's agents and skills, files written on a
   yes to an upgrade question, root guidance and `.ai-team.toml`. The tracker folder and
   the root `.gitignore` rule (S-006) are reported as `CREATED: <path>` or
-  `UPDATED: <path>`, matching the dry run's `WOULD CREATE` and `WOULD UPDATE`. Only an
-  adoption lists the existing files it keeps, on stderr; on an upgrade, files kept
-  because a question was not answered yes, a newly added tool's existing files, kept root
-  guidance and an existing `docs/coding_guidelines.md` are not listed.
+  `UPDATED: <path>`, matching the dry run's `WOULD CREATE` and `WOULD UPDATE`; adding the
+  rule is reported as `UPDATED` even when it creates the root `.gitignore`. Only an
+  adoption lists kept files, on stderr: the existing files its question kept. Kept root
+  guidance and an existing `docs/coding_guidelines.md` are never listed, and an upgrade
+  lists no kept files.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -380,3 +382,5 @@ amendment adds:
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 third re-run: N3 and N5 resolved (T-160, S-009 Reporting rule); N4's false sentence removed, but the kept-files-on-stderr rule (S-009, usage.md:230, setup-guide.md:78) holds only for an adoption (escalated, N6); legacy Codex folders removed when codex is dropped (follow-up task, N7); root .gitignore created without WROTE (escalated, N8) | none |
 | 2026-10-25 | Init Command Contract: only an adoption lists the kept files on stderr (N6, human decision: option A); the real run reports the tracker folder and root `.gitignore` rule as `CREATED` / `UPDATED` (N8, option B); legacy Codex removal requires `codex` to be selected and already configured, so dropping or newly adding it removes nothing (N7, human decision). Driven by the CR-005 spec-truth reconciliation third re-run. | The Reporting rule promised kept-file reporting the code only does for an adoption, and left the tracker writes unreported; the legacy removal keyed on the prior configuration alone. | Follow-up task for N6, N7 and N8 |
 | 2026-10-25 | Legacy Codex skills: reworded so the "already configured" condition applies only to an upgrade; an adoption removes on a yes or `--force`. Wording only, from the T-161 review. | The previous text could be read as "an adoption never removes", against the code and `usage.md`. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 fourth re-run: N6, N7 and N8 resolved (T-161, S-009 amendments; a missing .gitignore reports UPDATED, matching WOULD UPDATE); adoption kept-file list covers project-skeleton files but not root guidance or coding_guidelines.md (amend, N9); new project with --force removes legacy Codex folders (amend S-009, usage.md fix, N10) | none |
+| 2026-10-25 | Init Command Contract: the adoption question covers the existing agent, skill and project-skeleton files, not root guidance or `docs/coding_guidelines.md`, and only those kept files are listed (N9); a new project with `--force` removes legacy Codex folders (N10, CR-002 behaviour); adding the `.gitignore` rule is reported as `UPDATED` even when it creates the file. Driven by the CR-005 spec-truth reconciliation fourth re-run. | The completed work was right; the text was imprecise. | None in flight |
