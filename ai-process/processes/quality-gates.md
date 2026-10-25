@@ -107,7 +107,7 @@ Regression bug reports must record the preserved source branch as `source_branch
 
 ## Development Loop Baseline Guard
 
-Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with root guidance files such as `CLAUDE.md` and `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the human for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
+Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the human for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
 
 ## Gate 5: Final Merge Sign-off
 

@@ -38,7 +38,7 @@ def _invoke(*args: str):
 def initialized_repo(monkeypatch, tmp_path) -> Path:
     """A committed `ai-team init` repository with the cwd set to its root."""
     repo = _git_repo(tmp_path / "repo")
-    result = _invoke("init", str(repo), "--tools", "claude", "--no-interactive")
+    result = _invoke("init", str(repo), "--no-interactive")
     assert result.exit_code == 0, result.output
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "init")
@@ -181,7 +181,7 @@ def test_project_in_a_repository_subfolder_keeps_its_tracker_beside_it(
     repo = _git_repo(tmp_path / "repo")
     project = repo / "sub"
     project.mkdir()
-    result = _invoke("init", str(project), "--tools", "claude", "--no-interactive")
+    result = _invoke("init", str(project), "--no-interactive")
     assert result.exit_code == 0, result.output
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "init")

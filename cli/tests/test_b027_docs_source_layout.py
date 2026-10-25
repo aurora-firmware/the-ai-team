@@ -55,8 +55,3 @@ def test_setup_guide_does_not_list_template_skill_assets():
 def test_setup_guide_does_not_check_for_skill_assets_directories():
     """setup-guide.md verification must not ls skill assets/ folders that init never writes."""
     assert "/assets/" not in _read(SETUP_GUIDE)
-
-
-def test_usage_md_keeps_codex_output_folder_literals():
-    """usage.md must keep the .codex/agents literal that the CLI guide tests rely on."""
-    assert ".codex/agents" in _read(USAGE_MD)

@@ -25,19 +25,29 @@ def test_guide_does_not_point_to_missing_new_task_template() -> None:
     assert "new-task/assets/TEMPLATE-task.md" not in guide_text()
 
 
-def test_guide_states_which_source_skill_files_are_exported() -> None:
+def test_guide_states_a_source_skill_is_one_skill_md_with_supporting_folders() -> None:
     text = export_rules_text()
-    assert (
-        "only `body.md`, `metadata.toml` and the `assets/`, `references/` and "
-        "`scripts/` folders" in text
-    )
+    assert "one `SKILL.md`" in text
+    assert "`assets/`, `references/` and `scripts/` folders" in text
     assert "cli/src/ai_team/init/sources/skills/<name>/" in text
 
 
-def test_guide_states_supporting_folders_reach_claude_and_codex_exports() -> None:
+def test_guide_states_supporting_folders_reach_the_export_next_to_skill_md() -> None:
     text = export_rules_text()
-    assert "both the Claude and the Codex export" in text
+    assert "reach the export" in text
     assert "next to `SKILL.md`" in text
+
+
+def test_guide_has_no_codex_or_two_file_skill_text() -> None:
+    text = guide_text().lower()
+    for removed in ("codex", "metadata.toml", "body.md"):
+        assert removed not in text
+
+
+def test_guide_keeps_the_disable_model_invocation_rules() -> None:
+    text = guide_text()
+    assert "`disable-model-invocation`:" in text
+    assert "human-only actions" in text
 
 
 def test_guide_states_placeholder_filling_and_byte_copy_rules() -> None:

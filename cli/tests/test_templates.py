@@ -174,7 +174,7 @@ def test_authoring_guide_implementations_table_lists_system_overview_surfaces() 
     table = text[text.index("## Implementations of this guide") :]
 
     assert "cli/src/ai_team/templates/system-overview.md" in table
-    assert "cli/src/ai_team/init/sources/skills/new-system-overview/body.md" in table
+    assert "cli/src/ai_team/init/sources/skills/new-system-overview/SKILL.md" in table
 
 
 def test_system_overview_template_points_at_nothing_outside_the_project() -> None:

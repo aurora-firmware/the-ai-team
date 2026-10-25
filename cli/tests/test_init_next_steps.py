@@ -3,24 +3,11 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
-
-import pytest
 
 from ai_team.commands.init import _next_steps
-
-SKILLS_SOURCE_DIR = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-)
+from tests.source_paths import skill_export_path
 
 SLASH_COMMAND_PATTERN = re.compile(r"/([a-z][a-z0-9-]*)")
-
-TOOL_COMBINATIONS = [[], ["claude"]]
 
 SKILL_PURPOSES = [
     ("brainstorm", "to explore the request and constraints."),
@@ -29,48 +16,31 @@ SKILL_PURPOSES = [
 ]
 
 
-def _named_skills(tools: list[str]) -> list[str]:
+def _named_skills() -> list[str]:
     names: list[str] = []
-    for step in _next_steps(tools):
+    for step in _next_steps():
         names.extend(SLASH_COMMAND_PATTERN.findall(step))
     return names
 
 
-@pytest.mark.parametrize("tools", TOOL_COMBINATIONS)
-def test_next_steps_name_at_least_one_skill(tools):
+def test_next_steps_name_at_least_one_skill():
     """Guards the skill-name check below against passing on an empty list."""
-    assert _named_skills(tools), f"expected _next_steps({tools}) to name a skill"
+    assert _named_skills(), "expected _next_steps() to name a skill"
 
 
-@pytest.mark.parametrize("tools", TOOL_COMBINATIONS)
-def test_every_skill_named_in_next_steps_is_scaffolded(tools):
+def test_every_skill_named_in_next_steps_is_scaffolded():
     """A printed name with no matching skill directory sends new users to an unknown command."""
     missing = [
-        name
-        for name in _named_skills(tools)
-        if not (SKILLS_SOURCE_DIR / name / "body.md").is_file()
+        name for name in _named_skills() if not skill_export_path(name).is_file()
     ]
 
     assert missing == [], (
         f"next steps name skills that are not scaffolded: {missing}; "
-        f"expected a directory with body.md under {SKILLS_SOURCE_DIR}"
+        "expected a SKILL.md under the claude skills scaffold"
     )
 
 
-def test_next_steps_use_slash_form_only_when_only_claude_is_selected():
-    assert _next_steps(["claude"]) == [
+def test_next_steps_use_the_slash_form():
+    assert _next_steps() == [
         f"Run /{skill} {purpose}" for skill, purpose in SKILL_PURPOSES
     ]
-
-
-def test_next_steps_keep_slash_form_when_no_tool_is_selected():
-    assert _next_steps([]) == [
-        f"Run /{skill} {purpose}" for skill, purpose in SKILL_PURPOSES
-    ]
-
-
-def test_next_steps_never_use_the_dollar_form_even_when_codex_is_selected():
-    expected = [f"Run /{skill} {purpose}" for skill, purpose in SKILL_PURPOSES]
-
-    assert _next_steps(["codex"]) == expected
-    assert _next_steps(["claude", "codex"]) == expected

@@ -7,7 +7,7 @@ created: 2026-03-25
 # Git Conventions
 
 These rules apply to all AI roles working within any project that uses this framework.
-Project-specific commit scopes and any overrides belong in the project's own `CLAUDE.md`.
+Project-specific commit scopes and any overrides belong in the project's own `AGENTS.md`.
 
 ## Branch Model
 
@@ -54,7 +54,7 @@ When an approved spec already on `dev-agent` needs a breakdown and has no planni
 ```
 
 - **type** — `feat`, `fix`, `test`, `docs`, `chore`
-- **component** — architecture area (project-specific; see project `CLAUDE.md`)
+- **component** — architecture area (project-specific; see project `AGENTS.md`)
 - **description** — imperative, lowercase, no period, ≤ 72 chars total
 
 The branch name already carries task and role context — do not repeat it in the message.
@@ -78,7 +78,7 @@ chore(plan): merge S-004 billing export
 | **Architect** | After producing an ADR or amendment | `plan/…` when raised during planning; otherwise `dev-agent` |
 | **Integrator** | One merge commit per task or bug branch merged into its target branch | target branch |
 
-<!-- Implementation-layer copy: cli/src/ai_team/init/sources/skills/git-conventions/body.md — changes must be made to both files atomically. -->
+<!-- Implementation-layer copy: cli/src/ai_team/init/sources/skills/git-conventions/SKILL.md — changes must be made to both files atomically. -->
 
 ## Workspace Hygiene
 

@@ -18,7 +18,7 @@ from ai_team.core.layout import (
     check_level_4,
     resolve_layout,
 )
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS
+from ai_team.core.tool_paths import EXPORT_PATHS
 
 
 def _write_marker(
@@ -40,10 +40,7 @@ def _write_marker(
 def _create_current_scaffold(repo: Path) -> None:
     scaffold_root = resources.files("ai_team.init").joinpath("scaffolds")
     exports = [("project", "ai-team")]
-    exports.extend(
-        (f"claude/{subfolder}", destination)
-        for subfolder, destination in TOOL_EXPORT_PATHS["claude"]
-    )
+    exports.extend((subfolder, destination) for subfolder, destination in EXPORT_PATHS)
     for source_name, destination_name in exports:
         source = scaffold_root.joinpath(source_name)
         for entry in source.rglob("*"):
@@ -245,12 +242,12 @@ def test_level_1_expects_claude_folders_whatever_init_tools_holds(
     assert {".claude/agents", ".claude/skills"} <= {f.path for f in findings}
 
 
-def test_marker_listing_codex_reports_nothing_about_codex_folders_or_agents_md(
+def test_marker_listing_codex_reports_nothing_about_codex_folders_or_claude_md(
     tmp_path: Path,
 ) -> None:
     _write_marker(tmp_path, tools=("claude", "codex"))
     _create_current_scaffold(tmp_path)
-    _write(tmp_path / "CLAUDE.md", _VALID_GUIDANCE)
+    _write(tmp_path / "AGENTS.md", _VALID_GUIDANCE)
     legacy_skill = tmp_path / ".codex" / "skills" / "tdd"
     legacy_skill.mkdir(parents=True)
 
@@ -259,7 +256,7 @@ def test_marker_listing_codex_reports_nothing_about_codex_folders_or_agents_md(
     reported = " ".join(f"{f.path} {f.problem}" for f in findings)
     assert ".codex" not in reported
     assert ".agents" not in reported
-    assert "AGENTS.md" not in reported
+    assert "CLAUDE.md" not in reported
     assert legacy_skill.is_dir()
 
 
@@ -468,7 +465,7 @@ def test_invalid_artifact_encoding_is_blocked_and_guidance_check_continues(
     )
     assert any(
         finding.level == 3
-        and finding.path == "CLAUDE.md"
+        and finding.path == "AGENTS.md"
         and "missing" in finding.problem.lower()
         for finding in findings
     )
@@ -500,18 +497,18 @@ def test_missing_project_directory_still_checks_tracker_artifacts(
     )
 
 
-def test_level_3_requires_only_root_claude_md_when_codex_is_configured(
+def test_level_3_requires_only_root_agents_md_when_codex_is_configured(
     tmp_path: Path,
 ) -> None:
     _write_marker(tmp_path, tools=("claude", "codex"))
-    _write(tmp_path / "CLAUDE.md", _VALID_GUIDANCE)
+    _write(tmp_path / "AGENTS.md", _VALID_GUIDANCE)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
     assert check_level_3(contract) == []
-    assert not (tmp_path / "AGENTS.md").exists()
+    assert not (tmp_path / "CLAUDE.md").exists()
 
 
-def test_level_3_requires_claude_md_even_when_init_tools_is_missing(
+def test_level_3_requires_agents_md_even_when_init_tools_is_missing(
     tmp_path: Path,
 ) -> None:
     (tmp_path / ".ai-team.toml").write_text(
@@ -521,7 +518,7 @@ def test_level_3_requires_claude_md_even_when_init_tools_is_missing(
 
     findings = check_level_3(contract)
 
-    assert [finding.path for finding in findings] == ["CLAUDE.md"]
+    assert [finding.path for finding in findings] == ["AGENTS.md"]
     assert "missing" in findings[0].problem.lower()
     assert findings[0].suggested_fix
 
@@ -530,8 +527,8 @@ def test_level_3_reports_each_missing_or_placeholder_contract_section(
     tmp_path: Path,
 ) -> None:
     _write_marker(tmp_path, tools=("claude",))
-    starter = resources.files("ai_team.init").joinpath("sources", "root", "CLAUDE.md")
-    _write(tmp_path / "CLAUDE.md", starter.read_text(encoding="utf-8"))
+    starter = resources.files("ai_team.init").joinpath("sources", "root", "AGENTS.md")
+    _write(tmp_path / "AGENTS.md", starter.read_text(encoding="utf-8"))
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
     findings = check_level_3(contract)
@@ -561,7 +558,7 @@ def test_level_3_reports_missing_section_without_executing_guidance_commands(
         "Run `uv build` from `cli/`.",
         f"Run `touch {sentinel}` to build.",
     )
-    _write(tmp_path / "CLAUDE.md", guidance)
+    _write(tmp_path / "AGENTS.md", guidance)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
     findings = check_level_3(contract)
@@ -574,12 +571,12 @@ def test_level_3_reports_missing_section_without_executing_guidance_commands(
 
 def test_level_3_reports_unreadable_guidance_as_blocked(tmp_path: Path) -> None:
     _write_marker(tmp_path, tools=("claude",))
-    (tmp_path / "CLAUDE.md").write_bytes(b"\xff")
+    (tmp_path / "AGENTS.md").write_bytes(b"\xff")
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
     findings = check_level_3(contract)
 
-    assert [finding.path for finding in findings] == ["CLAUDE.md"]
+    assert [finding.path for finding in findings] == ["AGENTS.md"]
     assert "blocked" in findings[0].problem.lower()
 
 
@@ -635,7 +632,7 @@ def test_check_layout_runs_artifact_and_guidance_levels(tmp_path: Path) -> None:
 
     assert {finding.level for finding in findings} >= {2, 3}
     assert any(finding.path.endswith("T-001-task.md") for finding in findings)
-    assert any(finding.path == "CLAUDE.md" for finding in findings)
+    assert any(finding.path == "AGENTS.md" for finding in findings)
 
 
 def test_check_layout_returns_ordered_findings_without_modifying_repository(
@@ -658,16 +655,14 @@ def test_check_layout_returns_ordered_findings_without_modifying_repository(
     assert _snapshot(tmp_path) == before
 
 
-def test_level_1_reports_nothing_for_a_freshly_initialised_all_tools_project(
+def test_level_1_reports_nothing_for_a_freshly_initialised_project(
     tmp_path: Path,
 ) -> None:
     from typer.testing import CliRunner
 
     from ai_team.cli import app
 
-    result = CliRunner().invoke(
-        app, ["init", str(tmp_path), "--tools", "all", "--no-interactive"]
-    )
+    result = CliRunner().invoke(app, ["init", str(tmp_path), "--no-interactive"])
     contract, _ = resolve_layout(tmp_path, current_version=None)
 
     assert result.exit_code == 0
