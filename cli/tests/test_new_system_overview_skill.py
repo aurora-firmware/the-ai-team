@@ -2,31 +2,16 @@
 
 from __future__ import annotations
 
-import tomllib
-from pathlib import Path
-
-SKILLS = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-)
-SKILL_DIR = SKILLS / "new-system-overview"
+from tests.source_paths import skill_frontmatter, skill_source_text
 
 
 def _body() -> str:
-    return (SKILL_DIR / "body.md").read_text(encoding="utf-8")
+    return skill_source_text("new-system-overview")
 
 
-def test_skill_source_has_body_and_metadata_with_matching_headers():
-    metadata = tomllib.loads((SKILL_DIR / "metadata.toml").read_text(encoding="utf-8"))
-
-    assert (SKILL_DIR / "body.md").is_file()
-    assert "name: new-system-overview" in metadata["claude"]["header"]
-    assert "name: new-system-overview" in metadata["codex"]["header"]
-    assert metadata["claude"]["header"] == metadata["codex"]["header"]
+def test_skill_source_has_body_and_frontmatter_naming_the_skill():
+    assert _body().strip()
+    assert "name: new-system-overview" in skill_frontmatter("new-system-overview")
 
 
 def test_body_runs_overview_command_and_names_all_seven_sections():
@@ -78,7 +63,7 @@ def test_body_has_brownfield_section_reporting_findings_without_amending():
 
 
 def test_dispatch_table_names_new_system_overview():
-    body = (SKILLS / "using-ai-team" / "body.md").read_text(encoding="utf-8")
+    body = skill_source_text("using-ai-team")
     rows = [line for line in body.splitlines() if line.startswith("| ")]
 
     assert any("`new-system-overview`" in row for row in rows)

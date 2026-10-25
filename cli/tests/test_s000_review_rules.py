@@ -4,23 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tests.source_paths import skill_source_text
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SKILL_BODY_PATH = (
-    REPO_ROOT
-    / "cli"
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-    / "architecture-consistency-review"
-    / "body.md"
-)
 QUALITY_GATES_PATH = REPO_ROOT / "ai-process" / "processes" / "quality-gates.md"
 
 
 def _skill_body() -> str:
-    return SKILL_BODY_PATH.read_text(encoding="utf-8")
+    return skill_source_text("architecture-consistency-review")
 
 
 def _quality_gates() -> str:
