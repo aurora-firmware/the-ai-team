@@ -377,7 +377,9 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
             _write_all(plan, request.settings)
 
     is_skills_updated = answers[1]
-    if is_skills_updated and "codex" in configured_tools:
+    # Dropping codex, or adding it in this run, never removes legacy folders.
+    is_codex_kept = "codex" in configured_tools and "codex" in request.tools
+    if is_skills_updated and is_codex_kept:
         _remove_legacy_codex_skills(request.target_root, request.dry_run)
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))
@@ -443,6 +445,9 @@ def _ensure_tracker(target_root: Path, tracker_dir: str, dry_run: bool) -> None:
     The ignore rule is appended to the repository's root ``.gitignore`` only when
     no identical line exists, so re-running ``init`` never duplicates or removes
     rules.
+
+    The real run reports ``CREATED`` and ``UPDATED`` for the same cases its dry
+    run reports ``WOULD CREATE`` and ``WOULD UPDATE``.
     """
     tracker = resolve_tracker_dir(target_root)
     ignore_rule = _tracker_ignore_rule(tracker_dir)
@@ -463,7 +468,10 @@ def _ensure_tracker(target_root: Path, tracker_dir: str, dry_run: bool) -> None:
             typer.echo(f"WOULD UPDATE: {gitignore}")
         return
 
+    is_tracker_missing = not tracker.exists()
     tracker.mkdir(parents=True, exist_ok=True)
+    if is_tracker_missing:
+        typer.echo(f"CREATED: {tracker}")
     if needs_rule:
         prefix = ""
         if existing:
@@ -475,6 +483,7 @@ def _ensure_tracker(target_root: Path, tracker_dir: str, dry_run: bool) -> None:
                 f"{prefix}# ai-team local work-item tracker (tasks, bugs, change-requests)\n"
                 f"{ignore_rule}\n"
             )
+        typer.echo(f"UPDATED: {gitignore}")
 
 
 def _write_rendered(source: Path, destination: Path, settings: dict[str, str]) -> None:

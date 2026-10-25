@@ -237,3 +237,72 @@ def test_adoption_reports_created_files_as_wrote_and_replaced_as_overwrote(tmp_p
     assert f"OVERWROTE: {replaced}" in lines
     assert f"WROTE: {replaced}" not in lines
     assert f"WROTE: {tmp_path / '.claude' / 'agents' / 'architect.md'}" in lines
+
+
+# T-161: the real run reports the tracker writes its dry run lists
+
+
+def test_new_project_reports_the_tracker_folder_as_created(tmp_path):
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert result.exit_code == 0
+    tracker = tmp_path / ".ai-team" / "tracker"
+    assert tracker.is_dir()
+    assert f"CREATED: {tracker}" in result.output.splitlines()
+
+
+def test_new_project_reports_the_root_gitignore_rule_as_updated(tmp_path):
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert result.exit_code == 0
+    assert f"UPDATED: {tmp_path / '.gitignore'}" in result.output.splitlines()
+
+
+def test_new_project_reports_an_existing_root_gitignore_without_the_rule(tmp_path):
+    (tmp_path / ".gitignore").write_text("node_modules/\n", encoding="utf-8")
+
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert result.exit_code == 0
+    assert f"UPDATED: {tmp_path / '.gitignore'}" in result.output.splitlines()
+
+
+def _tracker_reports(output: str, root: Path, verbs: dict[str, str]) -> set[str]:
+    """Return ``<verb>: <relative path>`` for each line using one of *verbs*.
+
+    *verbs* maps the printed verb to a common name, so dry-run and real-run
+    lines from different folders can be compared.
+    """
+    reports = set()
+    for line in output.splitlines():
+        verb, _, path = line.partition(": ")
+        if verb in verbs:
+            reports.add(f"{verbs[verb]}: {Path(path).relative_to(root)}")
+    return reports
+
+
+def test_real_run_reports_the_tracker_lines_its_dry_run_lists(tmp_path):
+    dry_target = tmp_path / "dry"
+    real_target = tmp_path / "real"
+
+    dry = _init([str(dry_target), "--tools", "claude", "--no-interactive", "--dry-run"])
+    real = _init([str(real_target), "--tools", "claude", "--no-interactive"])
+
+    dry_reports = _tracker_reports(
+        dry.output, dry_target, {"WOULD CREATE": "CREATED", "WOULD UPDATE": "UPDATED"}
+    )
+    real_reports = _tracker_reports(
+        real.output, real_target, {"CREATED": "CREATED", "UPDATED": "UPDATED"}
+    )
+    assert dry_reports
+    assert real_reports == dry_reports
+
+
+def test_rerun_reports_no_tracker_lines_once_both_exist(tmp_path):
+    _init([*_base_args(tmp_path), "--no-interactive"])
+
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert result.exit_code == 0
+    assert "CREATED: " not in result.output
+    assert "UPDATED: " not in result.output

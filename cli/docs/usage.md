@@ -118,8 +118,9 @@ does not depend on any flag.
 Each defaults to no. `--update-docs` answers the first yes and `--update-skills`
 answers the second yes without asking; with `--no-interactive` an unanswered
 question is no. A yes on the agents and skills question also bumps
-`[init].framework_version` in `.ai-team.toml` and removes the legacy Codex skill
-copies (see below), so run it to clear the version mismatch warning.
+`[init].framework_version` in `.ai-team.toml` and, when `codex` is selected and
+already configured, removes the legacy Codex skill copies (see below), so run it
+to clear the version mismatch warning.
 `docs/coding_guidelines.md` is never overwritten, whatever the answers.
 
 **`--tools` on an upgrade.** An explicit `--tools` sets `[init].tools` to the
@@ -191,10 +192,13 @@ Codex skills live in `.agents/skills/`, not `.codex/skills/`. Codex needs a
 release that reads `.agents/skills/`.
 
 Earlier versions wrote Codex skills to `.codex/skills/<name>/`.
-`ai-team init --update-skills` removes those legacy copies of framework skills and prints
-`REMOVED: <folder>` for each one; any other folder under `.codex/skills/` is
-kept and reported as `LEFT IN PLACE: <folder>`. `ai-team check-layout` reports
-leftover legacy copies as a finding.
+When `codex` is selected and already configured, `ai-team init --update-skills` removes those legacy copies of framework skills and prints
+`REMOVED: <folder>` for each one (`WOULD REMOVE` in a dry run); any other folder under `.codex/skills/` is
+kept and reported as `LEFT IN PLACE: <folder>`. A yes to the agents and skills
+question or `--force` does the same. An adoption that selects `codex` removes
+them when its overwrite question is answered yes or `--force` is passed.
+When `--tools` drops `codex`, or newly adds it, no legacy folder is removed.
+`ai-team check-layout` reports leftover legacy copies as a finding.
 
 The next steps printed by `init` name each skill as `/name` for Claude Code and
 `$name` for Codex.
@@ -227,7 +231,7 @@ Existing root guidance files are never overwritten unless `--force` is also pass
 | `--force` | prompts; overwritten on yes | left untouched |
 | `--force --create-root-guidance` | overwritten, no prompt | overwritten, no prompt |
 
-Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run), every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run), and every existing file it keeps on stderr. This covers root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
+Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists the existing files it keeps, on stderr; an upgrade does not list the files it keeps. The `WROTE` and `OVERWROTE` lines cover root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
 
 ### Example: preview then initialise
 
