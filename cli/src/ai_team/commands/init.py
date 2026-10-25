@@ -261,7 +261,7 @@ def _upgrade_marker(
         typer.echo(f"WOULD OVERWRITE: {marker}")
         return
     marker.write_text(tomli_w.dumps(data), encoding="utf-8")
-    _report_overwrite(marker)
+    _report_write(marker, existed=True)
 
 
 def _stale_definitions(request: _UpgradeRequest) -> list[Path]:
@@ -306,8 +306,6 @@ def _recreate_missing_skeleton(
             typer.echo(f"{_would_verb(destination)}: {destination}")
     else:
         _write_all(plan, request.settings)
-        for _, destination in plan:
-            typer.echo(f"WROTE: {destination}")
 
 
 def _plan_tool_copies(
@@ -486,7 +484,7 @@ def _write_rendered(source: Path, destination: Path, settings: dict[str, str]) -
     byte, without placeholder substitution.
 
     Reports ``OVERWROTE: <path>`` once the write succeeds when *destination*
-    already existed.
+    already existed, and ``WROTE: <path>`` when it did not.
     """
     existed = destination.exists()
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -498,12 +496,12 @@ def _write_rendered(source: Path, destination: Path, settings: dict[str, str]) -
     else:
         destination.write_text(render_placeholders(text, **settings), encoding="utf-8")
     shutil.copymode(source, destination)
-    if existed:
-        _report_overwrite(destination)
+    _report_write(destination, existed)
 
 
-def _report_overwrite(destination: Path) -> None:
-    typer.echo(f"OVERWROTE: {destination}")
+def _report_write(destination: Path, existed: bool) -> None:
+    verb = "OVERWROTE" if existed else "WROTE"
+    typer.echo(f"{verb}: {destination}")
 
 
 def _copy_root_guidance_file(
@@ -810,8 +808,7 @@ def init_command(
         marker_existed = marker.exists()
         marker.parent.mkdir(parents=True, exist_ok=True)
         marker.write_text(tomli_w.dumps(marker_data), encoding="utf-8")
-        if marker_existed:
-            _report_overwrite(marker)
+        _report_write(marker, marker_existed)
         _ensure_tracker(target_root, tracker_dir, dry_run=False)
 
         # Handle root guidance files (outside the collision-checked scaffold set)

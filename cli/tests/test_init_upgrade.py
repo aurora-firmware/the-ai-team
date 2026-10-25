@@ -733,3 +733,76 @@ def test_dry_run_readding_a_dropped_tool_does_not_report_existing_files_as_overw
     assert result.exit_code == 0, result.output
     assert "WOULD OVERWRITE: " + str(target / ".codex") not in result.output
     assert "WOULD OVERWRITE: " + str(target / ".agents") not in result.output
+
+
+# T-160: every created file is reported as WROTE, matching the dry run
+
+
+def _reported(output: str, verb: str) -> set[str]:
+    prefix = f"{verb}: "
+    return {
+        line.removeprefix(prefix)
+        for line in output.splitlines()
+        if line.startswith(prefix)
+    }
+
+
+def test_upgrade_reports_a_missing_doc_written_on_a_yes_as_wrote(tmp_path):
+    target = _new_project(tmp_path)
+    missing_doc = _doc_files(target)[0]
+    existing_doc = _doc_files(target)[1]
+    missing_doc.unlink()
+
+    result = _run(target, input="y\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert missing_doc.is_file()
+    assert str(missing_doc) in _reported(result.output, "WROTE")
+    assert str(existing_doc) in _reported(result.output, "OVERWROTE")
+    assert str(existing_doc) not in _reported(result.output, "WROTE")
+
+
+def test_upgrade_reports_a_missing_skill_written_on_a_yes_as_wrote(tmp_path):
+    target = _new_project(tmp_path)
+    missing_skill = target / ".claude" / "skills" / "tdd" / "SKILL.md"
+    missing_skill.unlink()
+
+    result = _run(target, input="n\ny\n")
+
+    assert result.exit_code == 0, result.output
+    assert missing_skill.is_file()
+    assert str(missing_skill) in _reported(result.output, "WROTE")
+    assert str(missing_skill) not in _reported(result.output, "OVERWROTE")
+
+
+def test_upgrade_reports_root_guidance_created_by_the_flag_as_wrote(tmp_path):
+    target = _new_project(tmp_path)
+    (target / "CLAUDE.md").unlink()
+
+    result = _run(target, "--no-interactive", "--create-root-guidance")
+
+    assert result.exit_code == 0, result.output
+    assert (target / "CLAUDE.md").is_file()
+    assert str(target / "CLAUDE.md") in _reported(result.output, "WROTE")
+    assert str(target / "AGENTS.md") not in _reported(result.output, "WROTE")
+
+
+def test_upgrade_real_run_reports_every_file_its_dry_run_would_write(tmp_path):
+    target = _new_project(tmp_path)
+    (_doc_files(target)[0]).unlink()
+    (target / ".claude" / "skills" / "tdd" / "SKILL.md").unlink()
+    (target / "AGENTS.md").unlink()
+    copy = tmp_path / "copy"
+    shutil.copytree(target, copy)
+    flags = ("--create-root-guidance", "--no-interactive")
+
+    dry = _run(target, *flags, "--dry-run")
+    real = _run(copy, *flags)
+
+    def relative(paths: set[str], root: Path) -> set[Path]:
+        return {Path(path).relative_to(root) for path in paths}
+
+    dry_set = relative(_reported(dry.output, "WOULD WRITE"), target)
+    real_set = relative(_reported(real.output, "WROTE"), copy)
+    assert dry_set
+    assert dry_set == real_set
