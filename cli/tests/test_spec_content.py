@@ -342,3 +342,33 @@ def test_template_heading_titles_are_placeholders(monkeypatch, tmp_path, old, ne
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-placeholder" in {f["code"] for f in findings}
+
+
+def test_quoted_comment_opener_does_not_hide_content(monkeypatch, tmp_path):
+    body = (
+        feature_spec_body().replace(
+            "Prevent disclosure of workspace records.",
+            "Prevent disclosure of workspace records. Markers like `<!--` open comments.",
+        )
+        + "\n\n```mermaid\nflowchart LR\n  A --> B\n```\n"
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+def test_comment_still_hides_placeholders_and_fences(monkeypatch, tmp_path):
+    body = feature_spec_body().replace(
+        "Prevent disclosure of workspace records.",
+        "Prevent disclosure of workspace records. <!-- [TODO]\n```\n### REQ-009 — Hidden\n-->",
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+@pytest.mark.parametrize("marker", ["- ", "* ", "1. "])
+def test_verification_may_be_a_list_item(monkeypatch, tmp_path, marker):
+    body = feature_spec_body().replace(
+        "**Verification:**", f"{marker}**Verification:**"
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])

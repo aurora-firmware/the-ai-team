@@ -25,22 +25,50 @@ SPEC_STATUSES = ("draft", "review", "approved", "superseded")
 Issue = tuple[str, str]
 REQ_HEADING = re.compile(r"REQ-(\d{3}) — \S.*")
 AC_HEADING = re.compile(r"AC-(\d{3})\.([1-9]\d*) — \S.*")
-VERIFICATION = re.compile(r"^\*\*Verification:\*\*[ \t]*(\S[^\n]*)$", re.M)
+VERIFICATION = re.compile(
+    r"^ {0,3}(?:(?:[-+*]|\d+[.)])[ \t]+)?\*\*Verification:\*\*[ \t]*(\S[^\n]*)$", re.M
+)
 LIST_ITEM = re.compile(r"^ {0,3}(?:[-+*]|\d+[.)])[ \t]")
+COMMENT_OR_CODE = re.compile(r"(`+).*?\1|<!--")
 TEMPLATE_TITLE = re.compile(
     r"^ {0,3}#{3,4} (?:REQ|AC)-[\d.]+ — (?:Requirement|Scenario) title[ \t]*$", re.M
 )
 
 
+def _strip_comments(line: str) -> tuple[str, bool]:
+    """Remove HTML comments outside inline code; report an unclosed opener."""
+    kept = []
+    position = 0
+    while match := COMMENT_OR_CODE.search(line, position):
+        if match[0] != "<!--":
+            kept.append(line[position : match.end()])
+            position = match.end()
+            continue
+        kept.append(line[position : match.start()])
+        end = line.find("-->", match.end())
+        if end < 0:
+            return "".join(kept), True
+        position = end + 3
+    kept.append(line[position:])
+    return "".join(kept), False
+
+
 def _prose(text: str) -> str:
     """Exclude frontmatter, comments, and code from structural interpretation."""
     text = re.sub(r"\A---[^\n]*\n.*?\n---[^\n]*(?:\n|$)", "", text, count=1, flags=re.S)
-    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
     lines = []
     fence = ""
-    indented_code = in_list = False
+    indented_code = in_list = in_comment = False
     previous_blank = True
     for line in text.splitlines():
+        if in_comment:
+            end = line.find("-->")
+            if end < 0:
+                continue
+            in_comment = False
+            line = line[end + 3 :]
+            if not line.strip():
+                continue
         marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
         if fence:
             if (
@@ -51,6 +79,8 @@ def _prose(text: str) -> str:
             ):
                 fence = ""
             continue
+        if not marker:
+            line, in_comment = _strip_comments(line)
         blank = not line.strip()
         if marker:
             fence = marker[1]
