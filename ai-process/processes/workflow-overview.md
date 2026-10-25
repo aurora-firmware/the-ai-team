@@ -153,7 +153,7 @@ None of these steps creates a commit or needs a branch switch. Task-regression b
 
 #### What the development loop does
 
-Before claiming the first task, the loop discovers the project's documented baseline test command from project-specific guidance and runs it. It starts with root guidance files such as `CLAUDE.md` and `AGENTS.md`, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or multiple plausible commands are documented without a clear baseline, the loop asks the human for the command or for explicit confirmation that no automated baseline test is available. If the command fails, the loop stops and reports the failure.
+Before claiming the first task, the loop discovers the project's documented baseline test command from project-specific guidance and runs it. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or multiple plausible commands are documented without a clear baseline, the loop asks the human for the command or for explicit confirmation that no automated baseline test is available. If the command fails, the loop stops and reports the failure.
 
 1. Picks the next `pending` task (priority → dependency readiness → creation date), using `ai-team list tasks --state pending`.
 2. Sets it to `in-progress` with `ai-team task start` and creates the task branch from `dev-agent`.
