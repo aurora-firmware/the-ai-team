@@ -677,3 +677,12 @@ def test_usage_guide_dry_run_would_overwrite_covers_every_approved_overwrite():
         "`WOULD OVERWRITE` (every approved overwrite, including `--update-docs` "
         "and `--update-skills` on an upgrade)" in row
     )
+
+
+def test_usage_guide_states_new_project_legacy_codex_removal():
+    """S-009 Legacy Codex skills: a new project removes legacy folders only with --force."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert (
+        "A new project that selects `codex` removes them only when `--force` is passed."
+        in flat
+    )

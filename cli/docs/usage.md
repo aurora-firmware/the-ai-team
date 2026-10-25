@@ -197,6 +197,7 @@ When `codex` is selected and already configured, `ai-team init --update-skills` 
 kept and reported as `LEFT IN PLACE: <folder>`. A yes to the agents and skills
 question or `--force` does the same. An adoption that selects `codex` removes
 them when its overwrite question is answered yes or `--force` is passed.
+A new project that selects `codex` removes them only when `--force` is passed.
 When `--tools` drops `codex`, or newly adds it, no legacy folder is removed.
 `ai-team check-layout` reports leftover legacy copies as a finding.
 
