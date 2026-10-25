@@ -17,8 +17,10 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - The proposed solution addresses the stated problem.
 - Architecture is described with enough detail to derive tasks.
 - Exclusions are explicitly stated.
-- No unresolved open questions.
+- No unresolved open questions that affect behavior, contracts, acceptance, or feasibility. Deferred internal investigations follow the `new-spec` Open Questions rule.
 - No remaining human-answerable `[TODO]` markers.
+
+**Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec-authoring-guide.md`.
 
 **S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that the architecture is detailed enough to derive tasks:
 - The content is in plain language.

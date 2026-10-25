@@ -52,6 +52,7 @@ The `new-task` skill handles template loading, ID assignment, filename, and fron
 Then fill in the task body so it satisfies:
 - **Title**: Clear, descriptive, starts with a verb (Implement, Add, Create, Fix).
 - **Description**: Enough context to start without asking questions.
+- **Source requirements**: Name each feature-spec REQ and AC covered by the task. For change-requests and S-000, cite sections instead. Never invent product behavior during decomposition; unresolved behavior goes back to the human for clarification.
 - **Acceptance criteria**: Author every criterion using one of the five EARS patterns documented in the task file the CLI created (Ubiquitous, Event-driven, Unwanted-behaviour, State-driven, Optional).
 - **Dependencies**: List of task IDs that must complete first.
 - **Files to touch**: Exact file paths that will be created or modified.
@@ -66,6 +67,7 @@ If documentation or test updates are not needed, omit them without placeholder t
 
 ### Step 4: Validate the Plan
 Verify completeness: does the full set of tasks cover the entire specification? For S-000, the bootstrap scope only (Step 0).
+Map every feature-spec REQ and AC to at least one task and its verification; use section-based coverage for change-requests and S-000.
 Verify isolation: do any two tasks modify the same file? If yes, add a dependency between them.
 Verify atomicity: can each task be completed in a single agent pass? If a task feels too large, split it.
 Verify regeneration: does each task list the generated files its own change affects? If the plan ends with a separate "regenerate everything" task, move each regeneration into the task whose change requires it.

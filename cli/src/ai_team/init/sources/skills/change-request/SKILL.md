@@ -58,6 +58,7 @@ When invoked directly and required fields are missing, ask only for the missing 
 - The artifact id and path come from the CLI response.
 - The title is reflected in the file heading.
 - The body states the requested change, reason, affected artifacts, and unresolved questions.
+- Each proposed feature-spec amendment names the REQ and AC identifiers it adds, changes, or retires.
 - Unknown or unconfirmed details remain marked `[TODO]`.
 - Human-answerable `[TODO]` markers are resolved one at a time before approval.
 - A TODO-free CR continues into Architecture Consistency Review instead of ending with only a passive handoff.

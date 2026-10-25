@@ -70,6 +70,7 @@ Continue until all criteria have tests and passing implementations.
 ### Step 9: Prepare a Work Log Handoff
 After refactor and before handing back to the orchestrator, prepare a dated Work Log entry using the heading `### Session N — YYYY-MM-DD`.
 Use a free-prose body that summarizes what was done, what was tried and rejected, and what remains.
+When the task's Source Requirements cites AC scenarios, name the tests or review checks that verify each one.
 The session number increments monotonically across all sessions on the same task or bug.
 Return this entry to the active loop. The loop appends it to the task or bug file in the tracker.
 

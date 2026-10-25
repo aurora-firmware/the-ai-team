@@ -19,6 +19,8 @@ The two-stage checklist below is the canonical quality bar for all code reviews.
 
 ## Procedure
 
+When Source Requirements cites a feature spec, verify the linked REQ and AC obligations are respected and task verification covers its assigned scenarios. Use section references for change-requests and S-000.
+
 ### Step 1: Read the Work Item
 Read the task or bug file completely.
 Treat the Work Log and every summary in it as unverified claims about the code, and check each claim against the diff. A stated rationale never lowers a finding's severity.

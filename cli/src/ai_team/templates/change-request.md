@@ -21,5 +21,9 @@ Note affected areas, risks, and migration considerations.
 
 ## Possible Spec Amendments
 
+<!-- For each feature spec, name the REQ and AC identifiers the amendment adds,
+  changes, or retires, following the new-spec Amendment Log rules. Cite
+  sections for S-000. -->
+
 List candidate specification updates if this change alters framework contracts.
 Use `none` when no spec amendment is expected.

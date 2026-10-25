@@ -15,6 +15,7 @@ from ai_team.core.models import (
     parse_spec,
     parse_task,
 )
+from ai_team.core.spec_content import SPEC_STATUSES, validate_feature_content
 from ai_team.core.tracker import (
     BUG_STATUSES,
     CHANGE_REQUEST_STATUSES,
@@ -368,6 +369,13 @@ def validate_project(
             _check_spec_filename(
                 findings, root, path, spec_id=str(spec_id) if spec_id else None
             )
+            _check_status(findings, root, path, "Spec", spec.status, SPEC_STATUSES)
+            if spec_id != "S-000":
+                for code, message in validate_feature_content(
+                    path.read_text(encoding="utf-8"),
+                    status=spec.status,
+                ):
+                    findings.append(_finding(path, root, code, message))
 
     if adrs:
         for path in _iter_markdown_files(root.decisions):

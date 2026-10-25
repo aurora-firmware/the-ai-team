@@ -31,7 +31,7 @@ $ ai-team [OPTIONS] COMMAND [ARGS]...
 * `status`: Show a Gate 5 status summary.
 * `task`: Create and manage task artifacts.
 * `tracker`: Inspect the local work-item tracker.
-* `validate`: Validate artifact metadata and...
+* `validate`: Validate artifact metadata,...
 
 ## `ai-team adr`
 
@@ -650,7 +650,7 @@ $ ai-team tracker path [OPTIONS]
 
 ## `ai-team validate`
 
-Validate artifact metadata and cross-references.
+Validate artifact metadata, cross-references, and feature-spec structure.
 
 **Usage**:
 

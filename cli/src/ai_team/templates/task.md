@@ -26,6 +26,14 @@ Task Quality Rules (see the new-task skill for full details):
 What needs to be done and why.
 Include enough context that an agent can start working without asking questions.
 
+## Source Requirements
+
+<!-- Cite the feature spec ID, REQ identifiers, and AC scenarios this task
+  implements or verifies. For a change-request or S-000, cite its relevant
+  sections; do not invent feature requirement identifiers for those artifacts. -->
+
+Name the source requirements and acceptance scenarios this task covers.
+
 ## Acceptance Criteria
 
 <!-- EARS pattern reference. Every criterion must match one pattern:

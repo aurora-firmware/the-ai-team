@@ -10,119 +10,139 @@ author: "[Author name or agent role]"
 # [Specification Title]
 
 <!--
-This spec describes requirements and measurable criteria in prose.
-It is not the implementation. Do not paste full configuration files,
-build manifests, or implementation code into the sections below.
-Concrete code belongs in the tasks the spec-breakdown skill produces
-and in the Developer's output.
+Describe observable requirements and measurable outcomes, not implementation
+files or task lists. Fill this draft with the new-spec skill, which carries the
+section recipes and the pre-submission checklist.
 -->
 
 ## Purpose
 
-<!-- Recipe (3–4 sentences). The Purpose names the S-000 component the spec covers;
-  system-wide structure lives in S-000.
-  1. The problem (what is broken or missing today).
-  2. Why it matters now (the trigger or constraint that forced this spec).
-  3. The outcome (what is observably true when the work is done).
-  4. Optional: the metric that confirms success.
-  Do not restate the title. Always name the *why*.
--->
+<!-- The Purpose names the S-000 component when an overview exists;
+  system-wide structure lives in S-000. Explain the problem, why it matters
+  now, and the observable outcome in three to four sentences. -->
 
-What problem does this solve?
-Why is it being built?
-What is the expected outcome?
+[TODO] State the problem, trigger, and expected outcome.
+
+## Users and Journeys
+
+<!-- Identify relevant people or downstream systems, their goals, journey
+  priorities, and independently verifiable outcomes. Link to REQ identifiers. -->
+
+[TODO] Name actors, journeys, priorities, and the requirements that serve them.
 
 ## Exclusions
 
-<!-- For every alternative rejected during brainstorm, and every scope-expanding
-  question the human said "no" to, record an explicit exclusion with the reason.
-  Almost every spec has at least one. "No exclusions apply" should be rare and
-  should follow an explicit human confirmation. -->
+<!-- State excluded behavior and why; keep rejected implementation choices
+  distinct from scope exclusions. Confirm "no exclusions apply" with the human
+  if there are none. -->
 
-What this specification explicitly does NOT cover:
-
-- **Exclusion title.** This specification excludes the work because it belongs in a separate follow-up decision.
-- **Another exclusion.** This specification excludes the behavior because it is outside the approved scope.
+[TODO] State scope exclusions and their reasons.
 
 ## Architecture
 
 ### Design Principles
 
-<!-- Scoped to this spec. Each principle is a constraint on the design space — a
-  property the design must satisfy. Not an implementation choice.
-  Good: "Validation must run in under three minutes on the median PR."
-  Bad:  "Use GitHub Actions." -->
+<!-- Properties the design must satisfy, not implementation choices.
+  Reference the REQ identifiers owning observable constraints. -->
 
-State the guiding principles for this design.
+[TODO] State the constraints on the design space.
+
+### Alternatives Considered
+
+<!-- Each rejected approach and why it was rejected. Rejecting an approach
+  does not exclude a user capability; excluded behavior belongs in Exclusions. -->
+
+[TODO] Record each rejected approach and the reason, or None with a reason.
 
 ## Interfaces
 
-<!-- Describe the component or feature this spec covers, and only that one.
-  System-wide structure lives in S-000, the system overview; the Purpose names
-  the S-000 component this spec covers. Do not describe other components here.
-  - Purpose: one sentence — what it does.
-  - Estimated size: small / medium / large, or rough effort.
-  - Interfaces: exposed and consumed, named at the interface level.
-  No function lists. No field lists. -->
+<!-- Describe this feature's exposed and consumed external contracts with
+  enough detail to avoid incompatible implementations: inputs, outputs,
+  validation, error outcomes, authorization, and compatibility as applicable.
+  Public field definitions or precise versioned schema references are allowed
+  as Contract material. No internal function or private class inventories.
+  There is no fixed line limit. -->
 
-**Purpose:** One-line description.
-**Estimated size:** Rough complexity estimate.
-**Interfaces:** What it exposes and consumes.
+[TODO] Define the external contracts and link their REQ identifiers.
 
 ## Workflow
 
-<!-- End-to-end flow from trigger to completion. Each step is a sentence or
-  short phrase. Mark human gates with ★. Show error paths only when a failure
-  mode is interesting. -->
+<!-- From trigger to completion, mark human gates with a star (★). Include
+  applicable failure, boundary, empty-input, concurrent-access, and state paths;
+  link their requirements. Do not walk through internal code. -->
 
-Describe the end-to-end flow from trigger to completion.
+[TODO] Describe the feature's end-to-end behavior and relevant failure paths.
 
-```
-Step 1
-  ↓
-Step 2
-  ↓
-★ Step 3 (human gate if applicable)
-  ↓
-Step 4
-```
+## Behavioral Requirements
+
+<!-- One obligation per REQ, using SHALL or MUST and EARS where useful.
+  Each AC-NNN.M belongs to REQ-NNN. Give concrete conditions and expected
+  outcomes; include applicable success, rejection, boundary, and recovery cases.
+  Verification can be a test, demonstration, inspection, or analysis. -->
+
+### REQ-001 — Requirement title
+
+[TODO] State one observable obligation.
+
+#### AC-001.1 — Scenario title
+
+- **Given:** [TODO] a concrete initial condition
+- **When:** [TODO] a trigger or observation
+- **Then:** [TODO] the required result
+
+**Verification:** [TODO] Name the check and its pass/fail observation.
+
+## Quality Requirements
+
+<!-- Review security, privacy, accessibility, performance, reliability,
+  compatibility, and recovery. Use the same REQ/AC structure for applicable
+  guarantees, with agreed measurement conditions and thresholds. Do not invent
+  targets. If none apply, state None with the reason instead of adding filler. -->
+
+[TODO] Record applicable quality requirements or explain non-applicability.
 
 ## Configuration Requirements
 
-Describe the settings, environment variables, or external configuration the work depends on, **as requirements**:
+<!-- For each setting: what and why, where it lives, constraints, and behavior
+  when missing or invalid. Reference its requirement. Do not paste full config
+  files. If no settings are involved, state None with a reason. -->
 
-- **What** setting must exist and **why** (the constraint it satisfies).
-- **Where** it lives (env var, config file, CI variable) — described, not pasted.
-- **Constraints** on its value (allowed range, format, security class).
-- **Default behavior** when the setting is missing or invalid.
+[TODO] Describe required settings and their default or error behavior.
 
-Do not paste a real configuration file here. The Developer writes the file against the project's conventions; this section tells them what the file must guarantee.
+## Assumptions and Dependencies
 
-If — and only if — a literal value is itself the contract (e.g. a fixed external API key name, a wire-protocol field), include it inline and mark it explicitly as **Contract**, not as **Example**.
+<!-- Record assumptions and their confirmation basis, external dependencies,
+  and their failure implications. Confirm behavior/feasibility premises before
+  approval. If there are none, say None and explain. -->
+
+[TODO] Record confirmed assumptions and external dependencies.
 
 ## Success Criteria
 
-<!-- Each criterion is measurable: an outside party can run a check (a command,
-  an observation, a metric query) and get an unambiguous pass or fail. -->
+<!-- Measurable overall outcomes linked to REQ identifiers; these complement,
+  rather than replace, the per-requirement acceptance scenarios above. -->
 
-1. A measurable criterion that shows the spec is satisfied.
+[TODO] List the observable outcomes and how success will be measured.
 
 ## Implementation Order
 
-<!-- Coarse phases (typically two to five). Each phase delivers an observable
-  outcome. A phase is NOT a task — the spec-breakdown skill produces the actual
-  tasks from these phases. -->
+<!-- Typically two to five coarse phases, each with an outcome and dependencies.
+  Actual tasks and file-by-file changes are produced during decomposition. -->
 
-| Phase | What | Depends On |
-|---|---|---|
-| 1 | First deliverable | Nothing |
-| 2 | Second deliverable | Phase 1 |
-| 3 | Third deliverable | Phase 1 |
+[TODO] Describe coarse delivery phases and their dependencies.
+
+## Open Questions
+
+<!-- Resolve every question affecting behavior, contracts, acceptance, or
+  feasibility before review, regardless of who can answer it. Only internal
+  design investigations that cannot change approved behavior may be deferred;
+  name an owner and resolution condition. State None when none remain. -->
+
+[TODO] Resolve blockers; record only owned, bounded internal investigations.
 
 ## Amendment Log
 
-<!-- Optional. Use when an approved spec is amended after tasks are in flight.
-| Date | What changed | Why | Affected tasks |
-|------|-------------|-----|----------------|
-| YYYY-MM-DD | Description of change | Reason for amendment | T-XXX, T-YYY |
--->
+<!-- Empty for a new draft. After approval, record date, change, reason,
+  affected REQ/AC identifiers and tasks; bump the minor version on scope changes.
+  Never renumber or reuse retired identifiers. A reconciliation verdict changes
+  no scope and does not bump the version. -->

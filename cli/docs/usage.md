@@ -331,6 +331,10 @@ ai-team spec new "Billing reconciliation" --author "planner" --status draft
 ai-team adr new "Use PostgreSQL for ledger storage" --status proposed
 ```
 
+`spec new` writes a draft scaffold of a feature spec. The spec-writing agent
+fills it through the exported `new-spec` skill, which follows the authoring
+contract in the framework's spec authoring guide.
+
 ### System overview (S-000)
 
 S-000 is the project's system overview. Create it once with:
@@ -427,6 +431,25 @@ ai-team validate --change-requests
 # Emit JSON for scripting
 ai-team validate --json
 ```
+
+For feature specs in `review` or `approved` status, `validate --specs` also
+checks the spec structure, ignoring comments and code:
+
+- every required section is present once and is not empty (Amendment Log may be
+  empty);
+- Behavioral Requirements has at least one `REQ-NNN — Title` heading, numbered
+  from 001, and each requirement states a SHALL or MUST obligation;
+- Quality Requirements holds requirements or `None` followed by a reason;
+- each requirement has `AC-NNN.M — Title` scenarios with matching numbers,
+  nested under it, with content and a nonempty `**Verification:**` line;
+- requirement and scenario identifiers are unique, and no scenario sits outside
+  a requirement;
+- no TODO, TBD, TBR, or clarification placeholders, and no unchanged template
+  headings, remain.
+
+Drafts are not checked, and S-000 follows its separate system-overview
+contract. These checks establish structure, not semantic completeness or human
+approval.
 
 Exit code is 1 if any error-level finding is reported.
 
@@ -577,6 +600,7 @@ The `ai_team` package lives in `cli/src/ai_team/` and is structured as:
 | `ai_team.core.models` | Dataclasses for task, bug, spec, and ADR frontmatter. |
 | `ai_team.core.templates` | Loads bundled Markdown templates from the package. |
 | `ai_team.core.validate` | Artifact metadata validation logic. |
+| `ai_team.core.spec_content` | Structural checks for feature-spec bodies. |
 | `ai_team.templates/` | Bundled Markdown artifact templates (task, bug, spec, adr, report). |
 | `ai_team.init/` | Scaffold data for `ai-team init`. |
 | `ai_team.init.scaffolds/` | Package-owned snapshots: `scaffolds/{project,agents,skills}/`. |
