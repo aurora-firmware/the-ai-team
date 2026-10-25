@@ -2,18 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from tests.source_paths import agent_export_path, agent_source_path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-CLAUDE_SOURCE_ROOT = (
-    REPO_ROOT / "src" / "ai_team" / "init" / "sources" / "agents" / "claude"
-)
-CODEX_SOURCE_ROOT = (
-    REPO_ROOT / "src" / "ai_team" / "init" / "sources" / "agents" / "codex"
-)
-CLAUDE_SCAFFOLD_ROOT = (
-    REPO_ROOT / "src" / "ai_team" / "init" / "scaffolds" / "claude" / "agents"
-)
 CLAUDE_ROLES = ("architect", "developer", "integrator", "planner", "reviewer")
 
 CANONICAL_ESCALATION_BLOCK = """Problem: [the criterion that will not pass, or the boundary that was violated]
@@ -35,8 +25,8 @@ PLANNER_REQUIRED_SKILLS = frozenset(
 
 
 def _agent_texts(role: str) -> tuple[str, str]:
-    source = (CLAUDE_SOURCE_ROOT / f"{role}.md").read_text(encoding="utf-8")
-    scaffold = (CLAUDE_SCAFFOLD_ROOT / f"{role}.md").read_text(encoding="utf-8")
+    source = agent_source_path(role).read_text(encoding="utf-8")
+    scaffold = agent_export_path(role).read_text(encoding="utf-8")
     return source, scaffold
 
 
@@ -99,12 +89,11 @@ def _escalation_fields(text: str) -> list[str]:
 
 def test_all_claude_roles_use_canonical_escalation_request_block() -> None:
     """AC-4: the Developer uses the frozen four-field escalation request wording,
-    and every Claude role's block matches its Codex counterpart."""
+    and every Claude role's source and export carry the same block."""
     for text in _agent_texts("developer"):
         assert CANONICAL_ESCALATION_BLOCK in text
     for role in CLAUDE_ROLES:
-        codex = (CODEX_SOURCE_ROOT / f"{role}.toml").read_text(encoding="utf-8")
-        for text in _agent_texts(role):
-            fields = _escalation_fields(text)
-            assert len(fields) == 4, role
-            assert fields == _escalation_fields(codex), role
+        source, scaffold = _agent_texts(role)
+        fields = _escalation_fields(source)
+        assert len(fields) == 4, role
+        assert fields == _escalation_fields(scaffold), role

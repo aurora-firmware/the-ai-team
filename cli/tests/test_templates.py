@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from ai_team.core.templates import load_template
+from tests.source_paths import skill_source_text
 
 
 def test_load_template_task_matches_bundled_source() -> None:
@@ -105,7 +106,6 @@ def test_system_overview_template_shows_one_component_example_with_all_fields() 
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NEW_SPEC_SKILL = REPO_ROOT / "cli/src/ai_team/init/sources/skills/new-spec/body.md"
 AUTHORING_GUIDE = REPO_ROOT / "guides/spec-authoring-guide.md"
 REMOVED_TERMS = ("System Diagram", "Responsibility Separation")
 
@@ -139,7 +139,7 @@ def test_spec_template_says_purpose_names_the_s000_component() -> None:
 
 
 def test_new_spec_skill_describes_interfaces_and_not_removed_sections() -> None:
-    content = NEW_SPEC_SKILL.read_text(encoding="utf-8")
+    content = skill_source_text("new-spec")
 
     assert "### Interfaces" in content
     assert "**Interfaces are described for this spec's own component" in content
