@@ -127,9 +127,7 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
     )
 
     assert result.exit_code == 0, result.output
-    text = _generated_text(target) + "\n".join(
-        (target / name).read_text(encoding="utf-8") for name in ("AGENTS.md",)
-    )
+    text = _generated_text(target) + (target / "AGENTS.md").read_text(encoding="utf-8")
     assert "{{" not in text
     assert "docs/ai-team/specs/" in text
     assert "docs/ai-team/docs/coding_guidelines.md" in text

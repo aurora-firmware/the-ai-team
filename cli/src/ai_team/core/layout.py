@@ -95,7 +95,7 @@ def resolve_layout(
             _finding(
                 1,
                 ".ai-team.toml",
-                "Repository marker .ai-team.toml is missing; project and tool settings cannot be resolved.",
+                "Repository marker .ai-team.toml is missing; project settings cannot be resolved.",
                 "Run 'ai-team init' or restore .ai-team.toml; repository conventions will be checked where safe.",
             )
         )

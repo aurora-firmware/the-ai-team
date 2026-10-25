@@ -25,13 +25,16 @@ def _write_marker(
     repo: Path,
     *,
     project_dir: str = "ai-team",
-    tools: tuple[str, ...] = ("claude", "codex"),
+    leftover_tools: tuple[str, ...] | None = None,
     version: str = "1.2.3",
 ) -> None:
-    rendered_tools = ", ".join(f'"{tool}"' for tool in tools)
+    """Write a marker; ``leftover_tools`` adds an unread pre-CR-007 ``tools`` key."""
+    tools_line = ""
+    if leftover_tools is not None:
+        tools_line = "tools = [" + ", ".join(f'"{t}"' for t in leftover_tools) + "]\n"
     (repo / ".ai-team.toml").write_text(
         f'[project]\ndir = "{project_dir}"\n\n'
-        f"[init]\ntools = [{rendered_tools}]\n"
+        f"[init]\n{tools_line}"
         f'framework_version = "{version}"\n',
         encoding="utf-8",
     )
@@ -111,7 +114,7 @@ def test_resolve_layout_reads_valid_local_marker_and_distribution_version(
     _write_marker(
         tmp_path,
         project_dir="team-state",
-        tools=("codex", "claude"),
+        leftover_tools=("codex", "claude"),
         version="2.4.0",
     )
     monkeypatch.setattr("importlib.metadata.version", lambda name: "2.4.0")
@@ -151,10 +154,18 @@ def test_resolve_layout_reports_marker_faults_and_uses_safe_conventions(
     assert any(expected_problem in finding.problem.lower() for finding in findings)
 
 
+def test_missing_marker_finding_does_not_mention_tool_settings(tmp_path: Path) -> None:
+    _, findings = resolve_layout(tmp_path, current_version="1.2.3")
+
+    missing = [f for f in findings if f.path == ".ai-team.toml"]
+    assert missing
+    assert all("tool" not in f.problem.lower() for f in missing)
+
+
 def test_level_1_reports_every_missing_current_scaffold_directory_and_allows_extra(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     shutil.rmtree(tmp_path / "ai-team" / "specs")
     shutil.rmtree(tmp_path / ".claude" / "agents")
@@ -173,7 +184,7 @@ def test_level_1_reports_every_missing_current_scaffold_directory_and_allows_ext
 
 
 def test_level_1_reports_missing_claude_skills(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     shutil.rmtree(tmp_path / ".claude" / "skills")
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
@@ -186,7 +197,7 @@ def test_level_1_reports_missing_claude_skills(tmp_path: Path) -> None:
 def test_level_1_reports_missing_coding_guidelines_with_scaffold_fix(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     (tmp_path / "ai-team" / "docs" / "coding_guidelines.md").unlink()
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
@@ -202,7 +213,7 @@ def test_level_1_reports_missing_coding_guidelines_with_scaffold_fix(
 def test_level_1_reports_no_finding_for_existing_coding_guidelines_of_any_content(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     (tmp_path / "ai-team" / "docs" / "coding_guidelines.md").write_text(
         "", encoding="utf-8"
@@ -213,7 +224,7 @@ def test_level_1_reports_no_finding_for_existing_coding_guidelines_of_any_conten
 
 
 def test_level_1_does_not_require_bare_tool_roots(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
@@ -245,7 +256,7 @@ def test_level_1_expects_claude_folders_whatever_init_tools_holds(
 def test_marker_listing_codex_reports_nothing_about_codex_folders_or_claude_md(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude", "codex"))
+    _write_marker(tmp_path, leftover_tools=("claude", "codex"))
     _create_current_scaffold(tmp_path)
     _write(tmp_path / "AGENTS.md", _VALID_GUIDANCE)
     legacy_skill = tmp_path / ".codex" / "skills" / "tdd"
@@ -325,7 +336,7 @@ def test_level_2_reuses_artifact_filename_and_frontmatter_rules(
     content: str,
     expected_problem: str,
 ) -> None:
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     _write(tmp_path / relative_path, content)
     contract, resolution_findings = resolve_layout(tmp_path, current_version="1.2.3")
 
@@ -348,7 +359,7 @@ def test_level_2_reuses_artifact_filename_and_frontmatter_rules(
 def test_level_2_reports_invalid_status_values_with_actionable_fix(
     tmp_path: Path, relative_path: str, status: str
 ) -> None:
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     if "/tasks/" in relative_path:
         content = _frontmatter(
             id="T-001",
@@ -379,7 +390,7 @@ def test_level_2_reports_invalid_status_values_with_actionable_fix(
 
 
 def test_level_1_reports_unmigrated_legacy_work_item_folders(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     _write(tmp_path / "ai-team" / "tasks" / "pending" / "T-001-old.md", "legacy")
     (tmp_path / "ai-team" / "bugs" / "open").mkdir(parents=True)
@@ -397,7 +408,7 @@ def test_level_1_reports_tracker_inside_repository_that_git_does_not_ignore(
 ) -> None:
     import subprocess
 
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
@@ -411,7 +422,7 @@ def test_level_1_reports_tracker_inside_repository_that_git_does_not_ignore(
 def test_level_2_ignores_placeholders_and_non_artifact_documentation(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     _write(tmp_path / ".ai-team/tracker/tasks/.gitkeep", "")
     _write(tmp_path / ".ai-team/tracker/tasks/TEMPLATE-task.md", "not frontmatter")
     _write(tmp_path / "ai-team/docs/Bad Documentation.md", "not frontmatter")
@@ -423,7 +434,7 @@ def test_level_2_ignores_placeholders_and_non_artifact_documentation(
 def test_level_2_reports_malformed_artifact_and_continues_independent_checks(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=())
+    _write_marker(tmp_path)
     _write(
         tmp_path / ".ai-team/tracker/tasks/T-001-malformed.md",
         "---\ninvalid: [yaml\n---\n",
@@ -452,7 +463,7 @@ def test_level_2_reports_malformed_artifact_and_continues_independent_checks(
 def test_invalid_artifact_encoding_is_blocked_and_guidance_check_continues(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     artifact = tmp_path / ".ai-team/tracker/tasks/T-001-invalid-encoding.md"
     artifact.parent.mkdir(parents=True)
     artifact.write_bytes(b"\xff")
@@ -500,7 +511,7 @@ def test_missing_project_directory_still_checks_tracker_artifacts(
 def test_level_3_requires_only_root_agents_md_when_codex_is_configured(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude", "codex"))
+    _write_marker(tmp_path, leftover_tools=("claude", "codex"))
     _write(tmp_path / "AGENTS.md", _VALID_GUIDANCE)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
@@ -526,7 +537,7 @@ def test_level_3_requires_agents_md_even_when_init_tools_is_missing(
 def test_level_3_reports_each_missing_or_placeholder_contract_section(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     starter = resources.files("ai_team.init").joinpath("sources", "root", "AGENTS.md")
     _write(tmp_path / "AGENTS.md", starter.read_text(encoding="utf-8"))
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
@@ -550,7 +561,7 @@ def test_level_3_reports_each_missing_or_placeholder_contract_section(
 def test_level_3_reports_missing_section_without_executing_guidance_commands(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     sentinel = tmp_path / "command-ran"
     guidance = _VALID_GUIDANCE.replace(
         "## Test\n\nRun `uv run pytest` from `cli/`.\n\n", ""
@@ -570,7 +581,7 @@ def test_level_3_reports_missing_section_without_executing_guidance_commands(
 
 
 def test_level_3_reports_unreadable_guidance_as_blocked(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     (tmp_path / "AGENTS.md").write_bytes(b"\xff")
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
@@ -615,7 +626,7 @@ def test_level_4_reports_missing_invalid_and_non_exact_versions(
 
 
 def test_level_4_accepts_only_an_exact_version_match(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=(), version="1.2.3+local.1")
+    _write_marker(tmp_path, version="1.2.3+local.1")
     contract, resolution_findings = resolve_layout(
         tmp_path, current_version="1.2.3+local.1"
     )
@@ -625,7 +636,7 @@ def test_level_4_accepts_only_an_exact_version_match(tmp_path: Path) -> None:
 
 
 def test_check_layout_runs_artifact_and_guidance_levels(tmp_path: Path) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _write(tmp_path / ".ai-team/tracker/tasks/T-001-task.md", "not frontmatter")
 
     findings = check_layout(tmp_path, current_version="1.2.3")
@@ -638,7 +649,7 @@ def test_check_layout_runs_artifact_and_guidance_levels(tmp_path: Path) -> None:
 def test_check_layout_returns_ordered_findings_without_modifying_repository(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",), version="1.0.0")
+    _write_marker(tmp_path, version="1.0.0")
     (tmp_path / "ai-team" / "unexpected").mkdir(parents=True)
     before = _snapshot(tmp_path)
 
@@ -672,7 +683,7 @@ def test_level_1_reports_nothing_for_a_freshly_initialised_project(
 def test_level_1_suggests_update_skills_for_a_missing_tool_directory(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     shutil.rmtree(tmp_path / ".claude" / "agents")
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
@@ -686,7 +697,7 @@ def test_level_1_suggests_update_skills_for_a_missing_tool_directory(
 def test_level_1_suggests_plain_init_for_a_missing_project_directory(
     tmp_path: Path,
 ) -> None:
-    _write_marker(tmp_path, tools=("claude",))
+    _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     shutil.rmtree(tmp_path / "ai-team" / "specs")
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")

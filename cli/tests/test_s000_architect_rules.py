@@ -8,7 +8,11 @@ import pytest
 
 from tests.source_paths import agent_source_path
 
-ARCHITECT_SOURCES = [pytest.param(agent_source_path("architect"), id="claude")]
+
+@pytest.fixture
+def path() -> Path:
+    return agent_source_path("architect")
+
 
 NON_ARCHITECT_ROLES = ["developer", "reviewer", "integrator"]
 DEVELOPER_BOOTSTRAP_EXCEPTION = "a task whose source spec is S-000"
@@ -22,7 +26,6 @@ def _flat(path: Path) -> str:
     return " ".join(_text(path).split())
 
 
-@pytest.mark.parametrize("path", ARCHITECT_SOURCES)
 def test_architect_reads_approved_s000_at_session_start_before_other_specs(path):
     text = _flat(path)
 
@@ -31,7 +34,6 @@ def test_architect_reads_approved_s000_at_session_start_before_other_specs(path)
     assert "before other specs" in text
 
 
-@pytest.mark.parametrize("path", ARCHITECT_SOURCES)
 def test_architect_uses_s000_as_reference_for_the_consistency_check(path):
     text = _flat(path)
 

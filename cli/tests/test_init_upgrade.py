@@ -7,6 +7,7 @@ import shutil
 import tomllib
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from ai_team.cli import app
@@ -351,11 +352,36 @@ def test_dry_run_reports_the_version_bump_without_writing_it(tmp_path):
     assert _marker_data(target)["init"]["framework_version"] == OLD_VERSION
 
 
-def test_skills_update_leaves_a_framework_named_codex_skill_folder_in_place(tmp_path):
+@pytest.mark.parametrize(
+    ("flags", "input"),
+    [
+        (("--update-skills",), "n\n"),
+        (("--force", "--no-interactive"), None),
+        (("--dry-run", "--update-skills", "--no-interactive"), None),
+    ],
+    ids=["update-skills", "force", "dry-run"],
+)
+def test_upgrade_leaves_a_framework_named_codex_skill_folder_in_place(
+    tmp_path, flags, input
+):
     target = _new_project(tmp_path)
     legacy = _add_legacy_codex_skill(target)
 
-    result = _run(target, "--update-skills", input="n\n")
+    result = _run(target, *flags, input=input)
+
+    assert result.exit_code == 0, result.output
+    assert (legacy / "SKILL.md").read_text(encoding="utf-8") == "legacy\n"
+    for line in ("REMOVED", "LEFT IN PLACE", "WOULD REMOVE"):
+        assert line not in result.output
+
+
+def test_first_init_with_force_leaves_a_framework_named_codex_skill_folder_in_place(
+    tmp_path,
+):
+    target = tmp_path / "repo"
+    legacy = _add_legacy_codex_skill(target)
+
+    result = _run(target, "--force", "--no-interactive")
 
     assert result.exit_code == 0, result.output
     assert (legacy / "SKILL.md").read_text(encoding="utf-8") == "legacy\n"
