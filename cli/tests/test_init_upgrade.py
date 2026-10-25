@@ -871,3 +871,60 @@ def test_upgrade_real_run_reports_every_file_its_dry_run_would_write(tmp_path):
     real_set = relative(_reported(real.output, "WROTE"), copy)
     assert dry_set
     assert dry_set == real_set
+
+
+# PR #49 review: a hand-written marker, and questions that cover no files
+
+
+def _preset_marker(tmp_path: Path) -> Path:
+    """A repository whose user wrote `.ai-team.toml` by hand before the first init."""
+    target = tmp_path / "repo"
+    target.mkdir()
+    (target / ".ai-team.toml").write_text(
+        '[project]\ndir = "ai-team"\n', encoding="utf-8"
+    )
+    return target
+
+
+def test_a_marker_without_tools_is_a_first_run_that_records_the_version(tmp_path):
+    target = _preset_marker(tmp_path)
+
+    preview = _run(target, "--tools", "claude", "--no-interactive", "--dry-run")
+    result = _run(target, "--tools", "claude", "--no-interactive")
+
+    assert "CASE: new project" in preview.output
+    assert result.exit_code == 0, result.output
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+    assert data["project"]["dir"] == "ai-team"
+    assert data["init"]["tools"] == ["claude"]
+    assert data["init"]["framework_version"] == importlib.metadata.version("ai-team")
+    assert "dir" in data["tracker"]
+
+
+def test_a_marker_without_tools_with_existing_skills_is_an_adoption(tmp_path):
+    target = _preset_marker(tmp_path)
+    skill = target / ".claude" / "skills" / "brainstorm" / "SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text("custom\n", encoding="utf-8")
+
+    preview = _run(target, "--tools", "claude", "--no-interactive", "--dry-run")
+    result = _run(target, "--tools", "claude", "--update-skills", "--no-interactive")
+
+    assert "CASE: adoption" in preview.output
+    assert result.exit_code == 0, result.output
+    assert _is_custom([skill])
+
+
+def test_upgrade_skips_the_docs_question_when_the_project_directory_was_recreated(
+    tmp_path,
+):
+    target = _new_project(tmp_path)
+    shutil.rmtree(target / "ai-team")
+
+    preview = _run(target, "--dry-run")
+    result = _run(target, input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert DOCS_PROMPT not in result.output.lower()
+    assert SKILLS_PROMPT in result.output.lower()
+    assert DOCS_PROMPT not in preview.output.lower()

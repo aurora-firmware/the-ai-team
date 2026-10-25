@@ -688,3 +688,11 @@ def test_usage_guide_states_new_project_legacy_codex_removal():
         "A new project that selects `codex` removes them only when `--force` is passed."
         in flat
     )
+
+
+def test_usage_guide_states_the_pr49_init_rules():
+    """PR #49 review: a preset marker is a first run; empty questions are not asked."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert "exists in the repository root and records `[init] tools`" in flat
+    assert "a question that covers no files is not asked" in flat
+    assert "--update-skills --update-docs` to refresh them" in flat

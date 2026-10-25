@@ -106,9 +106,9 @@ does not depend on any flag.
 
 | Case | Detected when | What `init` does |
 |---|---|---|
-| Upgrade | `.ai-team.toml` exists in the repository root. | Keeps every configured setting and asks two questions (below). Nothing is overwritten without a yes. Missing project-skeleton files that no question covers are written without a question and never overwritten. |
-| New project | There is no `.ai-team.toml` and none of the files `init` would write exists. | Writes the scaffold, the tracker folder and `.ai-team.toml`. No overwrite question is asked. |
-| Adoption | There is no `.ai-team.toml`, but some files `init` would write already exist: agent, skill or project files, or a root `CLAUDE.md` or `AGENTS.md`. | Lists the existing agent, skill and project files and asks once: `Overwrite these existing files?` Root `CLAUDE.md` and `AGENTS.md` are not part of that question; they follow the table under [Root guidance files](#root-guidance-files). |
+| Upgrade | `.ai-team.toml` exists in the repository root and records `[init] tools`. | Keeps every configured setting and asks two questions (below); a question that covers no files is not asked. Nothing is overwritten without a yes. Missing project-skeleton files that no question covers are written without a question and never overwritten. |
+| New project | There is no `.ai-team.toml` that records `[init] tools` (a hand-written one that presets settings is kept), and none of the files `init` would write exists. | Writes the scaffold, the tracker folder and `.ai-team.toml`. No overwrite question is asked. |
+| Adoption | There is no `.ai-team.toml` that records `[init] tools`, but some files `init` would write already exist: agent, skill or project files, or a root `CLAUDE.md` or `AGENTS.md`. | Lists the existing agent, skill and project files and asks once: `Overwrite these existing files?` Root `CLAUDE.md` and `AGENTS.md` are not part of that question; they follow the table under [Root guidance files](#root-guidance-files). |
 
 **Upgrade questions.** An upgrade asks, in order:
 
@@ -534,7 +534,7 @@ planning work integrates into (default `dev-agent`).
 The generated agents and skills name these two settings through the
 `{{project_dir}}` and `{{integration_branch}}` placeholders. `ai-team init`
 fills them in from `.ai-team.toml` when it writes the files, so after changing
-either setting, run `ai-team init . --tools <tools> --update-skills` to refresh them.
+either setting, run `ai-team init . --tools <tools> --update-skills --update-docs` to refresh them.
 Hand edits to generated files are overwritten by that refresh.
 
 ### Expected layout

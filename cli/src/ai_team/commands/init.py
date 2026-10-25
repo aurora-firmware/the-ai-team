@@ -369,6 +369,10 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
         ),
         (_UPDATE_SKILLS_QUESTION, request.update_skills, skills_plan),
     ):
+        if not plan:
+            # A question that covers no files is not asked.
+            answers.append(False)
+            continue
         is_answered_yes = _ask_upgrade_question(
             question, is_yes, [d for _, d in plan], request
         )
@@ -665,7 +669,11 @@ def init_command(
     """
     target_root = path.resolve()
     existing_marker = read_marker(target_root)
-    is_upgrade = (target_root / ".ai-team.toml").is_file()
+    # Only a marker that records the tools comes from an earlier init; one the
+    # user wrote by hand to preset settings is a first run, not an upgrade.
+    is_upgrade = (target_root / ".ai-team.toml").is_file() and bool(
+        _configured_tools(existing_marker)
+    )
     try:
         if is_upgrade:
             selected_tools = _resolve_upgrade_tools(

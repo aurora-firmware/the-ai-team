@@ -196,13 +196,17 @@ Required behaviour:
   preserved.
 - **Project state (CR-005).** Before writing anything, `init` detects one of three
   cases from the target repository:
-  - **Upgrade** — `.ai-team.toml` exists. A missing project directory, and any
+  - **Upgrade** — `.ai-team.toml` exists and records `[init] tools`. A missing project directory, and any
     missing project-skeleton file that no upgrade question covers (the `specs/` and
     `decisions/` placeholders and `docs/coding_guidelines.md`), is written without a
     question and reported as `WROTE`; an existing one is never overwritten.
-  - **New project** — no `.ai-team.toml`, and none of the files `init` would write
+  - **New project** — no `.ai-team.toml` that records `[init] tools`, and none of the
+    files `init` would write
     exist yet.
-  - **Adoption** — no `.ai-team.toml`, but some files `init` would write already exist.
+  - **Adoption** — no `.ai-team.toml` that records `[init] tools`, but some files `init`
+    would write already exist.
+  - A `.ai-team.toml` the user wrote by hand to preset settings, without `[init] tools`,
+    is a first run: its settings are kept and the case is a new project or an adoption.
 - **Upgrade.** Every setting in `.ai-team.toml` is kept, except where `--project-dir`,
   `--integration-branch` or `--tools` is given explicitly. An explicit `--tools` sets
   `[init] tools` to the given list. For a tool it newly adds, only the agents and skills
@@ -210,7 +214,7 @@ Required behaviour:
   kept, so nothing existing is overwritten. Tools already
   configured follow the agents-and-skills question below, and a tool dropped from the
   list keeps its files. `init` asks two questions, in
-  this order: update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
+  this order (a question that covers no files is not asked): update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
   project directory), then update the agents and skills for the configured tools.
   `--update-docs` and `--update-skills` answer them ahead of time; `--update-skills`
   covers agents and skills. With `--no-interactive`, an unanswered question means
@@ -386,3 +390,4 @@ amendment adds:
 | 2026-10-25 | Init Command Contract: the adoption question covers the existing agent, skill and project-skeleton files, not root guidance or `docs/coding_guidelines.md`, and only those kept files are listed (N9); a new project with `--force` removes legacy Codex folders (N10, CR-002 behaviour); adding the `.gitignore` rule is reported as `UPDATED` even when it creates the file. Driven by the CR-005 spec-truth reconciliation fourth re-run. | The completed work was right; the text was imprecise. | None in flight |
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 fifth re-run: N9 and N10 resolved (S-009 amendment 25f8639d, usage.md e165706e); usage.md:235 and setup-guide.md:78 still say an adoption lists the existing files it keeps, though kept root guidance and coding_guidelines.md are not listed (docs fix, N11) | none |
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 sixth re-run: N11 resolved (usage.md:235 and setup-guide.md:78 now state that only an adoption lists kept files, excluding root guidance and coding_guidelines.md, 3fb64634); Init Command Contract matches init.py, usage.md, commands.md, setup-guide.md and customization-guide.md | none |
+| 2026-10-25 | Init Command Contract: the upgrade case needs a `.ai-team.toml` that records `[init] tools`; a hand-written marker without it is a first run (new project or adoption) that keeps its settings; an upgrade question that covers no files is not asked. Driven by the PR #49 review. | A preset marker made the first init an upgrade that never recorded `framework_version`, and `--update-skills` stamped the version without updating any file. | None in flight |
