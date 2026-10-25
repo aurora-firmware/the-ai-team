@@ -12,10 +12,10 @@ Those rules are then **implemented** by four things, all packaged inside the `ai
 - the **agents** — the roles that carry out the process (authored under `cli/src/ai_team/init/sources/agents/`);
 - the **skills** — the procedures the agents follow (authored under `cli/src/ai_team/init/sources/skills/`);
 - the **project skeleton** — the managed `ai-team/` directory layout scaffolded into target repositories (authored under `cli/src/ai_team/init/sources/project/`);
-- the **root guidance templates** — starter `CLAUDE.md` and `AGENTS.md` files for project-specific commands and conventions (authored under `cli/src/ai_team/init/sources/root/`);
+- the **root guidance templates** — a starter `AGENTS.md` file for project-specific commands and conventions (authored under `cli/src/ai_team/init/sources/root/`);
 - the **`ai-team` CLI** (`cli/`) — the tooling that supports the skills by managing project artifacts and bootstrapping the framework into new repositories.
 
-When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/`, `.codex/`, and `.agents/` folders are **per-project local configuration** — they are not part of this meta-project's deliverable and, in this repository, are git-ignored and used only when running agents *inside this repo*.
+When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration** — it is not part of this meta-project's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
 
 Think of it as a constitution for an AI development team.
 The ai-process is the law; the agents, skills, and CLI are the institutions that carry it out.
@@ -120,14 +120,9 @@ Each skill implements a workflow or action defined in the ai-process:
 
 ## Agent Platform Compatibility
 
-The framework ships agent and skill definitions for two tools:
+The framework exports agent and skill definitions for Claude Code only. They are authored once as Markdown under `cli/src/ai_team/init/sources/` (`agents/*.md` and `skills/<name>/SKILL.md`) and exported by `ai-team init` into the target project's `.claude/agents/` and `.claude/skills/` directories. `init` has no tool option.
 
-- **Claude Code** — Markdown agents and skills.
-- **OpenAI Codex** — TOML agents plus the same Markdown skills.
-
-Both variants are authored once under `cli/src/ai_team/init/sources/` and exported by `ai-team init` into the target project's `.claude/` (for Claude Code) and/or `.codex/` and `.agents/` (for Codex) directories, selected with `--tools claude`, `--tools codex`, or `--tools all`.
-
-This repository may also contain `.claude/`, `.codex/`, and `.agents/` folders at its root — those are **local agent configuration for this repository only**, are git-ignored, and are **not** part of the framework deliverable. They mirror what `ai-team init` would write into a target project, but the CLI and the bundled scaffolds never read from them at runtime.
+This repository may also contain a `.claude/` folder at its root — it is **local agent configuration for this repository only**, is git-ignored, and is **not** part of the framework deliverable. It mirrors what `ai-team init` would write into a target project, but the CLI and the bundled scaffolds never read from it at runtime.
 
 ## Using This Framework in Your Project
 
@@ -157,10 +152,10 @@ pipx install --force dist/*.whl
 From the target repository root:
 
 ```bash
-ai-team init . --tools all --no-interactive --create-root-guidance
+ai-team init . --no-interactive --create-root-guidance
 ```
 
-This creates the managed `ai-team/` folders, copies the bundled agents and skills into the target project's `.claude/`, `.codex/`, and/or `.agents/` directories, writes `.ai-team.toml`, and optionally creates starter root `CLAUDE.md` and `AGENTS.md` files.
+This creates the managed `ai-team/` folders, copies the bundled agents and skills into the target project's `.claude/agents/` and `.claude/skills/` directories, writes `.ai-team.toml`, and optionally creates a starter root `AGENTS.md` file.
 The `ai-process/` specification documents are not exported; they live in this meta-repository only and serve as the authoritative spec for the rules the agents and skills implement.
 
 Use `--dry-run` to preview files before writing. Use `--force` only when you intentionally want existing files overwritten. In non-interactive setup, omit `--create-root-guidance` if you do not want starter root guidance files.
@@ -198,7 +193,7 @@ The most common loop is:
 4. Run `/bug-loop` for open bugs.
 5. Run `ai-team status` and `ai-team report` for Gate 5 sign-off context.
 
-After initialization, still add your project's `CLAUDE.md`, stack-specific commands, and coding guidance in `ai-team/docs/`.
+After initialization, still fill in your project's `AGENTS.md`, stack-specific commands, and coding guidance in `ai-team/docs/`.
 Keep the framework files generic unless you intentionally fork the process.
 
 The normal workflow is:
@@ -210,7 +205,7 @@ The normal workflow is:
 5. Bugs are filed in the local tracker and handled through `/bug-loop`.
 6. Human approves the final `dev-agent` → `main` merge at Gate 5.
 
-See `guides/setup-guide.md` for the complete file list, CLAUDE.md starter template, and verification steps.
+See `guides/setup-guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 
 ## Guides
 
@@ -240,7 +235,7 @@ See `guides/setup-guide.md` for the complete file list, CLAUDE.md starter templa
                          and skill sources live under cli/src/ai_team/init/sources/)
 ```
 
-> Not shown above: `.claude/`, `.codex/`, and `.agents/` may exist at the repo root as **local-only, git-ignored** agent configuration used when running agents inside this meta-repo. They are not part of the framework deliverable.
+> Not shown above: `.claude/` may exist at the repo root as **local-only, git-ignored** agent configuration used when running agents inside this meta-repo. It is not part of the framework deliverable.
 
 ## Contributing to This Project
 
