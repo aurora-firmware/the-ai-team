@@ -1,4 +1,4 @@
-"""B-023 and CR-002: `ai-team init` next steps name only scaffolded skills, in each tool's syntax."""
+"""B-023 and CR-007: `ai-team init` next steps name only scaffolded skills, as `/<name>`."""
 
 from __future__ import annotations
 
@@ -19,9 +19,8 @@ SKILLS_SOURCE_DIR = (
 )
 
 SLASH_COMMAND_PATTERN = re.compile(r"/([a-z][a-z0-9-]*)")
-DOLLAR_COMMAND_PATTERN = re.compile(r"\$([a-z][a-z0-9-]*)")
 
-TOOL_COMBINATIONS = [[], ["claude"], ["codex"], ["claude", "codex"]]
+TOOL_COMBINATIONS = [[], ["claude"]]
 
 SKILL_PURPOSES = [
     ("brainstorm", "to explore the request and constraints."),
@@ -34,7 +33,6 @@ def _named_skills(tools: list[str]) -> list[str]:
     names: list[str] = []
     for step in _next_steps(tools):
         names.extend(SLASH_COMMAND_PATTERN.findall(step))
-        names.extend(DOLLAR_COMMAND_PATTERN.findall(step))
     return names
 
 
@@ -65,20 +63,14 @@ def test_next_steps_use_slash_form_only_when_only_claude_is_selected():
     ]
 
 
-def test_next_steps_use_dollar_form_only_when_only_codex_is_selected():
-    assert _next_steps(["codex"]) == [
-        f"Run ${skill} {purpose}" for skill, purpose in SKILL_PURPOSES
-    ]
-
-
-def test_next_steps_show_both_forms_when_both_tools_are_selected():
-    assert _next_steps(["claude", "codex"]) == [
-        f"Run /{skill} (Claude Code) or ${skill} (Codex) {purpose}"
-        for skill, purpose in SKILL_PURPOSES
-    ]
-
-
 def test_next_steps_keep_slash_form_when_no_tool_is_selected():
     assert _next_steps([]) == [
         f"Run /{skill} {purpose}" for skill, purpose in SKILL_PURPOSES
     ]
+
+
+def test_next_steps_never_use_the_dollar_form_even_when_codex_is_selected():
+    expected = [f"Run /{skill} {purpose}" for skill, purpose in SKILL_PURPOSES]
+
+    assert _next_steps(["codex"]) == expected
+    assert _next_steps(["claude", "codex"]) == expected

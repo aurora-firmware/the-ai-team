@@ -22,7 +22,7 @@ from ai_team.core.config import (
     render_placeholders,
 )
 from ai_team.core.locator import DEFAULT_PROJECT_DIR
-from ai_team.core.tool_paths import TOOL_EXPORT_PATHS, framework_skill_names
+from ai_team.core.tool_paths import TOOL_EXPORT_PATHS
 from ai_team.core.tracker import DEFAULT_TRACKER_DIR, resolve_tracker_dir
 
 NAME = "init"
@@ -381,10 +381,6 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
             _write_all(plan, request.settings)
 
     is_skills_updated = answers[1]
-    # Dropping codex, or adding it in this run, never removes legacy folders.
-    is_codex_kept = "codex" in configured_tools and "codex" in request.tools
-    if is_skills_updated and is_codex_kept:
-        _remove_legacy_codex_skills(request.target_root, request.dry_run)
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))
     _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
@@ -420,15 +416,7 @@ def _report_skipped(skipped: list[Path]) -> None:
 
 
 def _skill_invocation(skill: str, tools: list[str]) -> str:
-    """Return how to invoke ``skill`` in the configured tools.
-
-    Claude Code runs a skill as ``/name``; Codex has no per-skill slash command
-    and runs it as ``$name``. With no tool configured, keep the ``/name`` form.
-    """
-    if tools == ["codex"]:
-        return f"${skill}"
-    if "claude" in tools and "codex" in tools:
-        return f"/{skill} (Claude Code) or ${skill} (Codex)"
+    """Return how to invoke ``skill``: Claude Code runs a skill as ``/name``."""
     return f"/{skill}"
 
 
@@ -592,35 +580,6 @@ def _handle_root_guidance(
     return declined
 
 
-def _remove_legacy_codex_skills(target_root: Path, dry_run: bool) -> None:
-    """Remove framework skill copies left in ``.codex/skills`` by older releases.
-
-    Codex lists same-named skills from ``.codex/skills`` and ``.agents/skills``
-    side by side, so the old framework copies would show every skill twice.
-    Folders the framework does not own are left alone, and the legacy root is
-    removed only once it is empty. With *dry_run* nothing changes.
-    """
-    legacy_root = target_root / ".codex" / "skills"
-    if not legacy_root.is_dir():
-        return
-
-    framework_names = set(framework_skill_names("codex"))
-    for folder in sorted(path for path in legacy_root.iterdir() if path.is_dir()):
-        if folder.name not in framework_names:
-            typer.echo(f"LEFT IN PLACE: {folder}")
-        elif dry_run:
-            typer.echo(f"WOULD REMOVE: {folder}")
-        else:
-            if folder.is_symlink():
-                folder.unlink()
-            else:
-                shutil.rmtree(folder)
-            typer.echo(f"REMOVED: {folder}")
-
-    if not dry_run and not any(legacy_root.iterdir()):
-        legacy_root.rmdir()
-
-
 def _report_completion(tools: list[str], declined: bool) -> None:
     typer.echo("Initialization complete.")
     typer.echo("Next steps:")
@@ -768,7 +727,6 @@ def init_command(
         overwrite = _decide_adoption_overwrite(
             collisions, force, no_interactive, dry_run
         )
-        is_overwrite_approved = force or (bool(collisions) and bool(overwrite))
         if overwrite:
             to_write = planned
         else:
@@ -784,8 +742,6 @@ def init_command(
             for destination in collisions if overwrite is None else []:
                 typer.echo(f"WOULD PROMPT: {destination}")
             typer.echo(f"WOULD WRITE: {marker}")
-            if force and "codex" in selected_tools:
-                _remove_legacy_codex_skills(target_root, dry_run=True)
             _handle_root_guidance(
                 target_root,
                 sources_path,
@@ -799,8 +755,6 @@ def init_command(
             return
 
         _write_all(to_write, settings)
-        if is_overwrite_approved and "codex" in selected_tools:
-            _remove_legacy_codex_skills(target_root, dry_run=False)
 
         # Keep every setting the user already configured; only the values this
         # command owns (project, tracker, git, init) are refreshed.
