@@ -279,6 +279,8 @@ $ ai-team init [OPTIONS] [PATH] COMMAND [ARGS]...
 * `--dry-run`
 * `--no-interactive`
 * `--create-root-guidance`
+* `--update-docs`: On an upgrade, update the ai-team docs without asking.
+* `--update-skills`: On an upgrade, update the agents and skills without asking.
 * `--project-dir TEXT`: Artifact folder, at any depth (default: the configured one, else &#x27;ai-team&#x27;).
 * `--integration-branch TEXT`: Branch work integrates into (default: the configured one, else &#x27;dev-agent&#x27;).
 * `--help`: Show this message and exit.

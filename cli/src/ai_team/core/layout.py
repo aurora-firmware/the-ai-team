@@ -249,6 +249,13 @@ def _expected_directories(contract: LayoutContract) -> list[Path]:
     return expected
 
 
+def _missing_directory_fix(contract: LayoutContract, path: Path) -> str:
+    """Suggest the init command that recreates a missing scaffold directory."""
+    if path.is_relative_to(contract.project_dir):
+        return "Create the directory by restoring the current scaffold or rerunning 'ai-team init'."
+    return "Create the directory by restoring the current scaffold or running 'ai-team init --update-skills'."
+
+
 def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
     """Report an unignored in-repository tracker and unmigrated legacy folders."""
 
@@ -297,7 +304,7 @@ def _legacy_codex_skill_findings(contract: LayoutContract) -> list[LayoutFinding
             1,
             f".codex/skills/{name}",
             f"Legacy Codex skill folder '.codex/skills/{name}' duplicates the framework skill exported to '.agents/skills/{name}'.",
-            "Rerun 'ai-team init --force' to remove the legacy copy.",
+            "Rerun 'ai-team init --update-skills' to remove the legacy copy.",
         )
         for name in framework_skill_names("codex")
         if (contract.repo / ".codex" / "skills" / name).is_dir()
@@ -335,7 +342,7 @@ def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
                     1,
                     display_path,
                     f"Required scaffold directory '{display_path}' is missing.",
-                    "Create the directory by restoring the current scaffold or rerunning 'ai-team init' with the configured tools.",
+                    _missing_directory_fix(contract, path),
                 )
             )
     return sorted(findings, key=_sort_key)

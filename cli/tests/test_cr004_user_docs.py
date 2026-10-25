@@ -53,7 +53,38 @@ def test_component_map_lists_project_bootstrap_procedure_for_planner() -> None:
     assert "S-000" in row
 
 
-def test_setup_guide_force_note_says_coding_guidelines_never_overwritten() -> None:
-    note = _line_containing(SETUP_GUIDE, "`ai-team init --force` overwrites")
+def test_setup_guide_upgrade_note_describes_init_and_update_skills() -> None:
+    note = _line_containing(SETUP_GUIDE, "To upgrade an installed project")
+    assert "`ai-team init`" in note
+    assert "`--update-skills`" in note
+    assert "refuses to overwrite" not in note
+
+
+def test_setup_guide_upgrade_note_keeps_coding_guidelines_never_overwritten() -> None:
+    note = _line_containing(SETUP_GUIDE, "To upgrade an installed project")
     assert "docs/coding_guidelines.md" in note
     assert "never overwritten, even with `--force`" in note
+
+
+def test_setup_guide_does_not_say_a_plain_rerun_refuses() -> None:
+    assert "a plain re-run refuses" not in SETUP_GUIDE
+
+
+def test_customization_guide_says_skill_edits_are_overwritten_only_on_upgrade_update() -> (
+    None
+):
+    note = _line_containing(CUSTOMIZATION_GUIDE, "Exported skill files in")
+    assert "upgrade updates the agents and skills" in note
+    assert "ai-team init --force` overwrites them" not in note
+
+
+def test_customization_guide_retrofit_step_uses_the_adoption_case() -> None:
+    step = _line_containing(CUSTOMIZATION_GUIDE, "Follow the setup guide")
+    assert "adoption" in step
+
+
+def test_customization_guide_describes_rerun_on_initialized_project_as_upgrade_questions() -> (
+    None
+):
+    assert "refuses to overwrite any existing" not in CUSTOMIZATION_GUIDE
+    assert "asks the upgrade questions" in CUSTOMIZATION_GUIDE

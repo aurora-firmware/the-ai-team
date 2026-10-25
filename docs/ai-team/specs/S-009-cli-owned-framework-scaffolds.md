@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.3'
+version: '0.5'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -194,8 +194,66 @@ Required behaviour:
   `--integration-branch`) is given, the configured tracker folder is always kept
   (`[tracker] dir` has no `init` flag), and every other setting the user added is
   preserved.
-- Existing destination files are not overwritten without `--force`; `--dry-run` reports
-  what would be written without writing.
+- **Project state (CR-005).** Before writing anything, `init` detects one of three
+  cases from the target repository:
+  - **Upgrade** — `.ai-team.toml` exists and records `[init] tools`. A missing project directory, and any
+    missing project-skeleton file that no upgrade question covers (the `specs/` and
+    `decisions/` placeholders and `docs/coding_guidelines.md`), is written without a
+    question and reported as `WROTE`; an existing one is never overwritten.
+  - **New project** — no `.ai-team.toml` that records `[init] tools`, and none of the
+    files `init` would write
+    exist yet.
+  - **Adoption** — no `.ai-team.toml` that records `[init] tools`, but some files `init`
+    would write already exist.
+  - A `.ai-team.toml` the user wrote by hand to preset settings, without `[init] tools`,
+    is a first run: its settings are kept and the case is a new project or an adoption.
+- **Upgrade.** Every setting in `.ai-team.toml` is kept, except where `--project-dir`,
+  `--integration-branch` or `--tools` is given explicitly. An explicit `--tools` sets
+  `[init] tools` to the given list. For a tool it newly adds, only the agents and skills
+  that do not exist yet are written, without a question, and its existing files are
+  kept, so nothing existing is overwritten. Tools already
+  configured follow the agents-and-skills question below, and a tool dropped from the
+  list keeps its files. `init` asks two questions, in
+  this order (a question that covers no files is not asked): update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
+  project directory), then update the agents and skills for the configured tools.
+  `--update-docs` and `--update-skills` answer them ahead of time; `--update-skills`
+  covers agents and skills. With `--no-interactive`, an unanswered question means
+  "no" and that part is left unchanged. When the agents and skills are updated,
+  `framework_version` is set to the running version. Skills and agents in the tool
+  folders that the running version does not ship are never removed; `init` lists them
+  in a warning that says they were neither updated nor removed. Root guidance is
+  offered as for a new project.
+- **New project.** Everything is written, then root guidance is offered, as before.
+- **Adoption.** `.ai-team.toml`, the project directory, and the agents and skills are
+  written. The existing agent, skill and project-skeleton files `init` would write are
+  listed together and asked about once; `--force` answers yes. Root guidance and an
+  existing `docs/coding_guidelines.md` are not part of that question. Whenever the question is not answered
+  yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
+  reported on stderr. Root guidance is offered as for a new project.
+- **Legacy Codex skills.** `init` removes the legacy framework-owned
+  `.codex/skills/<name>/` folders when `codex` is selected and an agents-and-skills
+  overwrite is approved: on an upgrade, by a yes, `--update-skills` or `--force`, and only
+  if `codex` was already in `[init] tools` before the run; on an adoption, by a yes or
+  `--force`; on a new project, by `--force`. Folders the framework does not own are left in place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
+  `WOULD REMOVE`. On an upgrade where `--tools` drops `codex` or newly adds it, no
+  legacy folder is removed.
+- `--force` answers yes to every overwrite question. Without it, an existing file is
+  replaced only on a yes. `--dry-run` reports the detected case, then what the real run
+  with the same flags would write, without writing. An unanswered question prints
+  `WOULD PROMPT: <path>` for each file it covers. What a yes would trigger (the legacy
+  removal, the stale-definition warning, the `framework_version` bump) is reported only
+  when a flag, `--force` or `--no-interactive` answers the question.
+- **Reporting.** In every case, each file the real run creates is reported on stdout as
+  `WROTE: <path>` and each existing file it replaces as `OVERWROTE: <path>`, so the real
+  run reports the same files its dry run lists as `WOULD WRITE` and `WOULD OVERWRITE`.
+  This covers skeleton files, a newly added tool's agents and skills, files written on a
+  yes to an upgrade question, root guidance and `.ai-team.toml`. The tracker folder and
+  the root `.gitignore` rule (S-006) are reported as `CREATED: <path>` or
+  `UPDATED: <path>`, matching the dry run's `WOULD CREATE` and `WOULD UPDATE`; adding the
+  rule is reported as `UPDATED` even when it creates the root `.gitignore`. Only an
+  adoption lists kept files, on stderr: the existing files its question kept. Kept root
+  guidance and an existing `docs/coding_guidelines.md` are never listed, and an upgrade
+  lists no kept files.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -318,3 +376,18 @@ amendment adds:
 |------|-------------|-----|----------------|
 | 2026-10-20 | Moved out of `specs/archive/` as S-009 (was a duplicate `S-001`) and retitled from "CLI-owned framework scaffolds and remove ai-process init export". Removed the completed `ai-process/` export removal as a work item, keeping "never exports `ai-process/`" as an invariant. Component 2 now copies skill `assets/`, `references/` and `scripts/` folders into both exports byte for byte, and the generator never fills placeholders; Component 3 states placeholder rendering by `init` and byte-for-byte copy of non-UTF-8 files. The project skeleton no longer has lifecycle folders (S-006); export paths now refer to S-003's level 1 table instead of naming `.codex/skills/`; the `.ai-team.toml` contract includes `[tracker] dir` and `[git] integration_branch`; the TOML example became prose. Driven by CR-003 §7 and §10 and Architecture Consistency Review finding F3. | The spec was still `approved` in the archive and the only written contract for the generator, but described a lifecycle skeleton and `.codex/skills/` export that S-006 and CR-002 replaced, and the generator silently dropped skill supporting folders (report #20). | None in flight |
 | 2026-10-24 | Project skeleton: `docs/` holds a `coding_guidelines.md` placeholder; Init Command Contract: `init` writes it only when missing and never overwrites it, even with `--force`. Driven by CR-004 item 10 and its Gate 2 finding F1. | Agents and skills already reference the file, but `init` never created it. | None in flight |
+| 2026-10-24 | Init Command Contract: state detection (upgrade, new project, adoption), the upgrade questions and `--update-docs` / `--update-skills`, the `framework_version` bump, the stale-definition warning, the adoption collision question, and `--force` / `--dry-run` per case. Driven by CR-005. | `init` treated every run the same: refuse, or overwrite everything with `--force`, so upgrading overwrote the project's own guidance. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005: legacy Codex removal, dry-run unanswered questions and skipped-file reporting not described (amend); skipped-file wording, root guidance not detected as adoption, upgrade not recreating missing skeleton files (follow-up tasks); `--tools` on an upgrade escalated | none |
+| 2026-10-25 | Init Command Contract: legacy Codex removal on an approved agents-and-skills overwrite; dry-run reporting of unanswered questions; adoption reports kept files whenever the question is not answered yes; on an upgrade an explicit `--tools` sets `[init] tools` and writes a newly added tool's agents and skills without a question (human decision, option B). Driven by the CR-005 spec-truth reconciliation (F1, F2, F3a, F6). | The completed work was right on F1, F2 and F3a; the human decided F6. | Follow-up tasks for F3b, F4, F5 and F6 |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 re-run: F1–F6 resolved (T-155 to T-158); upgrade text omits per-file skeleton recreation and the newly-added-tool missing-files-only rule (amend); usage.md and setup-guide.md say new files are not reported, but upgrade prints WROTE (follow-up task) | none |
+| 2026-10-25 | Init Command Contract: an upgrade writes every missing project-skeleton file no question covers, without a question, and reports it as `WROTE`; for a tool newly added by `--tools`, only its missing agents and skills are written and its existing files are kept. Driven by the CR-005 spec-truth reconciliation re-run (N1). | The completed work (T-157, T-158) was right and more precise than the text. | Follow-up task for N2 |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 second re-run: N1 and N2 resolved (S-009 amendment, T-159); usage.md:232 and setup-guide.md:78 overstate WROTE reporting for question-approved and root-guidance writes (escalated); usage.md:233 says skipped files are unreported though an adoption lists them (follow-up task); S-009 omits WROTE for a newly added tool's files (amend) | none |
+| 2026-10-25 | Init Command Contract: added the Reporting rule. The real run prints `WROTE` for every file it creates and `OVERWROTE` for every file it replaces, matching its dry run, and kept files are reported on stderr. Driven by the CR-005 spec-truth reconciliation second re-run (N3, human decision: option B; N5). | The real run reported fewer files than its dry run listed, and the docs overstated it. | Follow-up task for N3 and N4 |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 third re-run: N3 and N5 resolved (T-160, S-009 Reporting rule); N4's false sentence removed, but the kept-files-on-stderr rule (S-009, usage.md:230, setup-guide.md:78) holds only for an adoption (escalated, N6); legacy Codex folders removed when codex is dropped (follow-up task, N7); root .gitignore created without WROTE (escalated, N8) | none |
+| 2026-10-25 | Init Command Contract: only an adoption lists the kept files on stderr (N6, human decision: option A); the real run reports the tracker folder and root `.gitignore` rule as `CREATED` / `UPDATED` (N8, option B); legacy Codex removal requires `codex` to be selected and already configured, so dropping or newly adding it removes nothing (N7, human decision). Driven by the CR-005 spec-truth reconciliation third re-run. | The Reporting rule promised kept-file reporting the code only does for an adoption, and left the tracker writes unreported; the legacy removal keyed on the prior configuration alone. | Follow-up task for N6, N7 and N8 |
+| 2026-10-25 | Legacy Codex skills: reworded so the "already configured" condition applies only to an upgrade; an adoption removes on a yes or `--force`. Wording only, from the T-161 review. | The previous text could be read as "an adoption never removes", against the code and `usage.md`. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 fourth re-run: N6, N7 and N8 resolved (T-161, S-009 amendments; a missing .gitignore reports UPDATED, matching WOULD UPDATE); adoption kept-file list covers project-skeleton files but not root guidance or coding_guidelines.md (amend, N9); new project with --force removes legacy Codex folders (amend S-009, usage.md fix, N10) | none |
+| 2026-10-25 | Init Command Contract: the adoption question covers the existing agent, skill and project-skeleton files, not root guidance or `docs/coding_guidelines.md`, and only those kept files are listed (N9); a new project with `--force` removes legacy Codex folders (N10, CR-002 behaviour); adding the `.gitignore` rule is reported as `UPDATED` even when it creates the file. Driven by the CR-005 spec-truth reconciliation fourth re-run. | The completed work was right; the text was imprecise. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 fifth re-run: N9 and N10 resolved (S-009 amendment 25f8639d, usage.md e165706e); usage.md:235 and setup-guide.md:78 still say an adoption lists the existing files it keeps, though kept root guidance and coding_guidelines.md are not listed (docs fix, N11) | none |
+| 2026-10-25 | spec-truth reconciliation — PASS | CR-005 sixth re-run: N11 resolved (usage.md:235 and setup-guide.md:78 now state that only an adoption lists kept files, excluding root guidance and coding_guidelines.md, 3fb64634); Init Command Contract matches init.py, usage.md, commands.md, setup-guide.md and customization-guide.md | none |
+| 2026-10-25 | Init Command Contract: the upgrade case needs a `.ai-team.toml` that records `[init] tools`; a hand-written marker without it is a first run (new project or adoption) that keeps its settings; an upgrade question that covers no files is not asked. Driven by the PR #49 review. | A preset marker made the first init an upgrade that never recorded `framework_version`, and `--update-skills` stamped the version without updating any file. | None in flight |

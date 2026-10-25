@@ -1,6 +1,6 @@
 ---
 title: Project layout diagnostics and CLI development warning
-version: '0.2'
+version: '0.3'
 status: approved  # draft | review | approved | superseded
 created: '2026-06-24'
 author: planner
@@ -168,7 +168,7 @@ not be completed rather than raising an unhandled exception.
 
    For a configured `codex` tool, a legacy `.codex/skills/<name>/` folder whose
    name is a framework-owned skill is a finding; the suggested fix is to rerun
-   `ai-team init --force`. Legacy folders for skills the framework does not own
+   `ai-team init --update-skills`. Legacy folders for skills the framework does not own
    are not findings.
 
    Tasks, bugs, and change requests live in the local tracker (S-006), not in
@@ -205,7 +205,7 @@ then path, so repeated runs against unchanged input are deterministic.
 
 **Contract — warning text:** `Warning: ai-team is under development. Please report issues at https://github.com/aurora-firmware/the-ai-team/issues`
 
-**Contract — version mismatch warning text:** ``Warning: .ai-team.toml framework_version <configured> does not match ai-team <running>. Install ai-team <configured>, or run `ai-team init --force` to update the project to <running>.``
+**Contract — version mismatch warning text:** ``Warning: .ai-team.toml framework_version <configured> does not match ai-team <running>. Install ai-team <configured>, or run `ai-team init --update-skills` to update the project to <running>.``
 
 The version mismatch warning uses the same exact comparison as level 4. It is
 not emitted when no `.ai-team.toml` is found, when the marker has no `[init]`
@@ -258,3 +258,7 @@ project. Those marker cases remain level 4 findings.
 | 2026-10-20 | Added the version mismatch warning (Component 5, warning text contract, workflow, configuration). Level 1 now names per-tool export paths: Codex skills move from `.codex/skills/` to `.agents/skills/`, and a legacy framework-owned `.codex/skills/<name>/` folder is a finding. Driven by CR-002. | Only `check-layout` compared `framework_version`, so stale scaffolds and an older CLI gave wrong results without a warning (report #1, #7). Codex discovers repository skills in `.agents/skills/` and is deprecating `.codex/skills/`. | None in flight |
 | 2026-10-21 | Level 1 no longer requires lifecycle directories; it requires every project scaffold directory and reports an unignored in-repository tracker and legacy work-item folders that still hold a markdown file other than `.gitkeep` or `TEMPLATE-*.md`. Level 2 validates tasks, bugs, and change requests in the local tracker, checks their `status` against the allowed values (specs and decisions get a presence check only), and drops the folder-versus-status mismatch. | S-006 moved work items to the local tracker and made `status` the only lifecycle state; the levels still described lifecycle folders. The Architect raised this during the CR-003 completion review. Level 1 and the status rules document behaviour already implemented. The consistency review of this amendment found that level 2 stopped all checks when the project directory was missing, which broke the existing rule that independent checks continue. `check-layout` now blocks only the spec and decision checks in that case and keeps checking tracker artifacts. | None in flight |
 | 2026-10-24 | Level 1 reports a missing `docs/coding_guidelines.md` in the project directory. Driven by CR-004 item 10. | The project skeleton now scaffolds the file (S-009). | None in flight |
+| 2026-10-24 | Level 1 legacy-skill fix and the version mismatch warning text now name `ai-team init --update-skills` instead of `--force`. Driven by CR-005's Architecture Consistency Review. | After CR-005, `--force` also overwrites the project's own guidance; `--update-skills` updates only the agents and skills. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005: warning and legacy-fix texts hold; level-1 "rerun ai-team init" fix for missing scaffold directories no longer works on an upgrade (follow-up task with S-009 F5) | none |
+| 2026-10-25 | spec-truth reconciliation — PASS | CR-005 re-run: version-mismatch warning, legacy fix (--update-skills) and level-1 directory fixes hold; a plain init upgrade recreates missing project dirs, --update-skills restores tool dirs (T-157) | none |
+| 2026-10-25 | spec-truth reconciliation — PASS | CR-005 fifth re-run: version-mismatch warning, level-1 directory fixes and the legacy Codex fix (--update-skills, finding reported only when codex is configured) still hold after T-161 | none |

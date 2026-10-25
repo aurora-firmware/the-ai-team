@@ -26,7 +26,7 @@ The `ai-process/` specification documents (process docs, guidelines, architectur
 
 Artifact templates (for example task, bug, spec, and ADR templates) are bundled in the `ai-team` CLI and rendered by commands such as `ai-team task new`. They are not copied into your project and there is no project-level override, so changing a template means changing `cli/src/ai_team/templates/` in the framework.
 
-Exported skill files in `.claude/skills/` and `.agents/skills/` may be edited for your project, but `ai-team init --force` overwrites them.
+Exported skill files in `.claude/skills/` and `.agents/skills/` may be edited for your project, but they are overwritten only when an upgrade updates the agents and skills (you answer yes to that question, or pass `--update-skills` or `--force`), or on an adoption answered yes or run with `--force`.
 
 ### Must Customize
 
@@ -106,9 +106,9 @@ test runner changed), update `CLAUDE.md` in the same commit.
 4. Add your tech stack, repo layout, and any agent-facing conventions under
    `## Key Conventions`.
 5. Commit both files. They are yours to maintain — re-running `ai-team init`
-   without `--force` on an initialized project refuses to overwrite any existing
-   file and exits with an error, and `--force` overwrites root guidance only as
-   described in the setup guide.
+   on an initialized project asks the upgrade questions and overwrites nothing
+   without a yes, and `--force` overwrites root guidance only as described in
+   the setup guide.
 
 ### Optional Customization
 
@@ -160,7 +160,7 @@ Create a new directory under `.claude/skills/<name>/` with a `SKILL.md` file. Ad
 
 If you have an existing codebase:
 
-1. Follow the setup guide to create the directory structure alongside your existing code.
+1. Follow the setup guide to create the directory structure alongside your existing code. `ai-team init` detects the adoption case (no `.ai-team.toml` that records `[init] tools`, but some files it would write already exist), lists those files and asks once whether to overwrite them; answer no to keep them and write only the missing ones.
 2. Your existing source code stays where it is — the framework directories are additive.
 3. Write or update `CLAUDE.md` so agents can find project commands and repository layout.
 4. Migrate existing issues/tasks by creating a task for each open item with `ai-team task new` (they land in the local tracker).

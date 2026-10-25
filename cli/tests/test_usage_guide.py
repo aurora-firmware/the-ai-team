@@ -485,3 +485,220 @@ def test_usage_md_documents_force_never_overwrites_coding_guidelines():
     assert "docs/coding_guidelines.md" in row
     assert "only when missing" in row
     assert "never overwritten" in row
+
+
+# ---------------------------------------------------------------------------
+# CR-005: state-aware init (T-152)
+# ---------------------------------------------------------------------------
+
+
+def _init_section() -> str:
+    content = _content()
+    start = content.index("## Initialisation")
+    end = content.index("## Daily Workflows")
+    return content[start:end]
+
+
+def test_init_section_describes_three_cases_and_detection():
+    """AC-1: the init section names the upgrade, new-project and adoption cases and how each is detected."""
+    section = _init_section().lower()
+    assert "### init cases" in section
+    for case in ("upgrade", "new project", "adoption"):
+        assert case in section
+    assert "`.ai-team.toml`" in section
+    assert "already exist" in section
+
+
+def test_init_flags_document_update_flags_and_force_as_yes_to_every_question():
+    """AC-2: --update-docs, --update-skills, the adoption question and --force as yes."""
+    section = _init_section()
+    assert "| `--update-docs` |" in section
+    assert "| `--update-skills` |" in section
+    assert "Overwrite these existing files?" in section
+    assert "yes to every overwrite question" in section
+    assert "Update the agents and skills for the configured tools?" in section
+    assert "never overwritten" in section
+
+
+def test_init_section_documents_dry_run_case_lines_and_stale_warning():
+    """AC-3: dry-run case lines, WOULD PROMPT and the stale-definition warning."""
+    section = _init_section()
+    for line in ("CASE: upgrade", "CASE: new project", "CASE: adoption"):
+        assert f"`{line}`" in section
+    assert "WOULD PROMPT" in section
+    assert "are not shipped by this version of ai-team" in section
+
+
+def test_usage_guide_names_update_skills_in_mismatch_legacy_and_refresh_passages():
+    """AC-3: the three passages point at `ai-team init --update-skills`."""
+    content = _content()
+    assert (
+        "or run `ai-team init --update-skills` to update the project to <running>."
+        in content
+    )
+    assert "`ai-team init --update-skills` removes those legacy copies" in content
+    assert "ai-team init . --tools <tools> --update-skills" in content
+    assert "ai-team init --force`" not in content.split("### Expected layout")[0]
+    assert "<tools> --force" not in content
+
+
+def test_usage_md_describes_root_guidance_as_an_adoption_trigger():
+    content = _content()
+    adoption_row = next(
+        line for line in content.splitlines() if line.startswith("| Adoption |")
+    )
+    assert "CLAUDE.md" in adoption_row
+    assert "AGENTS.md" in adoption_row
+
+
+def test_usage_md_states_no_interactive_needs_tools_only_without_marker_tools():
+    content = _content()
+    flag_row = next(
+        line for line in content.splitlines() if line.startswith("| `--no-interactive`")
+    )
+    assert "Requires `--tools` to be provided explicitly" not in flag_row
+    assert "`.ai-team.toml`" in flag_row
+    assert "`--tools`" in flag_row
+
+
+def test_usage_md_describes_tools_on_an_upgrade():
+    section = _init_section()
+    paragraph = next(
+        block
+        for block in section.split("\n\n")
+        if block.startswith("**`--tools` on an upgrade.**")
+    )
+    flat = " ".join(paragraph.split())
+    assert "sets `[init].tools` to the given list" in flat
+    assert "newly adds are written without a question" in flat
+    assert "only the files that do not exist yet" in flat
+    assert "never overwritten" in flat
+    assert "covers only the tools already configured" in flat
+    assert "removed from `[init].tools`, and its files are left in place" in flat
+
+
+# ---------------------------------------------------------------------------
+# CR-005: init reporting docs (T-159)
+# ---------------------------------------------------------------------------
+
+SETUP_GUIDE_MD = REPO_ROOT / "guides" / "setup-guide.md"
+CUSTOMIZATION_GUIDE_MD = REPO_ROOT / "guides" / "customization-guide.md"
+
+
+def _flat(text: str) -> str:
+    return " ".join(text.split())
+
+
+REPORTING_RULE = (
+    "Every file `init` creates is reported on stdout as `WROTE: <path>` "
+    "(`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` "
+    "(`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as "
+    "`CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it "
+    "adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). "
+    "Only an adoption lists kept files, on stderr: the existing agent, skill and "
+    "project-skeleton files its overwrite question kept. Kept root guidance and an "
+    "existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no "
+    "kept files."
+)
+RETIRED_KEPT_FILES_RULE = "and every existing file it keeps on stderr"
+RETIRED_SETUP_GUIDE_SENTENCE = (
+    "Every existing file that `init` replaces is reported as `OVERWROTE: <path>`; "
+    "newly created files are not."
+)
+LEGACY_CODEX_CONDITION = "When `codex` is selected and already configured"
+LEGACY_CODEX_DROP_RULE = (
+    "When `--tools` drops `codex`, or newly adds it, no legacy folder is removed."
+)
+
+
+def test_usage_guide_states_the_init_reporting_rule():
+    """T-161 AC-4: kept files are listed only by an adoption; tracker lines are named."""
+    flat = _flat(_content())
+    assert REPORTING_RULE in flat
+    assert RETIRED_KEPT_FILES_RULE not in flat
+    assert "Declined or skipped files are not reported" not in flat
+    assert (
+        "Newly created files and declined or skipped files are not reported" not in flat
+    )
+
+
+def test_setup_guide_states_the_init_reporting_rule():
+    """T-161 AC-4: the setup guide states the same rule; only the retired sentence is barred."""
+    flat = _flat(SETUP_GUIDE_MD.read_text(encoding="utf-8"))
+    assert REPORTING_RULE in flat
+    assert RETIRED_KEPT_FILES_RULE not in flat
+    assert RETIRED_SETUP_GUIDE_SENTENCE not in flat
+
+
+@pytest.mark.parametrize("guide", [USAGE_MD, SETUP_GUIDE_MD], ids=["usage", "setup"])
+def test_guide_states_the_codex_condition_on_legacy_removal(guide):
+    """T-161 AC-4: legacy removal needs codex selected and already configured."""
+    flat = _flat(guide.read_text(encoding="utf-8"))
+    assert LEGACY_CODEX_CONDITION in flat
+    assert LEGACY_CODEX_DROP_RULE in flat
+
+
+def test_usage_guide_upgrade_question_names_the_codex_condition():
+    """T-161 AC-4: the upgrade-question passage no longer states unconditional removal."""
+    flat = _flat(_init_section())
+    assert "framework_version` in `.ai-team.toml` and removes the legacy" not in flat
+    assert (
+        "and, when `codex` is selected and already configured, removes the legacy "
+        "Codex skill copies" in flat
+    )
+
+
+def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():
+    """AC-2: the Upgrade row covers missing project-skeleton files."""
+    row = next(
+        line for line in _content().splitlines() if line.startswith("| Upgrade |")
+    )
+    assert (
+        "Missing project-skeleton files that no question covers are written "
+        "without a question and never overwritten" in row
+    )
+
+
+def test_customization_guide_states_when_skills_are_overwritten():
+    """AC-3: skills are overwritten on an upgrade update, or an adoption yes or --force."""
+    flat = _flat(CUSTOMIZATION_GUIDE_MD.read_text(encoding="utf-8"))
+    assert (
+        "when an upgrade updates the agents and skills (you answer yes to that "
+        "question, or pass `--update-skills` or `--force`), or on an adoption "
+        "answered yes or run with `--force`" in flat
+    )
+
+
+def test_usage_guide_dry_run_would_overwrite_covers_every_approved_overwrite():
+    """AC-4: the --dry-run row says WOULD OVERWRITE covers --update-docs and --update-skills."""
+    row = next(
+        line for line in _content().splitlines() if line.startswith("| `--dry-run`")
+    )
+    assert "existing file, with --force" not in row
+    assert (
+        "`WOULD OVERWRITE` (every approved overwrite, including `--update-docs` "
+        "and `--update-skills` on an upgrade)" in row
+    )
+
+
+def test_usage_guide_states_new_project_legacy_codex_removal():
+    """S-009 Legacy Codex skills: a new project removes legacy folders only with --force."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert (
+        "A new project that selects `codex` removes them only when `--force` is passed."
+        in flat
+    )
+
+
+def test_usage_guide_states_the_pr49_init_rules():
+    """PR #49 review: a preset marker is a first run; empty questions are not asked."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert "exists in the repository root and records `[init] tools`" in flat
+    assert "a question that covers no files is not asked" in flat
+    assert "--update-skills --update-docs` to refresh them" in flat
+
+
+def test_usage_guide_tells_a_preset_marker_to_leave_out_init():
+    """PR #49 re-review: a preset marker must not record `[init]`."""
+    flat = " ".join(USAGE_MD.read_text(encoding="utf-8").split())
+    assert "leave out `[init]`: `init` writes `[init]` itself" in flat
