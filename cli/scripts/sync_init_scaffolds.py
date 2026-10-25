@@ -16,7 +16,7 @@ PROJECT_LEAF_DIRS = (
     "docs",
 )
 
-TOOLS = ("claude", "codex")
+TOOLS = ("claude",)
 
 SKILL_SUPPORTING_FOLDERS = ("assets", "references", "scripts")
 
@@ -143,10 +143,6 @@ def sync_init_scaffolds(cli_root: Path) -> None:
     _replace_tree(
         sources_root / "agents" / "claude",
         scaffolds_root / "claude" / "agents",
-    )
-    _replace_tree(
-        sources_root / "agents" / "codex",
-        scaffolds_root / "codex" / "agents",
     )
 
 

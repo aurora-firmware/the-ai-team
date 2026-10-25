@@ -10,10 +10,6 @@ TOOL_EXPORT_PATHS: dict[str, tuple[tuple[str, str], ...]] = {
         ("agents", ".claude/agents"),
         ("skills", ".claude/skills"),
     ),
-    "codex": (
-        ("agents", ".codex/agents"),
-        ("skills", ".agents/skills"),
-    ),
 }
 
 

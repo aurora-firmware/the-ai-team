@@ -1,4 +1,4 @@
-"""Skill supporting folders are copied into both scaffold exports (CR-003 §7)."""
+"""Skill supporting folders are copied into the scaffold export (CR-003 §7)."""
 
 from __future__ import annotations
 
@@ -14,12 +14,6 @@ METADATA = """[claude]
 header = \"\"\"---
 name: demo
 description: claude skill
----\"\"\"
-
-[codex]
-header = \"\"\"---
-name: demo
-description: codex skill
 ---\"\"\"
 """
 
@@ -57,7 +51,7 @@ def _generate(source_root: Path, destination_root: Path) -> None:
     _load_sync_module()._replace_generated_skills(source_root, destination_root)
 
 
-@pytest.mark.parametrize("tool", ["claude", "codex"])
+@pytest.mark.parametrize("tool", ["claude"])
 def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
     tmp_path: Path, tool: str
 ) -> None:
@@ -80,7 +74,7 @@ def test_copies_supporting_folders_byte_for_byte_next_to_skill_md(
     )
 
 
-@pytest.mark.parametrize("tool", ["claude", "codex"])
+@pytest.mark.parametrize("tool", ["claude"])
 def test_leaves_placeholders_unchanged_in_copied_supporting_files(
     tmp_path: Path, tool: str
 ) -> None:
@@ -94,7 +88,7 @@ def test_leaves_placeholders_unchanged_in_copied_supporting_files(
     assert copied.read_text(encoding="utf-8") == TEXT_ASSET
 
 
-@pytest.mark.parametrize("tool", ["claude", "codex"])
+@pytest.mark.parametrize("tool", ["claude"])
 def test_does_not_export_other_files_or_folders_in_skill_directory(
     tmp_path: Path, tool: str
 ) -> None:
@@ -117,7 +111,7 @@ def test_does_not_export_other_files_or_folders_in_skill_directory(
     ]
 
 
-@pytest.mark.parametrize("tool", ["claude", "codex"])
+@pytest.mark.parametrize("tool", ["claude"])
 def test_ignores_pycache_and_ds_store_in_supporting_folders(
     tmp_path: Path, tool: str
 ) -> None:
@@ -136,7 +130,7 @@ def test_ignores_pycache_and_ds_store_in_supporting_folders(
     assert not (exported / "assets" / ".DS_Store").exists()
 
 
-@pytest.mark.parametrize("tool", ["claude", "codex"])
+@pytest.mark.parametrize("tool", ["claude"])
 def test_exports_only_skill_md_when_skill_has_no_supporting_folders(
     tmp_path: Path, tool: str
 ) -> None:
