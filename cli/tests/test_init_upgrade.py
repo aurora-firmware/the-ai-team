@@ -615,3 +615,99 @@ def test_docs_yes_still_overwrites_the_docs_files_it_covers(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert _is_refreshed(_doc_files(target))
+
+
+# T-158: --tools on an upgrade
+
+
+def _marker_tools(target: Path) -> list[str]:
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+    return data["init"]["tools"]
+
+
+def test_upgrade_with_a_new_tool_writes_its_files_without_asking_and_records_it(
+    tmp_path,
+):
+    target = _new_project(tmp_path, tools="claude")
+    assert not (target / ".codex").exists()
+
+    result = _run(target, "--tools", "claude,codex", input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert any(path.is_file() for path in (target / ".codex").rglob("*"))
+    assert _marker_tools(target) == ["claude", "codex"]
+
+
+def test_upgrade_with_a_new_tool_writes_it_under_no_interactive(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+
+    result = _run(target, "--tools", "claude,codex", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert any(path.is_file() for path in (target / ".codex").rglob("*"))
+    assert _marker_tools(target) == ["claude", "codex"]
+
+
+def test_upgrade_with_only_new_tools_still_asks_the_skills_question_for_configured_ones(
+    tmp_path,
+):
+    target = _new_project(tmp_path, tools="claude")
+    claude_files = [p for p in _exported_files(target) if ".claude" in p.parts]
+    _mark_custom(claude_files)
+
+    result = _run(target, "--tools", "claude,codex", input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert SKILLS_PROMPT in result.output.lower()
+    assert _is_custom(claude_files)
+
+
+def test_upgrade_with_a_new_tool_refreshes_configured_tools_only_on_a_yes(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+    claude_files = [p for p in _exported_files(target) if ".claude" in p.parts]
+    _mark_custom(claude_files)
+
+    result = _run(target, "--tools", "claude,codex", "--update-skills", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert _is_refreshed(claude_files)
+
+
+def test_upgrade_with_only_a_new_tool_asks_no_skills_question_for_it(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+
+    result = _run(target, "--tools", "claude,codex", input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    # The question is still asked once, for the configured claude tool.
+    assert result.output.lower().count(SKILLS_PROMPT) == 1
+
+
+def test_dry_run_upgrade_with_a_new_tool_reports_would_write_for_its_files(tmp_path):
+    target = _new_project(tmp_path, tools="claude")
+    before = _snapshot(target)
+
+    result = _run(target, "--tools", "claude,codex", "--dry-run", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    would_write = [
+        line for line in result.output.splitlines() if line.startswith("WOULD WRITE:")
+    ]
+    assert would_write
+    assert all(".codex" in line or ".agents" in line for line in would_write)
+    assert _snapshot(target) == before
+    assert not (target / ".codex").exists()
+
+
+def test_upgrade_dropping_a_tool_removes_it_from_the_marker_and_keeps_its_files(
+    tmp_path,
+):
+    target = _new_project(tmp_path, tools="claude,codex")
+    codex_files = [p for p in _exported_files(target) if ".claude" not in p.parts]
+    assert codex_files
+
+    result = _run(target, "--tools", "claude", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert _marker_tools(target) == ["claude"]
+    assert all(path.is_file() for path in codex_files)

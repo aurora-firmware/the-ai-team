@@ -122,6 +122,12 @@ question is no. A yes on the agents and skills question also bumps
 copies (see below), so run it to clear the version mismatch warning.
 `docs/coding_guidelines.md` is never overwritten, whatever the answers.
 
+**`--tools` on an upgrade.** An explicit `--tools` sets `[init].tools` to the
+given list. The agents and skills of a tool it newly adds are written without a
+question, because nothing existing is overwritten. The agents-and-skills
+question covers only the tools already configured. A tool dropped from the list
+is removed from `[init].tools`, and its files are left in place.
+
 **Adoption question.** Answering no (or running with `--no-interactive`) keeps
 every existing file, writes only the missing ones and lists the skipped files.
 Answering yes overwrites them, and each replaced file is reported as
