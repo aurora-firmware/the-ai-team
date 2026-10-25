@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.4'
+version: '0.5'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -200,7 +200,12 @@ Required behaviour:
   - **New project** — no `.ai-team.toml`, and none of the files `init` would write
     exist yet.
   - **Adoption** — no `.ai-team.toml`, but some files `init` would write already exist.
-- **Upgrade.** Every setting in `.ai-team.toml` is kept. `init` asks two questions, in
+- **Upgrade.** Every setting in `.ai-team.toml` is kept, except where `--project-dir`,
+  `--integration-branch` or `--tools` is given explicitly. An explicit `--tools` sets
+  `[init] tools` to the given list. The agents and skills of a tool it newly adds are
+  written without a question, because nothing existing is overwritten. Tools already
+  configured follow the agents-and-skills question below, and a tool dropped from the
+  list keeps its files. `init` asks two questions, in
   this order: update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
   project directory), then update the agents and skills for the configured tools.
   `--update-docs` and `--update-skills` answer them ahead of time; `--update-skills`
@@ -213,12 +218,21 @@ Required behaviour:
 - **New project.** Everything is written, then root guidance is offered, as before.
 - **Adoption.** `.ai-team.toml`, the project directory, and the agents and skills are
   written. Skills or agents with the same names that already exist are listed together
-  and asked about once; `--force` answers yes; with `--no-interactive` and no
-  `--force` they are skipped and reported. Root guidance is offered as for a new
-  project.
+  and asked about once; `--force` answers yes. Whenever the question is not answered
+  yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
+  reported on stderr. Root guidance is offered as for a new project.
+- **Legacy Codex skills.** When `codex` is selected and an agents-and-skills overwrite
+  is approved (on an upgrade by a yes, `--update-skills` or `--force`; on an adoption
+  by a yes or `--force`), `init` removes the legacy framework-owned
+  `.codex/skills/<name>/` folders. Folders the framework does not own are left in
+  place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
+  `WOULD REMOVE`.
 - `--force` answers yes to every overwrite question. Without it, an existing file is
   replaced only on a yes. `--dry-run` reports the detected case, then what the real run
-  with the same flags would write, without writing.
+  with the same flags would write, without writing. An unanswered question prints
+  `WOULD PROMPT: <path>` for each file it covers. What a yes would trigger (the legacy
+  removal, the stale-definition warning, the `framework_version` bump) is reported only
+  when a flag, `--force` or `--no-interactive` answers the question.
 - `docs/coding_guidelines.md` in the project directory is written only when it is
   missing. An existing file is never overwritten, even with `--force`, and does not
   count as a collision, so a framework upgrade keeps the project's own guidelines
@@ -342,3 +356,5 @@ amendment adds:
 | 2026-10-20 | Moved out of `specs/archive/` as S-009 (was a duplicate `S-001`) and retitled from "CLI-owned framework scaffolds and remove ai-process init export". Removed the completed `ai-process/` export removal as a work item, keeping "never exports `ai-process/`" as an invariant. Component 2 now copies skill `assets/`, `references/` and `scripts/` folders into both exports byte for byte, and the generator never fills placeholders; Component 3 states placeholder rendering by `init` and byte-for-byte copy of non-UTF-8 files. The project skeleton no longer has lifecycle folders (S-006); export paths now refer to S-003's level 1 table instead of naming `.codex/skills/`; the `.ai-team.toml` contract includes `[tracker] dir` and `[git] integration_branch`; the TOML example became prose. Driven by CR-003 §7 and §10 and Architecture Consistency Review finding F3. | The spec was still `approved` in the archive and the only written contract for the generator, but described a lifecycle skeleton and `.codex/skills/` export that S-006 and CR-002 replaced, and the generator silently dropped skill supporting folders (report #20). | None in flight |
 | 2026-10-24 | Project skeleton: `docs/` holds a `coding_guidelines.md` placeholder; Init Command Contract: `init` writes it only when missing and never overwrites it, even with `--force`. Driven by CR-004 item 10 and its Gate 2 finding F1. | Agents and skills already reference the file, but `init` never created it. | None in flight |
 | 2026-10-24 | Init Command Contract: state detection (upgrade, new project, adoption), the upgrade questions and `--update-docs` / `--update-skills`, the `framework_version` bump, the stale-definition warning, the adoption collision question, and `--force` / `--dry-run` per case. Driven by CR-005. | `init` treated every run the same: refuse, or overwrite everything with `--force`, so upgrading overwrote the project's own guidance. | None in flight |
+| 2026-10-25 | spec-truth reconciliation — FAIL | CR-005: legacy Codex removal, dry-run unanswered questions and skipped-file reporting not described (amend); skipped-file wording, root guidance not detected as adoption, upgrade not recreating missing skeleton files (follow-up tasks); `--tools` on an upgrade escalated | none |
+| 2026-10-25 | Init Command Contract: legacy Codex removal on an approved agents-and-skills overwrite; dry-run reporting of unanswered questions; adoption reports kept files whenever the question is not answered yes; on an upgrade an explicit `--tools` sets `[init] tools` and writes a newly added tool's agents and skills without a question (human decision, option B). Driven by the CR-005 spec-truth reconciliation (F1, F2, F3a, F6). | The completed work was right on F1, F2 and F3a; the human decided F6. | Follow-up tasks for F3b, F4, F5 and F6 |
