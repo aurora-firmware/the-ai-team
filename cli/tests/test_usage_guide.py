@@ -591,15 +591,29 @@ def _flat(text: str) -> str:
 
 REPORTING_RULE = (
     "Every file `init` creates is reported on stdout as `WROTE: <path>` "
-    "(`WOULD WRITE` in a dry run), every file it replaces as `OVERWROTE: <path>` "
-    "(`WOULD OVERWRITE` in a dry run), and every existing file it keeps on stderr."
+    "(`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` "
+    "(`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as "
+    "`CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it "
+    "adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). "
+    "Only an adoption lists the existing files it keeps, on stderr; an upgrade does "
+    "not list the files it keeps."
+)
+RETIRED_KEPT_FILES_RULE = "and every existing file it keeps on stderr"
+RETIRED_SETUP_GUIDE_SENTENCE = (
+    "Every existing file that `init` replaces is reported as `OVERWROTE: <path>`; "
+    "newly created files are not."
+)
+LEGACY_CODEX_CONDITION = "When `codex` is selected and already configured"
+LEGACY_CODEX_DROP_RULE = (
+    "When `--tools` drops `codex`, or newly adds it, no legacy folder is removed."
 )
 
 
 def test_usage_guide_states_the_init_reporting_rule():
-    """AC-4: usage.md reports created files as WROTE, replaced as OVERWROTE, kept on stderr."""
+    """T-161 AC-4: kept files are listed only by an adoption; tracker lines are named."""
     flat = _flat(_content())
     assert REPORTING_RULE in flat
+    assert RETIRED_KEPT_FILES_RULE not in flat
     assert "Declined or skipped files are not reported" not in flat
     assert (
         "Newly created files and declined or skipped files are not reported" not in flat
@@ -607,11 +621,29 @@ def test_usage_guide_states_the_init_reporting_rule():
 
 
 def test_setup_guide_states_the_init_reporting_rule():
-    """AC-4: setup-guide.md reports created files as WROTE, replaced as OVERWROTE, kept on stderr."""
+    """T-161 AC-4: the setup guide states the same rule; only the retired sentence is barred."""
     flat = _flat(SETUP_GUIDE_MD.read_text(encoding="utf-8"))
     assert REPORTING_RULE in flat
-    assert "newly created files are not" not in flat
-    assert "not reported" not in flat
+    assert RETIRED_KEPT_FILES_RULE not in flat
+    assert RETIRED_SETUP_GUIDE_SENTENCE not in flat
+
+
+@pytest.mark.parametrize("guide", [USAGE_MD, SETUP_GUIDE_MD], ids=["usage", "setup"])
+def test_guide_states_the_codex_condition_on_legacy_removal(guide):
+    """T-161 AC-4: legacy removal needs codex selected and already configured."""
+    flat = _flat(guide.read_text(encoding="utf-8"))
+    assert LEGACY_CODEX_CONDITION in flat
+    assert LEGACY_CODEX_DROP_RULE in flat
+
+
+def test_usage_guide_upgrade_question_names_the_codex_condition():
+    """T-161 AC-4: the upgrade-question passage no longer states unconditional removal."""
+    flat = _flat(_init_section())
+    assert "framework_version` in `.ai-team.toml` and removes the legacy" not in flat
+    assert (
+        "and, when `codex` is selected and already configured, removes the legacy "
+        "Codex skill copies" in flat
+    )
 
 
 def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():
