@@ -523,3 +523,95 @@ def test_real_run_does_not_print_a_case_line(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert "CASE:" not in result.stdout
+
+
+# T-157: an upgrade recreates the project-skeleton files no question covers
+
+
+def test_upgrade_recreates_a_missing_coding_guidelines_file_and_reports_it(tmp_path):
+    target = _new_project(tmp_path)
+    guidelines = target / "ai-team" / "docs" / "coding_guidelines.md"
+    guidelines.unlink()
+
+    result = _run(target, "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert guidelines.is_file()
+    assert f"WROTE: {guidelines}" in result.output.splitlines()
+
+
+def test_upgrade_recreates_missing_specs_and_decisions_placeholders(tmp_path):
+    target = _new_project(tmp_path)
+    placeholders = [
+        target / "ai-team" / name / ".gitkeep" for name in ("specs", "decisions")
+    ]
+    for placeholder in placeholders:
+        placeholder.unlink()
+
+    result = _run(target, "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert all(placeholder.is_file() for placeholder in placeholders)
+
+
+def test_force_upgrade_recreates_a_missing_skeleton_file(tmp_path):
+    target = _new_project(tmp_path)
+    guidelines = target / "ai-team" / "docs" / "coding_guidelines.md"
+    guidelines.unlink()
+
+    result = _run(target, "--force", input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert guidelines.is_file()
+
+
+def test_upgrade_recreates_a_missing_skeleton_file_without_asking(tmp_path):
+    target = _new_project(tmp_path)
+    guidelines = target / "ai-team" / "docs" / "coding_guidelines.md"
+    guidelines.unlink()
+
+    result = _run(target, input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert guidelines.is_file()
+    assert "coding_guidelines.md" not in "".join(
+        line for line in result.output.splitlines() if "?" in line
+    )
+
+
+def test_dry_run_upgrade_reports_a_missing_skeleton_file_as_would_write(tmp_path):
+    target = _new_project(tmp_path)
+    guidelines = target / "ai-team" / "docs" / "coding_guidelines.md"
+    guidelines.unlink()
+    before = _snapshot(target)
+
+    result = _run(target, "--dry-run", "--no-interactive")
+
+    assert result.exit_code == 0, result.output
+    assert f"WOULD WRITE: {guidelines}" in result.output.splitlines()
+    assert _snapshot(target) == before
+
+
+# T-157 AC-2
+
+
+def test_force_upgrade_never_overwrites_an_existing_skeleton_file(tmp_path):
+    target = _new_project(tmp_path)
+    guidelines = target / "ai-team" / "docs" / "coding_guidelines.md"
+    guidelines.write_text("custom\n", encoding="utf-8")
+
+    result = _run(target, "--force", input="n\nn\n")
+
+    assert result.exit_code == 0, result.output
+    assert _is_custom([guidelines])
+    assert f"OVERWROTE: {guidelines}" not in result.output
+
+
+def test_docs_yes_still_overwrites_the_docs_files_it_covers(tmp_path):
+    target = _new_project(tmp_path)
+    _mark_custom(_doc_files(target))
+
+    result = _run(target, "--update-docs", input="n\n")
+
+    assert result.exit_code == 0, result.output
+    assert _is_refreshed(_doc_files(target))

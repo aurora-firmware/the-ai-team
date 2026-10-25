@@ -297,6 +297,19 @@ def _warn_about_stale_definitions(stale: list[Path]) -> None:
     )
 
 
+def _recreate_missing_skeleton(
+    plan: list[tuple[Path, Path]], request: _UpgradeRequest
+) -> None:
+    """Write skeleton files that are missing and that no upgrade question covers."""
+    if request.dry_run:
+        for _, destination in plan:
+            typer.echo(f"{_would_verb(destination)}: {destination}")
+    else:
+        _write_all(plan, request.settings)
+        for _, destination in plan:
+            typer.echo(f"WROTE: {destination}")
+
+
 def _run_upgrade(request: _UpgradeRequest) -> None:
     """Upgrade a repository that already has ``.ai-team.toml``.
 
@@ -311,15 +324,15 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
     )
     docs = {project_root / name for name in _PROJECT_DOC_FILES}
 
-    if not project_root.is_dir():
-        if request.dry_run:
-            for _, destination in project_plan:
-                typer.echo(f"{_would_verb(destination)}: {destination}")
-        else:
-            _write_all(project_plan, request.settings)
-        docs_plan = []
-    else:
+    if project_root.is_dir():
         docs_plan = [(s, d) for s, d in project_plan if d in docs]
+        recreated = [
+            (s, d) for s, d in project_plan if d not in docs and not d.exists()
+        ]
+    else:
+        docs_plan = []
+        recreated = project_plan
+    _recreate_missing_skeleton(recreated, request)
 
     skills_plan: list[tuple[Path, Path]] = []
     for tool in request.tools:
