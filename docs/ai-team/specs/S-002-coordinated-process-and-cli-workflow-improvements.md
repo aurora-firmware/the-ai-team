@@ -1,6 +1,6 @@
 ---
 title: Coordinated Process and CLI Workflow Improvements
-version: '0.2'
+version: '0.3'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-28'
 author: planner
@@ -75,7 +75,7 @@ Alternatives considered:
   loops must discover test commands from project guidance or escalate to a
   human when the command is missing or ambiguous.
 - **Generated guidance must be stable and reviewable.** Templates for
-  `CLAUDE.md` and `AGENTS.md` must live in this repository, be versioned with
+  `AGENTS.md` must live in this repository, be versioned with
   the CLI, and be updateable through normal review.
 - **Review gates must stay focused on their owner.** `spec-breakdown-review`
   must evaluate technical readiness of the task plan, not reopen broad product
@@ -109,7 +109,7 @@ ai-team init -> guidance templates -> project/root guidance -> dev-loop
 | Spec breakdown flow | Produces implementation tasks from specifications and plans documentation and test updates as work items when relevant. | Includes `spec-breakdown`, `new-task`, and task authoring guidance. |
 | Change-request flow | Captures smaller desired changes, links them to tasks and possible spec amendments, and avoids unnecessary full-spec ceremony. | New document type with CLI and process support. |
 | Gate 2 review | Validates task-plan technical readiness. | Feedback focuses on dependencies, file conflicts, architecture consistency, atomicity, and verification. |
-| Init guidance files | Creates stable guidance files that explain project artifacts and root project commands. | `ai-team/CLAUDE.md` and `ai-team/AGENTS.md` are always generated; root files are optional prompts when missing. |
+| Init guidance files | Creates stable guidance files that explain project artifacts and root project commands. | `ai-team/AGENTS.md` is always generated; root `AGENTS.md` is an optional prompt when missing (CR-007). |
 | Dev loop | Starts autonomous task execution only when the baseline is suitable. | Uses the CLI task listing interface and escalates when tests are failing or undiscoverable. |
 
 ## Components
@@ -180,9 +180,9 @@ Technical Gate 2 review
 ```
 Human runs ai-team init
   ↓
-CLI creates ai-team/CLAUDE.md and ai-team/AGENTS.md
+CLI creates ai-team/AGENTS.md
   ↓
-CLI asks whether to create missing root CLAUDE.md and/or AGENTS.md
+CLI asks whether to create a missing root AGENTS.md
   ↓
 Root guidance captures project commands, including tests when known
 ```
@@ -200,8 +200,8 @@ Tests fail or command is missing/ambiguous -> escalate to human
 
 ## Configuration Requirements
 
-- **What must exist:** Stable `ai-team/CLAUDE.md` and `ai-team/AGENTS.md`
-  templates that explain the purpose of generated project artifact folders and
+- **What must exist:** A stable `ai-team/AGENTS.md`
+  template that explain the purpose of generated project artifact folders and
   files.
   **Where it lives:** CLI package template sources and generated init
   scaffolds.
@@ -210,11 +210,11 @@ Tests fail or command is missing/ambiguous -> escalate to human
   **Missing-value behaviour:** If the destination exists and overwrite is not
   allowed, init must report the collision rather than silently replacing it.
 
-- **What must exist:** Stable root `CLAUDE.md` and `AGENTS.md` templates for
+- **What must exist:** A stable root `AGENTS.md` template for
   project-specific agent guidance.
   **Where it lives:** CLI package template sources, offered by `ai-team init`
   for the target repository root.
-  **Constraints:** The CLI asks before creating each missing root file; existing
+  **Constraints:** The CLI asks before creating a missing root `AGENTS.md`; existing
   root files are not overwritten without explicit overwrite behavior.
   **Missing-value behaviour:** If the human declines creation, init completes
   but prints follow-up guidance that autonomous loops need documented project
@@ -256,3 +256,4 @@ Tests fail or command is missing/ambiguous -> escalate to human
 | 2026-10-19 | Task template gains an `Interfaces: Consumes / Produces` block; `new-task` bans placeholder text in a task; Gate 2 adds a type and name consistency check across tasks. Driven by issue #31 (superpowers comparison report items 2.1 and 2.2). | Gate 2 checked dependencies and file conflicts but could not catch one task defining `clearLayers()` while another calls `clearFullLayers()`, and nothing stopped placeholder vagueness reaching a task file. | None in flight |
 | 2026-10-20 | Component 1: each task's verification mode is chosen during breakdown (test, or a design review whose Verification section lists the source spec, accepted ADRs and S-000 when it exists); each task regenerates the scaffolds and docs its change affects and lists `cli/docs/commands.md` when it changes a command's arguments, options or help; Verification lines run from the repository root in a fresh shell, one line at a time. Component 3: Gate 2 accepts a named design review for a prose-only task. Driven by CR-003 (report #8, #10, #12) and its Architecture Consistency Review findings F2 and F6. | A documentation-only task had no TDD path, so the Developer added an undeclared test that broke CI; a Verification block failed when run as one script; command-option tasks omitted `commands.md` and a final regeneration task found nothing to do; Gate 2 required a test or command for every task. | None in flight |
 | 2026-10-22 | The init guidance files are `ai-team/CLAUDE.md` and `ai-team/AGENTS.md`, not `project/…`; the `dev-loop` queue uses `ai-team list tasks --state <state>`, not `--filter state`. Version bumped to 0.2 under the spec authoring guide's amendment rule. | The default project folder was renamed from `project` to `ai-team` on 2026-10-16, and `ai-team list` filters by state with `--state`. | None in flight |
+| 2026-10-25 | The init guidance file is `AGENTS.md` only, in the project directory and at the root; `CLAUDE.md` is no longer generated. Driven by CR-007 and ADR-003. | Codex support was dropped and current Claude Code reads `AGENTS.md`. | None in flight |

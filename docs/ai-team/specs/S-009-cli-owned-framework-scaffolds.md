@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.5'
+version: '0.6'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -12,21 +12,22 @@ id: S-009
 ## Purpose
 
 The framework once had several product copies of its agent and skill definitions: the
-repository-root `.claude/` and `.codex/` folders, and the bundled init scaffolds inside
+repository-root tool folders such as `.claude/`, and the bundled init scaffolds inside
 the `ai-team` CLI package, plus an `ai-process/` snapshot that `ai-team init` could
 export. Copies drift, and the process layer must stay the authoritative documentation
 in this repository.
 
 This specification makes the CLI package the only product source of truth for exported
 framework definitions. A maintainer edits package-owned sources, a generator produces
-the bundled Claude and Codex scaffolds from them, and `ai-team init` writes those
+the bundled Claude scaffolds from them, and `ai-team init` writes those
 scaffolds into a consuming project, filling in the project's settings. Repository-root
 tool folders are ordinary local configuration for working on this repository, and
 `ai-process/` is never exported.
 
 The expected outcome: every agent, skill and skill supporting file a consuming project
-receives comes from `cli/src/ai_team/init/sources/`, Claude and Codex skills share one
-body text, and the committed scaffolds always equal a fresh generation from the sources.
+receives comes from `cli/src/ai_team/init/sources/`, each skill is authored once as the
+`SKILL.md` Claude reads, and the committed scaffolds always equal a fresh generation from
+the sources. Claude is the only export target (CR-007, ADR-003).
 
 ## Exclusions
 
@@ -34,21 +35,23 @@ What this specification explicitly does NOT cover:
 
 - **Exporting `ai-process/` by any route.** `init` does not copy it, and there is no
   `ai-team export ai-process` command.
-- **Generating agents from a structured schema.** Claude and Codex agent definitions
-  remain separate package-owned assets. A future spec may define a richer canonical
-  model for generating agents.
+- **Generating agents from a structured schema.** Agent definitions remain hand-written
+  package-owned Markdown assets. A future spec may define a richer canonical model for
+  generating agents.
+- **Other agent tools.** Claude is the only export target. There is no tool selection and
+  no compatibility with projects set up for Codex (CR-007, ADR-003).
 - **Changing workflow semantics.** The AI-team process, gates, role responsibilities,
   escalation chain, and work-item lifecycle are owned elsewhere and are unchanged here.
-- **Making repository-root `.claude/`, `.codex/` or `.agents/` generated.** Those
+- **Making repository-root tool folders such as `.claude/` generated.** Those
   folders remain local configuration for this repository. They are not symlinked,
   generated, or read as product sources.
 - **Filling placeholders when the scaffolds are generated.** `{{project_dir}}` and
   `{{integration_branch}}` take values from the `init` flags or `.ai-team.toml`, which
   are not known at generation time. Only `init` fills them in (CR-003).
-- **Exporting arbitrary files from a skill source directory.** Only `body.md`,
-  `metadata.toml` and the `assets/`, `references/` and `scripts/` folders are used;
-  any other file in a source skill directory is not exported (CR-003).
-- **The export paths and the layout check.** The per-tool destination folders are
+- **Exporting arbitrary files from a skill source directory.** Only `SKILL.md` and
+  the `assets/`, `references/` and `scripts/` folders are used; any other file in a
+  source skill directory is not exported (CR-003, CR-007).
+- **The export paths and the layout check.** The agent and skill destination folders are
   owned by S-003 (level 1 of the layout check) and the tracker by S-006. This spec
   refers to them rather than restating them.
 
@@ -58,12 +61,12 @@ What this specification explicitly does NOT cover:
 
 1. **CLI package owns exported framework assets.** Anything `ai-team init` writes into a
    consuming project comes from package-owned data under `cli/src/ai_team/init/`.
-2. **Root tool folders are local configuration.** Repository-root `.claude/`, `.codex/`
-   and `.agents/` are for developing this repository with those tools, not for shipping
-   the framework, and no source or generator reads them.
-3. **Shared skill text, tool-specific headers.** Claude and Codex skills share one
-   procedural body text per skill. Tool-specific frontmatter or header text comes from
-   package-owned metadata, so the body cannot drift between tools.
+2. **Root tool folders are local configuration.** Repository-root tool folders such as
+   `.claude/` are for developing this repository, not for shipping the framework, and no
+   source or generator reads them.
+3. **One file per skill.** Each skill is authored once as a source `SKILL.md`, its
+   frontmatter followed by its procedural body, in the form Claude reads. The generator
+   copies it unchanged; there is no header merge (CR-007).
 4. **Generated output is reproducible.** The committed scaffolds must equal a fresh run
    of the generator over the committed sources; a source change and its regenerated
    output are committed together.
@@ -79,20 +82,20 @@ What this specification explicitly does NOT cover:
 
 ```
 Repository root (development workspace)
-  .claude/ .codex/ .agents/  local tool config only, never read by the generator
+  .claude/ (and other tool folders)  local tool config only, never read by the generator
   ai-process/                authoritative process specification, not exported
   cli/
     scripts/sync_init_scaffolds.py   generator
     src/ai_team/init/
       sources/                       maintainers edit here
-        skills/<name>/body.md, metadata.toml, [assets/ references/ scripts/]
-        agents/claude/   agents/codex/
-        project/         project guidance files and .gitignore
-        root/            root CLAUDE.md / AGENTS.md templates
+        skills/<name>/SKILL.md, [assets/ references/ scripts/]
+        agents/*.md
+        project/         project AGENTS.md and .gitignore
+        root/            root AGENTS.md template
       scaffolds/                     generated, committed, read by init
-        project/   claude/{agents,skills}/   codex/{agents,skills}/
+        project/   agents/   skills/
 
-ai-team init --tools <tools>
+ai-team init
   renders placeholders while copying package scaffolds
   writes the project directory, the tool export paths (S-003 level 1),
   the tracker folder (S-006) and .ai-team.toml
@@ -103,11 +106,11 @@ ai-team init --tools <tools>
 
 | Component | Responsibility | Notes |
 |---|---|---|
-| `cli/src/ai_team/init/sources/` | Canonical package-owned source assets for exported framework definitions. | Shared skill bodies, skill metadata, skill supporting folders, tool-specific agents, project and root guidance templates. |
+| `cli/src/ai_team/init/sources/` | Canonical package-owned source assets for exported framework definitions. | Skill `SKILL.md` files, skill supporting folders, agents, project and root `AGENTS.md` templates. |
 | Scaffold generator | Produces the bundled scaffolds from the sources. | `cli/scripts/sync_init_scaffolds.py`; copies, never renders placeholders. |
-| `cli/src/ai_team/init/scaffolds/` | Generated package data consumed by `ai-team init`. | Contains `project/`, `claude/`, and `codex/`; never contains `ai-process/`. Do not edit by hand. |
-| `ai-team init` | Writes the selected tool scaffolds and the project skeleton into a target repository, filling in the project's settings. | Export paths per S-003 level 1; tracker per S-006. |
-| Tests | Enforce that the scaffolds match a fresh generation, that Claude and Codex bodies match, that supporting folders reach both exports, and the `init` contract. | Prevent drift and CLI contract regression. |
+| `cli/src/ai_team/init/scaffolds/` | Generated package data consumed by `ai-team init`. | Contains `project/`, `agents/`, and `skills/`; never contains `ai-process/`. Do not edit by hand. |
+| `ai-team init` | Writes the agent and skill scaffolds and the project skeleton into a target repository, filling in the project's settings. | Export paths per S-003 level 1; tracker per S-006. |
+| Tests | Enforce that the scaffolds match a fresh generation, that supporting folders reach the export, and the `init` contract. | Prevent drift and CLI contract regression. |
 | Documentation | Explains the source-of-truth boundary and the generator. | README, setup and skill-authoring guides, `cli/docs/`. |
 
 ## Components
@@ -117,25 +120,23 @@ ai-team init --tools <tools>
 **Purpose:** Hold every exported framework asset inside the CLI package so the CLI owns
 what it ships.
 **Estimated size:** Medium (delivered).
-**Interfaces:** Provides skill bodies, skill metadata and skill supporting folders to the
-generator; tool-specific agents and the project skeleton files to the generator; root
-guidance templates to `init`. The source tree must not read from repository-root
-`.claude/`, `.codex/`, `.agents/`, or `ai-process/`.
+**Interfaces:** Provides skill `SKILL.md` files and skill supporting folders to the
+generator; agents and the project skeleton files to the generator; the root guidance
+template to `init`. The source tree must not read from repository-root tool folders such
+as `.claude/`, or from `ai-process/`.
 
 Ownership rules:
 
-- shared skill body text is stored once per skill;
-- Claude-specific and Codex-specific skill header text are stored as metadata, not
-  duplicated in the body;
-- a skill may carry `assets/`, `references/` and `scripts/` folders next to its body and
-  metadata (CR-003);
-- Claude and Codex agent definitions are package-owned assets;
+- each skill is stored once, as a source `SKILL.md` holding its frontmatter and body;
+- a skill may carry `assets/`, `references/` and `scripts/` folders next to its
+  `SKILL.md` (CR-003);
+- agent definitions are package-owned Markdown assets;
 - source text may name the project's settings only through the `{{project_dir}}` and
   `{{integration_branch}}` placeholders.
 
 ### Component 2: Skill Scaffold Generation
 
-**Purpose:** Generate the bundled Claude and Codex scaffolds from the package-owned sources.
+**Purpose:** Generate the bundled scaffolds from the package-owned sources.
 **Estimated size:** Medium (delivered); small for the CR-003 supporting-folder change.
 **Interfaces:** Consumes `cli/src/ai_team/init/sources/`; writes
 `cli/src/ai_team/init/scaffolds/`. Run by maintainers before committing a source change
@@ -143,16 +144,12 @@ and before building the package.
 
 Required behaviour:
 
-- Each skill becomes one `SKILL.md` per tool: that tool's header from the metadata,
-  followed by the shared body text unchanged. A skill missing its body or either tool's
-  header stops the generator with an error.
-- Generated Claude and Codex skill files carry identical body text; they differ only in
-  the tool header.
+- Each source skill's `SKILL.md` is copied unchanged into the skill scaffold. A skill
+  without a `SKILL.md` stops the generator with an error naming the skill (CR-007).
 - A source skill's `assets/`, `references/` and `scripts/` folders, when present, are
-  copied into both the Claude and the Codex export of that skill, next to its generated
-  `SKILL.md`, byte for byte (CR-003). No other file in a source skill directory besides
-  `body.md` and `metadata.toml` is exported.
-- Agent definitions are copied per tool as real files, never symlinks.
+  copied next to its `SKILL.md`, byte for byte (CR-003). No other file in a source skill
+  directory is exported.
+- Agent definitions are copied as real files, never symlinks.
 - The project skeleton holds the `specs/`, `decisions/` and `docs/` folders, each kept
   with an empty placeholder file, plus the project guidance files and `.gitignore` from
   the sources. The `docs/` folder also holds a `coding_guidelines.md` placeholder, which
@@ -173,11 +170,11 @@ package scaffolds.
 
 Required behaviour:
 
-- `--tools claude`, `--tools codex`, `--tools claude,codex`, `--tools all`, and
-  `--tools none` select which package tool scaffolds are written.
-- Each selected tool's agents and skills are written to that tool's export paths as
-  listed in S-003's level 1 table, as real files and directories, not symlinks. Skill
-  supporting folders are written with their skill.
+- `init` always writes the agents and skills; there is no `--tools` option and no
+  tool selection (CR-007). `--tools` is rejected as an unknown option.
+- The agents and skills are written to the export paths listed in S-003's level 1, as
+  real files and directories, not symlinks. Skill supporting folders are written with
+  their skill.
 - The project skeleton is written to the configured project directory (`[project] dir`,
   `--project-dir`, default `ai-team`). The tracker folder and its ignore rule follow
   S-006.
@@ -188,7 +185,8 @@ Required behaviour:
 - **Binary files (CR-003).** A scaffold file that does not decode as UTF-8 is copied
   byte for byte, without filling in placeholders, instead of failing.
 - `.ai-team.toml` records the `[project] dir`, `[tracker] dir`,
-  `[git] integration_branch`, and `[init]` tools and framework version. On a repository
+  `[git] integration_branch`, and `[init] framework_version`. `init` never reads or
+  writes `[init] tools`; a leftover value is an unread key (CR-007). On a repository
   that already has `.ai-team.toml`, the configured project directory and integration
   branch are kept unless the matching `init` flag (`--project-dir`,
   `--integration-branch`) is given, the configured tracker folder is always kept
@@ -196,30 +194,25 @@ Required behaviour:
   preserved.
 - **Project state (CR-005).** Before writing anything, `init` detects one of three
   cases from the target repository:
-  - **Upgrade** — `.ai-team.toml` exists and records `[init] tools`. A missing project directory, and any
+  - **Upgrade** — `.ai-team.toml` exists and records `[init] framework_version`. A missing project directory, and any
     missing project-skeleton file that no upgrade question covers (the `specs/` and
     `decisions/` placeholders and `docs/coding_guidelines.md`), is written without a
     question and reported as `WROTE`; an existing one is never overwritten.
-  - **New project** — no `.ai-team.toml` that records `[init] tools`, and none of the
+  - **New project** — no `.ai-team.toml` that records `[init] framework_version`, and none of the
     files `init` would write
     exist yet.
-  - **Adoption** — no `.ai-team.toml` that records `[init] tools`, but some files `init`
+  - **Adoption** — no `.ai-team.toml` that records `[init] framework_version`, but some files `init`
     would write already exist.
-  - A `.ai-team.toml` the user wrote by hand to preset settings, without `[init] tools`,
+  - A `.ai-team.toml` the user wrote by hand to preset settings, without `[init] framework_version`,
     is a first run: its settings are kept and the case is a new project or an adoption.
-- **Upgrade.** Every setting in `.ai-team.toml` is kept, except where `--project-dir`,
-  `--integration-branch` or `--tools` is given explicitly. An explicit `--tools` sets
-  `[init] tools` to the given list. For a tool it newly adds, only the agents and skills
-  that do not exist yet are written, without a question, and its existing files are
-  kept, so nothing existing is overwritten. Tools already
-  configured follow the agents-and-skills question below, and a tool dropped from the
-  list keeps its files. `init` asks two questions, in
-  this order (a question that covers no files is not asked): update the ai-team docs (`AGENTS.md`, `CLAUDE.md` and `.gitignore` in the
-  project directory), then update the agents and skills for the configured tools.
+- **Upgrade.** Every setting in `.ai-team.toml` is kept, except where `--project-dir`
+  or `--integration-branch` is given explicitly. `init` asks two questions, in
+  this order (a question that covers no files is not asked): update the ai-team docs (`AGENTS.md` and `.gitignore` in the
+  project directory), then update the agents and skills.
   `--update-docs` and `--update-skills` answer them ahead of time; `--update-skills`
   covers agents and skills. With `--no-interactive`, an unanswered question means
   "no" and that part is left unchanged. When the agents and skills are updated,
-  `framework_version` is set to the running version. Skills and agents in the tool
+  `framework_version` is set to the running version. Skills and agents in the export
   folders that the running version does not ship are never removed; `init` lists them
   in a warning that says they were neither updated nor removed. Root guidance is
   offered as for a new project.
@@ -230,23 +223,19 @@ Required behaviour:
   existing `docs/coding_guidelines.md` are not part of that question. Whenever the question is not answered
   yes (an interactive no, or `--no-interactive` without `--force`), they are kept and
   reported on stderr. Root guidance is offered as for a new project.
-- **Legacy Codex skills.** `init` removes the legacy framework-owned
-  `.codex/skills/<name>/` folders when `codex` is selected and an agents-and-skills
-  overwrite is approved: on an upgrade, by a yes, `--update-skills` or `--force`, and only
-  if `codex` was already in `[init] tools` before the run; on an adoption, by a yes or
-  `--force`; on a new project, by `--force`. Folders the framework does not own are left in place. Each is reported as `REMOVED`, `LEFT IN PLACE` or, in a dry run,
-  `WOULD REMOVE`. On an upgrade where `--tools` drops `codex` or newly adds it, no
-  legacy folder is removed.
+- **No Codex compatibility.** `init` never reads, migrates or removes Codex files a
+  project already has (`.codex/`, `.agents/skills/`) and prints no note about them
+  (CR-007).
 - `--force` answers yes to every overwrite question. Without it, an existing file is
   replaced only on a yes. `--dry-run` reports the detected case, then what the real run
   with the same flags would write, without writing. An unanswered question prints
-  `WOULD PROMPT: <path>` for each file it covers. What a yes would trigger (the legacy
-  removal, the stale-definition warning, the `framework_version` bump) is reported only
+  `WOULD PROMPT: <path>` for each file it covers. What a yes would trigger (the
+  stale-definition warning, the `framework_version` bump) is reported only
   when a flag, `--force` or `--no-interactive` answers the question.
 - **Reporting.** In every case, each file the real run creates is reported on stdout as
   `WROTE: <path>` and each existing file it replaces as `OVERWROTE: <path>`, so the real
   run reports the same files its dry run lists as `WOULD WRITE` and `WOULD OVERWRITE`.
-  This covers skeleton files, a newly added tool's agents and skills, files written on a
+  This covers skeleton files, files written on a
   yes to an upgrade question, root guidance and `.ai-team.toml`. The tracker folder and
   the root `.gitignore` rule (S-006) are reported as `CREATED: <path>` or
   `UPDATED: <path>`, matching the dry run's `WOULD CREATE` and `WOULD UPDATE`; adding the
@@ -277,7 +266,7 @@ Documentation must state:
 - Repository-root tool folders are local configuration for this repository, not the
   product source.
 - For skill authors (`guides/skill_template.md`): which files of a source skill
-  directory are exported, that supporting folders reach both tool exports, and that
+  directory are exported, that supporting folders reach the export, and that
   placeholders in them are filled in by `init`, except in files that are not UTF-8
   text (CR-003).
 
@@ -300,11 +289,11 @@ Commit the source change, the generated output, and test/doc updates together
 ### Consumer Init Flow
 
 ```
-ai-team init . --tools claude,codex --no-interactive
+ai-team init . --no-interactive
   ↓
 Writes the project skeleton to the configured project directory
   ↓
-Writes each selected tool's agents and skills to its S-003 export paths,
+Writes the agents and skills to the S-003 export paths,
 filling in placeholders (non-UTF-8 files copied byte for byte)
   ↓
 Writes or refreshes .ai-team.toml, keeping existing settings
@@ -326,12 +315,11 @@ Never writes ai-process/
 - **Missing-value behaviour:** with no flag and no configured value, `init` uses
   `ai-team` and `dev-agent`.
 
-**Skill metadata**
-- **What must exist:** a metadata file per source skill with a non-empty header for
-  each supported tool.
-- **Where it lives:** `metadata.toml` beside the skill's `body.md`.
+**Skill source file**
+- **What must exist:** a `SKILL.md` per source skill, with its frontmatter and body.
+- **Where it lives:** `cli/src/ai_team/init/sources/skills/<name>/SKILL.md`.
 - **Constraints:** must not require reading repository-root tool folders.
-- **Missing-value behaviour:** the generator stops with an error naming the file.
+- **Missing-value behaviour:** the generator stops with an error naming the skill.
 
 ## Alternatives Considered
 
@@ -344,8 +332,9 @@ tool formats unless every change is manually duplicated or heavily tested.
 ### Shared Skill Body With Generated Tool Scaffolds
 
 Store each skill body once and generate Claude/Codex skill files with tool-specific
-metadata. This is the chosen direction because it removes the meaningful duplication
-while keeping implementation scope manageable.
+metadata. This was the chosen direction while two tools were exported. CR-007 dropped
+Codex, so the header merge no longer removes any duplication; each skill is now one
+source `SKILL.md` copied as is.
 
 ### Fully Structured Framework Model
 
@@ -370,6 +359,14 @@ amendment adds:
 | 2 | `init` copies non-UTF-8 scaffold files byte for byte, with a test. | Nothing |
 | 3 | `guides/skill_template.md` states the export and placeholder rules. | Phases 1-2 |
 
+The CR-007 amendment adds:
+
+| Phase | What | Depends On |
+|---|---|---|
+| 1 | Merge each skill's `metadata.toml` `[claude]` header and `body.md` into one source `SKILL.md`; flatten sources and scaffolds; drop the Codex sources and the generator's per-tool branch. | Nothing |
+| 2 | `init` drops `--tools`, `[init] tools`, Codex handling and `CLAUDE.md`, and detects the project state from `[init] framework_version`. | Phase 1 |
+| 3 | Tests, guides and CLI docs follow; scaffolds and `commands.md` are regenerated. | Phases 1-2 |
+
 ## Amendment Log
 
 | Date | What changed | Why | Affected tasks |
@@ -391,3 +388,4 @@ amendment adds:
 | 2026-10-25 | spec-truth reconciliation — FAIL | CR-005 fifth re-run: N9 and N10 resolved (S-009 amendment 25f8639d, usage.md e165706e); usage.md:235 and setup-guide.md:78 still say an adoption lists the existing files it keeps, though kept root guidance and coding_guidelines.md are not listed (docs fix, N11) | none |
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 sixth re-run: N11 resolved (usage.md:235 and setup-guide.md:78 now state that only an adoption lists kept files, excluding root guidance and coding_guidelines.md, 3fb64634); Init Command Contract matches init.py, usage.md, commands.md, setup-guide.md and customization-guide.md | none |
 | 2026-10-25 | Init Command Contract: the upgrade case needs a `.ai-team.toml` that records `[init] tools`; a hand-written marker without it is a first run (new project or adoption) that keeps its settings; an upgrade question that covers no files is not asked. Driven by the PR #49 review. | A preset marker made the first init an upgrade that never recorded `framework_version`, and `--update-skills` stamped the version without updating any file. | None in flight |
+| 2026-10-25 | Claude is the only export target: no `--tools` option or `[init] tools` key, and project-state detection keys off `[init] framework_version`; each skill is one source `SKILL.md` copied as is (no `body.md` + `metadata.toml` merge); sources and scaffolds lose the per-tool folder level (`sources/agents/*.md`, `scaffolds/{project,agents,skills}/`); the project and root guidance template is `AGENTS.md` only; the legacy Codex removal and newly-added-tool upgrade rules are dropped, with no Codex compatibility. Driven by CR-007 and ADR-003. | The human dropped Codex support and asked to simplify the two-tool design. | None in flight |

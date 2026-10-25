@@ -1,7 +1,7 @@
 ---
 id: S-000
 title: System Overview
-version: '0.2'
+version: '0.3'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-22'
 author: planner
@@ -40,7 +40,7 @@ The AI Team Definition is a reusable framework that lets a team of AI agents bui
 
 ## Use cases
 
-- **Adopt the framework.** The product owner runs one setup step in their project, chooses which agent tools they use, and gets the roles, procedures, artifact layout and starter project guidance in place. Removes: setup is manual and drifts.
+- **Adopt the framework.** The product owner runs one setup step in their project and gets the roles, procedures, artifact layout and starter project guidance in place. Removes: setup is manual and drifts.
 - **Keep the framework current.** The product owner updates the project to a newer framework version. The delivered roles and procedures are replaced without touching the project's own content, and a layout check reports anything out of place with a suggested fix. Removes: setup is manual and drifts.
 - **Teach agents the project's specifics.** The product owner records the project's build, test and run commands and conventions in the project guidance, and every agent reads them from there instead of guessing. Removes: agents guess project specifics.
 - **Describe the system.** The product owner and the planning agent write one plain-language overview of the project (its purpose, users, pain points and components), which every later specification is checked against. Removes: inconsistent work artifacts; all-or-nothing oversight.
@@ -60,7 +60,7 @@ The framework separates *what must happen* from *how it is carried out*. A singl
 
 The rules are carried out by five agent roles (planning, architecture, development, review and integration) and by step-by-step procedures that each role follows. The procedures require evidence before any claim that work is complete, a diagnosis before any bug fix, and a review before any merge. Agents never read or change work state by hand. They use the framework's commands, which create every artifact from a fixed template, enforce the allowed lifecycle moves, and keep tasks, bugs and change requests in a local tracker outside the project's history. Specifications and decisions stay with the project, because they are design documents reviewed alongside the code.
 
-Each role and procedure is written once and turned automatically into the form each supported agent tool reads, so the copies cannot drift. A single setup step installs these definitions, the artifact layout and starter project guidance into a project, and the same step brings an existing project up to a newer version. The project supplies its own commands and conventions in that guidance, so the framework never assumes how a project is built or tested. Documentation for people explains how to install, configure and use the framework.
+Each role and procedure is written once and installed in the form the supported agent tool reads, so every project gets the same copy. A single setup step installs these definitions, the artifact layout and starter project guidance into a project, and the same step brings an existing project up to a newer version. The project supplies its own commands and conventions in that guidance, so the framework never assumes how a project is built or tested. Documentation for people explains how to install, configure and use the framework.
 
 Around the delivered software sits the project's development infrastructure: the environment the framework is developed in, the tools that test and check it, the pipelines that check every change and produce releases, and the internal documentation that tells developers how to write the delivered roles and procedures. None of it reaches an adopting project, but it decides how the software is built, checked and delivered.
 
@@ -80,7 +80,7 @@ The components fall into two groups. The **solution** is the software delivered 
 #### Generators
 
 - **Name:** Generators
-- **Responsibility:** Produces every file the framework hands to a project: the agent and skill files for each supported agent tool, generated from the single Team definition source; the artifact layout and starter project guidance; and the fixed templates for each artifact kind (system overview, specification, task, bug report, decision record, change request and status report).
+- **Responsibility:** Produces every file the framework hands to a project: the agent and skill files for the supported agent tool, generated from the single Team definition source; the artifact layout and starter project guidance; and the fixed templates for each artifact kind (system overview, specification, task, bug report, decision record, change request and status report).
 - **Boundary:** Does not author role or procedure content, does not track or move artifacts through their lifecycle, and never writes a project's own commands.
 - **Works with:** Team definition, CLI, CI pipelines.
 
@@ -146,3 +146,4 @@ The components fall into two groups. The **solution** is the software delivered 
 | Date | What changed | Why | Affected tasks |
 |------|-------------|-----|----------------|
 | 2026-10-24 | Use cases: added "Bootstrap the project". Driven by CR-004 item 9 and its Architecture Consistency Review. | CR-004 adds the project bootstrap after S-000 approval, a capability no use case covered. | None in flight |
+| 2026-10-25 | Use cases, Solution overview and Generators: the framework supports one agent tool, so setup no longer asks which tools to use and definitions are not turned into one form per tool. Driven by CR-007 and ADR-003. | Codex support was dropped; Claude is the only export target. | None in flight |

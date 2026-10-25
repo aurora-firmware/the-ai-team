@@ -1,6 +1,6 @@
 ---
 title: Uninterrupted Change Request and Spec TODO Readiness
-version: '0.1'
+version: '0.2'
 status: approved  # draft | review | approved | superseded
 created: '2026-07-05'
 author: planner
@@ -46,8 +46,8 @@ What this specification explicitly does NOT cover:
   process contract and the affected skill procedures. Creating a separate skill
   would add a new process component for behavior currently needed by only
   brainstorm and change-request.
-- **Editing repo-local exported skill copies.** The `.agents/`, `.codex/` and
-  `.claude/` folders in this repository are not the source of truth for framework
+- **Editing repo-local exported skill copies.** Repository-root tool folders such as
+  `.claude/` are not the source of truth for framework
   behavior. This work updates source process documents and source skill
   definitions, then regenerates packaged scaffolds.
 - **Changing the autonomous development loop.** This work ends at the point
@@ -171,7 +171,7 @@ skill, approved specs, accepted ADRs, task breakdown flow.
 
 ### Component 4: Scaffold Synchronization
 
-**Purpose:** Regenerates exported Claude and Codex scaffolds from source after
+**Purpose:** Regenerates exported scaffolds from source after
 the process and source skills change.
 **Estimated size:** Small.
 **Interfaces:** Skill source tree, sync script, generated scaffold tree.
@@ -232,14 +232,14 @@ Accepted CR proceeds to existing task breakdown and Gate 2 flow
 - **What must exist:** A source-of-truth authoring path for skill behavior.
   **Where it lives:** `cli/src/ai_team/init/sources/skills/` and the process
   docs under `ai-process/processes/`.
-  **Constraints:** Local `.agents/`, `.codex/` and `.claude/` exported skill copies are not
+  **Constraints:** Repository-root tool folders such as `.claude/` are not
   edited to change framework behavior.
   **Missing-value behaviour:** If source skill definitions or process docs
   cannot be updated consistently, the work is incomplete.
 
 - **What must exist:** Regenerated skill scaffolds after source changes.
   **Where it lives:** `cli/src/ai_team/init/scaffolds/`.
-  **Constraints:** Generated Claude and Codex skill outputs must reflect the
+  **Constraints:** Generated skill outputs must reflect the
   source definitions after synchronization.
   **Missing-value behaviour:** If scaffolds are stale relative to sources, the
   change fails verification.
@@ -262,7 +262,7 @@ Accepted CR proceeds to existing task breakdown and Gate 2 flow
 |---|---|---|
 | 1 | Update workflow and quality-gate documentation with TODO readiness, CR approval semantics, and continuation/stopping rules. | Nothing |
 | 2 | Update source brainstorm, change-request, and architecture consistency review skill bodies to implement the documented process. | Phase 1 |
-| 3 | Regenerate Claude and Codex skill scaffolds from the updated sources and verify they match the source behavior. | Phase 2 |
+| 3 | Regenerate skill scaffolds from the updated sources and verify they match the source behavior. | Phase 2 |
 | 4 | Run repository checks relevant to process/source/scaffold consistency. | Phase 3 |
 
 ## Amendment Log
@@ -270,3 +270,4 @@ Accepted CR proceeds to existing task breakdown and Gate 2 flow
 | Date | What changed | Why | Affected tasks |
 |------|-------------|-----|----------------|
 | 2026-10-20 | The exclusion and configuration requirement on repo-local exported skill copies also name `.agents/`. Wording only. Driven by CR-002. | Codex skills are now exported to `.agents/skills/`. | None in flight |
+| 2026-10-25 | Repo-local tool folders and the generated scaffolds no longer name Codex. Wording only. Driven by CR-007. | Claude is the only export target (ADR-003). | None in flight |
