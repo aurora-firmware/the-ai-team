@@ -589,26 +589,29 @@ def _flat(text: str) -> str:
     return " ".join(text.split())
 
 
-def test_usage_guide_reports_recreated_and_added_files_as_wrote():
-    """AC-1: usage.md says an upgrade reports recreated and added files as WROTE."""
+REPORTING_RULE = (
+    "Every file `init` creates is reported on stdout as `WROTE: <path>` "
+    "(`WOULD WRITE` in a dry run), every file it replaces as `OVERWROTE: <path>` "
+    "(`WOULD OVERWRITE` in a dry run), and every existing file it keeps on stderr."
+)
+
+
+def test_usage_guide_states_the_init_reporting_rule():
+    """AC-4: usage.md reports created files as WROTE, replaced as OVERWROTE, kept on stderr."""
     flat = _flat(_content())
+    assert REPORTING_RULE in flat
+    assert "Declined or skipped files are not reported" not in flat
     assert (
         "Newly created files and declined or skipped files are not reported" not in flat
     )
-    assert (
-        "An upgrade reports each file it recreates or adds as `WROTE: <path>` "
-        "(`WOULD WRITE` in a dry run)" in flat
-    )
 
 
-def test_setup_guide_reports_recreated_and_added_files_as_wrote():
-    """AC-1: setup-guide.md says an upgrade reports recreated and added files as WROTE."""
+def test_setup_guide_states_the_init_reporting_rule():
+    """AC-4: setup-guide.md reports created files as WROTE, replaced as OVERWROTE, kept on stderr."""
     flat = _flat(SETUP_GUIDE_MD.read_text(encoding="utf-8"))
+    assert REPORTING_RULE in flat
     assert "newly created files are not" not in flat
-    assert (
-        "An upgrade reports each file it recreates or adds as `WROTE: <path>` "
-        "(`WOULD WRITE` in a dry run)" in flat
-    )
+    assert "not reported" not in flat
 
 
 def test_usage_guide_upgrade_row_says_missing_skeleton_files_are_written_unasked():

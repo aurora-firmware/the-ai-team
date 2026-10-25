@@ -210,3 +210,30 @@ def test_dry_run_handles_existing_root_guidance_through_its_own_table(tmp_path):
     assert str(root_claude) not in result.output
     assert "Overwrite these existing files?" not in result.output
     assert f"WOULD PROMPT: {root_claude}" in forced.output
+
+
+def test_new_project_reports_every_created_file_as_wrote(tmp_path):
+    result = _init([*_base_args(tmp_path), "--no-interactive"])
+
+    assert result.exit_code == 0
+    wrote = {
+        line.removeprefix("WROTE: ")
+        for line in result.output.splitlines()
+        if line.startswith("WROTE: ")
+    }
+    assert str(tmp_path / ".ai-team.toml") in wrote
+    assert str(tmp_path / ".claude" / "agents" / "architect.md") in wrote
+    assert str(tmp_path / "ai-team" / "decisions" / ".gitkeep") in wrote
+    assert "OVERWROTE" not in result.output
+
+
+def test_adoption_reports_created_files_as_wrote_and_replaced_as_overwrote(tmp_path):
+    (replaced,) = _occupy(tmp_path, ".claude/agents/planner.md")
+
+    result = _init(_base_args(tmp_path), input_text="y\nn\nn\n")
+
+    assert result.exit_code == 0
+    lines = result.output.splitlines()
+    assert f"OVERWROTE: {replaced}" in lines
+    assert f"WROTE: {replaced}" not in lines
+    assert f"WROTE: {tmp_path / '.claude' / 'agents' / 'architect.md'}" in lines

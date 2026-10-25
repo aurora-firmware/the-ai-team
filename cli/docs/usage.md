@@ -227,10 +227,7 @@ Existing root guidance files are never overwritten unless `--force` is also pass
 | `--force` | prompts; overwritten on yes | left untouched |
 | `--force --create-root-guidance` | overwritten, no prompt | overwritten, no prompt |
 
-Every existing file that `init` replaces (root guidance, generated agents and
-skills, `.ai-team.toml`) is reported on stdout as `OVERWROTE: <absolute path>`.
-An upgrade reports each file it recreates or adds as `WROTE: <path>` (`WOULD WRITE` in a dry run).
-Declined or skipped files are not reported.
+Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run), every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run), and every existing file it keeps on stderr. This covers root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
 
 ### Example: preview then initialise
 
