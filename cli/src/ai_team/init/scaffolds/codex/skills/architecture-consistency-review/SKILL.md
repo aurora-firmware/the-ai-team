@@ -64,9 +64,9 @@ Read every accepted ADR in `{{project_dir}}/decisions/` and every approved spec 
 
 For each binding artifact, decide whether the changed artifact contradicts it — asserts a different decision for the same concern, removes a guarantee another artifact relies on, or restates a rule with different content. Record each contradiction with the specific artifact, the conflicting statements, and which one is now intended to be authoritative.
 
-For a new or amended behavior-v1 feature spec, also assess its own requirement completeness, consistent terminology, feasibility, mutually compatible constraints, assumptions, and acceptance coverage; a lack of conflicts with other documents alone does not establish readiness.
+For a feature spec, also assess its own requirement completeness, consistent terminology, feasibility, mutually compatible constraints, assumptions, and acceptance coverage; a lack of conflicts with other documents alone does not establish readiness.
 Check that unresolved behavioral or feasibility questions have been resolved, and that public contract references are precise.
-Use the new-spec authoring contract rather than imposing the new format on legacy specs or S-000.
+Use the new-spec authoring contract for feature specifications; S-000 follows its system-overview contract.
 
 ### Step 3b: Check Against S-000
 

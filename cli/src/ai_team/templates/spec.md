@@ -5,7 +5,6 @@ version: "0.1"
 status: draft  # draft | review | approved | superseded
 created: YYYY-MM-DD
 author: "[Author name or agent role]"
-spec-format: behavior-v1
 ---
 
 # [Specification Title]
@@ -17,7 +16,7 @@ Contract material. Keep REQ identifiers stable across amendments; use the same
 identifier space for behavioral and quality requirements. Each REQ has at least
 one AC-NNN.M scenario and a Verification method. Replace every TODO before
 review, then run ai-team validate --specs. Draft scaffolds may be incomplete;
-structural checks apply to behavior-v1 specs in review or approved status.
+structural checks apply to feature specs in review or approved status.
 -->
 
 ## Purpose

@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from tests.spec_fixtures import feature_spec_body
+
 
 @pytest.fixture(autouse=True)
 def _project_dir(tmp_path):
@@ -50,7 +52,7 @@ author: planner
 id: "{id}"
 ---
 
-Body.
+{body}
 """
 
 ADR_TEMPLATE = """\
@@ -90,7 +92,7 @@ def _bug(bug_id: str, title: str, status: str, *, extra_frontmatter: str = "") -
 
 
 def _spec(spec_id: str, title: str) -> str:
-    return SPEC_TEMPLATE.format(id=spec_id, title=title)
+    return SPEC_TEMPLATE.format(id=spec_id, title=title, body=feature_spec_body())
 
 
 def _adr(adr_id: str, title: str, *, extra_frontmatter: str = "") -> str:

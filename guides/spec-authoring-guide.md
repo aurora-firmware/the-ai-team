@@ -34,9 +34,8 @@ If you find yourself pasting a near-complete file, you are writing the implement
 
 ## Feature specification contract
 
-New feature specs carry `spec-format: behavior-v1` in frontmatter, separate from their amendment `version`.
-Existing specs without this field retain their existing format; S-000 uses its own seven-section overview contract and carries no feature-format marker.
-Do not rewrite old specifications merely to adopt this format.
+Feature specifications follow the section and requirement rules below.
+S-000 is the system overview and follows its own seven-section contract.
 
 Every observable obligation has a stable `REQ-NNN` identifier and one behavior, with normative SHALL or MUST wording.
 Keep rationale separate from the obligation.
@@ -47,8 +46,9 @@ Each scenario states concrete conditions and expected results, normally Given/Wh
 Numbering identifies obligations; it does not make vague prose precise.
 
 Run `ai-team validate --specs` before review.
-For marked feature specs in `review` or `approved`, the CLI checks required nonempty sections, requirement and acceptance structure, duplicate identifiers, acceptance ownership, and unresolved placeholders outside comments and code.
-Draft scaffolds may contain placeholders; unknown feature-format values are errors.
+For feature specs in `review` or `approved`, the CLI checks required nonempty sections, requirement and acceptance structure, duplicate identifiers, acceptance ownership, and unresolved placeholders outside comments and code.
+Draft scaffolds may contain placeholders.
+All feature specs are checked against the same requirements when ready for review or approval.
 These checks do not establish completeness, feasibility, or correctness: the author and reviewer still evaluate those properties.
 
 ## How to write each section

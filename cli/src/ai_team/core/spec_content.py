@@ -1,8 +1,4 @@
-"""Structural checks for the explicitly versioned feature-spec format.
-
-This is not semantic requirements validation. Legacy specs and system overviews
-without a format marker keep their existing metadata-only validation.
-"""
+"""Structural checks for feature specifications, separate from semantic review."""
 
 from __future__ import annotations
 
@@ -229,17 +225,8 @@ def _requirement_issues(sections: list[tuple[str, str]]) -> list[Issue]:
     return issues
 
 
-def validate_feature_content(
-    text: str, *, spec_format: object, status: str
-) -> list[Issue]:
+def validate_feature_content(text: str, *, status: str) -> list[Issue]:
     """Return structural findings without rewriting the artifact."""
-    if spec_format != "behavior-v1":
-        return [
-            (
-                "spec-format-unsupported",
-                f"Unsupported spec-format '{spec_format}'; supported feature format: behavior-v1.",
-            )
-        ]
     if status not in ("draft", "review", "approved", "superseded"):
         return [
             (

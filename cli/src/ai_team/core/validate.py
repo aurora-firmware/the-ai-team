@@ -369,10 +369,9 @@ def validate_project(
             _check_spec_filename(
                 findings, root, path, spec_id=str(spec_id) if spec_id else None
             )
-            if "spec-format" in source_map:
+            if spec_id != "S-000":
                 for code, message in validate_feature_content(
                     path.read_text(encoding="utf-8"),
-                    spec_format=source_map["spec-format"],
                     status=spec.status,
                 ):
                     findings.append(_finding(path, root, code, message))

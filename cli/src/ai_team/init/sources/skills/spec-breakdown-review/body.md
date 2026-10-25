@@ -25,7 +25,7 @@ Identify each task's dependencies, files to touch, acceptance criteria, and veri
 
 Verify spec coverage: confirm that the full set of planned tasks covers the entire approved specification with no features, sections, or behaviors left unaddressed.
 If any part of the spec is not covered by at least one task, flag the gap.
-For behavior-v1 specs, check every REQ and AC against the tasks' Source Requirements and verification; flag missing coverage and invented behavior. For legacy sources, change-requests, and S-000, use their sections without requiring a format migration.
+For feature specs, check every REQ and AC against the tasks' Source Requirements and verification; flag missing coverage and invented behavior. For change-requests and S-000, use their sections.
 For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the human recorded it as skipped (brownfield). S-000's solution components never need tasks.
 Do not pass Gate 2 if the plan leaves spec sections unimplemented without explicit justification.
 

@@ -12,7 +12,7 @@ The two-stage checklist below is the canonical quality bar for all code reviews.
 
 ## Procedure
 
-When Source Requirements cites a behavior-v1 spec, verify the linked REQ and AC obligations are respected and task verification covers its assigned scenarios. Use section references for legacy sources, change-requests, and S-000; do not require migration.
+When Source Requirements cites a feature spec, verify the linked REQ and AC obligations are respected and task verification covers its assigned scenarios. Use section references for change-requests and S-000.
 
 ### Step 1: Read the Work Item
 Read the task or bug file completely.

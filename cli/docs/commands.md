@@ -651,7 +651,7 @@ $ ai-team tracker path [OPTIONS]
 
 ## `ai-team validate`
 
-Validate artifact metadata, cross-references, and versioned feature-spec structure.
+Validate artifact metadata, cross-references, and feature-spec structure.
 
 **Usage**:
 

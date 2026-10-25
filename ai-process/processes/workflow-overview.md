@@ -112,10 +112,10 @@ Because the human shaped the spec throughout the dialogue, Gate 1 approval shoul
 
 **Lighter path — change-request:** For smaller changes that do not warrant a full new spec, the Planner uses a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves human-answerable `[TODO]` markers one at a time before the human approves the change-request. Once the human approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
 
-New feature specs use the `behavior-v1` template: feature-specific journeys, stable behavioral and quality REQ identifiers, linked AC scenarios and verification, external contracts, and explicit assumptions and open-question handling.
+Feature specs record feature-specific journeys, stable behavioral and quality REQ identifiers, linked AC scenarios and verification, external contracts, and explicit assumptions and open-question handling.
 All approved discovery decisions about observable behavior must survive into these requirements before review; task decomposition cannot invent missing product decisions.
 The guide `guides/spec-authoring-guide.md` owns this authoring contract, which is embedded in the exported new-spec instructions.
-Existing unmarked specs and the S-000 overview keep their formats.
+S-000 follows its system-overview contract.
 
 ### 2. Task Breakdown + Gate 2
 

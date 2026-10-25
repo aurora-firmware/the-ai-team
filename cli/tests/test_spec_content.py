@@ -7,45 +7,8 @@ import pytest
 from typer.testing import CliRunner
 
 from ai_team.cli import app
-
-SECTIONS = (
-    "Purpose",
-    "Users and Journeys",
-    "Exclusions",
-    "Architecture",
-    "Interfaces",
-    "Workflow",
-    "Behavioral Requirements",
-    "Quality Requirements",
-    "Configuration Requirements",
-    "Assumptions and Dependencies",
-    "Success Criteria",
-    "Implementation Order",
-    "Open Questions",
-    "Amendment Log",
-)
-
-REQUIREMENT = """### REQ-001 — Deny unauthorized exports
-
-The system SHALL reject exports requested by an actor without workspace access.
-
-#### AC-001.1 — Access denied
-
-- **Given:** an actor without access to workspace A
-- **When:** the actor requests an export from workspace A
-- **Then:** the request is rejected without returning workspace records
-
-**Verification:** an authorization acceptance test for AC-001.1.
-"""
-
-
-def _body() -> str:
-    values = dict.fromkeys(SECTIONS, "None — not applicable to this feature.")
-    values["Purpose"] = "Prevent disclosure of workspace records."
-    values["Users and Journeys"] = "Workspace users request exports (REQ-001)."
-    values["Behavioral Requirements"] = REQUIREMENT
-    values["Amendment Log"] = ""
-    return "\n\n".join(f"## {name}\n\n{value}" for name, value in values.items())
+from ai_team.core.models import parse_spec
+from tests.spec_fixtures import EXPORT_REQUIREMENT, SPEC_SECTIONS, feature_spec_body
 
 
 def _write_spec(
@@ -53,15 +16,13 @@ def _write_spec(
     body: str,
     *,
     status: str = "approved",
-    spec_format: str | None = "behavior-v1",
     spec_id: str = "S-001",
 ) -> Path:
     path = root / "ai-team/specs" / f"{spec_id}-export.md"
     path.parent.mkdir(parents=True, exist_ok=True)
-    marker = "" if spec_format is None else f"spec-format: {spec_format}\n"
     path.write_text(
         f"---\nid: {spec_id}\ntitle: Export\nversion: '0.1'\nstatus: {status}\n"
-        f"created: 2026-10-25\nauthor: planner\n{marker}---\n\n{body}\n"
+        f"created: 2026-10-25\nauthor: planner\n---\n\n{body}\n"
     )
     return path
 
@@ -75,9 +36,7 @@ def _validate(monkeypatch, root: Path) -> tuple[int, list[dict[str, str]]]:
     return result.exit_code, json.loads(result.stdout)
 
 
-def test_cli_generates_versioned_feature_contract_and_keeps_overview_separate(
-    monkeypatch, tmp_path
-):
+def test_cli_generates_feature_spec_and_system_overview(monkeypatch, tmp_path):
     (tmp_path / "ai-team/specs").mkdir(parents=True)
     monkeypatch.chdir(tmp_path)
     runner = CliRunner()
@@ -85,18 +44,24 @@ def test_cli_generates_versioned_feature_contract_and_keeps_overview_separate(
     overview = runner.invoke(app, ["spec", "new", "--overview", "--json"])
     assert feature.exit_code == overview.exit_code == 0
     content = Path(json.loads(feature.stdout)["path"]).read_text()
-    assert "spec-format: behavior-v1" in content
-    for section in SECTIONS:
+    assert set(parse_spec(Path(json.loads(feature.stdout)["path"]))._source_map) == {
+        "id",
+        "title",
+        "version",
+        "status",
+        "created",
+        "author",
+    }
+    for section in SPEC_SECTIONS:
         assert f"\n## {section}\n" in content
     assert "### REQ-001" in content
     assert "#### AC-001.1" in content
-    assert "spec-format:" not in Path(json.loads(overview.stdout)["path"]).read_text()
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
 @pytest.mark.parametrize("status", ["review", "approved"])
 def test_complete_behavior_contract_is_valid(monkeypatch, tmp_path, status):
-    _write_spec(tmp_path, _body(), status=status)
+    _write_spec(tmp_path, feature_spec_body(), status=status)
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
@@ -106,11 +71,19 @@ def test_complete_behavior_contract_is_valid(monkeypatch, tmp_path, status):
         ("## Users and Journeys", "## Other", "spec-section-missing"),
         ("Prevent disclosure of workspace records.", "", "spec-section-empty"),
         ("### REQ-001", "### REQ-01", "spec-requirement-heading"),
-        (REQUIREMENT, "None.", "spec-requirements-missing"),
-        (REQUIREMENT, REQUIREMENT + "\n" + REQUIREMENT, "spec-requirement-duplicate"),
+        (EXPORT_REQUIREMENT, "None.", "spec-requirements-missing"),
+        (
+            EXPORT_REQUIREMENT,
+            EXPORT_REQUIREMENT + "\n" + EXPORT_REQUIREMENT,
+            "spec-requirement-duplicate",
+        ),
         ("#### AC-001.1", "#### AC-002.1", "spec-acceptance-owner"),
         ("#### AC-001.1", "#### AC-001.0", "spec-acceptance-heading"),
-        (REQUIREMENT, REQUIREMENT.split("####")[0], "spec-acceptance-missing"),
+        (
+            EXPORT_REQUIREMENT,
+            EXPORT_REQUIREMENT.split("####")[0],
+            "spec-acceptance-missing",
+        ),
         (
             "The system SHALL reject exports requested by an actor without workspace access.",
             "",
@@ -131,7 +104,7 @@ def test_complete_behavior_contract_is_valid(monkeypatch, tmp_path, status):
 def test_invalid_behavior_contract_reports_actionable_error(
     monkeypatch, tmp_path, old, new, code
 ):
-    path = _write_spec(tmp_path, _body().replace(old, new))
+    path = _write_spec(tmp_path, feature_spec_body().replace(old, new))
     before = path.read_bytes()
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
@@ -143,8 +116,10 @@ def test_invalid_behavior_contract_reports_actionable_error(
 
 
 def test_quality_requirements_share_ids_and_acceptance_rules(monkeypatch, tmp_path):
-    quality = REQUIREMENT.replace("REQ-001", "REQ-002").replace("AC-001", "AC-002")
-    body = _body().replace(
+    quality = EXPORT_REQUIREMENT.replace("REQ-001", "REQ-002").replace(
+        "AC-001", "AC-002"
+    )
+    body = feature_spec_body().replace(
         "## Quality Requirements\n\nNone — not applicable to this feature.",
         f"## Quality Requirements\n\n{quality}",
     )
@@ -153,8 +128,11 @@ def test_quality_requirements_share_ids_and_acceptance_rules(monkeypatch, tmp_pa
 
 
 def test_acceptance_ids_cannot_be_reused(monkeypatch, tmp_path):
-    scenario = REQUIREMENT[REQUIREMENT.index("####") :]
-    _write_spec(tmp_path, _body().replace(REQUIREMENT, REQUIREMENT + scenario))
+    scenario = EXPORT_REQUIREMENT[EXPORT_REQUIREMENT.index("####") :]
+    _write_spec(
+        tmp_path,
+        feature_spec_body().replace(EXPORT_REQUIREMENT, EXPORT_REQUIREMENT + scenario),
+    )
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-acceptance-duplicate" in {f["code"] for f in findings}
@@ -169,47 +147,49 @@ def test_contract_examples_and_comments_do_not_define_requirements_or_placeholde
         f"[TODO]\n{fence}\n<!-- ### REQ-001\n[TODO] -->\n"
         "The external tool uses the literal token `[TODO]`.\n"
     )
-    _write_spec(tmp_path, _body() + example)
+    _write_spec(tmp_path, feature_spec_body() + example)
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
 def test_comment_only_acceptance_is_not_evidence(monkeypatch, tmp_path):
-    _write_spec(tmp_path, _body().replace(REQUIREMENT, f"<!-- {REQUIREMENT} -->"))
+    _write_spec(
+        tmp_path,
+        feature_spec_body().replace(
+            EXPORT_REQUIREMENT, f"<!-- {EXPORT_REQUIREMENT} -->"
+        ),
+    )
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-requirements-missing" in {f["code"] for f in findings}
 
 
-@pytest.mark.parametrize(
-    ("status", "spec_format", "spec_id"),
-    [
-        ("draft", "behavior-v1", "S-001"),
-        ("approved", None, "S-001"),
-        ("approved", None, "S-000"),
-    ],
-)
-def test_drafts_legacy_specs_and_overviews_do_not_require_new_content(
-    monkeypatch, tmp_path, status, spec_format, spec_id
+@pytest.mark.parametrize("status", ["draft", "superseded"])
+def test_feature_content_is_checked_when_ready_for_review(
+    monkeypatch, tmp_path, status
 ):
-    _write_spec(
-        tmp_path,
-        "Existing content. [TODO]",
-        status=status,
-        spec_format=spec_format,
-        spec_id=spec_id,
-    )
+    _write_spec(tmp_path, "Unfinished. [TODO]", status=status)
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
-def test_unknown_format_is_not_silently_accepted(monkeypatch, tmp_path):
-    _write_spec(tmp_path, _body(), status="draft", spec_format="behavior-v99")
+def test_system_overview_uses_its_own_contract(monkeypatch, tmp_path):
+    _write_spec(tmp_path, "System overview content.", spec_id="S-000")
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+@pytest.mark.parametrize("status", ["review", "approved"])
+def test_feature_spec_must_include_requirements_and_acceptance(
+    monkeypatch, tmp_path, status
+):
+    path = _write_spec(tmp_path, "Incomplete content. [TODO]", status=status)
+    before = path.read_bytes()
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
-    assert "spec-format-unsupported" in {f["code"] for f in findings}
+    assert {"spec-section-missing", "spec-placeholder"} <= {f["code"] for f in findings}
+    assert path.read_bytes() == before
 
 
 def test_inline_verification_command_is_valid(monkeypatch, tmp_path):
-    body = _body().replace(
+    body = feature_spec_body().replace(
         "an authorization acceptance test for AC-001.1.",
         "`run-authorization-check AC-001.1`",
     )
@@ -217,25 +197,15 @@ def test_inline_verification_command_is_valid(monkeypatch, tmp_path):
     assert _validate(monkeypatch, tmp_path) == (0, [])
 
 
-@pytest.mark.parametrize("marker", ["null", "false", "''"])
-def test_explicit_invalid_format_is_not_treated_as_a_legacy_spec(
-    monkeypatch, tmp_path, marker
-):
-    _write_spec(tmp_path, _body(), spec_format=marker)
-    exit_code, findings = _validate(monkeypatch, tmp_path)
-    assert exit_code == 1
-    assert "spec-format-unsupported" in {f["code"] for f in findings}
-
-
 def test_invalid_status_cannot_skip_feature_content_validation(monkeypatch, tmp_path):
-    _write_spec(tmp_path, _body(), status="ready")
+    _write_spec(tmp_path, feature_spec_body(), status="ready")
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-status-invalid" in {f["code"] for f in findings}
 
 
 def test_duplicate_sections_are_rejected(monkeypatch, tmp_path):
-    _write_spec(tmp_path, _body() + "\n## Purpose\n\nOther intent.\n")
+    _write_spec(tmp_path, feature_spec_body() + "\n## Purpose\n\nOther intent.\n")
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert "spec-section-duplicate" in {f["code"] for f in findings}
@@ -244,7 +214,7 @@ def test_duplicate_sections_are_rejected(monkeypatch, tmp_path):
 def test_subsection_heading_alone_does_not_fill_a_required_section(
     monkeypatch, tmp_path
 ):
-    body = _body().replace(
+    body = feature_spec_body().replace(
         "## Architecture\n\nNone — not applicable to this feature.",
         "## Architecture\n\n### Design Principles",
     )
@@ -260,7 +230,7 @@ def test_subsection_heading_alone_does_not_fill_a_required_section(
 def test_quality_disposition_must_use_requirements_or_explicit_non_applicability(
     monkeypatch, tmp_path
 ):
-    body = _body().replace(
+    body = feature_spec_body().replace(
         "## Quality Requirements\n\nNone — not applicable to this feature.",
         "## Quality Requirements\n\nIt should be fast.",
     )
@@ -274,7 +244,7 @@ def test_quality_disposition_must_use_requirements_or_explicit_non_applicability
 def test_todo_domain_language_is_not_an_unresolved_placeholder(
     monkeypatch, tmp_path, term
 ):
-    body = _body().replace(
+    body = feature_spec_body().replace(
         "Prevent disclosure of workspace records.",
         f"Users manage {term} lists and mark {term} items complete.",
     )
@@ -302,7 +272,8 @@ def test_todo_domain_language_is_not_an_unresolved_placeholder(
 )
 def test_explicit_unresolved_markers_still_block_review(monkeypatch, tmp_path, marker):
     _write_spec(
-        tmp_path, _body().replace("Prevent disclosure of workspace records.", marker)
+        tmp_path,
+        feature_spec_body().replace("Prevent disclosure of workspace records.", marker),
     )
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
@@ -315,8 +286,10 @@ def test_explicit_unresolved_markers_still_block_review(monkeypatch, tmp_path, m
 def test_acceptance_scenarios_without_a_requirement_owner_are_rejected(
     monkeypatch, tmp_path, section
 ):
-    orphan = REQUIREMENT[REQUIREMENT.index("####") :].replace("AC-001", "AC-999")
-    body = _body().replace(f"## {section}\n", f"## {section}\n\n{orphan}\n")
+    orphan = EXPORT_REQUIREMENT[EXPORT_REQUIREMENT.index("####") :].replace(
+        "AC-001", "AC-999"
+    )
+    body = feature_spec_body().replace(f"## {section}\n", f"## {section}\n\n{orphan}\n")
     _write_spec(tmp_path, body)
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
@@ -324,8 +297,8 @@ def test_acceptance_scenarios_without_a_requirement_owner_are_rejected(
 
 
 def test_orphan_acceptance_ids_are_included_in_duplicate_checks(monkeypatch, tmp_path):
-    orphan = REQUIREMENT[REQUIREMENT.index("####") :]
-    body = _body().replace(
+    orphan = EXPORT_REQUIREMENT[EXPORT_REQUIREMENT.index("####") :]
+    body = feature_spec_body().replace(
         "## Behavioral Requirements\n", f"## Behavioral Requirements\n\n{orphan}\n"
     )
     _write_spec(tmp_path, body)
@@ -335,8 +308,8 @@ def test_orphan_acceptance_ids_are_included_in_duplicate_checks(monkeypatch, tmp
 
 
 def test_acceptance_in_the_document_preamble_is_not_skipped(monkeypatch, tmp_path):
-    orphan = REQUIREMENT[REQUIREMENT.index("####") :]
-    _write_spec(tmp_path, orphan + "\n" + _body())
+    orphan = EXPORT_REQUIREMENT[EXPORT_REQUIREMENT.index("####") :]
+    _write_spec(tmp_path, orphan + "\n" + feature_spec_body())
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     codes = {f["code"] for f in findings}

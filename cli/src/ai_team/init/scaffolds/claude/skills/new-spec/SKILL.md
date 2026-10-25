@@ -40,7 +40,7 @@ When invoked directly by a human and required fields are missing, ask only for t
    - `id` (for example, `S-003`)
    - `path` (absolute path to the created file, named `S-NNN-<slug>.md`)
 
-4. Open the created spec file and fill its body sections from the supplied `description`, using the **content-boundary rule** and the **section recipes** below. Preserve `spec-format: behavior-v1` from the template. Leave any section that still needs exploration marked `[TODO]`. Do not remove the marker to bypass readiness checks.
+4. Open the created spec file and fill its body sections from the supplied `description`, using the **content-boundary rule** and the **section recipes** below. Leave any section that still needs exploration marked `[TODO]`.
 
 5. Run the **pre-submission checklist** (below) against the filled spec, including `ai-team validate --specs` once its status is `review`. Validate again after revisions; fix findings without rewriting unrelated existing specs. Fix any unchecked item before returning. Leave items genuinely unresolvable marked `[TODO]`.
 

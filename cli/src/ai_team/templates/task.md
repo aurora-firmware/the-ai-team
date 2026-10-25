@@ -28,10 +28,9 @@ Include enough context that an agent can start working without asking questions.
 
 ## Source Requirements
 
-<!-- For a behavior-v1 source, cite the spec ID, REQ identifiers, and AC
-  scenarios this task implements or verifies. If the source is legacy, a
-  change-request, or S-000, cite its relevant sections instead; do not invent
-  identifiers or rewrite that source solely to add them. -->
+<!-- Cite the feature spec ID, REQ identifiers, and AC scenarios this task
+  implements or verifies. For a change-request or S-000, cite its relevant
+  sections; do not invent feature requirement identifiers for those artifacts. -->
 
 Name the source requirements and acceptance scenarios this task covers.
 

@@ -77,7 +77,7 @@ The Planner enters the escalation chain when the `spec-breakdown` skill returns 
 - Recommended approach has clear rationale.
 - Architecture is described with enough detail to derive tasks.
 - S-000 is held to the S-000 Gate 1 criteria in the `new-system-overview` skill's pre-submission checklist, which replace the criterion above that architecture is detailed enough to derive tasks.
-- Feature specs provide stable REQ identifiers, concrete linked AC scenarios, sufficient external contracts, and explicit assumptions under the new-spec format. Own the preservation of approved intent into the spec; task planning must not invent product behavior.
+- Feature specs provide stable REQ identifiers, concrete linked AC scenarios, sufficient external contracts, and explicit assumptions following the spec format defined by new-spec. Own the preservation of approved intent into the spec; task planning must not invent product behavior.
 - Exclusions are explicitly stated.
 - The human confirmed the direction before the spec was written.
 - Spec content describes **requirements and measurable criteria in prose** — implementation code, configuration files, CI manifests, and build files do not belong in the spec body. Concrete code belongs in tasks and Developer output. Public schemas, protocol fragments, and fixed external values are permitted when they define the contract; label them **Contract**, not **Example**. Internal implementation inventories remain excluded.

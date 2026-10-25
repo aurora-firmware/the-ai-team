@@ -52,7 +52,7 @@ Folder scope:
 - Never touch: implementation files, test files.
 
 Quality bar:
-- Feature specs provide stable REQ identifiers, concrete linked AC scenarios, sufficient external contracts, and explicit assumptions under the new-spec format. Own the preservation of approved intent into the spec; task planning must not invent product behavior.
+- Feature specs provide stable REQ identifiers, concrete linked AC scenarios, sufficient external contracts, and explicit assumptions following the spec format defined by new-spec. Own the preservation of approved intent into the spec; task planning must not invent product behavior.
 - For specifications, the problem is clear, at least two alternatives were considered, the recommended approach has rationale, architecture is specific enough to derive tasks, exclusions are explicit, and the human confirmed direction before the spec was written.
 - S-000 is held to the S-000 Gate 1 criteria in the `new-system-overview` skill's pre-submission checklist, which replace the criterion that architecture is specific enough to derive tasks.
 - Spec content describes requirements and measurable criteria in prose. Implementation code, configuration files, CI manifests, and build files do not belong in the spec body — concrete code belongs in tasks and Developer output. Public schemas, protocol fragments, and fixed external values are permitted when they define the contract; label them "Contract" rather than "Example". Internal implementation inventories remain excluded.
