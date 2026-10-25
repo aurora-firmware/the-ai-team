@@ -79,9 +79,7 @@ def _prose(text: str) -> str:
             ):
                 fence = ""
             continue
-        if not marker:
-            line, in_comment = _strip_comments(line)
-        blank = not line.strip()
+        blank = False
         if marker:
             fence = marker[1]
         elif line.startswith(("    ", "\t")) and (
@@ -90,6 +88,8 @@ def _prose(text: str) -> str:
             # Indented code, unless the indentation continues a list item.
             indented_code = True
         else:
+            line, in_comment = _strip_comments(line)
+            blank = not line.strip()
             if not blank:
                 indented_code = False
                 if not line.startswith((" ", "\t")):

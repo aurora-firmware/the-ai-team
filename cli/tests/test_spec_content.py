@@ -372,3 +372,12 @@ def test_verification_may_be_a_list_item(monkeypatch, tmp_path, marker):
     )
     _write_spec(tmp_path, body)
     assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+def test_comment_opener_in_indented_code_does_not_hide_content(monkeypatch, tmp_path):
+    body = feature_spec_body().replace(
+        "Prevent disclosure of workspace records.",
+        "Prevent disclosure of workspace records.\n\n    <!-- html sample",
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
