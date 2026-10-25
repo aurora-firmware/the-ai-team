@@ -62,7 +62,7 @@ uv run ruff check .
 Do not edit generated scaffolds to change framework behavior.
 
 - Keep framework behavior in `ai-process/`, `guides/`, or the CLI source tree.
-- Do not read from or depend on the repo-local `.claude/`, `.codex/` or `.agents/` folders.
+- Do not read from or depend on the repo-local `.claude/` folder.
 - Do not hardcode project-specific test, build, deploy, or run commands into the
   framework sources; consuming projects must supply those details themselves.
 - Keep skills procedural and agents role-based. If a rule is shared, own it in
