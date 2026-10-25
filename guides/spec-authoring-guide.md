@@ -258,10 +258,10 @@ The recipes above are embedded into the CLI sources that fire when `/new-spec` i
 | Implements this guide | File |
 |---|---|
 | Spec document shape | `cli/src/ai_team/templates/spec.md` |
-| Section-by-section authoring instructions used by `/new-spec` | `cli/src/ai_team/init/sources/skills/new-spec/body.md` |
-| Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/body.md` |
-| Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/claude/planner.md` |
+| Section-by-section authoring instructions used by `/new-spec` | `cli/src/ai_team/init/sources/skills/new-spec/SKILL.md` |
+| Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/SKILL.md` |
+| Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/planner.md` |
 | System overview (S-000) document shape | `cli/src/ai_team/templates/system-overview.md` |
-| Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/body.md` |
+| Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/SKILL.md` |
 
 After changing this guide, mirror the relevant content into the files above and regenerate scaffolds with `cli/scripts/sync_init_scaffolds.py`.
