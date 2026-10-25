@@ -3,18 +3,9 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 from ai_team.commands.init import _next_steps
-
-SKILLS_SOURCE_DIR = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "ai_team"
-    / "init"
-    / "sources"
-    / "skills"
-)
+from tests.source_paths import skill_export_path
 
 SLASH_COMMAND_PATTERN = re.compile(r"/([a-z][a-z0-9-]*)")
 
@@ -40,14 +31,12 @@ def test_next_steps_name_at_least_one_skill():
 def test_every_skill_named_in_next_steps_is_scaffolded():
     """A printed name with no matching skill directory sends new users to an unknown command."""
     missing = [
-        name
-        for name in _named_skills()
-        if not (SKILLS_SOURCE_DIR / name / "body.md").is_file()
+        name for name in _named_skills() if not skill_export_path(name).is_file()
     ]
 
     assert missing == [], (
         f"next steps name skills that are not scaffolded: {missing}; "
-        f"expected a directory with body.md under {SKILLS_SOURCE_DIR}"
+        "expected a SKILL.md under the claude skills scaffold"
     )
 
 
