@@ -478,6 +478,7 @@ def test_interactive_dry_run_upgrade_with_a_stale_skill_only_prompts_for_skills(
     tmp_path,
 ):
     target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
     stale_skill, _ = _add_stale_definitions(target)
     before = _snapshot(target)
 
@@ -489,6 +490,7 @@ def test_interactive_dry_run_upgrade_with_a_stale_skill_only_prompts_for_skills(
     ]
     assert skill_lines
     assert all(line.startswith("WOULD PROMPT: ") for line in skill_lines)
+    assert ".ai-team.toml" not in result.stdout
     assert STALE_WARNING_MARKER not in result.stderr
     assert (stale_skill / "SKILL.md").exists()
     assert _snapshot(target) == before

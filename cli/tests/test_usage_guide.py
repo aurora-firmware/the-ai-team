@@ -271,11 +271,14 @@ def test_usage_md_example_commands_exist_in_commands_md():
         "usage.md examples must include the core commands"
     )
     for command in sorted(commands):
-        name = command.split()[0]
-        assert (
-            f"`ai-team {command}`" in commands_content
-            or f"`ai-team {name}`" in commands_content
-        ), f"'ai-team {command}' is used in usage.md but missing from commands.md"
+        group = command.split()[0]
+        # A group with subcommands needs the exact entry; a bare command's second
+        # word is a positional argument, so its group entry is enough.
+        has_subcommands = f"`ai-team {group} " in commands_content
+        expected = command if has_subcommands else group
+        assert f"`ai-team {expected}`" in commands_content, (
+            f"'ai-team {command}' is used in usage.md but missing from commands.md"
+        )
 
 
 def test_usage_md_does_not_mention_nonexistent_flags():
