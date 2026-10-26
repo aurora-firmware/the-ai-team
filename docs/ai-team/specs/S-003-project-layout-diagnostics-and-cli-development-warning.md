@@ -25,10 +25,10 @@ report, and no check changes the filesystem.
 
 | Actor | Goal | Priority | Outcome | Requirements |
 |---|---|---|---|---|
-| Human or agent working in a consuming project | Find out what is wrong with the project's layout and how to fix it, in one run | P1 | `check-layout` lists every finding with its level, path, problem and fix, or reports a clean result | REQ-003–REQ-011 |
+| Product owner or agent working in a consuming project | Find out what is wrong with the project's layout and how to fix it, in one run | P1 | `check-layout` lists every finding with its level, path, problem and fix, or reports a clean result | REQ-003–REQ-011 |
 | Any CLI user | Know that the CLI is under development and where to report defects | P1 | Every run prints the development warning once | REQ-001 |
 | Agent parsing CLI output | Read stdout and `--json` output without warnings mixed in | P1 | Warnings go to stderr only and never change stdout, JSON or exit codes | REQ-012 |
-| Human or agent whose project was set up by another CLI version | Learn that the scaffolds and the running CLI disagree, and how to align them | P2 | Every run inside the project prints the version mismatch warning with both versions and the fix | REQ-002 |
+| Product owner or agent whose project was set up by another CLI version | Learn that the scaffolds and the running CLI disagree, and how to align them | P2 | Every run inside the project prints the version mismatch warning with both versions and the fix | REQ-002 |
 
 ## Exclusions
 
@@ -644,3 +644,4 @@ None.
 | 2026-10-25 | spec-truth reconciliation — PASS | CR-005 fifth re-run: version-mismatch warning, level-1 directory fixes and the legacy Codex fix (--update-skills, finding reported only when codex is configured) still hold after T-161 | none |
 | 2026-10-25 | Claude is the only export target: the resolver no longer reads `[init] tools`; level 1 always expects `.claude/agents/` and `.claude/skills/` and drops the per-tool table and the legacy Codex skill finding; level 3 and the guidance configuration require root `AGENTS.md` only, with `CLAUDE.md` neither required nor read. Driven by CR-007 and ADR-003. | Codex support was dropped and the generated guidance file is `AGENTS.md`, which current Claude Code reads. | None in flight |
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (the `check-layout` output and exit contract and both warning texts), Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, Success Criteria and Open Questions; the Components section and the Validation Contracts became requirements. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
+| 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |

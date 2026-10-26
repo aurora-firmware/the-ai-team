@@ -1,6 +1,6 @@
 ---
 name: escalation-review
-description: Analyse blocked work after a role has exhausted self-recovery. Use when a Developer, Reviewer, Integrator, Development Loop, or Bug-Fix Loop sends a structured escalation request and the Architect must issue guidance or escalate to a human.
+description: Analyse blocked work after a role has exhausted self-recovery. Use when a Developer, Reviewer, Integrator, Development Loop, or Bug-Fix Loop sends a structured escalation request and the Architect must issue guidance or escalate to the product owner.
 allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
 effort: high
 ---
@@ -43,7 +43,7 @@ Classify the blocker as one of:
 - **Task or bug description issue** — needs clearer requirements but not a spec change.
 - **Architecture issue within spec bounds** — needs structural guidance or an ADR.
 - **Specification issue** — requires changing an approved spec.
-- **Unresolvable with current evidence** — needs human judgment.
+- **Unresolvable with current evidence** — needs product owner judgment.
 
 ### Step 3: Issue Guidance Or Escalate
 
@@ -58,11 +58,11 @@ When invoking `new-adr`, provide the full required input set:
 - `description`: the escalation request, work item path, approved spec or ADR context, and why the decision affects future work
 - `status`: `accepted` — the Architect is adopting the decision now as the authoritative resolution to the escalation
 
-If the issue requires changing the approved spec, or cannot be resolved after full analysis, escalate to the human with a compact context package.
+If the issue requires changing the approved spec, or cannot be resolved after full analysis, escalate to the product owner with a compact context package.
 
 ## Output Format
 
-The Architect role envelope wraps this block. The escalation verdict goes in the envelope's `Result:` line: `Result: PASS` when the guidance resolves the blocker, or `Result: ESCALATE` when human escalation is required.
+The Architect role envelope wraps this block. The escalation verdict goes in the envelope's `Result:` line: `Result: PASS` when the guidance resolves the blocker, or `Result: ESCALATE` when product owner escalation is required.
 
 Use this structure:
 
@@ -81,16 +81,16 @@ Verification:
 Parked findings:
 - <finding from the last FAIL verdict that the work item meets its criteria without, and why — or "none">
 
-Human escalation required because:
+Product owner escalation required because:
 - <only when Result is ESCALATE>
 ```
 
-### Phase 2 — Human Escalation Report Template
+### Phase 2 — Product Owner Escalation Report Template
 
-When `Result` is `ESCALATE`, also produce a Phase 2 Human Escalation Report. This is the single canonical template that all callers (dev-loop, bug-loop, spec-breakdown, and any future orchestrator) use when handing off to a human. The report is plain markdown appended to the final output.
+When `Result` is `ESCALATE`, also produce a Phase 2 Product Owner Escalation Report. This is the single canonical template that all callers (dev-loop, bug-loop, spec-breakdown, and any future orchestrator) use when handing off to the product owner. The report is plain markdown appended to the final output.
 
 ```text
-## Human Escalation Report
+## Product Owner Escalation Report
 
 Work item: <task or bug ID and path to its tracker file>
 Source skill / loop: <dev-loop | bug-loop | spec-breakdown | other>
@@ -105,11 +105,11 @@ Date: <YYYY-MM-DD>
 ### Architect analysis
 <Classification, root-cause analysis, and any directive the Architect issued (or "no resolution possible — see reason below").>
 
-### Why human input is required
+### Why product owner input is required
 <Precise reason the Architect cannot resolve: approved spec must change, contradictory constraints, etc.>
 
 ### Decision needed
-<Enumerated options for the human, each with its downstream effect:
+<Enumerated options for the product owner, each with its downstream effect:
 - Revise the spec — Planner edits spec and re-runs Gate 2.
 - Modify the task/bug — task or bug file is updated in place; work resumes.
 - Provide guidance — blocked role applies guidance and continues.
@@ -120,14 +120,14 @@ Date: <YYYY-MM-DD>
 
 - The response addresses root cause, not symptoms.
 - Guidance is specific enough for the blocked role to continue without another clarification round.
-- The directive stays within the approved specification unless escalating to human.
+- The directive stays within the approved specification unless escalating to the product owner.
 - ADRs are created or amended only for durable architecture-affecting decisions.
-- The human escalation package includes the original work item, attempts, failure reason, Architect analysis, and precise decision needed.
+- The product owner escalation package includes the original work item, attempts, failure reason, Architect analysis, and precise decision needed.
 
 ## Common Pitfalls
 
 - Repeating the failed role's troubleshooting without adding structural analysis.
 - Giving vague advice such as "refactor" or "simplify".
 - Silently changing approved scope.
-- Skipping human escalation when the spec must change.
+- Skipping product owner escalation when the spec must change.
 - Creating a loop of repeated Architect consultations instead of resolving or escalating.

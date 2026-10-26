@@ -27,8 +27,8 @@ the S-000 component it covers.
 
 | Actor | Goal | Priority | Outcome | Requirements |
 |---|---|---|---|---|
-| Human starting a project, with the Planner | Write down what the project is for and how it divides before any feature spec | P1 | `ai-team spec new --overview` creates S-000 from its template, and the `new-system-overview` skill guides writing it | REQ-001, REQ-005, REQ-006, REQ-008 |
-| Human or agent in a project with no S-000 | Learn that the overview is missing and how to create it | P2 | CLI commands print a one-line hint on stderr | REQ-004 |
+| Product owner starting a project, with the Planner | Write down what the project is for and how it divides before any feature spec | P1 | `ai-team spec new --overview` creates S-000 from its template, and the `new-system-overview` skill guides writing it | REQ-001, REQ-005, REQ-006, REQ-008 |
+| Product owner or agent in a project with no S-000 | Learn that the overview is missing and how to create it | P2 | CLI commands print a one-line hint on stderr | REQ-004 |
 | Planner creating the project bootstrap tasks | Create tasks whose source is S-000 | P1 | `task new` and `validate` accept S-000 as a task's spec | REQ-003 |
 | Planner writing a feature spec | Place the spec inside the decomposition | P1 | The feature spec template asks the Purpose to name its S-000 component | REQ-007 |
 | Team adopting an existing project | Write S-000 from existing specs, decisions and code | P2 | The `new-system-overview` skill has a brownfield path | REQ-008 |
@@ -59,7 +59,7 @@ the S-000 component it covers.
 |---|---|---|
 | S-000 template | Fixed section structure for the overview | `cli/src/ai_team/templates/system-overview.md` |
 | S-000 content contract | Sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `guides/spec-authoring-guide.md` |
-| Writing procedure | Writing S-000 with the human, greenfield or brownfield; completion after Gate 1; brownfield change request; hand-over to the bootstrap | `new-system-overview` skill |
+| Writing procedure | Writing S-000 with the product owner, greenfield or brownfield; completion after Gate 1; brownfield change request; hand-over to the bootstrap | `new-system-overview` skill |
 | Feature spec template | Purpose names the S-000 component; system-wide structure stays in S-000 | `cli/src/ai_team/templates/spec.md` and the `new-spec` skill |
 | CLI | Creates S-000, protects its ID, accepts bootstrap tasks from S-000, hints when S-000 is missing | `ai-team spec new`, `task new`, `validate` and the hint |
 | Project bootstrap | Tasks from S-000 that answer the Decisions needed and set up the environment and internal documentation, including the default `docs/development/` location | `spec-breakdown` skill, Gate 2 in `ai-process/processes/quality-gates.md` |
@@ -102,13 +102,13 @@ authoring guide (REQ-006).
 ## Workflow
 
 ```
-Human describes the project
+Product owner describes the project
   ↓
-Planner writes S-000 with the human (new-system-overview)                  (REQ-001, REQ-008)
+Planner writes S-000 with the product owner (new-system-overview)          (REQ-001, REQ-008)
   ↓
 Architect reviews S-000 for internal consistency
   ↓
-★ Human approves S-000 (Gate 1)
+★ Product owner approves S-000 (Gate 1)
   ↓
 Planner sets S-000 to approved and merges its planning branch
   ↓
@@ -122,7 +122,7 @@ Planner writes one spec per component or slice, naming its component      (REQ-0
   ↓
 Architect checks each spec against S-000 (consistency review)
   ↓
-★ Human approves each spec (Gate 1) → breakdown → tasks
+★ Product owner approves each spec (Gate 1) → breakdown → tasks
 ```
 
 The owners of each step are listed under Responsibility Separation. Failure paths:
@@ -287,7 +287,7 @@ covers in its Purpose and to leave system-wide structure to S-000.
 ### REQ-008 — Writing procedure
 
 The framework SHALL ship a `new-system-overview` skill that creates S-000 with the CLI
-command from REQ-001 and guides writing it with the human, for a new project and, from
+command from REQ-001 and guides writing it with the product owner, for a new project and, from
 existing specs, decisions and code, for an existing one. The procedure is owned by the
 skill.
 
@@ -351,5 +351,6 @@ None.
 | 2026-10-20 | Requirement 3: a design-review task may name S-000 as a reference; the Developer and Reviewer read it when they run or check that review, not at session start. Driven by CR-003 §2 and Architecture Consistency Review finding F2. | CR-003 introduces design-review verification against the source spec, accepted ADRs and S-000, which the session-start rule for Developer and Reviewer did not allow for. | None in flight |
 | 2026-10-24 | Content contract: component definition and checks, solution and development-infrastructure groups, Decisions needed, Users scope. Exclusions and Design Principles: S-000 asks technology questions and produces only bootstrap tasks. Workflow, Requirements 2, 9 and 10 restated; Requirements 11–14 added (post-Gate-1 completion, project bootstrap, internal development documentation, brownfield findings). Brownfield adoption: components from use cases; findings become a CR. Driven by CR-004 items 1–9. | Writing this repository's S-000 needed a component model and a post-approval step the contract did not define (CR-004). | None in flight |
 | 2026-10-24 | Workflow: the brownfield change request comes before the bootstrap tasks, matching `new-system-overview`; Requirement 11 reworded ("S-000's own planning branch does not wait for Gate 2"). In-flight CR-004 amendment from the PR #48 review. | The diagram and the skill gave different orders, and "S-000 has no Gate 2" read as contradicting the bootstrap plan's Gate 2. | None in flight |
-| 2026-10-26 | Restructured to the spec format from PR #51, with three scope changes decided by the human. (1) Removed the backward-compatibility promises: old requirement 8's "existing approved specs stay valid unchanged", the content contract's "an S-000 with a flat Components list stays valid", and "existing specs are not rewritten to the new template" from the exclusions. (2) The S-000 content contract is no longer restated; REQ-006 makes the spec authoring guide its owner. (3) Process rules owned elsewhere (old requirements 3, 4, 6, 7, 9–14 and the Brownfield adoption section) are no longer restated; Responsibility Separation names their owners. New REQ-001–REQ-008 cover the CLI, template, guide, feature template and skill. Version bumped to 0.3. | The validator rejects approved specs without the new sections; the no-backward-compatibility policy; single ownership of shared rules. | None; the flat-list promise is removed from the guide, the system-overview template, and the `new-system-overview` and `architecture-consistency-review` skills on the same branch |
+| 2026-10-26 | Restructured to the spec format from PR #51, with three scope changes decided by the product owner. (1) Removed the backward-compatibility promises: old requirement 8's "existing approved specs stay valid unchanged", the content contract's "an S-000 with a flat Components list stays valid", and "existing specs are not rewritten to the new template" from the exclusions. (2) The S-000 content contract is no longer restated; REQ-006 makes the spec authoring guide its owner. (3) Process rules owned elsewhere (old requirements 3, 4, 6, 7, 9–14 and the Brownfield adoption section) are no longer restated; Responsibility Separation names their owners. New REQ-001–REQ-008 cover the CLI, template, guide, feature template and skill. Version bumped to 0.3. | The validator rejects approved specs without the new sections; the no-backward-compatibility policy; single ownership of shared rules. | None; the flat-list promise is removed from the guide, the system-overview template, and the `new-system-overview` and `architecture-consistency-review` skills on the same branch |
 | 2026-10-26 | AC-005.1 drops the removed `test_t078_s000_content_contract.py` test; AC-006.1, AC-007.1 and AC-008.1 are verified by inspection; Success Criterion 5 follows. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
+| 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |

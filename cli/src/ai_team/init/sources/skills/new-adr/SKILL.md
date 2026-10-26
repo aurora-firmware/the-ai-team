@@ -18,7 +18,7 @@ Provide these values directly when possible:
 - `supersedes` — optional ADR reference (for example, `ADR-002`)
 
 When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
-When invoked directly by a human and required fields are missing, ask only for the missing fields before proceeding.
+When invoked directly by the product owner and required fields are missing, ask only for the missing fields before proceeding.
 
 ## Procedure
 

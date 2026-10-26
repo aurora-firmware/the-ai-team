@@ -18,7 +18,7 @@ Provide these values directly when possible:
 - `status` — optional; defaults to `draft`
 
 When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
-When invoked directly by a human and required fields are missing, ask only for the missing fields before proceeding.
+When invoked directly by the product owner and required fields are missing, ask only for the missing fields before proceeding.
 
 ## Procedure
 
@@ -44,18 +44,18 @@ When invoked directly by a human and required fields are missing, ask only for t
 
 5. Run the **pre-submission checklist** (below) against the filled spec. Fix any unchecked item before returning. Leave items genuinely unresolvable marked `[TODO]`; step 6 decides whether they block handoff.
 
-6. Inspect the draft for human-answerable `[TODO]` markers before any review handoff.
-   - Human-answerable `[TODO]` markers must be resolved before Architecture Consistency Review.
-   - Every unresolved question affecting behavior, contracts, acceptance, or feasibility also blocks handoff, even if it needs technical investigation rather than a human answer.
+6. Inspect the draft for product-owner-answerable `[TODO]` markers before any review handoff.
+   - Product-owner-answerable `[TODO]` markers must be resolved before Architecture Consistency Review.
+   - Every unresolved question affecting behavior, contracts, acceptance, or feasibility also blocks handoff, even if it needs technical investigation rather than an answer from the product owner.
    - Only internal design investigations that cannot change approved behavior may remain in Open Questions; each needs an owner and resolution condition. No unresolved placeholder markers may remain in a review-ready feature spec.
-   - Once ready for handoff, set status to `review` and run `ai-team validate --specs`; fix this spec's findings and validate again after each revision. Report findings in other specs without rewriting them. Only explicit human approval permits status `approved`.
-   - If any human-answerable `[TODO]` markers remain, explicitly report the blocker and stop instead of handing the draft to Architecture Consistency Review or Gate 1 approval.
+   - Once ready for handoff, set status to `review` and run `ai-team validate --specs`; fix this spec's findings and validate again after each revision. Report findings in other specs without rewriting them. Only explicit product owner approval permits status `approved`.
+   - If any product-owner-answerable `[TODO]` markers remain, explicitly report the blocker and stop instead of handing the draft to Architecture Consistency Review or Gate 1 approval.
 
 7. Confirm the created file exists, commit it on the planning branch (`docs(specs): add <id> draft`), and return the CLI response values (`id` and `path`) and the planning branch name.
    Commit every later revision — Architect findings, `[TODO]` resolutions, Gate 1 approval — on the same planning branch, never on `{{integration_branch}}`.
 
-8. Remind that the new spec requires human Gate 1 approval unless the caller explicitly says it is already being prepared for that gate.
-9. Once human-answerable `[TODO]` markers are resolved before Architecture Consistency Review, hand the draft spec to the Architect for an Architecture Consistency Review before Gate 1 (Next Owner: Architect). The Architect checks it against existing approved specs and accepted ADRs and returns findings — like a Gate 2 review, this does not amend the draft. Revise the draft on those findings until the Architect and Planner agree it is consistent; the human then approves at Gate 1 as usual.
+8. Remind that the new spec requires product owner Gate 1 approval unless the caller explicitly says it is already being prepared for that gate.
+9. Once product-owner-answerable `[TODO]` markers are resolved before Architecture Consistency Review, hand the draft spec to the Architect for an Architecture Consistency Review before Gate 1 (Next Owner: Architect). The Architect checks it against existing approved specs and accepted ADRs and returns findings — like a Gate 2 review, this does not amend the draft. Revise the draft on those findings until the Architect and Planner agree it is consistent; the product owner then approves at Gate 1 as usual.
 
 ---
 
@@ -97,7 +97,7 @@ Link each journey to the REQ identifiers that deliver it; use S-000 for system c
 
 Record deliberately excluded behaviors and their reasons. Keep rejected implementation approaches and their rationale distinct from scope exclusions; choosing a design does not exclude a user capability.
 
-Almost every spec has at least one. `"no exclusions apply"` should be rare and should follow an explicit human confirmation.
+Almost every spec has at least one. `"no exclusions apply"` should be rare and should follow an explicit product owner confirmation.
 
 ### Architecture — Design Principles
 
@@ -122,7 +122,7 @@ There is no fixed line limit; detail is proportional to ambiguity and risk.
 
 ### Workflow
 
-End-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark human gates with `★`. Include applicable failure, boundary, empty-input, concurrent-access, and state-dependent paths and their REQ identifiers.
+End-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark product owner gates with `★`. Include applicable failure, boundary, empty-input, concurrent-access, and state-dependent paths and their REQ identifiers.
 
 ### Behavioral Requirements
 
@@ -190,7 +190,7 @@ If you cannot describe how to verify a criterion, it is not yet measurable — r
 Before returning the created spec, confirm every item:
 
 - [ ] **Problem is concrete.** Purpose names the problem, the trigger, and the observable outcome.
-- [ ] **At least one exclusion.** Or a human-confirmed "no exclusions apply" statement.
+- [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
 - [ ] **Each design principle is a constraint, not an implementation choice.**
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Any literal-value-as-contract block is labelled **Contract**.
 - [ ] **Every requirement is measurable.** It has one obligation, a stable REQ identifier, concrete AC scenarios, and a verification method.

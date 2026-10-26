@@ -83,7 +83,7 @@ Obstacles Encountered:
 - <missing diff, setup issue, special command flag, unclear requirement, dependency/import issue, or "none">
 
 Next Owner:
-- <Development Loop | Bug-Fix Loop | Developer | Architect | Human | none>
+- <Development Loop | Bug-Fix Loop | Developer | Architect | Product Owner | none>
 
 Next Action:
 - <specific follow-up required, or "none">

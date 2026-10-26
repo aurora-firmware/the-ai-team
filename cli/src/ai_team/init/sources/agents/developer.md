@@ -136,7 +136,7 @@ Obstacles Encountered:
 - <setup issue, repro limitation, workaround, special command flag, dependency/import issue, environment quirk, or "none">
 
 Next Owner:
-- <Development Loop | Bug-Fix Loop | Architect | Human | none>
+- <Development Loop | Bug-Fix Loop | Architect | Product Owner | none>
 
 Next Action:
 - <specific follow-up required, or "none">

@@ -20,8 +20,8 @@ Phase 2: Escalation Chain
     ├── Step 1: Architect Consultation (one attempt)
     │       ├── Resolved → Role continues
     │       └── Not resolved ↓
-    └── Step 2: Human Escalation
-                Human decides next action
+    └── Step 2: Product Owner Escalation
+                The product owner decides next action
 ```
 
 ## Phase 1: Role Self-Recovery
@@ -46,7 +46,7 @@ Once the role exceeds its threshold, it stops retrying and enters Phase 2.
 - **How:** The blocked role sends a structured request describing the problem, what was attempted, and why it failed.
 - **Scope:** The Architect analyses the problem, foresees impact on other tasks and the broader codebase, and — within the bounds of the approved spec — issues directives or correction requests. The Architect may recommend task-scope adjustments, clarifying tasks, or task-description amendments, but the Planner owns task-plan edits. The Architect does not modify implementation or test files.
 - **Rounds:** The Architect provides one consultation response per escalation.
-- **Escalation trigger:** The Architect escalates to human only when: (a) the problem requires changing an approved specification, or (b) the Architect cannot resolve it after full analysis.
+- **Escalation trigger:** The Architect escalates to the product owner only when: (a) the problem requires changing an approved specification, or (b) the Architect cannot resolve it after full analysis.
 
 **Architect request format:**
 ```
@@ -56,17 +56,17 @@ Failed because: [Why it did not work]
 Question: [Specific question for the Architect]
 ```
 
-### Step 2: Human Escalation
+### Step 2: Product Owner Escalation
 
-- **Who:** A human operator.
-- **How:** A notification is sent with the full context (original task, role's self-recovery attempts, Architect's analysis, and a precise statement of why human input is required).
+- **Who:** The product owner.
+- **How:** A notification is sent with the full context (original task, role's self-recovery attempts, Architect's analysis, and a precise statement of why product owner input is required).
 - **When reached:** Only when a spec change is needed, or the Architect has exhausted its analysis and cannot resolve the issue.
-- **Outcome:** The human chooses one of the following actions:
+- **Outcome:** The product owner chooses one of the following actions:
 
-| Human decision | What happens next | Role responsible |
+| Product owner decision | What happens next | Role responsible |
 |---------------|-------------------|-------------------|
 | Revise the spec | Planner edits spec in-place, adds entry to the spec's Amendment Log section, and identifies affected tasks. The Development Loop adds a note to each affected `in-progress` task referencing the amendment. | Planner, then Development Loop |
-| Modify the task | The human updates the task file directly with new or changed requirements, or the Planner raises a change-request. Developer re-reads the task and continues. | Human, or Planner through a change-request |
+| Modify the task | The product owner updates the task file directly with new or changed requirements, or the Planner raises a change-request. Developer re-reads the task and continues. | Product Owner, or Planner through a change-request |
 | Provide guidance | The blocked role applies the guidance and continues. No document changes needed. | Blocked role |
 | Defer the work | Task is set to `blocked` with the reason noted. The spec issue is not addressed now. | Development Loop |
 
@@ -82,7 +82,7 @@ A role enters the escalation chain when it **cannot complete its assigned task**
 
 ## Rules
 
-1. **Retry first, then escalate** — roles must exhaust their self-recovery threshold before entering the escalation chain. Once in the chain, the Architect gets one consultation attempt. If that fails, escalate to human immediately. Do not loop.
+1. **Retry first, then escalate** — roles must exhaust their self-recovery threshold before entering the escalation chain. Once in the chain, the Architect gets one consultation attempt. If that fails, escalate to the product owner immediately. Do not loop.
 2. **Always include context** — every escalation must carry the full chain of what was attempted. The receiving party should never need to ask "what did you try?"
-3. **Do not skip steps** — always consult the Architect before escalating to human, unless the Architect is the one that is stuck.
+3. **Do not skip steps** — always consult the Architect before escalating to the product owner, unless the Architect is the one that is stuck.
 4. **No silent failures** — if a role is stuck, it must escalate. Doing nothing is not acceptable.

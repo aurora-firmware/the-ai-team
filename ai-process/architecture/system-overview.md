@@ -54,9 +54,9 @@ This document describes the architecture of an AI team — how roles are organiz
 
 **Processes:** Development Loop and Bug-Fix Loop.
 **Purpose:** Drive the full Developer → Reviewer loop autonomously across pending tasks and open bugs.
-**Key principle:** The human starts the appropriate loop when its queue is ready: the development loop after Gate 2 passes, or the bug-fix loop when open bugs need resolution.
+**Key principle:** The product owner starts the appropriate loop when its queue is ready: the development loop after Gate 2 passes, or the bug-fix loop when open bugs need resolution.
 The loop runs until the queue is empty or a hard stop is hit (blocked task, unresolved bug, escalation).
-No human input is required between work items.
+No product owner input is required between work items.
 
 ### Execution Layer
 
@@ -74,9 +74,9 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 
 ### Oversight Layer
 
-**Role:** Human.
-**Purpose:** Approve high-impact decisions at human-controlled gates.
-**Key principle:** Humans stay in the loop without becoming bottlenecks. Gate 1 and Gate 5 are mandatory human gates.
+**Role:** Product Owner.
+**Purpose:** Approve high-impact decisions at product-owner-controlled gates.
+**Key principle:** The product owner stays in the loop without becoming a bottleneck. Gate 1 and Gate 5 are mandatory product owner gates.
 
 ## Information Flow
 
@@ -84,14 +84,14 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 
 | From | To | What |
 |---|---|---|
-| Human | Planner | Feature request or problem description |
-| Planner | Human | Specification for approval |
+| Product Owner | Planner | Feature request or problem description |
+| Planner | Product Owner | Specification for approval |
 | Planner | Local tracker | Tasks created as `planned`, set to `pending` after the planning branch merges; follow-up tasks from spec-truth reconciliation are created `pending` (ADR-002) |
 | Planner | Architect | Gate 2 evaluation request |
 | Planner | Architect | Created/changed spec or change-request for Architecture Consistency Review (before Gate 1, or before change-request amendments are applied) |
 | Architect | Planner | Consistency findings on a created/changed spec or change-request |
 | Architect | Development Loop | Validated task plan — ready to run |
-| Human | Development Loop | Start signal after Gate 2 passes |
+| Product Owner | Development Loop | Start signal after Gate 2 passes |
 | Development Loop | Developer | Task assignment |
 | Developer | Development Loop | Completion signal; Work Log entry in task file |
 | Development Loop | Reviewer | Review request |
@@ -100,19 +100,19 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 | Development Loop | Integrate | Merge request (on `PASS`) |
 | Integrate | Local tracker | State transitions (`in-progress` → `completed`) |
 | Development Loop | Local tracker | State transitions (`in-progress` → `blocked`) |
-| Development Loop | Human | Stop notification (queue empty, blocked, or escalation) |
+| Development Loop | Product Owner | Stop notification (queue empty, blocked, or escalation) |
 | Any role | Architect | Escalation request |
 | Architect | Requesting role | Advisory guidance |
-| Architect | Human | Escalation (if architect cannot resolve) |
-| Human | `main` | Final merge from `dev-agent` after Gate 5 sign-off |
+| Architect | Product Owner | Escalation (if architect cannot resolve) |
+| Product Owner | `main` | Final merge from `dev-agent` after Gate 5 sign-off |
 
 ## Design Decisions
 
 1. **File-based task tracking** — roles read and write Markdown files natively. No external databases or issue trackers required.
 2. **Lifecycle state machines** — task, bug, and gate state transitions are defined in the workflow overview and referenced by the rest of the process.
 3. **Separation of roles and procedures** — roles define who acts; procedures define how repeatable work is performed. Procedures can be composed and reused across roles. Each document type is authoritative for a distinct domain; see "Content Boundaries" below.
-4. **Five gates** — Gate 1 (spec approval), Gate 2 (task plan preflight), Gate 3 (code review), Gate 4 (integration tests), and Gate 5 (final merge sign-off). Gate 1 and Gate 5 are human gates; Gate 2 through Gate 4 are automated role or procedure gates.
-5. **Process-driven orchestration** — the Developer → Reviewer loop is driven by the Development Loop process. A process is the right primitive when control flow is deterministic and human-started.
+4. **Five gates** — Gate 1 (spec approval), Gate 2 (task plan preflight), Gate 3 (code review), Gate 4 (integration tests), and Gate 5 (final merge sign-off). Gate 1 and Gate 5 are product owner gates; Gate 2 through Gate 4 are automated role or procedure gates.
+5. **Process-driven orchestration** — the Developer → Reviewer loop is driven by the Development Loop process. A process is the right primitive when control flow is deterministic and product-owner-started.
 6. **Spec layer vs. export layer** — `ai-process/` is the specification layer for the rules the AI team follows. It is not exported by `ai-team init`. The CLI package owns what gets exported to adopting projects; the authoritative sources for exported agents, skills, and templates live in `cli/src/ai_team/init/sources/`. The export layer writes Claude agents and skills only (`.claude/agents/`, `.claude/skills/`). The `.claude/` folder in this meta-repository is local project configuration that implements the rules defined in `ai-process/`; it is not the product source for init exports.
 
 ## Content Boundaries

@@ -39,7 +39,7 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
 
 ```text
                          +----------------------+
-                         |        Human         |
+                         |    Product Owner     |
                          +----------+-----------+
                                     |
                                     v
@@ -48,7 +48,7 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
         |  Feature request -> Planner brainstorm -> Specification       |
         |                         |                                     |
         |                         v                                     |
-        |                  Gate 1: human approval                       |
+        |                  Gate 1: product owner approval               |
         |                         |                                     |
         |                         v                                     |
         |             Planner task plan -> Gate 2: Architect            |
@@ -68,15 +68,15 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
                                   | queue empty         | bugs exist
                                   v                     v
         +---------------- Final Sign-off --------+   +-- Bug Loop (/bug-loop) --+
-        |                                        |   |                          |
-        |  status report -> Gate 5: Human        |   | diagnose -> fix ->       |
-        |  approves dev-agent -> main            |   | review -> integrate      |
+        |  status report -> Gate 5:              |   |                          |
+        |  product owner approves                |   | diagnose -> fix ->       |
+        |  dev-agent -> main                     |   | review -> integrate      |
         |                                        |   |            ^             |
         +----------------------------------------+   |            | FAIL        |
                                                      +------------+-------------+
 
         Escalation path for blocked work:
-        Developer / Reviewer / Integrator / Loop -> Architect -> Human
+        Developer / Reviewer / Integrator / Loop -> Architect -> Product Owner
 ```
 
 ## Agent Roles
@@ -110,7 +110,7 @@ Each skill implements a workflow or action defined in the ai-process:
 | **git-conventions** | The repository's authoritative branch and commit rules |
 | **merge-conflicts** | Git conflict resolution preserving both sides' intent |
 | **integrate** | Branch merge with project-discovered verification and task completion |
-| **escalation-review** | Architect analysis for blocked work before human escalation |
+| **escalation-review** | Architect analysis for blocked work before product owner escalation |
 | **/dev-loop** | Autonomous Developer → Reviewer → Integration loop across the pending task queue |
 | **/bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
 | **/change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
@@ -199,12 +199,12 @@ Keep the framework files generic unless you intentionally fork the process.
 
 The normal workflow is:
 
-1. Human and Planner shape a specification; human approves it at Gate 1.
+1. The product owner and Planner shape a specification; the product owner approves it at Gate 1.
 2. Planner decomposes the approved spec into tasks.
 3. Architect validates the task plan at Gate 2.
-4. Human starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
+4. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
 5. Bugs are filed in the local tracker and handled through `/bug-loop`.
-6. Human approves the final `dev-agent` → `main` merge at Gate 5.
+6. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
 
 See `guides/setup-guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 
@@ -232,7 +232,7 @@ See `guides/setup-guide.md` for the complete file list, AGENTS.md starter templa
 │                        and generated reports under docs/reports/
 ├── .ai-team/tracker/    Local, git-ignored work-item tracker: tasks, bugs, and change-requests
 │                        (state is each file's status field; see `ai-team tracker path`)
-├── guides/              Human-facing setup and customization guides
+├── guides/              User-facing setup and customization guides
 └── cli/                 `ai-team` CLI package and bundled init scaffolds (authoritative agent
                          and skill sources live under cli/src/ai_team/init/sources/)
 ```

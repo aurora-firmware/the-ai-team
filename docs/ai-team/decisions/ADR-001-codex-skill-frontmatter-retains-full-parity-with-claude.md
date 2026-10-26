@@ -21,7 +21,7 @@ frontmatter keys as the `[claude]` section or a reduced subset. The concern was 
 keys — `allowed-tools`, `argument-hint`, `effort`, and `disable-model-invocation` — might
 be Claude-specific and unnecessary overhead for Codex.
 
-The decision was confirmed with the human maintainer: Codex retains full frontmatter parity.
+The decision was confirmed with the product owner: Codex retains full frontmatter parity.
 
 ## Decision
 

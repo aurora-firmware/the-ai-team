@@ -43,8 +43,8 @@ Read them through the paths the `ai-team` CLI reports — never from a copy insi
 6. If a bug file is found, read it completely — focus on the **Summary**, **Diagnosis Log**, **Fix Verification**, **Work Log**, and **Review** sections.
 7. Determine the source-branch verification command before checking out the source branch. Lookup order:
    - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). For a task whose Verification section holds an `Inspection:` or `Demonstration:` line, run only its full-suite command; the inspection or demonstration record was checked at Gate 3. When such a task lists no full-suite command because the project documents none, it has no source-branch command: skip Step 4, do not stop `BLOCKED`, and note the skipped run in the final report.
-   - Target-project guidance such as the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, or human-provided instructions.
-   - If no automated verification command can be determined from the work item or from project guidance, stop with `BLOCKED` and ask the human for the project verification command.
+   - Target-project guidance such as the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, or product-owner-provided instructions.
+   - If no automated verification command can be determined from the work item or from project guidance, stop with `BLOCKED` and ask the product owner for the project verification command.
    This is the command Step 4 runs on the source branch. It is scoped to the work item and must not be assumed to also cover the destination branch.
 8. Determine the destination-branch verification command — the check Step 6 runs after the merge to catch regressions outside the work item's own declared scope. Do not default this to the source-branch command from item 7; determine it separately:
    a. If the work item or project guidance explicitly defines a separate destination-branch or baseline check, use it.
@@ -188,7 +188,7 @@ Reached only when both Step 4 and Step 6 tests pass, or when Step 2 found no com
    - The exact error output from `git branch -d`.
    - The merge commit SHA from Step 5.
    - Forced deletion is forbidden — do not escalate to the `-D` flag.
-   - Instruct the human to inspect the branch and delete it manually once satisfied it is safe.
+   - Instruct the product owner to inspect the branch and delete it manually once satisfied it is safe.
 
 4. **Run the after-point Workspace Hygiene check** on the destination branch.
    The test runs in Steps 4 and 6 commonly leave generated artifacts behind; ignore or park them as the check directs.
@@ -206,7 +206,7 @@ Reached only when both Step 4 and Step 6 tests pass, or when Step 2 found no com
 
 | Condition | Action |
 |---|---|
-| Source branch not found | Stop, report, ask the human to verify the branch name |
+| Source branch not found | Stop, report, ask the product owner to verify the branch name |
 | Destination branch not found | Stop, report |
 | Diff is empty | Stop — nothing to do |
 | Expected behavior not met by diff | Stop — return to Developer |
@@ -281,7 +281,7 @@ These thoughts mean stop and run the step in full.
 ## What This Skill Does NOT Do
 
 - Does not implement fixes — regressions are filed as bugs, not fixed in place.
-- Does not touch `main` — human-only branch.
+- Does not touch `main` — product-owner-only branch.
 - Does not modify specifications or ADRs.
 - Does not skip tests or bypass hooks (`--no-verify` is forbidden).
 - Does not merge multiple branches in one invocation — call the skill once per branch.

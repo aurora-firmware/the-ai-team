@@ -13,7 +13,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 
 | Branch | Purpose | Who touches it |
 |---|---|---|
-| `main` | Production-ready releases | Human only — never automated roles |
+| `main` | Production-ready releases | Product owner only — never automated roles |
 | `{{integration_branch}}` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2; Architects commit ADRs raised outside planning here |
 | `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, and ADRs raised by its consistency review | Planner and Architect only — no source code |
 | `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
@@ -28,7 +28,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
   Existing-defect bug branches are based on `{{integration_branch}}`; task-regression bug branches are based on the bug report's `source_branch`.
 - Planning branches are created from `{{integration_branch}}` when a spec or change-request is created. Every planning artifact for that work is committed there, never directly on `{{integration_branch}}`.
   The Planner merges the planning branch into `{{integration_branch}}` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. The only exception is S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into {{integration_branch}} with `--no-ff` after Gate 1, once S-000 is `approved`.
-  `{{integration_branch}}` therefore never carries a spec amendment without the task plan that implements it, except the S-000 planning branch, which merges after Gate 1 once S-000 is `approved`. Abandoning a spec or change-request means the human deletes its planning branch.
+  `{{integration_branch}}` therefore never carries a spec amendment without the task plan that implements it, except the S-000 planning branch, which merges after Gate 1 once S-000 is `approved`. Abandoning a spec or change-request means the product owner deletes its planning branch.
 - Tasks, bugs, and change-requests live in the local tracker (`ai-team tracker path`), outside version control and outside every branch.
   Their lifecycle state is the frontmatter `status` field. Recording state, Work Logs, Diagnosis Logs, or Review Verdicts never creates a commit and never requires a branch switch.
 
@@ -39,7 +39,7 @@ The skill that creates a spec or change-request opens its planning branch:
 1. Run the before-point Workspace Hygiene check, then `git checkout {{integration_branch}}`.
 2. Run `git branch --list 'plan/*'`. Spec and ADR IDs are allocated from the files on the current branch, so two open planning branches can allocate the same spec or ADR ID.
    Task and change-request IDs come from the shared tracker and never collide.
-   If another planning branch is open and this one will create a spec or an ADR, stop and ask the human whether to merge or abandon the other branch first, or to continue and renumber at merge time.
+   If another planning branch is open and this one will create a spec or an ADR, stop and ask the product owner whether to merge or abandon the other branch first, or to continue and renumber at merge time.
 3. Run the CLI command that allocates the artifact ID.
 4. Run `git checkout -b plan/<id>-<slug>`. A new spec file is untracked and carries over; commit it there. A change-request is created in the tracker and is never committed.
 
@@ -103,8 +103,8 @@ When the procedure that parked changes ends — on success or on a stop — retu
 If the procedure deleted that branch — `integrate` deletes a merged source branch — restore them on the branch it was merged into, which now contains its history:
 
 1. Find the entry by its message in `git stash list` and run `git stash pop stash@{n}` for that entry only.
-2. If the pop conflicts, stop and report. Git keeps the stash entry on conflict; leave it there for the human.
-3. List every park and restore in the procedure's final report, so the human can see what was moved.
+2. If the pop conflicts, stop and report. Git keeps the stash entry on conflict; leave it there for the product owner.
+3. List every park and restore in the procedure's final report, so the product owner can see what was moved.
 
 ### Never
 

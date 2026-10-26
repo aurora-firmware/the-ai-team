@@ -16,7 +16,7 @@ The `ai-team init` command exports these files from the CLI package scaffold sou
 |---|---|
 | **Agent definitions** | `.claude/agents/` — roles are universal |
 | **Skill definitions** | `.claude/skills/` — procedures are language-agnostic |
-| **Action skills** | Action skills in `.claude/skills/` (`disable-model-invocation: true` only for human-only actions that no other skill invokes) |
+| **Action skills** | Action skills in `.claude/skills/` (`disable-model-invocation: true` only for product-owner-only actions that no other skill invokes) |
 
 The `ai-process/` specification documents (process docs, guidelines, architecture docs) are **not** exported. They live in the AI team definition meta-repository and serve as the authoritative spec for the rules that agents and skills implement. Your project does not need them; the agent and skill files already embed the rules they need to execute.
 
@@ -120,17 +120,17 @@ test runner changed), update `AGENTS.md` in the same commit.
 To reduce the team: keep only the agent files you need. The workflow still works — agents whose roles are absent have their responsibilities absorbed by adjacent agents (e.g., without an integrator, the developer handles merges).
 
 **Quality gate criteria** — Adjust `ai-process/processes/quality-gates.md`:
-- Gate 1 is human specification approval.
+- Gate 1 is the product owner's specification approval.
 - Gate 2 is Architect task-plan preflight.
 - Gate 3 is code review.
 - Gate 4 is integration verification.
-- Gate 5 is human final merge sign-off.
+- Gate 5 is the product owner's final merge sign-off.
 - If your project needs a different gate model, update `ai-process/processes/quality-gates.md`, `ai-process/processes/workflow-overview.md`, and the affected skills together.
 
 **Escalation thresholds** — In `ai-process/processes/escalation-procedure.md`:
-- Default: architect consultation after failure, then human escalation.
-- For faster iteration: skip architect, escalate directly to human.
-- For more autonomy: allow two architect consultations before human escalation.
+- Default: architect consultation after failure, then product owner escalation.
+- For faster iteration: skip architect, escalate directly to the product owner.
+- For more autonomy: allow two architect consultations before product owner escalation.
 
 ## Extending the Framework
 

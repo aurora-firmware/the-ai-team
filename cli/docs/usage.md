@@ -370,7 +370,7 @@ ai-team change-request new "Revamp onboarding flow"
 # Emit machine-readable output for agent use
 ai-team change-request new "Revamp onboarding flow" --json
 
-# Record the human decision
+# Record the product owner's decision
 ai-team change-request set-status CR-001 approved
 ```
 
@@ -389,7 +389,7 @@ ai-team list adrs
 
 ### Generate a Gate 5 status report
 
-Gate 5 is the human sign-off before merging `dev-agent` to `main`. These two
+Gate 5 is the product owner sign-off before merging `dev-agent` to `main`. These two
 commands give the context needed:
 
 ```bash
@@ -448,7 +448,7 @@ checks the spec structure, ignoring comments and code:
   headings, remain.
 
 Drafts are not checked, and S-000 follows its separate system-overview
-contract. These checks establish structure, not semantic completeness or human
+contract. These checks establish structure, not semantic completeness or product owner
 approval.
 
 Exit code is 1 if any error-level finding is reported.

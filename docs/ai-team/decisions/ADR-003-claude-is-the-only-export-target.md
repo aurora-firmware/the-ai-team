@@ -15,7 +15,7 @@ carried a `[claude]` and a `[codex]` header, each agent existed as Markdown and 
 `ai-team init` and `ai-team check-layout` branched per tool. ADR-001 fixed one rule of that
 design: the `[codex]` skill header keeps full frontmatter parity with the `[claude]` header.
 
-CR-007, approved by the human on 2026-10-25, removes Codex support and asks that the
+CR-007, approved by the product owner on 2026-10-25, removes Codex support and asks that the
 framework be simplified wherever the two-tool design added indirection. It also names the
 generated guidance file `AGENTS.md`, which current Claude Code reads.
 
@@ -58,4 +58,4 @@ in `guides/skill_template.md`.
 ### Alternative B: Keep the per-tool layout for a future tool
 
 **Description:** Drop Codex but keep `--tools`, `[init].tools` and per-tool folders.
-**Rejected because:** The human chose to simplify wherever possible (CR-007).
+**Rejected because:** The product owner chose to simplify wherever possible (CR-007).

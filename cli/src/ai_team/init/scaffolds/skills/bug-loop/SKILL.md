@@ -1,15 +1,15 @@
 ---
 name: bug-loop
-description: Fully autonomous bug-fix loop. Picks open bugs one at a time, creates a dedicated branch from the correct base, drives each through diagnosis-first Developer → Reviewer cycles until the reviewer passes, then moves to the next bug. Stops only when the queue is empty or a bug cannot be resolved after full escalation. Use only when the human asks to run the bug-fix loop.
+description: Fully autonomous bug-fix loop. Picks open bugs one at a time, creates a dedicated branch from the correct base, drives each through diagnosis-first Developer → Reviewer cycles until the reviewer passes, then moves to the next bug. Stops only when the queue is empty or a bug cannot be resolved after full escalation. Use only when the product owner asks to run the bug-fix loop.
 argument-hint: "[bug-id ...] — optional space-separated bug IDs (e.g., B-001 B-003). If omitted, processes all open bugs."
 allowed-tools: Read, Glob, Grep, Bash, Agent, Skill(integrate), Skill(new-bug), Skill(git-conventions)
 ---
 
 # Bug Loop
 
-Autonomous orchestrator that processes the open bug queue without human intervention.
+Autonomous orchestrator that processes the open bug queue without product owner intervention.
 Each bug gets its own branch — bugs are never mixed on the same branch.
-Stops only when the queue is empty or when a bug requires human resolution after full escalation.
+Stops only when the queue is empty or when a bug requires product owner resolution after full escalation.
 
 ## Input Requirements
 
@@ -185,7 +185,7 @@ that the latest verdict in the bug file is PASS before it merges.
    - The failure reason (pre-merge test failure, unmet fix criteria, or post-merge regression).
    - Which bug IDs were filed (if regressions were found).
    - That the bug branch was NOT deleted, the target branch was left clean (integrate reverts on regression), and the bug status is still `in-progress`.
-   - Next step for the human: resolve the filed regression bugs before re-running the loop.
+   - Next step for the product owner: resolve the filed regression bugs before re-running the loop.
 
 #### On FAIL
 
@@ -199,7 +199,7 @@ Climb the capability ladder — each rung changes who attempts the fix, so a stu
 
 #### On ESCALATE
 
-Follow the Phase 2 escalation chain below. Step 1 is a single Architect consultation; Step 2 is human escalation. The chain is linear — no second Architect round.
+Follow the Phase 2 escalation chain below. Step 1 is a single Architect consultation; Step 2 is product owner escalation. The chain is linear — no second Architect round.
 
 **Phase 2, Step 1 — Architect Consultation:**
 **Spawn the Architect subagent** (tier: most capable) with this prompt:
@@ -220,15 +220,15 @@ If the Architect adjudicates that specific findings of the last FAIL verdict sho
 Then spawn the Reviewer again (Step 6). Its prompt stays neutral; the recorded deviation is in the bug file, where the Reviewer reads it. Parked findings never count toward the cycle cap and are never deleted with the workspace.
 If the Architect cannot resolve it, proceed to Step 2.
 
-**Phase 2, Step 2 — Human Escalation:**
-1. Leave the bug `in-progress` — there is no `blocked` status for bugs. Append a dated `Escalated to human` entry to the bug's Work Log so the escalation is visible in the bug file.
+**Phase 2, Step 2 — Product Owner Escalation:**
+1. Leave the bug `in-progress` — there is no `blocked` status for bugs. Append a dated `Escalated to the product owner` entry to the bug's Work Log so the escalation is visible in the bug file.
 2. Stop the loop entirely.
-3. Produce the report using the Phase 2 Human Escalation Report template defined in the `escalation-review` skill. Fill every section (Work item, Original request, Self-recovery attempts, Architect analysis, Why human input is required, Decision needed).
+3. Produce the report using the Phase 2 Product Owner Escalation Report template defined in the `escalation-review` skill. Fill every section (Work item, Original request, Self-recovery attempts, Architect analysis, Why product owner input is required, Decision needed).
 
 ### Step 8: Loop Complete
 
 Reporting is on demand. Do not invoke the `status-report` skill and do not write a report file.
-The human runs `/status-report` when they want the full Gate 5 summary.
+The product owner runs `/status-report` when they want the full Gate 5 summary.
 
 1. Run the after-point Workspace Hygiene check and restore any changes this run parked.
 2. Return a short run summary in the chat — a few lines, not a report:
@@ -252,13 +252,13 @@ The orchestrator does not touch implementation or test files.
 
 ## Hard Stops (Do Not Continue)
 
-- A bug reaches human escalation (Phase 2) — stop the loop, notify the human
+- A bug reaches product owner escalation (Phase 2) — stop the loop, notify the product owner
 - A git operation fails (branch already exists, conflict on `{{integration_branch}}`, etc.) — stop and report the git error before attempting anything else
-- A bug already has status `in-progress` when the loop starts — stop and ask the human whether to resume that bug or treat it as abandoned
+- A bug already has status `in-progress` when the loop starts — stop and ask the product owner whether to resume that bug or treat it as abandoned
 - The Developer cannot reproduce the bug and cannot form an evidence-backed fault hypothesis — escalate instead of patching by guesswork
 
 ## What This Skill Does NOT Do
 
-- Does not touch `main` — human-only branch
+- Does not touch `main` — product-owner-only branch
 - Does not modify specifications or task files
 - Does not fix integration failures — regressions are filed as bugs and the loop stops; fixing is the Developer's job on a subsequent cycle

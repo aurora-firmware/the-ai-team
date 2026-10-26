@@ -70,6 +70,14 @@ Do not edit generated scaffolds to change framework behavior.
   one place and reference it elsewhere.
 - Update the source of truth first, then regenerate scaffolds and docs together.
 - Use the existing git and review conventions in `ai-process/guidelines/`.
+- Not every change goes through the full ai-team process (spec, tasks, gates,
+  loops). Fixes for review comments on an open PR are committed directly on
+  that PR's branch, and small housekeeping changes are made directly on a
+  short-lived branch from `main` (for example `chore/<slug>` or `fix/<slug>`)
+  that merges back through a PR, without filing a task or bug.
+- Framework changes carry no backward compatibility, migrations, or upgrade
+  notes. The framework is under heavy development and 1.0.0 has not been
+  released, so artifacts created with an older version may fail validation.
 - Reference docs:
   - `guides/agent_template.md`
   - `guides/skill_template.md`

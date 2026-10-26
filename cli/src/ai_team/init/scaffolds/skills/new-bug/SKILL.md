@@ -29,7 +29,7 @@ task branch), the following additional fields are required:
 - `fix_verification` — the test command or manual step that will confirm the regression is resolved (Fix Verification section).
 
 When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
-When invoked directly by a human and required fields are missing, ask only for the missing fields before proceeding.
+When invoked directly by the product owner and required fields are missing, ask only for the missing fields before proceeding.
 
 ## Procedure
 
