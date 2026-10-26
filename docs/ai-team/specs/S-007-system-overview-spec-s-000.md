@@ -1,6 +1,6 @@
 ---
 title: System Overview Spec (S-000)
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-19'
 author: planner
@@ -253,8 +253,7 @@ feature-spec sections.
 **Verification:** Tests: `test_system_overview_template_has_the_s000_sections_in_order`,
 `test_system_overview_template_omits_feature_spec_heading` and
 `test_system_overview_template_shows_one_component_example_with_all_fields` in
-`cli/tests/test_templates.py`, and `test_template_keeps_seven_sections_and_groups_components`
-in `cli/tests/test_t078_s000_content_contract.py`.
+`cli/tests/test_templates.py`.
 
 ### REQ-006 — Content contract in the guide
 
@@ -269,7 +268,7 @@ scope, the content S-000 excludes, and the S-000 versus spec boundary.
 - **When:** its S-000 section is read
 - **Then:** it states each element above
 
-**Verification:** Tests in `cli/tests/test_t078_s000_content_contract.py`.
+**Verification:** Inspection of the guide's S-000 section.
 
 ### REQ-007 — Feature specs name their component
 
@@ -283,8 +282,7 @@ covers in its Purpose and to leave system-wide structure to S-000.
 - **Then:** it says the Purpose names the S-000 component and system-wide structure
   lives in S-000
 
-**Verification:** Test: `test_spec_template_says_purpose_names_the_s000_component` in
-`cli/tests/test_templates.py`.
+**Verification:** Inspection of the spec template's Purpose comment.
 
 ### REQ-008 — Writing procedure
 
@@ -301,10 +299,7 @@ skill.
 - **Then:** the skill runs `ai-team spec new --overview`, names the seven sections,
   has a brownfield section, and the dispatch table names it
 
-**Verification:** Tests: `test_body_runs_overview_command_and_names_all_seven_sections`,
-`test_body_has_brownfield_section_reporting_findings_without_amending` and
-`test_dispatch_table_names_new_system_overview` in
-`cli/tests/test_new_system_overview_skill.py`.
+**Verification:** Inspection of the `new-system-overview` skill and the `using-ai-team` dispatch table.
 
 ## Quality Requirements
 
@@ -332,8 +327,8 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
 3. A task created with `--spec S-000` passes `ai-team validate` (REQ-003).
 4. Without S-000, every listed command prints the hint on stderr with unchanged stdout
    and exit code; with S-000, none does (REQ-004).
-5. `cli/tests/test_t078_s000_content_contract.py`, `test_templates.py` and
-   `test_new_system_overview_skill.py` pass (REQ-005–REQ-008).
+5. The system-overview template tests in `cli/tests/test_templates.py` pass (REQ-005), and
+   inspection finds the guide, the spec template and the skill as REQ-006–REQ-008 state.
 
 ## Implementation Order
 
@@ -357,3 +352,4 @@ None.
 | 2026-10-24 | Content contract: component definition and checks, solution and development-infrastructure groups, Decisions needed, Users scope. Exclusions and Design Principles: S-000 asks technology questions and produces only bootstrap tasks. Workflow, Requirements 2, 9 and 10 restated; Requirements 11–14 added (post-Gate-1 completion, project bootstrap, internal development documentation, brownfield findings). Brownfield adoption: components from use cases; findings become a CR. Driven by CR-004 items 1–9. | Writing this repository's S-000 needed a component model and a post-approval step the contract did not define (CR-004). | None in flight |
 | 2026-10-24 | Workflow: the brownfield change request comes before the bootstrap tasks, matching `new-system-overview`; Requirement 11 reworded ("S-000's own planning branch does not wait for Gate 2"). In-flight CR-004 amendment from the PR #48 review. | The diagram and the skill gave different orders, and "S-000 has no Gate 2" read as contradicting the bootstrap plan's Gate 2. | None in flight |
 | 2026-10-26 | Restructured to the spec format from PR #51, with three scope changes decided by the human. (1) Removed the backward-compatibility promises: old requirement 8's "existing approved specs stay valid unchanged", the content contract's "an S-000 with a flat Components list stays valid", and "existing specs are not rewritten to the new template" from the exclusions. (2) The S-000 content contract is no longer restated; REQ-006 makes the spec authoring guide its owner. (3) Process rules owned elsewhere (old requirements 3, 4, 6, 7, 9–14 and the Brownfield adoption section) are no longer restated; Responsibility Separation names their owners. New REQ-001–REQ-008 cover the CLI, template, guide, feature template and skill. Version bumped to 0.3. | The validator rejects approved specs without the new sections; the no-backward-compatibility policy; single ownership of shared rules. | None; the flat-list promise is removed from the guide, the system-overview template, and the `new-system-overview` and `architecture-consistency-review` skills on the same branch |
+| 2026-10-26 | AC-005.1 drops the removed `test_t078_s000_content_contract.py` test; AC-006.1, AC-007.1 and AC-008.1 are verified by inspection; Success Criterion 5 follows. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |

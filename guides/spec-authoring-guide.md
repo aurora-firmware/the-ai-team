@@ -42,12 +42,23 @@ Keep rationale separate from the obligation.
 Use the same identifier space for behavioral and quality requirements; never renumber or reuse identifiers after approval.
 Record removed requirements and affected identifiers in the Amendment Log.
 Each requirement has one or more acceptance headings `#### AC-NNN.M — Scenario title`, where NNN matches its requirement and M is a positive scenario number.
-Each scenario states concrete conditions and expected results, normally Given/When/Then, and includes `**Verification:**` naming a test, demonstration, inspection, or analysis that can establish the result.
+Each scenario states concrete conditions and expected results, normally Given/When/Then, and includes `**Verification:**` naming one of the verification methods below and the observation that establishes the result.
 Numbering identifies obligations; it does not make vague prose precise.
 
 Run `ai-team validate --specs` once the spec is in `review`; drafts may still contain placeholders.
 The CLI usage guide lists what the validator checks.
 Those checks are structural only: the author and reviewer still evaluate completeness, feasibility, and correctness.
+
+## Verification methods
+
+This section owns the verification vocabulary. Specs, tasks, skills, and process documents use these three methods and no others. The `new-task` skill implements them for tasks, and the other skills refer to it.
+
+- **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. Use it for behavior the product exhibits. A test may check structure the product depends on, such as frontmatter that must parse. A test never asserts the wording of prose: skills, process documents, guides, user documentation, or specs.
+- **Inspection** — someone reads the changed artifact, checks the observation each criterion states, and records what was checked and the pass or fail result. For a task, the Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references: the source spec, each accepted ADR, and S-000 when it exists. Use it for prose, configuration, and changes that only remove something.
+- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. The record names the command or steps and the observed result. Use it when the behavior depends on an environment the test suite cannot reproduce, such as a CI run. A task's demonstration must be observable from the task branch, for example a CI run on the pushed branch, because its record is checked before the branch is integrated.
+
+A task takes the method its source criteria name, and has one method. When the criteria a piece of work covers name different methods, split it into one task per method. When the source is a change-request or S-000, which have no acceptance criteria, the Planner applies the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
+Whatever the method, the project's full test suite, when the project documents one, still runs as a regression check.
 
 ## How to write each section
 
@@ -131,7 +142,7 @@ Merge enabled / blocked by check status
 
 Use `### REQ-001 — Short title` headings for one observable behavior each.
 State the triggering event or state and the required outcome, using EARS when helpful.
-Under each requirement, add concrete `#### AC-001.1 — Scenario title` cases and a `**Verification:**` description for each case.
+Under each requirement, add concrete `#### AC-001.1 — Scenario title` cases and a `**Verification:**` line for each case that names its method (see Verification methods).
 Include the applicable success, rejection, boundary, and recovery cases rather than restating the requirement as its only example.
 Every approved discovery decision about behavior must appear in a requirement; task decomposition must not invent missing product decisions.
 

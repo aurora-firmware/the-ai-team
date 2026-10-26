@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.8'
+version: '0.9'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -226,8 +226,8 @@ source or the generator SHALL read repository-root tool folders or `ai-process/`
 **Verification:** Tests:
 `test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter` and
 `test_package_owned_agent_sources_cover_each_exported_role` in
-`cli/tests/test_init_scaffolds.py`; inspection of the generator for reads outside
-`sources/`.
+`cli/tests/test_init_scaffolds.py`; inspection that no skill source holds `body.md` or
+`metadata.toml`, and of the generator for reads outside `sources/`.
 
 ### REQ-002 — Skill copy
 
@@ -295,11 +295,10 @@ generated artifact folders and files; and a `.gitignore` that ignores the
 
 **Verification:** Tests: `test_sync_script_replaces_project_with_empty_lifecycle_skeleton`,
 `test_sync_script_copies_project_guidance_files_from_source`,
-`test_sync_script_copies_coding_guidelines_placeholder_into_project_docs`,
-`test_package_owned_coding_guidelines_placeholder_has_no_project_specific_rules`,
-`test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` and
-`test_project_guidance_sources_exist_and_describe_project_artifact_folders` in
-`cli/tests/test_init_scaffolds.py`.
+`test_sync_script_copies_coding_guidelines_placeholder_into_project_docs` and
+`test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` in
+`cli/tests/test_init_scaffolds.py`; inspection that the coding-guidelines placeholder
+holds no project-specific rules and that `AGENTS.md` explains the artifact folders.
 
 ### REQ-006 — Generator run
 
@@ -705,7 +704,7 @@ placeholders except in non-UTF-8 files.
 - **Then:** it states the one-`SKILL.md` rule, the supporting folders and the
   placeholder and byte-copy rules
 
-**Verification:** Tests in `cli/tests/test_cr003_skill_template_guide.py`.
+**Verification:** Inspection of the export rules in `guides/skill_template.md`.
 
 #### AC-020.2 — Ownership statements
 
@@ -714,10 +713,7 @@ placeholders except in non-UTF-8 files.
 - **Then:** they name the sources and the generator and say `init` never copies
   `ai-process/`
 
-**Verification:** Tests: `test_usage_md_states_never_copies_ai_process`,
-`test_usage_md_documents_scaffold_source_maintenance` and
-`test_usage_md_documents_scaffold_generator_script` in `cli/tests/test_usage_guide.py`;
-inspection of the README.
+**Verification:** Inspection of the scaffold sections of `cli/docs/usage.md` and the README.
 
 ## Quality Requirements
 
@@ -805,3 +801,4 @@ None.
 | 2026-10-25 | Maintainer Asset Flow and the CR-003 Implementation Order no longer name shared bodies or two exports. Wording only. Driven by the CR-007 spec-truth reconciliation (D2). | Two-tool leftovers the CR-007 amendment missed; the generator copies each `SKILL.md` into one export. | None in flight |
 | 2026-10-26 | Restructured to the spec format from PR #51: added Users and Journeys, Interfaces (source tree, generator, `init` options, marker keys, report lines), Behavioral Requirements REQ-001–REQ-020 with acceptance scenarios, Quality Requirements, Assumptions and Dependencies, Success Criteria and Open Questions; Alternatives Considered moved under Architecture; the Components section became requirements; the stale reference to S-007 requirement 12 was dropped. Scope moved in: REQ-017, the root `AGENTS.md` offer, from the superseded S-002, which this spec's init contract already referred to. Version bumped to 0.8. | The validator rejects approved specs without the new sections; S-002 was superseded. | None |
 | 2026-10-26 | AC-014.3 Verification names the new test for the interactive dry-run case instead of inspection. Wording only. Driven by the PR #55 review. | A test now covers the interactive case. | None |
+| 2026-10-26 | AC-005.1 replaces two removed prose tests with inspection; AC-020.1 and AC-020.2 are verified by inspection; AC-001.1 checks the absence of `body.md` and `metadata.toml` by inspection. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |

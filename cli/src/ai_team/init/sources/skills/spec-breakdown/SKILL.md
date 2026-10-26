@@ -56,7 +56,7 @@ Then fill in the task body so it satisfies:
 - **Acceptance criteria**: Author every criterion using one of the five EARS patterns documented in the task file the CLI created (Ubiquitous, Event-driven, Unwanted-behaviour, State-driven, Optional).
 - **Dependencies**: List of task IDs that must complete first.
 - **Files to touch**: Exact file paths that will be created or modified.
-- **Verification mode**: the Planner decides per task whether it is verified by a **test** or a **design review**. A task that changes code, CLI output, or a rule a test can observe gets a **test**, and its test file is in Files to Touch. A task that changes only prose (guides, process docs, skill wording no test pins) gets a **design review**, recorded with the `Design review:` Verification form defined by `new-task`, listing the source spec, the accepted ADRs, and S-000 when it exists. Anything a test can observe gets a test. If the task changes a shared or public interface (an API, schema, shared library function, or contract consumed by code outside the task's own module), `## Verification` must include the project's documented baseline/full-suite command in addition to any module-scoped command — a module-scoped command alone is not sufficient for such tasks.
+- **Verification method**: the Planner gives each task one method, a **test**, an **inspection**, or a **demonstration**, as defined and recorded by the `new-task` skill's Verification Methods. The task takes the method its source acceptance criteria name; when the criteria name different methods, split the work into one task per method. For a change-request or S-000, apply `new-task`'s rule for choosing the method. A test task lists its test files in Files to Touch. Never plan a test that asserts the wording of a skill, guide, or process document, or one that only proves something was removed: those changes are verified by inspection. When the project documents a full-suite command, every task's `## Verification` includes it as a regression check, in addition to any module-scoped command.
 - **Regeneration**: a task regenerates the generated files (scaffolds, docs) its own change affects and lists them in Files to Touch. A plan never ends with a separate "regenerate everything" task.
 - **Command reference**: a task that changes a command's arguments, options or help text lists the project's generated command reference, named in its guidance, in Files to Touch. The command that regenerates it is the project's own, named in its guidance.
 
@@ -115,7 +115,7 @@ Until this step, the tasks stay `planned` and invisible to `/dev-loop`, and `{{i
 
 - Every task is **atomic** — one clear outcome.
 - Every task is **one-shottable** — completable in a single agent session without running out of context. Rules of thumb: touches at most 3–4 files, has at most 5 acceptance criteria, and the description fits in ~20 lines. If a task exceeds any of these, split it.
-- Every task is **verifiable** — has a test or command that proves it works, or, for a prose-only task, a named design review.
+- Every task is **verifiable** — its Verification section proves it by a test, an inspection, or a demonstration.
 - Every task is **self-contained** — the description provides enough context to start.
 - Every AC uses one of the five EARS patterns.
 - No two tasks modify the same file without an explicit dependency between them.
@@ -126,6 +126,7 @@ Until this step, the tasks stay `planned` and invisible to `/dev-loop`, and `{{i
 - **Tasks too large** — if a task description is longer than ~20 lines, it probably needs splitting.
 - **Missing dependencies** — trace the data flow: if Task B reads a file that Task A creates, Task B depends on Task A.
 - **Criteria that do not match an EARS pattern** — if a criterion resists EARS, the task is probably not atomic.
-- **Forgetting verification commands** — every task must have a way to prove it is done: a test or command, or a named design review for a prose-only task. If you can name neither, the acceptance criteria are not specific enough.
+- **Forgetting verification** — every task must have a way to prove it is done: a test, an inspection, or a demonstration. If you can name none, the acceptance criteria are not specific enough.
+- **Tests for prose or removals** — a test that pins the wording of a skill or guide, or that proves a command is gone, adds upkeep without checking product behavior. Plan an inspection instead.
 - **File conflicts** — two tasks creating the same file will cause merge conflicts. Restructure so one task creates the file and the other modifies it (with a dependency).
 - **Planning solution work from S-000** — S-000 yields only the project bootstrap tasks. Refuse a request for solution work and name a feature spec as the input instead.

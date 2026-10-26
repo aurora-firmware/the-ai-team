@@ -1,6 +1,6 @@
-"""Locations of skill and agent sources and exports, for tests.
+"""Locations of skill sources and exports, for tests.
 
-Tests read skill and agent files only through these helpers, so a change to the
+Tests read skill files only through these helpers, so a change to the
 source or export layout is made here and nowhere else.
 """
 
@@ -29,11 +29,3 @@ def skill_frontmatter(name: str) -> str:
 
 def skill_export_path(name: str) -> Path:
     return _SCAFFOLDS / "skills" / name / "SKILL.md"
-
-
-def agent_source_path(role: str) -> Path:
-    return _INIT_ROOT / "sources" / "agents" / f"{role}.md"
-
-
-def agent_export_path(role: str) -> Path:
-    return _SCAFFOLDS / "agents" / f"{role}.md"

@@ -50,26 +50,14 @@ def test_every_process_skill_is_reachable_from_the_dispatch_table():
         assert f"`{name}`" in BODY, name
 
 
-def test_loops_are_human_triggered_only():
-    assert "`dev-loop` and `bug-loop` start only when the human invokes them" in BODY
-
-
 def test_frontmatter_matches_skill_authoring_rules():
     header = skill_frontmatter("using-ai-team")
 
     assert "name: using-ai-team" in header
     description = re.search(r"^description: (.+)$", header, re.MULTILINE)
     assert description and len(description.group(1)) <= 1024
-    assert not re.match(r"(I|You) ", description.group(1))
-    assert "disable-model-invocation" not in header
 
 
 def test_scaffold_is_generated_from_the_skill_body():
     skill = skill_export_path("using-ai-team")
     assert skill.read_text(encoding="utf-8").endswith(BODY)
-
-
-def test_skill_stays_role_neutral_and_self_contained():
-    for forbidden in ("ai-process/", "I am the", "the Architect can decide"):
-        assert forbidden not in BODY
-    assert len(BODY.splitlines()) < 500

@@ -78,7 +78,8 @@ section recipes and the pre-submission checklist.
 <!-- One obligation per REQ, using SHALL or MUST and EARS where useful.
   Each AC-NNN.M belongs to REQ-NNN. Give concrete conditions and expected
   outcomes; include applicable success, rejection, boundary, and recovery cases.
-  Verification can be a test, demonstration, inspection, or analysis. -->
+  Verification names a test, inspection, or demonstration, as the new-task
+  skill's Verification Methods define them. -->
 
 ### REQ-001 — Requirement title
 

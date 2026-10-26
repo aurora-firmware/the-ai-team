@@ -44,13 +44,21 @@ When invoked directly by a human and required fields are missing, ask for the mi
 7. Verify the drafted task (or placeholders that will be completed) can satisfy the Task Quality Rules below.
 8. Confirm creation using the CLI response values (`id` and `path`).
 
-## Verification Modes
+## Verification Methods
 
-A task is verified by a **test** or by a **design review**. `spec-breakdown` chooses the mode; `new-task` records the choice in the task's Verification section.
+A task is verified by one of three methods. `spec-breakdown` chooses the method; `new-task` records it in the task's Verification section.
 
-- **Test task** — the task changes code, CLI output, or a rule that a test can observe. Its Verification holds the command(s), and the test file is listed in Files to Touch.
-- **Design-review task** — the task changes only prose (guides, process docs, skill wording that no test pins). In place of a command block, its Verification section holds the line `Design review:` followed by one bullet per reference the changed text must agree with: the source spec, each accepted ADR it must agree with, and the system overview S-000 when it exists. It holds no test command.
-  Other skills detect a design-review task by this `Design review:` line.
+- **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. It is used for behavior the product exhibits. A test may check structure the product depends on, such as frontmatter that must parse. A test never asserts the wording of prose: skills, process documents, guides, user documentation, or specs.
+  The Verification section holds the command(s), and the test files are listed in Files to Touch.
+- **Inspection** — someone reads the changed artifact, checks the observation each acceptance criterion states, and records what was checked and the pass or fail result. The Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references. It is used for prose, configuration, and changes that only remove something.
+  The Verification section holds the line `Inspection:` followed by one bullet per acceptance criterion to check and one bullet per reference: the source spec, each accepted ADR the text must agree with, and the system overview S-000 when it exists.
+- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. It is used when the behavior depends on an environment the test suite cannot reproduce, such as a CI run. The demonstration must be observable from the task branch, for example a CI run on the pushed branch, because its record is checked before the branch is integrated.
+  The Verification section holds the line `Demonstration:` followed by the command or steps to run and the expected observation.
+
+Other skills detect an inspection or demonstration task by its `Inspection:` or `Demonstration:` line. The task template's Verification comment may precede that line, so they detect the line, not the first line of the section.
+Every task, whatever its method, also runs the project's full test suite as a regression check when the project documents one; an inspection or demonstration task lists that command under its method's bullets.
+
+**Choosing the method.** A task has one method: the one its source acceptance criteria name. When the criteria a piece of work covers name different methods, split it into one task per method. When the source is a change-request or S-000, which have no acceptance criteria, apply the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
 
 ### Verification run context
 
@@ -63,7 +71,7 @@ Every task file produced by this skill must be:
 
 - **Atomic** — one clear outcome. If the task delivers two independent outcomes, split it into two tasks.
 - **One-shottable** — completable in a single agent session without running out of context. Rules of thumb: touches at most **3–4 files**, has at most **5 acceptance criteria**, and the Description fits in roughly **20 lines**. If a draft task exceeds any of these, split it or narrow the scope.
-- **Verifiable** — has a concrete `Verification` command that proves the task is done. A task that changes only prose is verified by a design review instead (see **Verification Modes**). If neither is possible, the Verification section states the exact manual steps.
+- **Verifiable** — its Verification section proves the task is done by the method chosen under **Verification Methods**: a test command, an `Inspection:` list, or a `Demonstration:` with its steps and expected observation.
 - **Self-contained** — the Description provides enough context for an agent to start without asking follow-up questions. Any prior decisions, files, or conventions the task depends on are named explicitly.
 - **Source-traceable** — fill Source Requirements with the source spec ID, REQ identifiers, and AC scenarios implemented or verified. For a change-request or S-000, cite the relevant sections rather than inventing feature requirement identifiers. Preserve approved behavior when deriving task criteria.
 - **EARS-compliant acceptance criteria** — every AC matches one of the five EARS patterns documented in the template (Ubiquitous, Event-driven, Unwanted-behaviour, State-driven, Optional). An AC that resists EARS usually means the task is not atomic.
@@ -78,7 +86,9 @@ Rules that govern the *set of tasks* (no two tasks modifying the same file witho
 - **Task is really two tasks** — reads like "Implement X AND migrate Y". Split.
 - **Description is a ticket title, not enough to start** — agent has to open the spec or ask questions. Expand.
 - **Acceptance criteria are aspirational, not testable** — "Works well under load" is not an AC. Name the measurable behaviour.
-- **No verification command** — if the task has no way to prove it's done, its acceptance criteria are not specific enough. A prose-only task takes the design-review alternative (a `Design review:` line with its reference bullets) instead of a command.
+- **No verification** — if the task has no way to prove it's done, its acceptance criteria are not specific enough.
+- **A test that pins prose** — a test that asserts the wording of a skill, guide, or process document. That change is verified by inspection.
+- **A test that proves a removal** — such as "command is not registered". A change that only removes something is verified by inspection, with the full suite as the regression check.
 - **Placeholder survives** — "add error handling" or "similar to T-004" reads like a plan but is not one. Name the handling or repeat the content.
 - **Mismatched interface names** — the task consumes `clearFullLayers()` while its dependency produces `clearLayers()`. Copy names from the producing task.
 - **Hidden dependency** — the task reads a file a sibling task creates but no dependency is listed. The `spec-breakdown` Gate 2 preflight will catch this, but it's cheaper to catch here.

@@ -42,7 +42,7 @@ Read them through the paths the `ai-team` CLI reports — never from a copy insi
 5. If a task file is found, read it completely — focus on the **Description**, **Acceptance Criteria**, **Verification**, **Work Log**, and **Review** sections.
 6. If a bug file is found, read it completely — focus on the **Summary**, **Diagnosis Log**, **Fix Verification**, **Work Log**, and **Review** sections.
 7. Determine the source-branch verification command before checking out the source branch. Lookup order:
-   - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). A task whose Verification section holds the `Design review:` line has no automated command; its review was checked at Gate 3. Skip it and take the source-branch command from project guidance, the next entry, as for a work item without commands.
+   - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). For a task whose Verification section holds an `Inspection:` or `Demonstration:` line, run only its full-suite command; the inspection or demonstration record was checked at Gate 3. When such a task lists no full-suite command because the project documents none, it has no source-branch command: skip Step 4, do not stop `BLOCKED`, and note the skipped run in the final report.
    - Target-project guidance such as the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, or human-provided instructions.
    - If no automated verification command can be determined from the work item or from project guidance, stop with `BLOCKED` and ask the human for the project verification command.
    This is the command Step 4 runs on the source branch. It is scoped to the work item and must not be assumed to also cover the destination branch.
@@ -50,7 +50,7 @@ Read them through the paths the `ai-team` CLI reports — never from a copy insi
    a. If the work item or project guidance explicitly defines a separate destination-branch or baseline check, use it.
    b. Otherwise, discover the project's documented baseline command using the discovery order owned by the `dev-loop` skill's Step 2 Baseline Test Guard. Read that skill's **Discovery Order** and apply it directly here — do not restate or re-derive a second copy of it.
    c. If the discovered baseline command differs from the source-branch command from item 7, Step 6 must run both.
-   d. If no project baseline command is discoverable at all, Step 6 falls back to running only the source-branch command, but record that fallback here as an explicit coverage-gap flag to carry into Step 6's report. A missing baseline must never be silently treated as sufficient coverage — and must never by itself block integration; only a genuinely failing test blocks Step 6.
+   d. If no project baseline command is discoverable at all, Step 6 falls back to running only the source-branch command; when item 7 found no source-branch command either (an inspection or demonstration task in a project with no test suite), Step 6 runs nothing. Record that fallback here as an explicit coverage-gap flag to carry into Step 6's report. A missing baseline must never be silently treated as sufficient coverage — and must never by itself block integration; only a genuinely failing test blocks Step 6.
 
 ### Step 2b: Verify the Latest Recorded Review Verdict is PASS
 
@@ -132,7 +132,7 @@ After the merge, on the destination branch, run the destination-branch verificat
 
 Run these with the same run context as Step 4: each line from the repository root in a fresh shell, independently of the other lines, never as one script.
 
-If Step 2 recorded a coverage-gap flag (no project baseline command was discoverable), state that explicitly in the report for this step, for example: "post-merge check used the task-scoped command only; no project-wide baseline command was discoverable — coverage outside the task's declared scope was not verified." Do not report post-merge success as equivalent to Step 4's result without that qualification. The coverage gap is a reporting requirement, not a hard stop — do not block integration solely because no baseline is documented.
+If Step 2 recorded a coverage-gap flag (no project baseline command was discoverable), state that explicitly in the report for this step, for example: "post-merge check used the task-scoped command only; no project-wide baseline command was discoverable — coverage outside the task's declared scope was not verified." When Step 2 found neither a baseline nor a source-branch command, skip this step's run and report the gap the same way: no tests ran before or after the merge. Do not report post-merge success as equivalent to Step 4's result without that qualification. The coverage gap is a reporting requirement, not a hard stop — do not block integration solely because no baseline is documented.
 
 Evaluate the result:
 
@@ -172,7 +172,7 @@ Evaluate the result:
 
 ### Step 7: Finalize (Success Path Only)
 
-Reached only when both Step 4 and Step 6 tests pass.
+Reached only when both Step 4 and Step 6 tests pass, or when Step 2 found no command for them to run and they were skipped as it allows.
 
 1. **Complete the task** (if a task file was found in Step 2): run `ai-team task complete <task-id>`.
    This sets the task's `status` to `completed` in the tracker. There is no file move and nothing to commit — the merge commit is the only commit integration adds.

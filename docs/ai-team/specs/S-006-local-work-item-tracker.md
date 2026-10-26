@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.5'
+version: '0.6'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -451,10 +451,7 @@ skills.
 - **Then:** they append the Work Log or Diagnosis Log to the tracker file with "no
   switch and no commit", and no `chore(tasks)` or `chore(bugs)` record commit remains
 
-**Verification:** Tests: `test_dev_loop_records_work_log_in_tracker_without_commit_or_switch`,
-`test_bug_loop_records_diagnosis_log_in_tracker_without_commit_or_switch` and
-`test_bug_loop_records_work_log_in_tracker_without_commit` in
-`cli/tests/test_t063_integration_guards.py`.
+**Verification:** Inspection of the `dev-loop` and `bug-loop` handoff steps.
 
 #### AC-013.2 — Integration completes through the CLI
 
@@ -463,10 +460,7 @@ skills.
 - **Then:** it sets the task to `completed` with `ai-team` and confirms the status,
   with no lifecycle commit
 
-**Verification:** Tests:
-`test_integrate_completes_task_through_the_cli_without_a_lifecycle_commit` and
-`test_integrate_confirms_completed_status_before_reporting_success` in
-`cli/tests/test_t063_integration_guards.py`.
+**Verification:** Inspection of the `integrate` completion step.
 
 #### AC-013.3 — Commit rule
 
@@ -474,9 +468,7 @@ skills.
 - **When:** their hard rules are read
 - **Then:** committing a lifecycle file is forbidden
 
-**Verification:** Tests: `test_git_conventions_hard_rules_covers_lifecycle_file_commits`
-and `test_claude_developer_never_touch_forbids_git_add_and_commit` in
-`cli/tests/test_b016_developer_lifecycle_boundary.py`.
+**Verification:** Inspection of the `git-conventions` hard rules and the Developer agent's Never touch row.
 
 ### REQ-014 — Change-request as task source
 
@@ -591,3 +583,4 @@ None.
 - **2026-10-25 (format restructure):** restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (tracker layout, allowed statuses, commands, legacy warning), Behavioral Requirements REQ-001–REQ-014 with acceptance scenarios, Quality Requirements, Assumptions and Dependencies and Open Questions; renamed Measurable Success Criteria to Success Criteria and linked each to its requirements; the Components section became requirements; the migration-command exclusion is stated explicitly. Format restructure only, no scope change, so the version is unchanged.
 - **2026-10-26 (S-002 superseded):** added REQ-015, creating a change-request with `ai-team change-request new`, moved from the superseded S-002, which introduced the change-request artifact; the command already behaves this way. Version bumped to 0.4.
 - **2026-10-26 (CR-008):** removed the `ai-team archive` command and the tracker's `archive/YYYY-MM/` folder. REQ-006 and AC-006.1 (renamed "Tracker counts") allocate IDs from the tracker folders only; REQ-007 drops `archive` from its command list and the archive obligation; AC-007.3 (Archive) is retired and its identifier is not reused; the tracker layout table, `show` interface, System Diagram and work-item store responsibility no longer name the archive. REQ-011's legacy `archive/` folder warning is unchanged. Version bumped to 0.5. Driven by CR-008: no process step used the command, and keeping ID allocation and validation aware of the archive cost more than a shorter `tasks/` folder was worth. Affected tasks: the CR-008 task plan.
+- **2026-10-26 (verification methods):** AC-013.1, AC-013.2 and AC-013.3 are verified by inspection instead of tests that pinned skill wording. Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection.
