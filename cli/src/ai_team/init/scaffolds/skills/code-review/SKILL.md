@@ -63,7 +63,7 @@ For bug fixes, also check:
 
 ### Inspection and Demonstration Tasks
 
-This section applies when the task's Verification section holds the line `Inspection:` or `Demonstration:`, as the `new-task` skill's Verification Methods define them. Detect the line, not the first line of the section: the task template's Verification comment may precede it. Such a task has no tests of its own; the Developer's evidence is a Work Log record, plus the full-suite run.
+This section applies when the task's Verification section holds the line `Inspection:` or `Demonstration:`, as the `new-task` skill's Verification Methods define them. Detect the line, not the first line of the section: the task template's Verification comment may precede it. Such a task has no tests of its own; the Developer's evidence is a Work Log record, plus the full-suite run when the project documents one.
 
 Check, in Stage 1:
 - **The planning choice.** The method matches the change, by the `new-task` rule for choosing the method. A change that adds or alters product behavior under an inspection or demonstration is at least **Important**: the task needed a test.
