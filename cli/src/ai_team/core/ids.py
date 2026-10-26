@@ -33,29 +33,20 @@ def is_overview_reference(reference: str) -> bool:
 
 
 def next_task_id(project_root: ProjectRoot) -> str:
-    """Return the next task ID in T-NNN format across the tracker and its archive."""
+    """Return the next task ID in T-NNN format in the tracker."""
     return _next_id(
         prefix="T",
-        directories=(project_root.tasks, *_archive_buckets(project_root)),
+        directories=(project_root.tasks,),
         pattern=_TASK_PATTERN,
     )
 
 
 def next_bug_id(project_root: ProjectRoot) -> str:
-    """Return the next bug ID in B-NNN format across the tracker and its archive."""
+    """Return the next bug ID in B-NNN format in the tracker."""
     return _next_id(
         prefix="B",
-        directories=(project_root.bugs, *_archive_buckets(project_root)),
+        directories=(project_root.bugs,),
         pattern=_BUG_PATTERN,
-    )
-
-
-def _archive_buckets(project_root: ProjectRoot) -> tuple[Path, ...]:
-    """Return the ``YYYY-MM`` archive bucket folders in the tracker."""
-    if not project_root.archive.is_dir():
-        return ()
-    return tuple(
-        sorted(path for path in project_root.archive.iterdir() if path.is_dir())
     )
 
 
