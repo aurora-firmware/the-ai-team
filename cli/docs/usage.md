@@ -453,23 +453,6 @@ approval.
 
 Exit code is 1 if any error-level finding is reported.
 
-### Archive old artifacts
-
-Completed tasks and resolved bugs older than a threshold are moved to
-`<tracker>/archive/YYYY-MM/`. Both the age and the `YYYY-MM` month come from the
-item's `created` date:
-
-```bash
-# Preview what would be archived (default: older than 90 days)
-ai-team archive --dry-run
-
-# Archive with a custom threshold
-ai-team archive --older-than 30d
-```
-
-Supported units: `d` (days), `w` (weeks), `m` (months, = 30 days),
-`y` (years, = 365 days).
-
 ---
 
 ## Project Folder Structure
