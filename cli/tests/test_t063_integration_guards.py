@@ -146,18 +146,14 @@ def test_dev_loop_records_work_log_in_tracker_without_commit_or_switch() -> None
     assert "chore(tasks): record T-NNN work log" not in source
 
 
-def test_dev_loop_records_committed_review_verdict_on_dev_agent_before_integration() -> (
-    None
-):
-    """AC-4: dev-loop must confirm the Review Verdict is committed on dev-agent before
-    invoking integration."""
+def test_dev_loop_keeps_the_review_verdict_out_of_version_control() -> None:
+    """AC-4 (S-006): the Reviewer appends the verdict to the task file in the tracker
+    and does not commit it; integrate checks the latest verdict is PASS."""
     source, export = _dev_loop_skill_texts()
-
     required_phrases = (
-        "committed",
-        "verdict",
+        "The task file is outside version control: do not commit it.",
+        "The `integrate` skill verifies",
     )
-
     for phrase in required_phrases:
         assert phrase in source, f"dev-loop skill source must include: {phrase!r}"
         assert phrase in export, f"Skill export must include: {phrase!r}"
@@ -190,18 +186,14 @@ def test_bug_loop_records_work_log_in_tracker_without_commit() -> None:
     assert "chore(bugs): record B-NNN work log" not in source
 
 
-def test_bug_loop_records_committed_review_verdict_on_dev_agent_before_integration() -> (
-    None
-):
-    """AC-4: bug-loop must confirm the Review Verdict is committed on dev-agent before
-    invoking integration."""
+def test_bug_loop_keeps_the_review_verdict_out_of_version_control() -> None:
+    """AC-4 (S-006): the Reviewer appends the verdict to the bug file in the tracker
+    and does not commit it; integrate checks the latest verdict is PASS."""
     source, export = _bug_loop_skill_texts()
-
     required_phrases = (
-        "committed",
-        "verdict",
+        "The bug file is outside version control: do not commit it.",
+        "The `integrate` skill verifies",
     )
-
     for phrase in required_phrases:
         assert phrase in source, f"bug-loop skill source must include: {phrase!r}"
         assert phrase in export, f"Skill export must include: {phrase!r}"
