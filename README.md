@@ -20,7 +20,7 @@ ai-team is made of four components (see [S-000](docs/ai-team/specs/S-000-system-
 
 When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration**: it is not part of this framework's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
 
-Developer documentation for working on ai-team itself is in [`docs/development/`](docs/development/README.md).
+Developer documentation for working on ai-team itself is in [`docs/development/`](docs/development/AGENTS.md).
 
 ## The ai-process
 

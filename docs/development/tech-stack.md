@@ -61,4 +61,4 @@ these answers record the setup that already exists.
   never restate them.
 - **Who keeps them current.** Whoever changes the setup they describe updates them
   in the same change.
-- **The other internal documents** are indexed in [`README.md`](README.md).
+- **The other internal documents** are indexed in [`AGENTS.md`](AGENTS.md).
