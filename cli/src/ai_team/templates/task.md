@@ -85,7 +85,7 @@ a test task keeps the command block. An inspection task replaces it with an
 reference: the source spec, each accepted ADR it must agree with, and S-000 when
 it exists. A demonstration task replaces it with a `Demonstration:` line, the
 command or steps, and the expected observation. Every task also lists the
-project's full test suite command. -->
+project's full test suite command, when the project documents one. -->
 
 ```bash
 # Command(s) to verify the task is complete

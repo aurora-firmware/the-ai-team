@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(debug), Skill(git-conv
 ## Input Requirements
 
 - **Task or bug file** — with acceptance criteria or fix-verification steps.
-- **Project test setup** — test framework, directory structure, how to run tests. Every task runs the full suite; an inspection task (see Inspection and demonstration tasks) also needs the references its Verification section lists.
+- **Project test setup** — test framework, directory structure, how to run tests. Every task runs the full suite when the project documents one; an inspection task (see Inspection and demonstration tasks) also needs the references its Verification section lists.
 - **Target-project coding guidance** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, and any human-provided instructions (the framework-level coding standards are carried by the invoking role's definition).
 
 Task and bug files live in the local tracker, outside version control; the active loop passes their path.
@@ -82,7 +82,7 @@ For such a task, work through the steps below in place of the red/green cycle (S
 1. Make the change within Files to Touch.
 2. **Inspection:** check each acceptance criterion the Verification section lists against the changed artifact. For prose, read every listed reference (the source spec, the accepted ADRs, and S-000 when it is listed) and fix every conflict in the changed text. Read S-000 now, when running the inspection, not at session start.
    **Demonstration:** run the listed command or steps and compare the outcome with the expected observation.
-3. Run the project's full test suite as the regression check.
+3. Run the project's full test suite as the regression check, when the project documents one.
 4. Commit as in Step 7. Record in the Work Log handoff (Step 9) the inspection or demonstration record: for an inspection, each criterion and reference checked, each conflict found and how it was fixed, and the result; for a demonstration, the command or steps run and the observed outcome.
 5. If the change turns out to alter product behavior a test should cover, or needs a file outside Files to Touch, or a conflict can only be resolved by changing a reference document, escalate under the Escalation section below instead of adding an undeclared test.
 
