@@ -1,6 +1,6 @@
 ---
 title: "ai-team CLI Documentation"
-version: "0.4"
+version: "0.5"
 status: approved
 created: 2026-05-14
 author: planner
@@ -171,9 +171,7 @@ SHALL state the required Python version.
   locally with the scaffold generator and `uv build`, and the requirement of Python
   3.14 or later
 
-**Verification:** Inspection of the Installation section; the smoke test
-`test_usage_md_covers_installation` in `cli/tests/test_usage_guide.py` only checks that
-the section exists.
+**Verification:** Inspection of the Installation section.
 
 ### REQ-002 — Initialisation
 
@@ -188,10 +186,7 @@ the section exists.
   `init` creates, and explains the `.ai-team.toml` marker
 
 **Verification:** Inspection: compare the flags in the Initialisation section with
-the `init` entry of `commands.md`. Smoke tests: `test_usage_md_covers_init_command`,
-`test_usage_md_describes_ai_team_toml_marker` and
-`test_usage_md_does_not_mention_nonexistent_flags` in
-`cli/tests/test_usage_guide.py`.
+the `init` entry of `commands.md`.
 
 ### REQ-003 — Daily workflows
 
@@ -207,8 +202,8 @@ artifacts.
   names exists in `commands.md`
 
 **Verification:** Inspection: each sequence has a section, and each command it names
-appears in `commands.md`. Smoke tests: `test_usage_md_covers_daily_workflows` and
-`test_usage_md_covers_gate5_report_workflow` in `cli/tests/test_usage_guide.py`.
+appears in `commands.md`. Test: `test_usage_md_example_commands_exist_in_commands_md`
+in `cli/tests/test_usage_guide.py` checks every command in a `usage.md` example.
 
 ### REQ-004 — Folder structure
 
@@ -225,10 +220,7 @@ resolution order.
 - **Then:** it names each folder above, the marker, and the order in which the CLI
   looks for the project
 
-**Verification:** Inspection of the Project Folder Structure section. The marker and
-locator are also checked by `test_usage_md_describes_ai_team_toml_marker` and
-`test_usage_md_describes_locator_resolution_order`, and the tracker folders by
-`test_usage_md_describes_tracker_folders`, in `cli/tests/test_usage_guide.py`.
+**Verification:** Inspection of the Project Folder Structure section.
 
 ### REQ-005 — Maintainer section
 
@@ -243,12 +235,7 @@ command, how to run the tests, how to build and release, and how to regenerate
 - **Then:** each of the five topics is covered, including the `--output` option of
   `gen_docs.sh`
 
-**Verification:** Tests: `test_usage_md_has_maintainer_section`,
-`test_usage_md_has_module_map`, `test_usage_md_explains_how_to_add_a_command`,
-`test_usage_md_explains_how_to_run_tests`,
-`test_usage_md_explains_how_to_build_and_release`,
-`test_usage_md_explains_how_to_regenerate_commands_md` and
-`test_usage_md_documents_gen_docs_output_option` in `cli/tests/test_usage_guide.py`.
+**Verification:** Inspection of the For Maintainers section.
 
 ### REQ-006 — Link to the reference
 
@@ -260,8 +247,7 @@ command, how to run the tests, how to build and release, and how to regenerate
 - **When:** its links are read
 - **Then:** one points to `commands.md`
 
-**Verification:** Test: `test_usage_md_links_to_commands_md` in
-`cli/tests/test_usage_guide.py`.
+**Verification:** Inspection of the links in `usage.md`.
 
 ### REQ-007 — Generated, committed reference
 
@@ -416,11 +402,11 @@ data, and no generation-time target was agreed.
 
 1. Every pull request whose committed `commands.md` differs from a fresh generation
    fails CI (REQ-007, REQ-012).
-2. `cli/tests/test_usage_guide.py` and `cli/tests/test_gen_docs.py` pass, covering
-   each required `usage.md` topic, the reference, its header and the generator
-   (REQ-001–REQ-009, REQ-012).
-3. Inspection finds every command `usage.md` names in `commands.md`, and
-   `test_usage_md_does_not_mention_nonexistent_flags` passes (REQ-002, REQ-003).
+2. `cli/tests/test_gen_docs.py` passes, covering the reference, its header and the
+   generator (REQ-007–REQ-009, REQ-012), and inspection finds each required `usage.md`
+   topic (REQ-001–REQ-006).
+3. `test_usage_md_example_commands_exist_in_commands_md` passes, and inspection finds
+   every flag `usage.md` names in `commands.md` (REQ-002, REQ-003).
 4. Each action skill that invokes a CLI command has a row in `component-map.md`
    (REQ-010).
 
@@ -445,3 +431,4 @@ drift check is wired in (S-010).
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered (the custom generator, moved from Exclusions, and the console-script invocation), Interfaces, Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, and Success Criteria; the Components section was split into Interfaces and requirements, the `init` flag list was replaced by a link to `commands.md`, and source line references were dropped. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
 | 2026-10-26 | The root guidance file is `AGENTS.md`; `CLAUDE.md` was renamed. Wording only. | This repository follows ADR-003: Claude Code reads root `AGENTS.md`. | None |
 | 2026-10-26 | REQ-003: the fifth daily workflow is "validate artifacts", without archiving. REQ-004: the tracker folder holds `tasks/`, `bugs/` and `change-requests/`, with no `archive/`; the project `specs/archive/` stays. AC-004.1 Verification now names `test_usage_md_describes_tracker_folders`, which already checks the tracker folders. Version bumped to 0.4. Driven by CR-008 and Architecture Consistency Review finding F2. | CR-008 removes the `ai-team archive` command and the tracker archive (S-006). | CR-008 task plan |
+| 2026-10-26 | REQ-001–REQ-006: `usage.md` content is verified by inspection; the keyword smoke tests in `cli/tests/test_usage_guide.py` were removed, and AC-003.1 keeps the test that checks example commands against `commands.md`. Success Criteria 2 and 3 follow. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
