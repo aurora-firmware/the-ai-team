@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.4'
+version: '0.5'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -68,8 +68,8 @@ creates.
  ai-team CLI ──────────► <tracker>/tasks/T-NNN-*.md            status: planned … completed
  (new, set-status,       <tracker>/bugs/B-NNN-*.md             status: open … resolved
   list, show, status,    <tracker>/change-requests/CR-NNN-*.md status: pending … rejected
-  report, validate,      <tracker>/archive/YYYY-MM/
-  archive, tracker path) <tracker>/review-packages/   loop scratch files
+  report, validate,      <tracker>/review-packages/   loop scratch files
+  tracker path)
                                   ▲
                                   │ append Work Log / Verdict to returned path
                                   │
@@ -83,7 +83,7 @@ creates.
 | Component | Responsibility | Interface notes |
 |---|---|---|
 | Tracker configuration | Resolve the tracker folder for the current repository | Reads `.ai-team.toml`; exposes the resolved absolute path to every command |
-| Work-item store | Create, find, transition, archive tasks, bugs, and change-requests by ID | Field-based state; one flat folder per kind |
+| Work-item store | Create, find, and transition tasks, bugs, and change-requests by ID | Field-based state; one flat folder per kind |
 | CLI commands | Human and skill entry points for tracker data | Existing command names keep working; state filters read the `status` field |
 | Migration | Guide an agent through moving legacy tasks, bugs, and change-requests into the tracker | A documented manual procedure plus a legacy-folder warning from the CLI |
 | Process skills and docs | Drive lifecycle through CLI commands, without lifecycle commits | Loops, integrate, code-review, spec-breakdown, change-request, git-conventions, workflow docs |
@@ -109,7 +109,6 @@ creates.
 | `tasks/T-NNN-<slug>.md` | Tasks | `planned`, `pending`, `in-progress`, `blocked`, `completed`, `cancelled` |
 | `bugs/B-NNN-<slug>.md` | Bugs | `open`, `in-progress`, `resolved` |
 | `change-requests/CR-NNN-<slug>.md` | Change-requests | `pending`, `approved`, `rejected` |
-| `archive/YYYY-MM/` | Archived completed tasks and resolved bugs | — |
 | `review-packages/<id>.md` | Loop scratch files, not work items | — |
 
 **Exposed — commands (REQ-002, REQ-004, REQ-007).**
@@ -121,7 +120,7 @@ creates.
 - `ai-team list tasks|bugs|change-requests --state <s>` filters on the `status` field
   and keeps its JSON row shape: `id`, `title`, `state`, `priority`, `assigned-role`
   for tasks.
-- `ai-team show <id>` finds a work item in the tracker and its archive.
+- `ai-team show <id>` finds a work item in the tracker.
 - A command that cannot find an ID reports the tracker folder it searched and exits
   non-zero.
 
@@ -299,25 +298,24 @@ in `cli/tests/test_tracker.py`.
 ### REQ-006 — ID allocation
 
 The next task, bug or change-request ID SHALL be one above the highest number of its
-kind found in the tracker and its archive.
+kind found in the tracker.
 
-#### AC-006.1 — Archive counts
+#### AC-006.1 — Tracker counts
 
-- **Given:** `T-007` in the tracker and `T-012` in its archive
+- **Given:** `T-007` and `T-012` in the tracker
 - **When:** the next task ID is allocated
 - **Then:** it is `T-013`
 
-**Verification:** Tests: `test_next_task_id_uses_highest_number_across_tracker_and_archive`
-and `test_next_bug_id_scans_tracker_and_archive_and_ignores_non_matching` in
+**Verification:** Tests: `test_next_task_id_uses_highest_number_in_the_tracker`
+and `test_next_bug_id_scans_the_tracker_and_ignores_non_matching` in
 `cli/tests/test_ids.py`.
 
 ### REQ-007 — Commands read the tracker
 
-`task`, `bug`, `change-request`, `list`, `show`, `status`, `report`, `validate` and
-`archive` SHALL read and write work items in the tracker. State filters SHALL match the
+`task`, `bug`, `change-request`, `list`, `show`, `status`, `report` and `validate`
+SHALL read and write work items in the tracker. State filters SHALL match the
 `status` field, `list` JSON row shapes SHALL stay unchanged, and a command that cannot
-find an ID SHALL name the tracker folder it searched. `archive` SHALL move old
-completed tasks and resolved bugs into the tracker's `archive/YYYY-MM/`.
+find an ID SHALL name the tracker folder it searched.
 
 #### AC-007.1 — State filter
 
@@ -340,16 +338,6 @@ in `cli/tests/test_tracker.py` and
 in `cli/tests/test_task_lifecycle.py` and
 `test_bug_lifecycle_command_reports_not_found_and_names_tracker_folder` in
 `cli/tests/test_bug_lifecycle.py`.
-
-#### AC-007.3 — Archive
-
-- **Given:** a completed task and a resolved bug older than the cutoff
-- **When:** `ai-team archive` runs
-- **Then:** both move into the tracker's `archive/YYYY-MM/` for their creation month
-
-**Verification:** Test:
-`test_archive_moves_old_completed_tasks_and_resolved_bugs_to_created_month` in
-`cli/tests/test_archive.py`.
 
 ### REQ-008 — No lifecycle commits
 
@@ -602,3 +590,4 @@ None.
 - **2026-10-25 (CR-007):** the "Skills never touch tracker paths directly" principle drops the Codex sandbox sentence; every agent lists `Bash` in its `tools:`. Version bumped to 0.3. Driven by CR-007 and ADR-003: Claude is the only export target.
 - **2026-10-25 (format restructure):** restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (tracker layout, allowed statuses, commands, legacy warning), Behavioral Requirements REQ-001–REQ-014 with acceptance scenarios, Quality Requirements, Assumptions and Dependencies and Open Questions; renamed Measurable Success Criteria to Success Criteria and linked each to its requirements; the Components section became requirements; the migration-command exclusion is stated explicitly. Format restructure only, no scope change, so the version is unchanged.
 - **2026-10-26 (S-002 superseded):** added REQ-015, creating a change-request with `ai-team change-request new`, moved from the superseded S-002, which introduced the change-request artifact; the command already behaves this way. Version bumped to 0.4.
+- **2026-10-26 (CR-008):** removed the `ai-team archive` command and the tracker's `archive/YYYY-MM/` folder. REQ-006 and AC-006.1 (renamed "Tracker counts") allocate IDs from the tracker folders only; REQ-007 drops `archive` from its command list and the archive obligation; AC-007.3 (Archive) is retired and its identifier is not reused; the tracker layout table, `show` interface, System Diagram and work-item store responsibility no longer name the archive. REQ-011's legacy `archive/` folder warning is unchanged. Version bumped to 0.5. Driven by CR-008: no process step used the command, and keeping ID allocation and validation aware of the archive cost more than a shorter `tasks/` folder was worth. Affected tasks: the CR-008 task plan.
