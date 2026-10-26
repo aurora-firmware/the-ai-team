@@ -36,9 +36,9 @@ Planner amends it. When the spec is right and the work falls short, the Planner 
 follow-up tasks under the same spec or change-request, and the Architect re-runs the
 reconciliation once they are completed. Follow-up tasks are created `pending` and are exempt
 from Gate 2, because the finding and the approved spec already fix their scope; the re-run is
-their check. The Planner still chooses each follow-up task's verification mode by the
-spec-breakdown rule: a test for any change a test can observe, a design review only for a
-prose-only change. When it is unclear which side is authoritative, or
+their check. The Planner still chooses each follow-up task's verification method by the
+`new-task` rule: a test, an inspection, or a demonstration, as defined in
+`guides/spec-authoring-guide.md`. When it is unclear which side is authoritative, or
 both need to change, the Architect escalates to the human to decide. It also escalates when a
 re-run still finds drift on a finding whose follow-up tasks are completed, rather than routing
 another round of tasks that skip Gate 2.
