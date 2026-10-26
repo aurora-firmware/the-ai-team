@@ -1,13 +1,13 @@
 ---
 name: status-report
-description: Generate a Gate 5 project status report on demand by scanning specs, tasks, bugs, decisions, and integration evidence. Human-invoked only — use when a human asks for project status or final merge sign-off context.
+description: Generate a Gate 5 project status report on demand by scanning specs, tasks, bugs, decisions, and integration evidence. Product-owner-invoked only — use when the product owner asks for project status or final merge sign-off context.
 allowed-tools: Read, Glob, Grep, Write, Bash
 disable-model-invocation: true
 ---
 
 # Status Report
 
-Reporting is for humans and runs only on demand: the human invokes `/status-report`.
+Reporting is for the product owner and runs only on demand: the product owner invokes `/status-report`.
 The development and bug-fix loops never invoke this skill — they end with a short run summary instead.
 
 ## Input Requirements
@@ -52,7 +52,7 @@ Record the latest integration-test result or state that no integration evidence 
 Scan the `### Review Verdict` sections of completed tasks and resolved bugs for `#### Deferred Minor findings` lists. Collect every entry with its work item ID and location.
 Classify entries ending in the literal ` — resolved: promoted to FAIL` marker as resolved for deferred-Minor triage. Retain their work item ID, location, finding and marker in resolved/promoted history; keep entries without that marker in the unresolved list. Preserve every collected entry in one of these two lists.
 Promotion resolves the deferred-Minor triage item, not the failure itself. Read the latest Review Verdict and Work Log for the promoted finding's outcome and cite that evidence in its history entry. If they do not establish a passing fix, state that the outcome is unverified or still failing, as the evidence indicates; the marker alone is never proof of a passing fix.
-A roll-up nobody reads is a silent discard, so present both lists to the human at Gate 5 and ask for a decision only on each unresolved finding: fix now (file a bug or task), accept, or defer with a reason. Do not drop entries because they look small.
+A roll-up nobody reads is a silent discard, so present both lists to the product owner at Gate 5 and ask for a decision only on each unresolved finding: fix now (file a bug or task), accept, or defer with a reason. Do not drop entries because they look small.
 
 ### Step 4b: Check Spec-Truth Reconciliation
 
@@ -104,7 +104,7 @@ If there are blocked tasks, critical/high bugs, or spec-truth reconciliation has
 
 ### Step 6: Write Full Report (Only When Asked)
 
-Skip this step unless the human explicitly asked for a report file. The inline summary is the default output.
+Skip this step unless the product owner explicitly asked for a report file. The inline summary is the default output.
 
 When a file is requested, run the CLI report command from the repository root:
 
@@ -115,12 +115,12 @@ ai-team report
 By default, it writes `{{project_dir}}/docs/reports/progress-report-[today's date].md` and creates `{{project_dir}}/docs/reports/` if needed.
 The full report includes completed tasks, in-progress details, blocked items with action needed, bug listing, next actions, and risks or concerns.
 `{{project_dir}}/docs/reports/` is ignored by the scaffolded `{{project_dir}}/.gitignore`, so the file does not dirty the working tree.
-Tell the human the file path. Commit it only if the human asks and the project tracks reports.
+Tell the product owner the file path. Commit it only if the product owner asks and the project tracks reports.
 
 ## Output Format
 
 - **Inline summary:** Gate 5 status summary using the markdown structure above.
-- **Report file:** `{{project_dir}}/docs/reports/progress-report-[today's date].md`, only when the human asked for one.
+- **Report file:** `{{project_dir}}/docs/reports/progress-report-[today's date].md`, only when the product owner asked for one.
 - **Evidence:** latest integration result or a clear statement that no integration evidence was found.
 
 ## Quality Criteria
@@ -133,7 +133,7 @@ Tell the human the file path. Commit it only if the human asks and the project t
 - A promoted finding's outcome cites the latest Review Verdict and Work Log; promotion alone never establishes a passing fix.
 - When the queue is empty, the state of spec-truth reconciliation is stated.
 - The latest integration evidence is recorded or explicitly marked as not found.
-- The report gives the human enough context for Gate 5 final merge sign-off.
+- The report gives the product owner enough context for Gate 5 final merge sign-off.
 
 ## Common Pitfalls
 

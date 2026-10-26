@@ -20,7 +20,7 @@ This template applies the subagent best practices from Anthropics subagent cours
 
 If you need to write "first do X, then Y, then Z" — that's a skill. Put it there and have the agent *invoke* the skill by name.
 
-If you need to write "I can decide X alone; Y needs the Architect; Z needs a human" — that's an agent.
+If you need to write "I can decide X alone; Y needs the Architect; Z needs the product owner" — that's an agent.
 
 ## What Goes Where
 
@@ -97,17 +97,17 @@ Skills define procedures. This agent invokes them but does not duplicate their s
 
 ## Escalation
 
-The [Role] enters the escalation chain when the `<skill-name>` skill returns `ESCALATE`. Self-recovery thresholds and trigger conditions (retry counts, boundary violations, review cycles) are defined in that skill. The caller (active loop or human) routes the structured escalation request to the Architect via the `escalation-review` skill.
+The [Role] enters the escalation chain when the `<skill-name>` skill returns `ESCALATE`. Self-recovery thresholds and trigger conditions (retry counts, boundary violations, review cycles) are defined in that skill. The caller (active loop or product owner) routes the structured escalation request to the Architect via the `escalation-review` skill.
 
 ## Interaction Pattern
 
 ### Receives Work From
 
-- **[Role / process / human]** — what state the work arrives in.
+- **[Role / process / product owner]** — what state the work arrives in.
 
 ### Hands Off To
 
-- **[Role / process / human]** — what is delivered and where it is recorded.
+- **[Role / process / product owner]** — what is delivered and where it is recorded.
 
 ## Folder Scope
 
@@ -145,7 +145,7 @@ Obstacles Encountered:
 - <setup issue, missing input, workaround, special command flag, dependency/import issue, environment quirk, or "none">
 
 Next Owner:
-- <Developer | Reviewer | Architect | Planner | Integrator | Human | Loop | none>
+- <Developer | Reviewer | Architect | Planner | Integrator | Product Owner | Loop | none>
 
 Next Action:
 - <specific follow-up required, or "none">

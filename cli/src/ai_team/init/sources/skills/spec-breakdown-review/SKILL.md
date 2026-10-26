@@ -33,7 +33,7 @@ Identify each task's dependencies, files to touch, acceptance criteria, and veri
 Verify spec coverage: confirm that the full set of planned tasks covers the entire approved specification with no features, sections, or behaviors left unaddressed.
 If any part of the spec is not covered by at least one task, flag the gap.
 For feature specs, check every REQ and AC against the tasks' Source Requirements and verification; flag missing coverage and invented behavior. For change-requests and S-000, use their sections.
-For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the human recorded it as skipped (brownfield). S-000's solution components never need tasks.
+For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the product owner recorded it as skipped (brownfield). S-000's solution components never need tasks.
 Do not pass Gate 2 if the plan leaves spec sections unimplemented without explicit justification.
 
 ### Step 3: Check Dependency Correctness
@@ -58,7 +58,7 @@ When invoking `new-adr`, provide the full required input set:
 - `title`: concise decision title derived from the architectural choice
 - `description`: the approved spec path, affected task IDs, relevant ADRs, and why the decision is durable rather than an implementation detail
 - `status`: `accepted` — the Architect is adopting the decision now as part of approving the task plan
-Escalate to human through the Planner when the approved spec must change.
+Escalate to the product owner through the Planner when the approved spec must change.
 
 ### Step 5a: Check Interface Consistency
 
@@ -113,7 +113,7 @@ Corrections made:
 - <task-id>: <edit made>
 
 Next owner:
-- Planner | Development Loop | Human
+- Planner | Development Loop | Product Owner
 ```
 
 `BLOCKED` is returned when required inputs are missing (for example, the approved specification path was not provided).
@@ -124,10 +124,10 @@ When `Result` is `ESCALATE`, append an Escalation Request block after the fields
 Problem: [why the plan cannot be validated — spec contradiction, irresolvable circular dependency, unresolved architecture decision]
 Attempted: [checks already run and any corrections attempted in-place]
 Failed because: [why the problem requires changing the approved specification]
-Question: [specific decision or guidance needed from the Human]
+Question: [specific decision or guidance needed from the product owner]
 ```
 
-Then produce a Phase 2 Human Escalation Report using the template defined in the `escalation-review` skill. The Planner (caller of Gate 2) forwards the report to the human alongside the preflight verdict.
+Then produce a Phase 2 Product Owner Escalation Report using the template defined in the `escalation-review` skill. The Planner (caller of Gate 2) forwards the report to the product owner alongside the preflight verdict.
 
 ## Quality Criteria
 
@@ -138,7 +138,7 @@ Then produce a Phase 2 Human Escalation Report using the template defined in the
 - No task contains placeholder text.
 - Existing ADRs were consulted before approval.
 - All tasks are atomic, verifiable, and ready for implementation.
-- Human escalation is used only when the approved specification or unresolved architecture decision must change.
+- Product owner escalation is used only when the approved specification or unresolved architecture decision must change.
 
 ## Common Pitfalls
 
@@ -146,4 +146,4 @@ Then produce a Phase 2 Human Escalation Report using the template defined in the
 - Passing a plan with hidden file conflicts.
 - Fixing decomposition problems by silently rewriting task intent.
 - Creating ADRs for routine implementation choices.
-- Surfacing task-plan corrections to the human when the approved spec does not need to change.
+- Surfacing task-plan corrections to the product owner when the approved spec does not need to change.

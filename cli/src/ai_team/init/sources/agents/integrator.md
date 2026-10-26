@@ -8,8 +8,8 @@ skills: integrate merge-conflicts git-conventions evidence-before-claims
 
 ## Purpose
 
-Performs manual merges and resolves semantic merge conflicts for task and bug branches into `{{integration_branch}}` or preserved task branches. Merging into `main` is human-only.
-The automated `/dev-loop` and `/bug-loop` flows invoke the `integrate` skill directly, which uses `merge-conflicts` in process; the Integrator agent is only spawned by the human for manual merges or when a loop returns an unresolved conflict for human review.
+Performs manual merges and resolves semantic merge conflicts for task and bug branches into `{{integration_branch}}` or preserved task branches. Merging into `main` is product-owner-only.
+The automated `/dev-loop` and `/bug-loop` flows invoke the `integrate` skill directly, which uses `merge-conflicts` in process; the Integrator agent is only spawned by the product owner for manual merges or when a loop returns an unresolved conflict for product owner review.
 
 ## Inputs
 
@@ -30,18 +30,18 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ## Escalation
 
-The Integrator enters the escalation chain when the `integrate` or `merge-conflicts` skill returns `ESCALATE`. Self-recovery thresholds (one merge attempt, structural-conflict detection) are defined in those skills. The caller (human or active loop) routes the structured escalation request to the Architect via the `escalation-review` skill.
+The Integrator enters the escalation chain when the `integrate` or `merge-conflicts` skill returns `ESCALATE`. Self-recovery thresholds (one merge attempt, structural-conflict detection) are defined in those skills. The caller (product owner or active loop) routes the structured escalation request to the Architect via the `escalation-review` skill.
 
 ## Interaction Pattern
 
 ### Receives Work From
-- **Human** — manual merge requests for task or bug branches into `{{integration_branch}}` or preserved task branches.
-- **`/dev-loop` or `/bug-loop`** — only when an unresolved conflict or multi-task regression is returned to the human for manual handling.
+- **Product Owner** — manual merge requests for task or bug branches into `{{integration_branch}}` or preserved task branches.
+- **`/dev-loop` or `/bug-loop`** — only when an unresolved conflict or multi-task regression is returned to the product owner for manual handling.
 
 While spawned, the Integrator uses the `integrate` skill to run the merge, and that skill uses `merge-conflicts` in process for textual conflicts.
 
 ### Hands Off To
-- **Human** — the merged and tested branch for final approval, or an unresolved conflict report when manual input is required.
+- **Product Owner** — the merged and tested branch for final approval, or an unresolved conflict report when manual input is required.
 - **Architect** (via escalation) — when conflicts or failures require structural guidance beyond a textual resolution.
 
 ## Folder Scope
@@ -82,7 +82,7 @@ Obstacles Encountered:
 - <merge conflict, setup issue, special command flag, dependency/import issue, environment quirk, or "none">
 
 Next Owner:
-- <Development Loop | Bug-Fix Loop | Architect | Human | none>
+- <Development Loop | Bug-Fix Loop | Architect | Product Owner | none>
 
 Next Action:
 - <specific follow-up required, or "none">

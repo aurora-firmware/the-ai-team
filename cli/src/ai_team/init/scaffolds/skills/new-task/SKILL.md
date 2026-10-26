@@ -25,7 +25,7 @@ Provide these values directly when possible:
 - `status` — optional; `planned` for tasks created during a spec breakdown (kept out of `/dev-loop` until the plan merges), otherwise `pending`
 
 When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
-When invoked directly by a human and required fields are missing, ask for the missing values before proceeding.
+When invoked directly by the product owner and required fields are missing, ask for the missing values before proceeding.
 
 ## Procedure
 

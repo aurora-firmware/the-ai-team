@@ -23,7 +23,7 @@ GitHub Release carrying the built packages and the command reference.
 | Actor | Goal | Priority | Outcome | Requirements |
 |---|---|---|---|---|
 | Contributor (human or agent) opening a pull request | Learn whether the change keeps the CLI formatted, lint-clean, documented and passing its tests | P1 | The pull request shows a pass or fail result for `lint` and for `test` | REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006 |
-| Human reviewer merging into `main` | Merge only changes whose checks pass, without running them locally | P1 | The checks on the pull request and on `main` commits are visible before and after the merge | REQ-001, REQ-005 |
+| Product owner merging into `main` | Merge only changes whose checks pass, without running them locally | P1 | The checks on the pull request and on `main` commits are visible before and after the merge | REQ-001, REQ-005 |
 | Maintainer cutting a release | Publish a version without building it by hand | P2 | Pushing a version tag publishes a GitHub Release once the checks pass | REQ-007, REQ-008 |
 | Project owner installing ai-team | Download a released version | P2 | The release holds the wheel, the source distribution and the command reference for that tag | REQ-008 |
 
@@ -147,9 +147,9 @@ test: uv run pytest                                                       (REQ-0
 Each job reports an independent pass/fail status check                    (REQ-005)
   ↓
 On failure: contributor fixes locally and re-pushes; CI never auto-fixes  (REQ-009)
-On success: both checks green — ★ human review and merge proceed as before
+On success: both checks green — ★ product owner review and merge proceed as before
 
-★ Human pushes a version tag
+★ Product owner pushes a version tag
   ↓
 lint and test run as above
   ↓

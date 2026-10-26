@@ -71,7 +71,7 @@ The `ai-process/` specification documents are not exported. They live in the AI 
 
 ### Step 3: Create Your Project's AGENTS.md
 
-Create an `AGENTS.md` in your project root. `AGENTS.md` is the only generated guidance file, and the one `ai-team check-layout` level 3 requires. The test instructions in this file are especially important: `dev-loop` starts baseline command discovery from root project guidance, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, `dev-loop` will ask the human for the intended command or for explicit confirmation that no automated baseline test is available before claiming a task.
+Create an `AGENTS.md` in your project root. `AGENTS.md` is the only generated guidance file, and the one `ai-team check-layout` level 3 requires. The test instructions in this file are especially important: `dev-loop` starts baseline command discovery from root project guidance, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, `dev-loop` will ask the product owner for the intended command or for explicit confirmation that no automated baseline test is available before claiming a task.
 
 The Step 2 command already created a starter root `AGENTS.md` (`--create-root-guidance`) if it was missing. Request it on that first `init` run; on an initialized project, `--create-root-guidance` adds it later if missing. An existing root `AGENTS.md` is never overwritten unless `--force` is also set: `--force` alone prompts in interactive mode and leaves it untouched with `--no-interactive`, while `--force --create-root-guidance` overwrites it without prompting. Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance and an existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no kept files.
 
@@ -79,7 +79,7 @@ The starter `AGENTS.md` follows the root guidance template in the CLI package (`
 
 ### Step 4: Customize for Your Stack
 
-**Baseline test instructions** — Fill in the command agents should run to execute the test suite. Put it in root guidance (`AGENTS.md`) or clearly reference a project-local doc that contains it. `dev-loop` reads project guidance at startup; if the command is missing or ambiguous, the loop asks for human clarification before claiming a task. If your project has no automated tests, state that explicitly so the loop can record the confirmation and continue.
+**Baseline test instructions** — Fill in the command agents should run to execute the test suite. Put it in root guidance (`AGENTS.md`) or clearly reference a project-local doc that contains it. `dev-loop` reads project guidance at startup; if the command is missing or ambiguous, the loop asks for product owner clarification before claiming a task. If your project has no automated tests, state that explicitly so the loop can record the confirmation and continue.
 
 **`ai-team/docs/coding_guidelines.md`** — `ai-team init` scaffolds this file as a placeholder; do not create it by hand. It is filled in by the project bootstrap (see Step 7) once S-000 is approved, with project-specific rules:
 - Stack and framework conventions.
@@ -142,12 +142,12 @@ The typical feature workflow is then:
 
 1. **Describe a feature** — write what you want built.
 2. **Brainstorm** — the planner agent explores approaches and produces a specification (`/new-spec`).
-3. **Approve the spec** — human reviews and approves (Gate 1).
+3. **Approve the spec** — the product owner reviews and approves (Gate 1).
 4. **Break into tasks** — the planner decomposes the spec into atomic tasks.
 5. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
 6. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop.
 7. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
-8. **Final approval** — human approves the merge from `dev-agent` to `main` (Gate 5).
+8. **Final approval** — the product owner approves the merge from `dev-agent` to `main` (Gate 5).
 
 For the full workflow details, see `ai-process/processes/workflow-overview.md`.
 
@@ -168,7 +168,7 @@ There is no migration command: an agent migrates by hand with this procedure. Li
    - `archive/YYYY-MM/B-*.md` → `<tracker>/bugs/`
    - `archive/YYYY-MM/CR-*.md` → `<tracker>/change-requests/`
 
-   If two files would land on the same name, stop and ask the human.
+   If two files would land on the same name, stop and ask the product owner.
 5. **Reconcile status with the old folder.** The folder was authoritative. For every task or bug whose `status` differs from the state folder it came from, set the folder's state with `ai-team task set-status` or `ai-team bug set-status`, adding `--reason "migrated from <folder>"`. Change-requests, and items copied from `archive/YYYY-MM/`, keep their `status`.
 6. **Verify before deleting anything.** `ai-team list tasks --json`, `ai-team list bugs --json`, and `ai-team list change-requests --json` must return the starting counts from step 3, where the count for each kind includes the archived files of that kind (`T-*` with tasks, `B-*` with bugs, `CR-*` with change-requests), and `ai-team validate` must report no task, bug, or change-request findings.
 7. **Remove the legacy folders from the repository** with `git rm -r` (including their `.gitkeep` files), then confirm `ai-team check-layout` no longer reports legacy folders and no command prints the legacy warning.

@@ -8,7 +8,7 @@ created: 2026-05-15
 
 A practical playbook for writing a specification that passes Gate 1 and gives the Planner enough information to decompose it into atomic tasks.
 
-This guide is for the **author** of a spec — usually the Planner working interactively with the human during `/brainstorm`. Read it once before writing your first spec; refer back to the section recipes while writing.
+This guide is for the **author** of a spec — usually the Planner working interactively with the product owner during `/brainstorm`. Read it once before writing your first spec; refer back to the section recipes while writing.
 
 ## Before you write
 
@@ -87,7 +87,7 @@ S-000 supplies the system context, but this section records the feature-specific
 
 **Strategy:** record each behavior deliberately outside scope with its reason. Keep rejected implementation approaches and their rationale distinct from exclusions: choosing one design does not automatically exclude a user capability.
 
-Almost every spec has at least one exclusion. "No exclusions apply" should be rare, and should follow an explicit confirmation from the human.
+Almost every spec has at least one exclusion. "No exclusions apply" should be rare, and should follow an explicit confirmation from the product owner.
 
 **Strong:**
 > - **Deployment pipelines.** Excluded because this spec covers PR validation only; release pipelines are tracked separately under S-NNN.
@@ -121,7 +121,7 @@ Do not repeat other components' internals; use S-000 for system-wide context.
 
 ### Workflow
 
-**Recipe:** end-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark human gates with ★. Include applicable failure, boundary, empty-input, concurrent-access, and state-dependent paths, referencing their requirement identifiers.
+**Recipe:** end-to-end flow from trigger to completion. Each step is a sentence or short phrase. Mark product owner gates with ★. Include applicable failure, boundary, empty-input, concurrent-access, and state-dependent paths, referencing their requirement identifiers.
 
 **Strong:**
 ```
@@ -131,7 +131,7 @@ CI runner triggers test + lint suite
   ↓
 Results posted as PR check
   ↓
-★ Reviewer approves or requests changes (human)
+★ Reviewer approves or requests changes (product owner)
   ↓
 Merge enabled / blocked by check status
 ```
@@ -196,10 +196,10 @@ A phase is not a task. The `spec-breakdown` skill produces the actual tasks from
 
 ### Open Questions
 
-Before review or approval, resolve every question affecting required behavior, external contracts, acceptance, or feasibility, including technical questions the human cannot answer directly.
+Before review or approval, resolve every question affecting required behavior, external contracts, acceptance, or feasibility, including technical questions the product owner cannot answer directly.
 Record only deferred internal design investigations here, each with an owner and resolution condition; they must not change approved behavior.
 Write `None` when no investigations remain.
-Human-answerable `[TODO]` markers must be resolved before Architecture Consistency Review; unresolved behavioral questions block it regardless of who can answer them.
+Product-owner-answerable `[TODO]` markers must be resolved before Architecture Consistency Review; unresolved behavioral questions block it regardless of who can answer them.
 
 ### Amendment Log
 
@@ -275,7 +275,7 @@ The scenario records an observable outcome without prescribing the implementatio
 Before declaring the spec ready for Gate 1, the author confirms each of these:
 
 - [ ] **Problem is concrete.** Purpose names the problem, the trigger, and the observable outcome.
-- [ ] **At least one exclusion.** Or a human-confirmed "no exclusions apply" statement.
+- [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
 - [ ] **Each design principle is a constraint, not an implementation choice.**
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Where a literal value is the contract, it is labelled **Contract**.
 - [ ] **Every requirement is measurable.** Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
@@ -288,7 +288,7 @@ Before declaring the spec ready for Gate 1, the author confirms each of these:
 - [ ] **Implementation Order has coarse phases**, not tasks.
 - [ ] **Amendment Log is empty** (until amendments arrive after Gate 1).
 
-If every box is checked and Architect consistency findings are resolved, the spec is ready for human Gate 1 approval.
+If every box is checked and Architect consistency findings are resolved, the spec is ready for product owner Gate 1 approval.
 
 ## Implementations of this guide
 

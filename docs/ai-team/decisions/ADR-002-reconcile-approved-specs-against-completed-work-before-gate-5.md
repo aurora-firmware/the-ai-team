@@ -15,7 +15,7 @@ change-request changes. Nothing reconciles a spec against what was actually buil
 work is done.
 
 Gate 5's pass criterion is that "the status summary matches the approved specification" — a
-human comparing a summary to a spec, not a check of the completed work against the spec. A
+product owner comparing a summary to a spec, not a check of the completed work against the spec. A
 spec can therefore be approved, implemented with undocumented deviations, and signed off while
 no longer describing the system. The framework's central promise is that specs and ADRs are
 always true; today that holds by planning-time discipline, not by a gate at the end.
@@ -26,7 +26,7 @@ this gap, and issue #31 tracks closing it.
 ## Decision
 
 Add a standing duty, **spec-truth reconciliation**, that runs after the task queue drains and
-before the human gives Gate 5 sign-off.
+before the product owner gives Gate 5 sign-off.
 
 The Architect re-reads each approved spec touched by the completed work against the completed
 task and bug Work Logs, any ADRs created while the work was in flight, and the deferred-Minor
@@ -39,7 +39,7 @@ from Gate 2, because the finding and the approved spec already fix their scope; 
 their check. The Planner still chooses each follow-up task's verification method by the
 `new-task` rule: a test, an inspection, or a demonstration, as defined in
 `guides/spec-authoring-guide.md`. When it is unclear which side is authoritative, or
-both need to change, the Architect escalates to the human to decide. It also escalates when a
+both need to change, the Architect escalates to the product owner to decide. It also escalates when a
 re-run still finds drift on a finding whose follow-up tasks are completed, rather than routing
 another round of tasks that skip Gate 2.
 
@@ -71,7 +71,7 @@ re-run that returns `PASS`.
 ### Neutral
 
 - The Architect still never edits specs; the Planner owns amendments, as before.
-- The reconciliation is triggered by the human or the loop's suggested next action, because the
+- The reconciliation is triggered by the product owner or the loop's suggested next action, because the
   loops end with a short run summary and do not invoke reviews on their own.
 
 ## Alternatives Considered
@@ -82,11 +82,11 @@ re-run that returns `PASS`.
 **Rejected because:** It would duplicate the binding-set reading, findings format, and routing
 rules of `architecture-consistency-review`, and the two copies would drift.
 
-### Alternative B: Keep the human comparison at Gate 5
+### Alternative B: Keep the product owner's comparison at Gate 5
 
 **Description:** Leave the status-summary-versus-spec comparison as the only check.
 **Rejected because:** It compares a summary to a spec, not completed work to a spec, and relies
-on the human noticing deviations that no artifact records.
+on the product owner noticing deviations that no artifact records.
 
 ## Amendments
 
@@ -95,10 +95,10 @@ on the human noticing deviations that no artifact records.
   have recorded the gap as intended, so the Planner created follow-up tasks (T-126, T-127) and
   the Architect re-ran the review to `PASS`. The decision now states that route, and the Gate 5
   criterion accepts completed follow-up tasks with a passing re-run. A drift whose authoritative
-  side is unclear, or where both sides must change, escalates to the human. Follow-up tasks
+  side is unclear, or where both sides must change, escalates to the product owner. Follow-up tasks
   are exempt from Gate 2, and the Planner chooses their verification mode by the
-  spec-breakdown rule. A drift that persists after its follow-up tasks escalates to the human,
-  so follow-up rounds cannot repeat without a human decision.
+  spec-breakdown rule. A drift that persists after its follow-up tasks escalates to the product owner,
+  so follow-up rounds cannot repeat without a product owner decision.
 - **2026-10-26:** Verification vocabulary. Tasks are now verified by a test, an inspection, or
   a demonstration, as defined in `guides/spec-authoring-guide.md`; design review is folded
   into inspection. The Planner chooses each follow-up task's verification method by the

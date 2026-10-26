@@ -10,15 +10,15 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 ## Gate 1: Specification Approval
 
-**When:** After the Planner produces a design document from interactive brainstorming and resolves any human-answerable `[TODO]` markers.
-**Evaluator:** Human.
+**When:** After the Planner produces a design document from interactive brainstorming and resolves any product-owner-answerable `[TODO]` markers.
+**Evaluator:** Product Owner.
 **Pass criteria:**
 - The problem is clearly defined.
 - The proposed solution addresses the stated problem.
 - Architecture is described with enough detail to derive tasks.
 - Exclusions are explicitly stated.
 - No unresolved open questions that affect behavior, contracts, acceptance, or feasibility. Deferred internal investigations follow the `new-spec` Open Questions rule.
-- No remaining human-answerable `[TODO]` markers.
+- No remaining product-owner-answerable `[TODO]` markers.
 
 **Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec-authoring-guide.md`.
 
@@ -37,9 +37,9 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 **When:** After the Planner writes the task plan from either an approved specification or an approved change-request, before the development loop starts. Follow-up tasks routed by spec-truth reconciliation are exempt: they are created `pending`, and the reconciliation re-run checks them (ADR-002).
 **Evaluator:** Architect.
-**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by human approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
+**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by product owner approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
 **Pass criteria:**
-- Task plan covers every requirement in the approved specification (spec-coverage verification). For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the human recorded it as skipped (brownfield). S-000's solution components never need tasks.
+- Task plan covers every requirement in the approved specification (spec-coverage verification). For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the product owner recorded it as skipped (brownfield). S-000's solution components never need tasks.
 - Task dependencies are correct and complete.
 - File conflict risks are identified and resolved through dependencies or task changes.
 - Interfaces are consistent across tasks: every type, function, or file a task consumes is produced by a task it depends on (or already exists), under the same name and signature.
@@ -51,12 +51,12 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 ## Architecture Consistency Review
 
-**When:** Whenever a specification, an ADR, or a change-request is created, accepted, amended, or superseded — at ADR authoring time (`new-adr`), after a draft spec is made TODO-free and before Gate 1 approval, after an amended spec is made TODO-free and before Architect consistency review continues, and after a change-request becomes TODO-free and gains human approval. This is a standing duty, not a numbered gate. It also runs on **completion**: after the task queue drains and before Gate 5 sign-off, the Architect re-reads each approved spec the work touched against the completed Work Logs, the ADRs created mid-flight, and the deferred-Minor roll-up, then confirms the spec is still true or routes corrections to the Planner: an amendment when the spec is stale, or follow-up tasks when the spec is right and the work falls short (ADR-002). The completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from.
+**When:** Whenever a specification, an ADR, or a change-request is created, accepted, amended, or superseded — at ADR authoring time (`new-adr`), after a draft spec is made TODO-free and before Gate 1 approval, after an amended spec is made TODO-free and before Architect consistency review continues, and after a change-request becomes TODO-free and gains product owner approval. This is a standing duty, not a numbered gate. It also runs on **completion**: after the task queue drains and before Gate 5 sign-off, the Architect re-reads each approved spec the work touched against the completed Work Logs, the ADRs created mid-flight, and the deferred-Minor roll-up, then confirms the spec is still true or routes corrections to the Planner: an amendment when the spec is stale, or follow-up tasks when the spec is right and the work falls short (ADR-002). The completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from.
 **Evaluator:** Architect.
 **Executable procedure:** the `architecture-consistency-review` skill, exported by `ai-team init`, owns the actual check, finding routing, and escalation behaviour. This section is the spec-layer description of *why* and *when* the duty runs; the skill is *how* it runs. The Architect runs it directly when authoring an ADR; for a created or amended spec or an approved change-request, the Planner-owned procedure hands the changed artifact to the Architect (Next Owner: Architect), who runs the review and returns findings — the same Planner↔Architect handoff pattern as Gate 2.
 **Why:** Approved specs and accepted ADRs are both binding sources of truth (see Gate 2). A new or changed decision can silently contradict something an existing spec or ADR already records, leaving two authoritative artifacts that disagree until someone notices by hand.
-**Check:** The Architect reads the changed artifact against every other approved spec and accepted ADR and confirms they remain mutually consistent. For draft specs and amended specs, this check only starts once human-answerable `[TODO]` markers are resolved; for change-requests, it starts only after the human has approved a TODO-free request. Gate 2's `spec-breakdown-review` makes the equivalent consistency check on a *task plan* independently; this review covers the *artifact change itself*, regardless of whether any task plan is in flight. The two reviews are separate skills with separate inputs.
-**On drift:** The Architect names every affected artifact and routes the correction — the Planner amends affected specs (recording the change, and the driving ADR ID, in the Amendment Log), and the Architect amends or supersedes affected ADRs. In completion mode, when the spec is right and the completed work falls short, the Planner creates follow-up tasks instead of amending the spec. When the changed artifact is an approved change-request, the Planner treats that approved TODO-free request as authoritative for Planner-owned consistency fixes. If an Architect finding would alter the approved change-request's intent, the process stops for a human decision instead of applying the change procedurally. When reconciling the drift requires changing an approved specification beyond an in-flight amendment, the Architect escalates to the human per the [escalation procedure](escalation-procedure.md).
+**Check:** The Architect reads the changed artifact against every other approved spec and accepted ADR and confirms they remain mutually consistent. For draft specs and amended specs, this check only starts once product-owner-answerable `[TODO]` markers are resolved; for change-requests, it starts only after the product owner has approved a TODO-free request. Gate 2's `spec-breakdown-review` makes the equivalent consistency check on a *task plan* independently; this review covers the *artifact change itself*, regardless of whether any task plan is in flight. The two reviews are separate skills with separate inputs.
+**On drift:** The Architect names every affected artifact and routes the correction — the Planner amends affected specs (recording the change, and the driving ADR ID, in the Amendment Log), and the Architect amends or supersedes affected ADRs. In completion mode, when the spec is right and the completed work falls short, the Planner creates follow-up tasks instead of amending the spec. When the changed artifact is an approved change-request, the Planner treats that approved TODO-free request as authoritative for Planner-owned consistency fixes. If an Architect finding would alter the approved change-request's intent, the process stops for a product owner decision instead of applying the change procedurally. When reconciling the drift requires changing an approved specification beyond an in-flight amendment, the Architect escalates to the product owner per the [escalation procedure](escalation-procedure.md).
 
 ## Gate 3: Code Review
 
@@ -88,7 +88,7 @@ For bug fixes, the Reviewer also verifies:
 - A regression test exists when the defect can be tested automatically, or the Work Log explains why only manual verification is possible.
 - The Fix Verification steps from the bug report were run or a clear reason is recorded.
 
-**On failure:** The Reviewer records specific feedback in the work item file. The active loop returns the work item to the Developer for another implementation cycle. After the third failed review or any `ESCALATE` verdict, the active loop consults the Architect before stopping for human action.
+**On failure:** The Reviewer records specific feedback in the work item file. The active loop returns the work item to the Developer for another implementation cycle. After the third failed review or any `ESCALATE` verdict, the active loop consults the Architect before stopping for product owner action.
 
 ## Gate 4: Integration Tests
 
@@ -105,13 +105,13 @@ Regression bug reports must record the preserved source branch as `source_branch
 
 ## Development Loop Baseline Guard
 
-Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the human for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
+Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the product owner for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
 
 ## Gate 5: Final Merge Sign-off
 
 **When:** After the task queue is empty and all tasks are `completed`.
-**Evaluator:** Human.
-**Input:** The status summary the human requests on demand with `/status-report`. The loops do not produce it automatically.
+**Evaluator:** Product Owner.
+**Input:** The status summary the product owner requests on demand with `/status-report`. The loops do not produce it automatically.
 **Pass criteria:**
 - Integration tests are green.
 - No open bugs with severity `critical` or `high`.
@@ -121,6 +121,6 @@ Before the development loop claims its first task it discovers the documented ba
 
 **Before sign-off:** The Architect runs spec-truth reconciliation (ADR-002) — `architecture-consistency-review` in completion mode — for every approved spec the completed work touched. This completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from (see [Architecture Consistency Review](#architecture-consistency-review)). The Architect returns each completion-mode verdict as a dated Amendment Log row, which the Planner records in the reconciled spec's Amendment Log (or in the change-request file for change-request work), as defined in the `architecture-consistency-review` skill.
 
-**On failure:** Human provides feedback. New tasks are created to address issues.
+**On failure:** The product owner provides feedback. New tasks are created to address issues.
 
-> This is a sign-off, not a code review. The human reviews the status summary and confirms the outcome matches the spec intent — not individual diffs. Detailed code quality was already verified at Gates 3 and 4.
+> This is a sign-off, not a code review. The product owner reviews the status summary and confirms the outcome matches the spec intent — not individual diffs. Detailed code quality was already verified at Gates 3 and 4.

@@ -35,15 +35,15 @@ creates.
 | Planner | Create a task plan that the development loop cannot pick up before Gate 2 | P1 | Planned tasks stay out of the `pending` queue until set to `pending` | REQ-005, REQ-014 |
 | Planner taking a small change | Record it as a change-request instead of a full spec | P1 | `ai-team change-request new` creates a pending change-request in the tracker from the bundled template | REQ-015 |
 | Developer or Reviewer in a separate worktree | See the same work items as the loop in the main checkout | P1 | Every worktree resolves the same tracker folder | REQ-001, REQ-002 |
-| Human setting up a project | Get a working tracker with no manual configuration | P1 | `ai-team init` configures, creates and git-ignores the tracker | REQ-009 |
-| Human or agent with an existing project | Move legacy work items into the tracker | P2 | Commands warn until migration is done, and a documented procedure guides it | REQ-011, REQ-012 |
-| Human checking progress | See the state of the work | P2 | `list`, `show`, `status`, `report` and `validate` read state from the tracker | REQ-007, REQ-010 |
+| Product owner setting up a project | Get a working tracker with no manual configuration | P1 | `ai-team init` configures, creates and git-ignores the tracker | REQ-009 |
+| Product owner or agent with an existing project | Move legacy work items into the tracker | P2 | Commands warn until migration is done, and a documented procedure guides it | REQ-011, REQ-012 |
+| Product owner checking progress | See the state of the work | P2 | `list`, `show`, `status`, `report` and `validate` read state from the tracker | REQ-007, REQ-010 |
 
 ## Exclusions
 
 - **GitHub or any other remote tracker backend.** Deferred to phase 2. This spec only ensures that skills reach tracker data through `ai-team` commands, so that a later backend does not change the skills a second time.
 - **Moving specs, ADRs, or docs.** They are design documents that belong next to the code and stay in the project directory under version control. Spec amendments and ADRs raised by a change-request are still committed on its planning branch.
-- **Sharing the tracker across machines or collaborators.** The tracker is local to one working copy. Making the tracker folder its own repository, or syncing it, is left to the human.
+- **Sharing the tracker across machines or collaborators.** The tracker is local to one working copy. Making the tracker folder its own repository, or syncing it, is left to the product owner.
 - **History of task, bug, and change-request files.** Git history no longer records them or their lifecycle changes. The Work Log and Review Verdict entries inside each file remain the record.
 - **Changing the Work Log, Diagnosis Log, or Review Verdict formats.** Only where they are written changes, not what they contain.
 - **Shared ID allocation for specs and ADRs.** Task, bug, and change-request IDs come from the single tracker folder and stop colliding across planning branches; spec and ADR IDs keep today's allocation from the files on the current branch.
@@ -84,7 +84,7 @@ creates.
 |---|---|---|
 | Tracker configuration | Resolve the tracker folder for the current repository | Reads `.ai-team.toml`; exposes the resolved absolute path to every command |
 | Work-item store | Create, find, and transition tasks, bugs, and change-requests by ID | Field-based state; one flat folder per kind |
-| CLI commands | Human and skill entry points for tracker data | Existing command names keep working; state filters read the `status` field |
+| CLI commands | Product owner and skill entry points for tracker data | Existing command names keep working; state filters read the `status` field |
 | Migration | Guide an agent through moving legacy tasks, bugs, and change-requests into the tracker | A documented manual procedure plus a legacy-folder warning from the CLI |
 | Process skills and docs | Drive lifecycle through CLI commands, without lifecycle commits | Loops, integrate, code-review, spec-breakdown, change-request, git-conventions, workflow docs |
 
@@ -140,14 +140,14 @@ and the migration procedure.
 ## Workflow
 
 1. `ai-team init` writes a `[tracker]` section with the default folder, creates the folder, and makes git ignore it (REQ-009). ★ For an existing project, an agent follows the documented migration procedure once and commits the removal of the legacy folders (REQ-012).
-2. `/change-request` creates the change-request in the tracker with status `pending` and opens a planning branch for any spec amendments or ADRs it drives; human approval sets it to `approved`, rejection to `rejected` (REQ-004). `/new-spec` opens its planning branch as before.
+2. `/change-request` creates the change-request in the tracker with status `pending` and opens a planning branch for any spec amendments or ADRs it drives; product owner approval sets it to `approved`, rejection to `rejected` (REQ-004). `/new-spec` opens its planning branch as before.
 3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005).
 4. After Gate 2 and the planning-branch merge, `spec-breakdown` sets that plan's tasks to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks become `cancelled` (REQ-004, REQ-005).
 5. `/dev-loop` lists `pending` tasks, sets the chosen one to `in-progress`, and creates the task branch. No commit (REQ-008, REQ-013).
 6. The loop appends the Developer's Work Log and the Reviewer appends the Review Verdict to the task file, from whatever branch is checked out. No commit, no switch (REQ-013).
 7. `integrate` reads the verdict from the task file, merges, and on success sets the task to `completed`. The merge commit is the only commit on `dev-agent` (REQ-013).
 8. The bug loop follows the same pattern. Task-regression bug branches no longer need bug content relayed, because the bug file is outside every branch.
-9. ★ The human runs `/status-report` on demand; it reads state from the tracker (REQ-007).
+9. ★ The product owner runs `/status-report` on demand; it reads state from the tracker (REQ-007).
 
 Failure and boundary paths: an unknown status or an unexpected source status is
 rejected without changing the file; a command run again on an item already in the

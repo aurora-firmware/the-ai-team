@@ -25,10 +25,10 @@ report, and no check changes the filesystem.
 
 | Actor | Goal | Priority | Outcome | Requirements |
 |---|---|---|---|---|
-| Human or agent working in a consuming project | Find out what is wrong with the project's layout and how to fix it, in one run | P1 | `check-layout` lists every finding with its level, path, problem and fix, or reports a clean result | REQ-003–REQ-011 |
+| Product owner or agent working in a consuming project | Find out what is wrong with the project's layout and how to fix it, in one run | P1 | `check-layout` lists every finding with its level, path, problem and fix, or reports a clean result | REQ-003–REQ-011 |
 | Any CLI user | Know that the CLI is under development and where to report defects | P1 | Every run prints the development warning once | REQ-001 |
 | Agent parsing CLI output | Read stdout and `--json` output without warnings mixed in | P1 | Warnings go to stderr only and never change stdout, JSON or exit codes | REQ-012 |
-| Human or agent whose project was set up by another CLI version | Learn that the scaffolds and the running CLI disagree, and how to align them | P2 | Every run inside the project prints the version mismatch warning with both versions and the fix | REQ-002 |
+| Product owner or agent whose project was set up by another CLI version | Learn that the scaffolds and the running CLI disagree, and how to align them | P2 | Every run inside the project prints the version mismatch warning with both versions and the fix | REQ-002 |
 
 ## Exclusions
 

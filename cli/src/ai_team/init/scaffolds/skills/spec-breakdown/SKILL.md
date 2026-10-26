@@ -24,7 +24,7 @@ S-000 is the project overview. It is accepted as input for the project bootstrap
 ### Step 0: Check Out the Planning Branch
 If the spec to break down is S-000, plan only the project bootstrap tasks for its development-infrastructure components, using `ai-team task new --spec S-000`; the plan goes through Gate 2 (Steps 6 and 7) as usual. If the request asks to plan solution work from S-000, refuse before any branch checkout, say that S-000 produces no solution work, create no task, and name the feature specs (listed by `ai-team list specs`) as the input.
 The bootstrap tasks produce: the answers to every Decisions needed, written by default to the `docs/development/` folder at the repository root, in `docs/development/architecture.md` (high-level design of the solution components) and `tech-stack.md` (the answers); when the project's rules say where such documents go, those rules win, and a task records the chosen location in the project guidance; environment configuration (container or environment manager, environment variables and settings); a remote access check; coding guidelines; internal documentation placeholders for the remaining documents; project guidance with the common rules and the build, test, lint and run commands; and the README project description written from S-000.
-In a brownfield project (one with existing code, specs or documents), plan only the missing items; the human may skip items that already exist.
+In a brownfield project (one with existing code, specs or documents), plan only the missing items; the product owner may skip items that already exist.
 The breakdown runs on the planning branch of the spec or change-request it decomposes (`plan/<id>-…`), never on `{{integration_branch}}`.
 If that branch exists, run the before-point Workspace Hygiene check from the `git-conventions` skill and check it out.
 If it does not exist — the approved spec is already on `{{integration_branch}}` — open one as described in **Opening a Planning Branch** in the `git-conventions` skill.
@@ -52,7 +52,7 @@ The `new-task` skill handles template loading, ID assignment, filename, and fron
 Then fill in the task body so it satisfies:
 - **Title**: Clear, descriptive, starts with a verb (Implement, Add, Create, Fix).
 - **Description**: Enough context to start without asking questions.
-- **Source requirements**: Name each feature-spec REQ and AC covered by the task. For change-requests and S-000, cite sections instead. Never invent product behavior during decomposition; unresolved behavior goes back to the human for clarification.
+- **Source requirements**: Name each feature-spec REQ and AC covered by the task. For change-requests and S-000, cite sections instead. Never invent product behavior during decomposition; unresolved behavior goes back to the product owner for clarification.
 - **Acceptance criteria**: Author every criterion using one of the five EARS patterns documented in the task file the CLI created (Ubiquitous, Event-driven, Unwanted-behaviour, State-driven, Optional).
 - **Dependencies**: List of task IDs that must complete first.
 - **Files to touch**: Exact file paths that will be created or modified.
@@ -92,13 +92,13 @@ The tracker is outside the repository, so the Planner passes the Architect the a
 
 Wait for the Architect to complete.
 If the Architect requests Planner revisions, address them in the task files and re-trigger the preflight.
-If the Architect escalates because the approved specification must change, stop and return the escalation to the human using the Phase 2 human report template defined in the `escalation-review` skill.
+If the Architect escalates because the approved specification must change, stop and return the escalation to the product owner using the Phase 2 product owner report template defined in the `escalation-review` skill.
 
 ### Step 7: Merge the Planning Branch and Activate the Tasks
 Only after the Architect returns `PASS`:
 1. Run the before-point Workspace Hygiene check, then `git checkout {{integration_branch}}`.
 2. If the planning branch has commits (`git rev-list --count {{integration_branch}}..plan/<id>-<slug>` is not 0), run `git merge --no-ff plan/<id>-<slug> -m "chore(plan): merge <id> <short-description>"`.
-   If the merge conflicts, abort it with `git merge --abort` and stop: report the conflicting planning files to the human. Do not resolve planning conflicts automatically.
+   If the merge conflicts, abort it with `git merge --abort` and stop: report the conflicting planning files to the product owner. Do not resolve planning conflicts automatically.
    A planning branch with no commits — a change-request that amends no spec and raises no ADR — is not merged.
 3. Run the after-point Workspace Hygiene check.
 4. Delete the planning branch with `git branch -d plan/<id>-<slug>`. If `-d` refuses, stop and report — never force deletion.
@@ -109,7 +109,7 @@ Until this step, the tasks stay `planned` and invisible to `/dev-loop`, and `{{i
 ## Output Format
 
 - A set of validated tasks in the tracker with status `pending`, approved by the Architect preflight and activated after the planning branch merged the spec or change-request changes they implement.
-- The plan is ready for the human to invoke `/dev-loop` — no further human review of the task plan is required.
+- The plan is ready for the product owner to invoke `/dev-loop` — no further product owner review of the task plan is required.
 
 ## Quality Criteria
 

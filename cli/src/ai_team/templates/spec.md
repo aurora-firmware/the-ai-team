@@ -33,7 +33,7 @@ section recipes and the pre-submission checklist.
 ## Exclusions
 
 <!-- State excluded behavior and why; keep rejected implementation choices
-  distinct from scope exclusions. Confirm "no exclusions apply" with the human
+  distinct from scope exclusions. Confirm "no exclusions apply" with the product owner
   if there are none. -->
 
 [TODO] State scope exclusions and their reasons.
@@ -67,7 +67,7 @@ section recipes and the pre-submission checklist.
 
 ## Workflow
 
-<!-- From trigger to completion, mark human gates with a star (★). Include
+<!-- From trigger to completion, mark product owner gates with a star (★). Include
   applicable failure, boundary, empty-input, concurrent-access, and state paths;
   link their requirements. Do not walk through internal code. -->
 

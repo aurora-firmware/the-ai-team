@@ -1,13 +1,13 @@
 ---
 name: dev-loop
-description: Fully autonomous implementation loop that drives pending tasks through Developer and Reviewer cycles to integration, one task at a time. Use when Gate 2 has passed and pending tasks are ready for development. Use only when the human asks to run the development loop.
+description: Fully autonomous implementation loop that drives pending tasks through Developer and Reviewer cycles to integration, one task at a time. Use when Gate 2 has passed and pending tasks are ready for development. Use only when the product owner asks to run the development loop.
 argument-hint: "[task-id | task-branch] — optional single task to process (e.g., T-012 or task/T-012-my-feature). If omitted, processes the full pending queue."
 allowed-tools: Read, Glob, Grep, Bash, Agent, Skill(integrate), Skill(new-bug), Skill(git-conventions)
 ---
 
 # Dev Loop
 
-Autonomous orchestrator that processes the pending task queue without human intervention.
+Autonomous orchestrator that processes the pending task queue without product owner intervention.
 Stops only at hard gates: empty queue, blocked task, or escalation.
 
 ## Input Requirements
@@ -85,21 +85,21 @@ Skip this step when looping back after a completed task (control returns to Step
 
 #### Missing or Unavailable
 
-If no automated baseline test command is documented, or the documentation explicitly says no automated tests exist, ask the human for one of these before claiming a task:
+If no automated baseline test command is documented, or the documentation explicitly says no automated tests exist, ask the product owner for one of these before claiming a task:
 
 - The intended baseline test command to run.
 - Explicit confirmation that no automated baseline test is available for this project.
 
-Stop until the human responds. Report:
+Stop until the product owner responds. Report:
 `BLOCKED: no automated baseline test command is documented. Provide the command to run, or confirm that this project has no automated baseline test.`
 
-If the human confirms that no automated baseline test is available, record that confirmation in the loop summary and continue to Step 3 without running a baseline command.
+If the product owner confirms that no automated baseline test is available, record that confirmation in the loop summary and continue to Step 3 without running a baseline command.
 
 #### Ambiguous
 
-If multiple plausible automated baseline commands are documented and no source clearly identifies which one is the baseline, ask the human which command to use before claiming a task.
+If multiple plausible automated baseline commands are documented and no source clearly identifies which one is the baseline, ask the product owner which command to use before claiming a task.
 
-Stop until the human responds. Report:
+Stop until the product owner responds. Report:
 `BLOCKED: multiple plausible baseline test commands are documented. Confirm which command the loop should run before claiming tasks.`
 
 #### Runnable
@@ -197,7 +197,7 @@ verdict in the task file is PASS before it merges.
    - The failure reason (pre-merge test failure, unmet acceptance criteria, or post-merge regression).
    - Which bug IDs were filed (if regressions were found).
    - That the feature branch was NOT deleted and `{{integration_branch}}` was left clean (integrate reverts on regression).
-   - Next step for the human: run `/bug-loop` to autonomously fix the filed regressions, then re-run `/dev-loop`.
+   - Next step for the product owner: run `/bug-loop` to autonomously fix the filed regressions, then re-run `/dev-loop`.
 
 #### On FAIL
 
@@ -211,7 +211,7 @@ Climb the capability ladder — each rung changes who attempts the fix, so a stu
 
 #### On ESCALATE
 
-Follow the Phase 2 escalation chain below. Step 1 is a single Architect consultation; Step 2 is human escalation. The chain is linear — no second Architect round.
+Follow the Phase 2 escalation chain below. Step 1 is a single Architect consultation; Step 2 is product owner escalation. The chain is linear — no second Architect round.
 
 **Phase 2, Step 1 — Architect Consultation:**
 **Spawn the Architect subagent** (tier: most capable) with this prompt:
@@ -231,16 +231,16 @@ If the Architect adjudicates that specific findings of the last FAIL verdict sho
 
 Then spawn the Reviewer again (Step 6). Its prompt stays neutral; the recorded deviation is in the task file, where the Reviewer reads it. Parked findings never count toward the cycle cap and are never deleted with the workspace.
 
-**Phase 2, Step 2 — Human Escalation:**
+**Phase 2, Step 2 — Product Owner Escalation:**
 If the Architect cannot resolve the issue:
 1. Run `ai-team task block T-NNN --reason "<one-line reason>"`. The reason is recorded in the task's Work Log; there is nothing to commit.
 2. Stop the loop entirely.
-3. Produce the report using the Phase 2 Human Escalation Report template defined in the `escalation-review` skill. Fill every section (Work item, Original request, Self-recovery attempts, Architect analysis, Why human input is required, Decision needed).
+3. Produce the report using the Phase 2 Product Owner Escalation Report template defined in the `escalation-review` skill. Fill every section (Work item, Original request, Self-recovery attempts, Architect analysis, Why product owner input is required, Decision needed).
 
 ### Step 8: Loop Complete
 
 Reporting is on demand. Do not invoke the `status-report` skill and do not write a report file.
-The human runs `/status-report` when they want the full Gate 5 summary.
+The product owner runs `/status-report` when they want the full Gate 5 summary.
 
 1. Run the after-point Workspace Hygiene check and restore any changes this run parked.
 2. Return a short run summary in the chat — a few lines, not a report:
@@ -264,13 +264,13 @@ The orchestrator does not touch implementation or test files.
 
 ## Hard Stops (Do Not Continue)
 
-- A task is set to `blocked` — stop the loop, notify the human
+- A task is set to `blocked` — stop the loop, notify the product owner
 - Integration fails for any reason (pre-merge test failure, unmet criteria, post-merge regression) — stop the loop, report the failure and any filed bug IDs
 - A git operation fails (branch already exists, merge conflict on `{{integration_branch}}`, etc.) — stop and report the git error before attempting anything else
-- A task already has status `in-progress` when the loop starts — stop and ask the human whether to resume that task or treat it as abandoned
+- A task already has status `in-progress` when the loop starts — stop and ask the product owner whether to resume that task or treat it as abandoned
 
 ## What This Skill Does NOT Do
 
-- Does not touch `main` — human-only branch
+- Does not touch `main` — product-owner-only branch
 - Does not modify specifications or decisions
 - Does not fix integration failures — regressions are filed as bugs and the loop stops; fixing is the Developer's job on a subsequent cycle
