@@ -453,23 +453,6 @@ approval.
 
 Exit code is 1 if any error-level finding is reported.
 
-### Archive old artifacts
-
-Completed tasks and resolved bugs older than a threshold are moved to
-`<tracker>/archive/YYYY-MM/`. Both the age and the `YYYY-MM` month come from the
-item's `created` date:
-
-```bash
-# Preview what would be archived (default: older than 90 days)
-ai-team archive --dry-run
-
-# Archive with a custom threshold
-ai-team archive --older-than 30d
-```
-
-Supported units: `d` (days), `w` (weeks), `m` (months, = 30 days),
-`y` (years, = 365 days).
-
 ---
 
 ## Project Folder Structure
@@ -544,8 +527,6 @@ Hand edits to generated files are overwritten by that refresh.
     tasks/                    ← T-NNN-*.md; state is the status field
     bugs/                     ← B-NNN-*.md; state is the status field
     change-requests/          ← CR-NNN-*.md; state is the status field
-    archive/
-      YYYY-MM/                ← old completed/resolved items (ai-team archive)
     review-packages/          ← loop scratch files: <id>.md review package
 ```
 
@@ -560,7 +541,7 @@ and bug-fix loops write scratch review packages to
 Artifact filenames follow the patterns `T-NNN-<slug>.md` (tasks),
 `B-NNN-<slug>.md` (bugs), `S-NNN-<slug>.md` (specs), and `ADR-NNN-<slug>.md`
 (ADRs). The CLI allocates the next sequential task, bug, and change-request ID
-by scanning the tracker, including its archive, and the next spec ID by
+by scanning the tracker, and the next spec ID by
 scanning `specs/` on the current branch. Legacy spec files without the `S-NNN-` prefix are
 also accepted by validation.
 

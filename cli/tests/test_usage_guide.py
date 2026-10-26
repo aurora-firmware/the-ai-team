@@ -114,7 +114,7 @@ def test_usage_md_describes_tracker_folders():
     """usage.md must describe the tracker folders, where state is the status field."""
     content = _content()
     assert "[tracker] dir" in content, "usage.md must name the [tracker] dir setting"
-    for folder in ("tasks/", "bugs/", "change-requests/", "archive/"):
+    for folder in ("tasks/", "bugs/", "change-requests/"):
         assert folder in content, f"usage.md must describe the tracker {folder} folder"
     assert "state is the status field" in content, (
         "usage.md must say work-item state is the status field"

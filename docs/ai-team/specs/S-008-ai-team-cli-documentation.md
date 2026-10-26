@@ -1,6 +1,6 @@
 ---
 title: "ai-team CLI Documentation"
-version: "0.3"
+version: "0.4"
 status: approved
 created: 2026-05-14
 author: planner
@@ -197,7 +197,7 @@ the `init` entry of `commands.md`. Smoke tests: `test_usage_md_covers_init_comma
 
 `usage.md` SHALL describe task-oriented command sequences: create and ship a task,
 file and resolve a bug, file a change request, generate a Gate 5 report, and validate
-and archive artifacts.
+artifacts.
 
 #### AC-003.1 — Workflow sections
 
@@ -214,7 +214,7 @@ appears in `commands.md`. Smoke tests: `test_usage_md_covers_daily_workflows` an
 
 `usage.md` SHALL describe the project folder (`[project] dir`, default `ai-team`) with
 `specs/` and its `archive/`, `decisions/` and `docs/`; the local tracker folder
-(`[tracker] dir`) with `tasks/`, `bugs/`, `change-requests/` and `archive/`, where
+(`[tracker] dir`) with `tasks/`, `bugs/` and `change-requests/`, where
 state is the `status` field (S-006); the `.ai-team.toml` marker; and the locator
 resolution order.
 
@@ -227,8 +227,8 @@ resolution order.
 
 **Verification:** Inspection of the Project Folder Structure section. The marker and
 locator are also checked by `test_usage_md_describes_ai_team_toml_marker` and
-`test_usage_md_describes_locator_resolution_order` in `cli/tests/test_usage_guide.py`;
-no test checks the tracker folders.
+`test_usage_md_describes_locator_resolution_order`, and the tracker folders by
+`test_usage_md_describes_tracker_folders`, in `cli/tests/test_usage_guide.py`.
 
 ### REQ-005 — Maintainer section
 
@@ -444,3 +444,4 @@ drift check is wired in (S-010).
 | 2026-10-25 | Initialisation no longer lists `--tools`. Driven by CR-007. | `init` has no tool selection (S-009, ADR-003). | None in flight |
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered (the custom generator, moved from Exclusions, and the console-script invocation), Interfaces, Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, and Success Criteria; the Components section was split into Interfaces and requirements, the `init` flag list was replaced by a link to `commands.md`, and source line references were dropped. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
 | 2026-10-26 | The root guidance file is `AGENTS.md`; `CLAUDE.md` was renamed. Wording only. | This repository follows ADR-003: Claude Code reads root `AGENTS.md`. | None |
+| 2026-10-26 | REQ-003: the fifth daily workflow is "validate artifacts", without archiving. REQ-004: the tracker folder holds `tasks/`, `bugs/` and `change-requests/`, with no `archive/`; the project `specs/archive/` stays. AC-004.1 Verification now names `test_usage_md_describes_tracker_folders`, which already checks the tracker folders. Version bumped to 0.4. Driven by CR-008 and Architecture Consistency Review finding F2. | CR-008 removes the `ai-team archive` command and the tracker archive (S-006). | CR-008 task plan |

@@ -38,13 +38,11 @@ def test_next_task_id_returns_t_001_when_no_task_files_exist(tmp_path):
     assert next_task_id(root) == "T-001"
 
 
-def test_next_task_id_uses_highest_number_across_tracker_and_archive(tmp_path):
-    """AC-2: allocator scans the tracker and its archive buckets."""
+def test_next_task_id_uses_highest_number_in_the_tracker(tmp_path):
+    """AC-1: allocator scans the tracker's tasks folder."""
     root = make_project_root(tmp_path)
     (root.tasks / "T-007-define-parser.md").write_text("", encoding="utf-8")
-    bucket = root.archive / "2026-01"
-    bucket.mkdir(parents=True)
-    (bucket / "T-012-finalize-parser.md").write_text("", encoding="utf-8")
+    (root.tasks / "T-012-finalize-parser.md").write_text("", encoding="utf-8")
 
     assert next_task_id(root) == "T-013"
 
@@ -66,17 +64,27 @@ def test_next_bug_id_returns_b_001_when_no_bug_files_exist(tmp_path):
     assert next_bug_id(root) == "B-001"
 
 
-def test_next_bug_id_scans_tracker_and_archive_and_ignores_non_matching(tmp_path):
-    """AC-3/AC-4: bug allocator scans the tracker and archive, ignoring invalid names."""
+def test_next_bug_id_scans_the_tracker_and_ignores_non_matching(tmp_path):
+    """AC-2: bug allocator scans the tracker, ignoring invalid names."""
     root = make_project_root(tmp_path)
     (root.bugs / "B-004-first.md").write_text("", encoding="utf-8")
-    bucket = root.archive / "2026-02"
-    bucket.mkdir(parents=True)
-    (bucket / "B-009-last.md").write_text("", encoding="utf-8")
+    (root.bugs / "B-009-last.md").write_text("", encoding="utf-8")
     (root.bugs / "TEMPLATE-bug.md").write_text("", encoding="utf-8")
     (root.bugs / "B-01-not-padded.md").write_text("", encoding="utf-8")
 
     assert next_bug_id(root) == "B-010"
+
+
+def test_next_task_and_bug_ids_ignore_the_tracker_archive_folder(tmp_path):
+    """AC-3: files under <tracker>/archive/<bucket>/ are not counted."""
+    root = make_project_root(tmp_path)
+    bucket = root.tracker / "archive" / "2026-01"
+    bucket.mkdir(parents=True)
+    (bucket / "T-012-finalize-parser.md").write_text("", encoding="utf-8")
+    (bucket / "B-009-last.md").write_text("", encoding="utf-8")
+
+    assert next_task_id(root) == "T-001"
+    assert next_bug_id(root) == "B-001"
 
 
 def test_next_spec_id_uses_project_and_archive_as_one_number_space(tmp_path):

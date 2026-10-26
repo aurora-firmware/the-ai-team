@@ -436,35 +436,27 @@ def validate_project(
     return findings
 
 
-def _archive_buckets(root: ProjectRoot) -> list[Path]:
-    if not root.archive.is_dir():
-        return []
-    return sorted(path for path in root.archive.iterdir() if path.is_dir())
-
-
 def _existing_change_request_ids(root: ProjectRoot) -> set[str]:
     change_request_ids: set[str] = set()
-    for folder in (root.change_requests, *_archive_buckets(root)):
-        for path in iter_items(folder):
-            if not path.name.startswith("CR-"):
-                continue
-            try:
-                change_request_ids.add(parse_change_request(path).id)
-            except FrontmatterError:
-                continue
+    for path in iter_items(root.change_requests):
+        if not path.name.startswith("CR-"):
+            continue
+        try:
+            change_request_ids.add(parse_change_request(path).id)
+        except FrontmatterError:
+            continue
     return change_request_ids
 
 
 def _existing_task_ids(root: ProjectRoot) -> set[str]:
     task_ids: set[str] = set()
-    for folder in (root.tasks, *_archive_buckets(root)):
-        for path in iter_items(folder):
-            if not path.name.startswith("T-"):
-                continue
-            try:
-                task_ids.add(parse_task(path).id)
-            except FrontmatterError:
-                continue
+    for path in iter_items(root.tasks):
+        if not path.name.startswith("T-"):
+            continue
+        try:
+            task_ids.add(parse_task(path).id)
+        except FrontmatterError:
+            continue
     return task_ids
 
 

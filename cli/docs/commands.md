@@ -19,7 +19,6 @@ $ ai-team [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `adr`: Create and manage ADR artifacts.
-* `archive`: Archive old completed tasks and resolved...
 * `bug`: Create and manage bug artifacts.
 * `change-request`: Create and manage change-request artifacts.
 * `check-layout`: Check the repository layout and report...
@@ -70,22 +69,6 @@ $ ai-team adr new [OPTIONS] TITLE
 * `--status [proposed|accepted|superseded]`: [default: proposed]
 * `--supersedes TEXT`
 * `--json`: Emit JSON output.
-* `--help`: Show this message and exit.
-
-## `ai-team archive`
-
-Archive old completed tasks and resolved bugs into the tracker&#x27;s archive/YYYY-MM/.
-
-**Usage**:
-
-```console
-$ ai-team archive [OPTIONS] COMMAND [ARGS]...
-```
-
-**Options**:
-
-* `--older-than TEXT`: [default: 90d]
-* `--dry-run`
 * `--help`: Show this message and exit.
 
 ## `ai-team bug`

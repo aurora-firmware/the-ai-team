@@ -24,7 +24,6 @@ def tracker_path(
                 "tasks": str(root.tasks),
                 "bugs": str(root.bugs),
                 "change_requests": str(root.change_requests),
-                "archive": str(root.archive),
             }
         )
         return

@@ -53,6 +53,20 @@ def test_tracker_path_defaults_to_repository_root(initialized_repo):
     assert result.stdout.strip() == str(initialized_repo / ".ai-team" / "tracker")
 
 
+def test_tracker_path_json_lists_the_tracker_folders_without_an_archive(
+    initialized_repo,
+):
+    result = _invoke("tracker", "path", "--json")
+
+    assert result.exit_code == 0, result.output
+    assert set(json.loads(result.stdout)) == {
+        "tracker",
+        "tasks",
+        "bugs",
+        "change_requests",
+    }
+
+
 def test_every_worktree_resolves_the_same_tracker(initialized_repo, monkeypatch):
     worktree = initialized_repo.parent / "linked"
     _git(initialized_repo, "worktree", "add", "-q", "-b", "task/T-001", str(worktree))

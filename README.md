@@ -182,7 +182,6 @@ ai-team change-request new "Revise planner handoff format"
 ai-team check-layout
 ai-team validate
 ai-team report
-ai-team archive --older-than 90d --dry-run
 ```
 
 The action skills use those commands internally. For example, `/new-task` delegates file creation to `ai-team task new`, `/new-bug` delegates to `ai-team bug new`, `/change-request` delegates to `ai-team change-request new`, and `/status-report` delegates to `ai-team status` plus `ai-team report`.
