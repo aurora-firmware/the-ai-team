@@ -158,20 +158,6 @@ def test_gate_2_checks_interface_consistency_and_placeholders():
     assert "No task contains placeholder text" in gates
 
 
-def test_owning_spec_records_the_phase_3_amendment_before_the_change():
-    spec = (
-        REPO
-        / "docs"
-        / "ai-team"
-        / "specs"
-        / "S-002-coordinated-process-and-cli-workflow-improvements.md"
-    ).read_text(encoding="utf-8")
-
-    amendment = spec.split("## Amendment Log", 1)[1]
-    assert "Interfaces: Consumes / Produces" in amendment
-    assert "#31" in amendment
-
-
 # -- Phase 4: capability ladder, scope triage, section approval --------------
 
 

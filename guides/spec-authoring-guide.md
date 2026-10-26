@@ -217,8 +217,6 @@ S-000 contains no technology choices, interface definitions, configuration, impl
 
 **Users scope.** Users names the users of the solution. The people and agents who develop the project are served by the development infrastructure and are not listed unless they also use the solution.
 
-An S-000 with a single flat Components list, written before the groups existed, stays valid; the groups and Decisions needed apply when S-000 is created or amended.
-
 **Boundary rule:** S-000 owns the decomposition — which components exist and what each is for. A spec owns the contract of one component or feature. A spec's Purpose names the S-000 component it covers.
 
 ## How to write measurable success criteria

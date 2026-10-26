@@ -68,8 +68,7 @@ How does the system address the pain points above?
   for), and the other components it works with. Development infrastructure
   entries also carry Decisions needed: questions to answer before
   development starts. S-000 asks them and never answers them. S-000 owns the
-  decomposition; a feature spec owns the contract of one component. A single
-  flat list of components, without the two groups, stays valid. -->
+  decomposition; a feature spec owns the contract of one component. -->
 
 ### Solution
 
