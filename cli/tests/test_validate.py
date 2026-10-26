@@ -683,3 +683,58 @@ def test_validate_reports_no_finding_for_task_whose_spec_reaches_s000_by_alias(
     )
 
     assert findings == []
+
+
+def test_validate_bug_task_reference_ignores_the_tracker_archive(monkeypatch, tmp_path):
+    from ai_team.cli import app
+
+    tracker = tmp_path / ".ai-team" / "tracker"
+    _write(
+        tracker / "archive" / "2026-05" / "T-050-archived-task.md",
+        _task("T-050", "Archived Task", "done"),
+    )
+    _write(
+        tracker / "bugs" / "B-050-archived-reference.md",
+        _bug(
+            "B-050", "Archived Reference", "open", extra_frontmatter='task: "T-050"\n'
+        ),
+    )
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["validate", "--json"])
+
+    findings = json.loads(result.stdout)
+    assert any(
+        finding["code"] == "bug-task-missing" and "T-050" in finding["message"]
+        for finding in findings
+    )
+
+
+def test_validate_task_change_request_reference_ignores_the_tracker_archive(
+    monkeypatch, tmp_path
+):
+    from ai_team.cli import app
+
+    tracker = tmp_path / ".ai-team" / "tracker"
+    _write(
+        tracker / "archive" / "2026-05" / "CR-050-archived-request.md",
+        _change_request("CR-050", "Archived Request", "done"),
+    )
+    _write(
+        tracker / "tasks" / "T-051-archived-reference.md",
+        _task(
+            "T-051",
+            "Archived Reference",
+            "pending",
+            extra_frontmatter='spec: "CR-050"\n',
+        ),
+    )
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["validate", "--json"])
+
+    findings = json.loads(result.stdout)
+    assert any(
+        finding["code"] == "task-spec-missing" and "CR-050" in finding["message"]
+        for finding in findings
+    )
