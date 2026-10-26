@@ -73,7 +73,8 @@ Do not edit generated scaffolds to change framework behavior.
 - Not every change goes through the full ai-team process (spec, tasks, gates,
   loops). Fixes for review comments on an open PR are committed directly on
   that PR's branch, and small housekeeping changes are made directly on a
-  branch, without filing a task or bug.
+  short-lived branch from `main` (for example `chore/<slug>` or `fix/<slug>`)
+  that merges back through a PR, without filing a task or bug.
 - Framework changes carry no backward compatibility, migrations, or upgrade
   notes. The framework is under heavy development and 1.0.0 has not been
   released, so artifacts created with an older version may fail validation.

@@ -131,7 +131,7 @@ CI runner triggers test + lint suite
   ↓
 Results posted as PR check
   ↓
-★ Reviewer approves or requests changes (product owner)
+★ Product owner approves or requests changes
   ↓
 Merge enabled / blocked by check status
 ```

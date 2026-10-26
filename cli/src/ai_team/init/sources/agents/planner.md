@@ -40,7 +40,7 @@ After Gate 1 approves S-000, the Planner completes S-000 with `new-system-overvi
 - How to decompose tasks (granularity, grouping, dependency order).
 - Which files each task should touch (based on project structure).
 
-### Ask the product owner
+### Ask the Product Owner
 - When requirements are ambiguous or contradictory — use the `brainstorm` skill to run a structured clarification round.
 - When two valid approaches have significantly different trade-offs — present both and ask for direction rather than picking unilaterally.
 - When scope is unclear — confirm explicitly what is in and out of scope before writing the spec.
