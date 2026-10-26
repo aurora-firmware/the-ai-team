@@ -147,11 +147,12 @@ def resolve_layout(
     else:
         version_status = "invalid"
 
-    installed_version = (
-        importlib.metadata.version("ai-team")
-        if current_version is None
-        else current_version
-    )
+    installed_version = current_version
+    if installed_version is None:
+        try:
+            installed_version = importlib.metadata.version("ai-team")
+        except importlib.metadata.PackageNotFoundError:
+            installed_version = None
     return (
         LayoutContract(
             repo=repo,
@@ -441,6 +442,15 @@ def check_level_4(contract: LayoutContract) -> list[LayoutFinding]:
     """Report missing, invalid, or non-exact framework version alignment."""
 
     current = contract.current_version
+    if current is None:
+        return [
+            _finding(
+                4,
+                ".ai-team.toml",
+                "Framework version check not completed: the installed ai-team version cannot be read.",
+                "Reinstall the ai-team package so its distribution metadata is available, then run check-layout again.",
+            )
+        ]
     if contract.version_status == "missing":
         configured = "unavailable"
         return [
