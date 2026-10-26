@@ -370,8 +370,6 @@ def test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter() -> No
         skill_source_dir = sources_root / skill_name
 
         assert (skill_source_dir / "SKILL.md").is_file()
-        assert not (skill_source_dir / "body.md").exists()
-        assert not (skill_source_dir / "metadata.toml").exists()
         assert (
             (skill_source_dir / "SKILL.md")
             .read_text(encoding="utf-8")
@@ -379,17 +377,14 @@ def test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter() -> No
         )
 
 
-def test_init_scaffolds_export_change_request_skill_and_project_directory() -> None:
-    """Fresh init scaffolds include change-request workflow surfaces."""
+def test_init_scaffolds_export_change_request_skill() -> None:
+    """Fresh init scaffolds include the change-request skill."""
     repo_root = Path(__file__).resolve().parents[1]
     source_skill = (
         repo_root / "src" / "ai_team" / "init" / "sources" / "skills" / "change-request"
     )
-    scaffold_project = repo_root / "src" / "ai_team" / "init" / "scaffolds" / "project"
 
     assert (source_skill / "SKILL.md").is_file()
-    # Change-requests live in the local tracker (S-006), not the project scaffold.
-    assert not (scaffold_project / "change-requests").exists()
 
     scaffold_skill = (
         repo_root

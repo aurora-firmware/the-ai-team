@@ -98,12 +98,6 @@ def test_system_overview_template_shows_one_component_example_with_all_fields() 
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-AUTHORING_GUIDE = REPO_ROOT / "guides/spec-authoring-guide.md"
-
-
-@pytest.mark.parametrize("heading", ["System Diagram", "Responsibility Separation"])
-def test_spec_template_omits_system_wide_architecture_heading(heading: str) -> None:
-    assert heading not in _headings(load_template("spec"), "### ")
 
 
 def test_spec_template_keeps_design_principles_and_interfaces_headings() -> None:
@@ -111,7 +105,6 @@ def test_spec_template_keeps_design_principles_and_interfaces_headings() -> None
 
     assert "Design Principles" in _headings(content, "### ")
     assert "Interfaces" in _headings(content, "## ")
-    assert "Components" not in _headings(content, "## ")
 
 
 DELIVERED_TREES = (

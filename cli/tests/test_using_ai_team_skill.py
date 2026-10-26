@@ -56,8 +56,6 @@ def test_frontmatter_matches_skill_authoring_rules():
     assert "name: using-ai-team" in header
     description = re.search(r"^description: (.+)$", header, re.MULTILINE)
     assert description and len(description.group(1)) <= 1024
-    assert not re.match(r"(I|You) ", description.group(1))
-    assert "disable-model-invocation" not in header
 
 
 def test_scaffold_is_generated_from_the_skill_body():

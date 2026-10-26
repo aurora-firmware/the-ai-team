@@ -226,8 +226,8 @@ source or the generator SHALL read repository-root tool folders or `ai-process/`
 **Verification:** Tests:
 `test_package_owned_skill_sources_hold_only_skill_md_with_frontmatter` and
 `test_package_owned_agent_sources_cover_each_exported_role` in
-`cli/tests/test_init_scaffolds.py`; inspection of the generator for reads outside
-`sources/`.
+`cli/tests/test_init_scaffolds.py`; inspection that no skill source holds `body.md` or
+`metadata.toml`, and of the generator for reads outside `sources/`.
 
 ### REQ-002 — Skill copy
 
@@ -801,4 +801,4 @@ None.
 | 2026-10-25 | Maintainer Asset Flow and the CR-003 Implementation Order no longer name shared bodies or two exports. Wording only. Driven by the CR-007 spec-truth reconciliation (D2). | Two-tool leftovers the CR-007 amendment missed; the generator copies each `SKILL.md` into one export. | None in flight |
 | 2026-10-26 | Restructured to the spec format from PR #51: added Users and Journeys, Interfaces (source tree, generator, `init` options, marker keys, report lines), Behavioral Requirements REQ-001–REQ-020 with acceptance scenarios, Quality Requirements, Assumptions and Dependencies, Success Criteria and Open Questions; Alternatives Considered moved under Architecture; the Components section became requirements; the stale reference to S-007 requirement 12 was dropped. Scope moved in: REQ-017, the root `AGENTS.md` offer, from the superseded S-002, which this spec's init contract already referred to. Version bumped to 0.8. | The validator rejects approved specs without the new sections; S-002 was superseded. | None |
 | 2026-10-26 | AC-014.3 Verification names the new test for the interactive dry-run case instead of inspection. Wording only. Driven by the PR #55 review. | A test now covers the interactive case. | None |
-| 2026-10-26 | AC-005.1 replaces two removed prose tests with inspection; AC-020.1 and AC-020.2 are verified by inspection. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
+| 2026-10-26 | AC-005.1 replaces two removed prose tests with inspection; AC-020.1 and AC-020.2 are verified by inspection; AC-001.1 checks the absence of `body.md` and `metadata.toml` by inspection. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
