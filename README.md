@@ -4,21 +4,23 @@ A reusable operating framework for projects developed by AI agent teams.
 
 ## What This Is
 
-This is a **meta-project** — it defines **how AI agent teams build software**.
+The AI Team Definition is a reusable framework that lets a team of AI agents build and maintain software in a project autonomously.
+It defines the rules the agents follow (how work is planned, implemented, reviewed, integrated and approved) and installs those rules into any project in one step, together with the agent roles and procedures that carry them out and the tooling that supports them.
+With the framework in place, the product owner hands feature work and bug fixes to the agents and gets back changes that have been tested, reviewed and integrated, along with a clear record of what was decided and why.
 
-At its core is the **ai-process**: a set of documents that describe the rules the AI team must follow — workflows, quality gates, coding standards, and role responsibilities.
-Those rules are then **implemented** by four things, all packaged inside the `ai-team` CLI and exported into a target project by `ai-team init`:
+The product owner stays in control of two decisions: approving a specification before it is broken into tasks, and approving integrated work before it reaches the main line.
+Everything between those gates runs without the product owner, and the agents stop and ask only when the rules say they must.
 
-- the **agents** — the roles that carry out the process (authored under `cli/src/ai_team/init/sources/agents/`);
-- the **skills** — the procedures the agents follow (authored under `cli/src/ai_team/init/sources/skills/`);
-- the **project skeleton** — the managed `ai-team/` directory layout scaffolded into target repositories (authored under `cli/src/ai_team/init/sources/project/`);
-- the **root guidance templates** — a starter `AGENTS.md` file for project-specific commands and conventions (authored under `cli/src/ai_team/init/sources/root/`);
-- the **`ai-team` CLI** (`cli/`) — the tooling that supports the skills by managing project artifacts and bootstrapping the framework into new repositories.
+ai-team is made of four components (see [S-000](docs/ai-team/specs/S-000-system-overview.md)):
 
-When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration** — it is not part of this meta-project's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
+- **Team definition**: the process rules in `ai-process/`, and the agent roles and procedures (skills) that carry them out, authored under `cli/src/ai_team/init/sources/`.
+- **Generators**: produce every file handed to a project: the exported agents and skills, the artifact layout, starter project guidance (`AGENTS.md`), and the fixed artifact templates.
+- **CLI** (`cli/`): the `ai-team` command that people and agents use to install and update the framework, check a project's layout, and create, validate and move specs, tasks, bugs, ADRs and change-requests through their lifecycle, with tasks, bugs and change-requests kept in a local tracker outside the project's history.
+- **End-user documentation**: how to install, set up, customise and use ai-team (`cli/docs/`, `guides/`).
 
-Think of it as a constitution for an AI development team.
-The ai-process is the law; the agents, skills, and CLI are the institutions that carry it out.
+When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration**: it is not part of this framework's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
+
+Developer documentation for working on ai-team itself is in [`docs/development/`](docs/development/README.md).
 
 ## The ai-process
 
@@ -223,6 +225,7 @@ See `guides/setup-guide.md` for the complete file list, AGENTS.md starter templa
 │   ├── processes/       Workflow definitions, quality gates, escalation procedures
 │   ├── guidelines/      Coding standards, review checklists, markdown conventions
 │   └── architecture/    AI team structure: roles, components, boundaries
+├── docs/development/    Internal developer docs: architecture, tech stack, document index
 ├── docs/ai-team/        This repo's own managed artifacts (see `[project] dir` in .ai-team.toml)
 │   ├── specs/           Feature specifications (with archive/ for superseded versions)
 │   ├── decisions/       Architecture Decision Records

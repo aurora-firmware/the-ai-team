@@ -57,6 +57,7 @@ uv run ruff check .
 | `cli/src/ai_team/templates/` | Source of truth for CLI artifact templates |
 | `cli/docs/` | User and maintainer documentation for the CLI |
 | `docs/ai-team/` | Task, bug, spec, ADR, and report artifacts for this repo |
+| `docs/development/` | Internal developer docs: architecture, tech stack, and the index of internal documents |
 
 `cli/src/ai_team/init/scaffolds/` is generated from the source tree above.
 Do not edit generated scaffolds to change framework behavior.
