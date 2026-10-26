@@ -296,7 +296,7 @@ generated artifact folders and files; and a `.gitignore` that ignores the
 **Verification:** Tests: `test_sync_script_replaces_project_with_empty_lifecycle_skeleton`,
 `test_sync_script_copies_project_guidance_files_from_source`,
 `test_sync_script_copies_coding_guidelines_placeholder_into_project_docs`,
-`test_package_owned_coding_guidelines_placeholder_has_no_project_specific_rules` and
+`test_package_owned_coding_guidelines_placeholder_has_no_project_specific_rules`,
 `test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` and
 `test_project_guidance_sources_exist_and_describe_project_artifact_folders` in
 `cli/tests/test_init_scaffolds.py`.
