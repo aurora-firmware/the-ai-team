@@ -169,7 +169,7 @@ There is no migration command: an agent migrates by hand with this procedure. Li
    - `archive/YYYY-MM/CR-*.md` → `<tracker>/change-requests/`
 
    If two files would land on the same name, stop and ask the human.
-5. **Reconcile status with the old folder.** The folder was authoritative. For every task or bug whose `status` differs from the state folder it came from, set the folder's state with `ai-team task set-status` or `ai-team bug set-status`, adding `--reason "migrated from <folder>"`. Change-requests keep their `status`.
+5. **Reconcile status with the old folder.** The folder was authoritative. For every task or bug whose `status` differs from the state folder it came from, set the folder's state with `ai-team task set-status` or `ai-team bug set-status`, adding `--reason "migrated from <folder>"`. Change-requests, and items copied from `archive/YYYY-MM/`, keep their `status`.
 6. **Verify before deleting anything.** `ai-team list tasks --json`, `ai-team list bugs --json`, and `ai-team list change-requests --json` must return the starting counts from step 3, where the count for each kind includes the archived files of that kind (`T-*` with tasks, `B-*` with bugs, `CR-*` with change-requests), and `ai-team validate` must report no task, bug, or change-request findings.
 7. **Remove the legacy folders from the repository** with `git rm -r` (including their `.gitkeep` files), then confirm `ai-team check-layout` no longer reports legacy folders and no command prints the legacy warning.
 8. **Commit** on `dev-agent`: `chore(tracker): migrate work items to the local tracker`.
