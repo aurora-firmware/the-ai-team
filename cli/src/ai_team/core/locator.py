@@ -60,9 +60,6 @@ class ProjectRoot:
     change_requests: Path
     """``tracker/change-requests`` — change-request files."""
 
-    archive: Path
-    """``tracker/archive`` — archived work items in ``YYYY-MM`` buckets."""
-
     decisions: Path
     """``project_dir/decisions``."""
 
@@ -86,7 +83,6 @@ class ProjectRoot:
             tasks=tracker / "tasks",
             bugs=tracker / "bugs",
             change_requests=tracker / "change-requests",
-            archive=tracker / "archive",
         )
 
 

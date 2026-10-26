@@ -89,7 +89,7 @@ def test_project_root_exposes_tracker_folders_with_default_location(tmp_path):
     assert result.tasks == tracker / "tasks"
     assert result.bugs == tracker / "bugs"
     assert result.change_requests == tracker / "change-requests"
-    assert result.archive == tracker / "archive"
+    assert not hasattr(result, "archive")
 
 
 def test_project_root_exposes_decisions_and_docs(tmp_path):
