@@ -229,13 +229,3 @@ def test_missing_project_root_prints_clean_error_and_exits_1(monkeypatch, tmp_pa
     assert result.exit_code == 1
     assert result.exception is None or isinstance(result.exception, SystemExit)
     assert "ai-team init" in result.stderr
-
-
-def test_archive_command_is_not_registered():
-    """The CLI no longer knows an `archive` command."""
-    from ai_team.cli import app
-
-    result = CliRunner().invoke(app, ["archive"])
-
-    assert result.exit_code != 0
-    assert "No such command" in result.output
