@@ -91,7 +91,7 @@ What this specification explicitly does NOT cover:
 | `cli/scripts/gen_docs.sh` | Thin wrapper that generates `cli/docs/commands.md` with a generated-file header. | The one regeneration command. |
 | CI drift check | Regenerates `commands.md` and fails when it differs from the committed file. | Owned by S-010. |
 | `ai-process/architecture/component-map.md` | Maps which skills invoke which `ai-team` commands. | Architecture layer records the CLI's role. |
-| `README.md`, `guides/setup-guide.md`, `CLAUDE.md` | Brief CLI mentions that link into `cli/docs/`, and the contributor rule to regenerate `commands.md` when a command or flag changes. | Not documentation homes; just pointers and the rule. |
+| `README.md`, `guides/setup-guide.md`, `AGENTS.md` | Brief CLI mentions that link into `cli/docs/`, and the contributor rule to regenerate `commands.md` when a command or flag changes. | Not documentation homes; just pointers and the rule. |
 
 ### Alternatives Considered
 
@@ -361,15 +361,15 @@ stops invoking a command.
 
 `README.md` and `guides/setup-guide.md` SHALL link to `cli/docs/usage.md` and
 `cli/docs/commands.md` rather than document the CLI themselves, and `README.md` and
-`CLAUDE.md` SHALL tell contributors to run `gen_docs.sh` and commit the result when a
+`AGENTS.md` SHALL tell contributors to run `gen_docs.sh` and commit the result when a
 command or flag changes.
 
 #### AC-011.1 — Links and rule present
 
-- **Given:** `README.md`, `guides/setup-guide.md` and `CLAUDE.md`
+- **Given:** `README.md`, `guides/setup-guide.md` and `AGENTS.md`
 - **When:** they are searched for `cli/docs/` and `gen_docs.sh`
 - **Then:** the README and setup guide link to both files, and the README and
-  `CLAUDE.md` state the regeneration rule
+  `AGENTS.md` state the regeneration rule
 
 **Verification:** Inspection of the three files.
 
@@ -443,3 +443,4 @@ drift check is wired in (S-010).
 | 2026-10-20 | Moved out of `specs/archive/` as S-008 (it had no ID). Removed the delivered Component 5 (archive the development spec) and the one-time authoring flow; replaced `--include-ai-process` with the current `init` flags; replaced the folder-based `tasks/`/`bugs/` structure with the project directory plus the S-006 tracker; added the CI drift check (S-010) as a design principle; resolved the three open questions from `cli/scripts/gen_docs.sh`, `cli/pyproject.toml` and `.github/workflows/ci.yml`; the TOML example became prose. Driven by CR-003 §10 and Architecture Consistency Review finding F4. | The spec was still `approved` in the archive and the only written contract for `cli/docs/`, but described a removed flag, the pre-S-006 folder structure and completed work. | None in flight |
 | 2026-10-25 | Initialisation no longer lists `--tools`. Driven by CR-007. | `init` has no tool selection (S-009, ADR-003). | None in flight |
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered (the custom generator, moved from Exclusions, and the console-script invocation), Interfaces, Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, and Success Criteria; the Components section was split into Interfaces and requirements, the `init` flag list was replaced by a link to `commands.md`, and source line references were dropped. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
+| 2026-10-26 | The root guidance file is `AGENTS.md`; `CLAUDE.md` was renamed. Wording only. | This repository follows ADR-003: Claude Code reads root `AGENTS.md`. | None |

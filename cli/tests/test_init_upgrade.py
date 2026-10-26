@@ -474,6 +474,28 @@ def test_dry_run_upgrade_prints_case_then_would_lines_then_the_stale_warning(
     assert (stale_skill / "SKILL.md").exists()
 
 
+def test_interactive_dry_run_upgrade_with_a_stale_skill_only_prompts_for_skills(
+    tmp_path,
+):
+    target = _new_project(tmp_path)
+    _set_framework_version(target, OLD_VERSION)
+    stale_skill, _ = _add_stale_definitions(target)
+    before = _snapshot(target)
+
+    result = _run(target, "--dry-run")
+
+    assert result.exit_code == 0, result.output
+    skill_lines = [
+        line for line in result.stdout.splitlines() if str(target / ".claude") in line
+    ]
+    assert skill_lines
+    assert all(line.startswith("WOULD PROMPT: ") for line in skill_lines)
+    assert ".ai-team.toml" not in result.stdout
+    assert STALE_WARNING_MARKER not in result.stderr
+    assert (stale_skill / "SKILL.md").exists()
+    assert _snapshot(target) == before
+
+
 def test_dry_run_on_an_empty_directory_starts_with_the_new_project_case_line(
     tmp_path,
 ):

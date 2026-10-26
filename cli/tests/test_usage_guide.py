@@ -6,18 +6,19 @@ Covers:
         daily command workflows, the project/ folder structure, and a
         maintainer section.
   AC-2: usage.md describes the project/ folder structure including specs/
-        (+ archive/), task and bug state subfolders, decisions/, docs/,
+        (+ archive/), decisions/, docs/, the tracker folders,
         .ai-team.toml, and the locator resolution order.
   AC-3: usage.md includes a maintainer section with module map, how to add
         a command, how to run tests, how to build/release, and how to
         regenerate commands.md.
   AC-4: usage.md links to commands.md.
   AC-5: usage.md documents only commands and flags present in commands.md —
-        verified by cross-checking a representative set.
+        verified by cross-checking every command in its examples.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -56,23 +57,31 @@ def test_usage_md_file_exists():
 
 
 def test_usage_md_covers_installation():
-    """usage.md must have an installation section."""
-    assert "install" in _lower(), "usage.md must cover installation"
+    """usage.md must have an installation section with an install command."""
+    content = _content()
+    assert "\n## Installation\n" in content, (
+        "usage.md must have an Installation section"
+    )
+    assert "pipx install" in content, "usage.md must show how to install the CLI"
 
 
 def test_usage_md_covers_init_command():
-    """usage.md must document ai-team init."""
-    assert "ai-team init" in _content() or "ai team init" in _lower(), (
-        "usage.md must document the ai-team init command"
+    """usage.md must have an initialisation section that runs ai-team init."""
+    content = _content()
+    assert "\n## Initialisation\n" in content, (
+        "usage.md must have an Initialisation section"
     )
+    assert "ai-team init" in content, "usage.md must document the ai-team init command"
 
 
 def test_usage_md_covers_daily_workflows():
-    """usage.md must cover at least one daily workflow sequence (task or bug)."""
-    lower = _lower()
-    assert "task" in lower and "bug" in lower, (
-        "usage.md must cover daily task and bug workflows"
+    """usage.md must walk through the daily task and bug workflows."""
+    content = _content()
+    assert "\n## Daily Workflows\n" in content, (
+        "usage.md must have a Daily Workflows section"
     )
+    for command in ("ai-team task new", "ai-team task start", "ai-team bug new"):
+        assert command in content, f"usage.md daily workflows must show {command!r}"
 
 
 def test_usage_md_covers_gate5_report_workflow():
@@ -101,22 +110,15 @@ def test_usage_md_describes_specs_archive_subfolder():
     assert "archive" in lower, "usage.md must mention the specs/archive/ folder"
 
 
-def test_usage_md_describes_tasks_state_subfolders():
-    """usage.md must document all four task state folders."""
-    lower = _lower()
-    for subfolder in ("pending", "in-progress", "completed", "blocked"):
-        assert subfolder in lower, (
-            f"usage.md must document the tasks/{subfolder}/ subfolder"
-        )
-
-
-def test_usage_md_describes_bugs_state_subfolders():
-    """usage.md must document all three bug state folders."""
-    lower = _lower()
-    for subfolder in ("open", "in-progress", "resolved"):
-        assert subfolder in lower, (
-            f"usage.md must document the bugs/{subfolder}/ subfolder"
-        )
+def test_usage_md_describes_tracker_folders():
+    """usage.md must describe the tracker folders, where state is the status field."""
+    content = _content()
+    assert "[tracker] dir" in content, "usage.md must name the [tracker] dir setting"
+    for folder in ("tasks/", "bugs/", "change-requests/", "archive/"):
+        assert folder in content, f"usage.md must describe the tracker {folder} folder"
+    assert "state is the status field" in content, (
+        "usage.md must say work-item state is the status field"
+    )
 
 
 def test_usage_md_describes_decisions_folder():
@@ -250,37 +252,33 @@ def test_usage_md_links_to_commands_md():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "command",
-    [
-        "ai-team task new",
-        "ai-team task start",
-        "ai-team task complete",
-        "ai-team task block",
-        "ai-team bug new",
-        "ai-team bug start",
-        "ai-team bug resolve",
-        "ai-team init",
-        "ai-team status",
-        "ai-team report",
-        "ai-team validate",
-        "ai-team list",
-        "ai-team show",
-        "ai-team adr new",
-        "ai-team spec new",
-        "ai-team archive",
-    ],
-)
-def test_commands_mentioned_in_usage_exist_in_commands_md(command):
-    """Every command mentioned in usage.md must also appear in commands.md."""
-    assert COMMANDS_MD.is_file(), "commands.md must exist for cross-checking"
+def _commands_in_usage_examples() -> set[str]:
+    """Return ``ai-team <command> [<subcommand>]`` for each example command line."""
+    commands = set()
+    for block in re.findall(r"```bash\n(.*?)```", _content(), re.S):
+        for line in block.splitlines():
+            match = re.match(r"ai-team ([a-z][a-z-]*)(?: ([a-z][a-z-]*))?", line)
+            if match:
+                commands.add(" ".join(part for part in match.groups() if part))
+    return commands
+
+
+def test_usage_md_example_commands_exist_in_commands_md():
+    """Every command in a usage.md example must have a commands.md entry."""
     commands_content = COMMANDS_MD.read_text(encoding="utf-8")
-    # Extract the subcommand portion to check (e.g. "task new" from "ai-team task new")
-    parts = command.split()
-    # Check for the subcommand term in commands.md.
-    assert command in commands_content or " ".join(parts[1:]) in commands_content, (
-        f"'{command}' is documented in usage.md but does not appear in commands.md"
+    commands = _commands_in_usage_examples()
+    assert {"init", "task new", "bug new"} <= commands, (
+        "usage.md examples must include the core commands"
     )
+    for command in sorted(commands):
+        group = command.split()[0]
+        # A group with subcommands needs the exact entry; a bare command's second
+        # word is a positional argument, so its group entry is enough.
+        has_subcommands = f"`ai-team {group} " in commands_content
+        expected = command if has_subcommands else group
+        assert f"`ai-team {expected}`" in commands_content, (
+            f"'ai-team {command}' is used in usage.md but missing from commands.md"
+        )
 
 
 def test_usage_md_does_not_mention_nonexistent_flags():

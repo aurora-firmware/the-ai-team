@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+import importlib.metadata
 import importlib.resources as resources
 import shutil
 from pathlib import Path
@@ -633,6 +635,44 @@ def test_level_4_accepts_only_an_exact_version_match(tmp_path: Path) -> None:
 
     assert resolution_findings == []
     assert check_level_4(contract) == []
+
+
+def test_level_4_reports_an_unreadable_installed_version_as_not_completed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def _missing(name: str) -> str:
+        raise importlib.metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(importlib.metadata, "version", _missing)
+    _write_marker(tmp_path)
+    _write(tmp_path / ".ai-team/tracker/tasks/T-001-task.md", "not frontmatter")
+
+    findings = check_layout(tmp_path)
+
+    level_4 = [finding for finding in findings if finding.level == 4]
+    assert [finding.path for finding in level_4] == [".ai-team.toml"]
+    assert "not completed" in level_4[0].problem
+    assert any(finding.path.endswith("T-001-task.md") for finding in findings)
+
+
+@pytest.mark.parametrize(
+    ("marker_version", "status_word"),
+    [("", "missing"), ("framework_version = 42\n", "invalid")],
+)
+def test_level_4_reports_marker_faults_even_when_installed_version_is_unreadable(
+    tmp_path: Path, marker_version: str, status_word: str
+) -> None:
+    (tmp_path / ".ai-team.toml").write_text(
+        '[project]\ndir = "project"\n[init]\n' + marker_version, encoding="utf-8"
+    )
+    contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
+    contract = dataclasses.replace(contract, current_version=None)
+
+    findings = check_level_4(contract)
+
+    assert [finding.path for finding in findings] == [".ai-team.toml"]
+    assert status_word in findings[0].problem
+    assert "unavailable" in findings[0].problem
 
 
 def test_check_layout_runs_artifact_and_guidance_levels(tmp_path: Path) -> None:

@@ -1,7 +1,7 @@
 ---
 id: S-000
 title: System Overview
-version: '0.3'
+version: '0.4'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-22'
 author: planner
@@ -103,10 +103,10 @@ The components fall into two groups. The **solution** is the software delivered 
 #### Development environment
 
 - **Name:** Development environment
-- **Responsibility:** Everything a developer, human or agent, needs to build and run the solution from a fresh checkout: the language and its runtime, the reproducible environment and its settings, the project's framework settings, the files kept out of version control, and access to the remote repository.
+- **Responsibility:** Everything a developer, human or agent, needs to build and run the solution from a fresh checkout: the language and its runtime, the reproducible environment and its settings, the project's framework settings, the files kept out of version control, and the remote repository. A remote is required; access to it is confirmed by checking that the remote has a branch.
 - **Boundary:** Does not check or test changes and does not produce releases.
 - **Works with:** Test tooling, CI pipelines, Internal documentation.
-- **Decisions needed:** Which language and version is the solution written in? How is the development environment reproduced on a new machine? Which settings or environment values does it need? Which remote hosts the repository, and how is access confirmed?
+- **Decisions needed:** Which language and version is the solution written in? How is the development environment reproduced on a new machine? Which settings or environment values does it need? Which remote hosts the repository?
 
 #### Test tooling
 
@@ -147,3 +147,4 @@ The components fall into two groups. The **solution** is the software delivered 
 |------|-------------|-----|----------------|
 | 2026-10-24 | Use cases: added "Bootstrap the project". Driven by CR-004 item 9 and its Architecture Consistency Review. | CR-004 adds the project bootstrap after S-000 approval, a capability no use case covered. | None in flight |
 | 2026-10-25 | Use cases, Solution overview and Generators: the framework supports one agent tool, so setup no longer asks which tools to use and definitions are not turned into one form per tool. Driven by CR-007 and ADR-003. | Codex support was dropped; Claude is the only export target. | None in flight |
+| 2026-10-26 | Development environment: a remote repository is required, and access is confirmed by checking that the remote has a branch; the Decisions needed no longer ask how access is confirmed. Decided by the human while processing the T-179 handoff. | The project is brownfield; the remote access check only needs to confirm a remote branch exists. | None in flight |
