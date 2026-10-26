@@ -50,15 +50,15 @@ A task is verified by one of three methods. `spec-breakdown` chooses the method;
 
 - **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. It is used for behavior the product exhibits. A test may check structure the product depends on, such as frontmatter that must parse. A test never asserts the wording of prose: skills, process documents, guides, user documentation, or specs.
   The Verification section holds the command(s), and the test files are listed in Files to Touch.
-- **Inspection** — a reviewer reads the changed artifact, checks the observation each acceptance criterion states, and records what was checked and the pass or fail result. For prose, the inspection also checks that the text agrees with its references. It is used for prose, configuration, and changes that only remove something.
+- **Inspection** — someone reads the changed artifact, checks the observation each acceptance criterion states, and records what was checked and the pass or fail result. The Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references. It is used for prose, configuration, and changes that only remove something.
   The Verification section holds the line `Inspection:` followed by one bullet per acceptance criterion to check and one bullet per reference: the source spec, each accepted ADR the text must agree with, and the system overview S-000 when it exists.
-- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. It is used when the behavior depends on an environment the test suite cannot reproduce, such as a CI run or a published release.
+- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. It is used when the behavior depends on an environment the test suite cannot reproduce, such as a CI run. The demonstration must be observable from the task branch, for example a CI run on the pushed branch, because its record is checked before the branch is integrated.
   The Verification section holds the line `Demonstration:` followed by the command or steps to run and the expected observation.
 
 Other skills detect an inspection or demonstration task by its `Inspection:` or `Demonstration:` line. The task template's Verification comment may precede that line, so they detect the line, not the first line of the section.
-Every task, whatever its method, also runs the project's full test suite as a regression check; an inspection or demonstration task lists that command under its method's bullets.
+Every task, whatever its method, also runs the project's full test suite as a regression check when the project documents one; an inspection or demonstration task lists that command under its method's bullets.
 
-**Choosing the method.** A task takes the method its source acceptance criteria name. When the source is a change-request or S-000, which have no acceptance criteria, apply the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
+**Choosing the method.** A task has one method: the one its source acceptance criteria name. When the criteria a piece of work covers name different methods, split it into one task per method. When the source is a change-request or S-000, which have no acceptance criteria, apply the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
 
 ### Verification run context
 

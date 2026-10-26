@@ -99,3 +99,8 @@ on the human noticing deviations that no artifact records.
   are exempt from Gate 2, and the Planner chooses their verification mode by the
   spec-breakdown rule. A drift that persists after its follow-up tasks escalates to the human,
   so follow-up rounds cannot repeat without a human decision.
+- **2026-10-26:** Verification vocabulary. Tasks are now verified by a test, an inspection, or
+  a demonstration, as defined in `guides/spec-authoring-guide.md`; design review is folded
+  into inspection. The Planner chooses each follow-up task's verification method by the
+  `new-task` rule, which replaces the spec-breakdown rule the 2026-10-21 entry names.
+
