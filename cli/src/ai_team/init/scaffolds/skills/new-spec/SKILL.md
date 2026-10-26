@@ -129,7 +129,7 @@ End-to-end flow from trigger to completion. Each step is a sentence or short phr
 Use `### REQ-NNN — Short title`, starting at REQ-001, for one observable obligation per requirement with SHALL or MUST wording.
 Keep rationale separate, and use EARS where useful to name the trigger or state and expected outcome.
 Each requirement has one or more `#### AC-NNN.M — Scenario title` headings; NNN matches the owning REQ and M is a positive scenario number.
-Each scenario gives concrete acceptance conditions and outcomes, normally Given/When/Then, and a `**Verification:**` method: a test, demonstration, inspection, or analysis with a pass/fail observation.
+Each scenario gives concrete acceptance conditions and outcomes, normally Given/When/Then, and a `**Verification:**` method with a pass/fail observation: a test, an inspection, or a demonstration, as the `new-task` skill's Verification Methods define them.
 Cover applicable success, rejection, boundary, and recovery cases; examples must exercise the requirement rather than merely rephrase it.
 Keep REQ and AC identifiers stable across amendments; never renumber or reuse retired identifiers.
 

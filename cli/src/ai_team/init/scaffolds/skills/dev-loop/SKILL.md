@@ -131,7 +131,7 @@ Read the task file at the path reported by `ai-team show T-NNN --json`, and chec
 **Spawn the Developer subagent** (tier: standard, or cheap for a mechanical task) with this prompt:
 
 > "Pick up the task from the task file `<task-path>` and implement it using the tdd skill.
-> You are on branch `task/T-NNN-...`. Follow the task's declared verification mode using the tdd skill. For test tasks, commit after each red→green→refactor cycle. For design-review tasks, commit the reviewed changes and include the design-review record in your Work Log handoff.
+> You are on branch `task/T-NNN-...`. Follow the task's declared verification method using the tdd skill. For test tasks, commit after each red→green→refactor cycle. For inspection and demonstration tasks, commit the changes and include the inspection or demonstration record in your Work Log handoff.
 > The task file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
 > Return a Work Log handoff entry at session end. The entry's heading is `### Session N — YYYY-MM-DD`; the body is free prose covering what was done, what was tried and rejected, and what remains. The loop will append it to the task file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."

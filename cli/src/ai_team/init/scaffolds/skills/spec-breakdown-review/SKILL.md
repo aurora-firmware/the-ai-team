@@ -26,7 +26,7 @@ Gate 2 is a technical preflight. During review, focus findings only on technical
 
 Read the approved specification and all task files for the plan under review.
 Read existing decision records in `{{project_dir}}/decisions/`.
-Identify each task's dependencies, files to touch, acceptance criteria, and verification command or design review.
+Identify each task's dependencies, files to touch, acceptance criteria, and verification method.
 
 ### Step 2: Check Spec Coverage
 
@@ -79,9 +79,10 @@ Flag tasks that exceed the one-shottable threshold:
 - More than 3-4 files.
 - More than 5 acceptance criteria.
 - Description too large or ambiguous for one implementation session.
-- No clear verification: a task has either clear verification command(s) or, for a task that changes only prose, a Verification section in the `Design review:` form that lists its references.
-- A design-review task whose change a test can observe (code, CLI output, or a rule a test can observe): it needs a test instead.
-- A design-review task whose reference list is empty or omits the source spec.
+- No clear verification: a task's Verification section does not record one method in the form the `new-task` skill's Verification Methods define (a test command, an `Inspection:` list, or a `Demonstration:` with steps and expected observation), or it omits the project's full-suite command.
+- A method that does not match the source: the task's method differs from the one its source acceptance criteria name, or, for a change-request or S-000, from the one `new-task`'s rule for choosing the method gives.
+- A test that asserts the wording of a skill, guide, or process document, or that only proves something was removed: it needs an inspection instead.
+- An inspection task for prose whose reference list is empty or omits the source spec.
 - Placeholder text: `TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or an undefined reference.
 
 ### Step 7: Produce Verdict

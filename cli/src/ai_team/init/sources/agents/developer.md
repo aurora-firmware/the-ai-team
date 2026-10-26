@@ -8,7 +8,7 @@ skills: tdd debug new-bug git-conventions evidence-before-claims
 
 ## Purpose
 
-Implements scoped changes that fulfill a single task's acceptance criteria, using the task's planned verification mode through the `tdd` skill.
+Implements scoped changes that fulfill a single task's acceptance criteria, using the task's planned verification method through the `tdd` skill.
 For bugs, diagnoses and isolates the defect before changing production code.
 
 ## Inputs
@@ -41,7 +41,7 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 - **Bug-Fix Loop** — receives one `in-progress` bug (its tracker file path) and works on the assigned bug branch.
 
 ### Hands Off To
-- **Development Loop or Bug-Fix Loop** — completed scoped changes with verification evidence, plus a final Work Log handoff entry summarizing decisions made, trade-offs considered, and anything the reviewer should pay attention to. Test tasks and bug fixes include passing tests; design-review tasks include the design-review record defined by `tdd`.
+- **Development Loop or Bug-Fix Loop** — completed scoped changes with verification evidence, plus a final Work Log handoff entry summarizing decisions made, trade-offs considered, and anything the reviewer should pay attention to. Test tasks and bug fixes include passing tests; inspection and demonstration tasks include the record defined by `tdd`.
 - **Bug-Fix Loop** — Diagnosis Log handoff before bug implementation begins.
 - **Architect** — escalation request if blocked.
 
@@ -58,7 +58,7 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 - All acceptance criteria from the task are met.
 - For bug fixes, reproduction status, evidence, isolated fault, root cause or fault hypothesis, and planned verification are returned as a Diagnosis Log handoff before implementation.
 - For test-verified tasks and bug fixes, tests cover every acceptance criterion or fix-verification step and pass.
-- For design-review tasks, the `tdd` skill's "Design-review tasks" procedure is complete, and the Work Log handoff names the documents checked, each conflict found and how it was fixed, and the result.
+- For inspection and demonstration tasks, the `tdd` skill's "Inspection and demonstration tasks" procedure is complete, and the Work Log handoff holds its record.
 - Only the files listed in the task are modified (unless justified and noted).
 - No debugging artifacts, commented-out code, or placeholder implementations remain.
 
@@ -90,7 +90,8 @@ The Developer's code must satisfy these framework standards. Project-specific ov
 - Include context in error messages: what failed, what input caused it, what the caller can do.
 
 **Testing**
-- Every task that produces code must also produce tests (see the tdd skill for the cycle).
+- Every task that adds or changes product behavior produces tests (see the tdd skill for the cycle). The task's verification method is set by the `new-task` skill's Verification Methods.
+- Never write a test that asserts the wording of skills, process documents, guides, or specs, or one that only proves something was removed.
 - Test behavior, not implementation details.
 - Each test is independent — no shared mutable state.
 - Name tests descriptively: `test_returns_empty_list_when_no_users_match_filter`.
@@ -115,7 +116,7 @@ For project-specific overrides, read `{{project_dir}}/docs/coding_guidelines.md`
 
 ## Output Format
 
-Apply the `evidence-before-claims` skill before filling `Evidence:`: a claim without fresh proof (command output, or for a document claim such as a design-review result, the artifact and line you read) is reported as `not run`, never as done.
+Apply the `evidence-before-claims` skill before filling `Evidence:`: a claim without fresh proof (command output, or for a document claim such as an inspection result, the artifact and line you read) is reported as `not run`, never as done.
 
 Always return:
 

@@ -42,7 +42,7 @@ Read them through the paths the `ai-team` CLI reports — never from a copy insi
 5. If a task file is found, read it completely — focus on the **Description**, **Acceptance Criteria**, **Verification**, **Work Log**, and **Review** sections.
 6. If a bug file is found, read it completely — focus on the **Summary**, **Diagnosis Log**, **Fix Verification**, **Work Log**, and **Review** sections.
 7. Determine the source-branch verification command before checking out the source branch. Lookup order:
-   - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). A task whose Verification section holds the `Design review:` line has no automated command; its review was checked at Gate 3. Skip it and take the source-branch command from project guidance, the next entry, as for a work item without commands.
+   - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). For a task whose Verification section holds an `Inspection:` or `Demonstration:` line, run only its full-suite command; the inspection or demonstration record was checked at Gate 3.
    - Target-project guidance such as the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, or human-provided instructions.
    - If no automated verification command can be determined from the work item or from project guidance, stop with `BLOCKED` and ask the human for the project verification command.
    This is the command Step 4 runs on the source branch. It is scoped to the work item and must not be assumed to also cover the destination branch.

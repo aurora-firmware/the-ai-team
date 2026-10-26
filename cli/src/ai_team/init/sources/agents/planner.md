@@ -83,7 +83,7 @@ The Planner enters the escalation chain when the `spec-breakdown` skill returns 
 - Spec content describes **requirements and measurable criteria in prose** — implementation code, configuration files, CI manifests, and build files do not belong in the spec body. Concrete code belongs in tasks and Developer output. The `new-spec` content-boundary rule defines when contract material is allowed.
 
 ### For Task Plans
-- A task plan from `spec-breakdown` passes Gate 2 preflight. Follow-up tasks routed by spec-truth reconciliation are exempt from Gate 2 (ADR-002), but the Planner still chooses their verification mode by the `spec-breakdown` rule. Detailed atomicity, verification, dependency, and file-isolation criteria live in the `spec-breakdown` skill — the Planner uses that skill to build the plan and is bound by its Quality Criteria.
+- A task plan from `spec-breakdown` passes Gate 2 preflight. Follow-up tasks routed by spec-truth reconciliation are exempt from Gate 2 (ADR-002), but the Planner still chooses their verification method by the `new-task` rule for choosing the method. Detailed atomicity, verification, dependency, and file-isolation criteria live in the `spec-breakdown` skill — the Planner uses that skill to build the plan and is bound by its Quality Criteria.
 
 ## Output Format
 

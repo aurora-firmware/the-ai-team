@@ -13,7 +13,7 @@ created: YYYY-MM-DD
 Task Quality Rules (see the new-task skill for full details):
   - Atomic — one clear outcome.
   - One-shottable — ≤ 3–4 files touched, ≤ 5 ACs, Description ≈ 20 lines.
-  - Verifiable — concrete Verification command, explicit manual steps, or for a prose-only task a design review (Design review: line plus reference bullets).
+  - Verifiable — Verification proves the task by one method: a test command, an Inspection: list, or a Demonstration: with steps and expected observation.
   - Self-contained — Description is enough to start without follow-up questions.
   - EARS — every AC matches one of the five EARS patterns below.
   - Dependency-honest — list every prior task this one reads from or modifies.
@@ -79,10 +79,13 @@ must be produced by a task listed under Dependencies, or already exist. -->
 <!-- Run context: each line runs from the repository root in a fresh shell,
 independently of the other lines; a line that needs another directory changes
 into it on that line (`cd <dir> && <command>`).
-Design review: a design-review task (chosen during planning; see the new-task
-skill) replaces the command block with a `Design review:` line followed by one
-bullet per reference: the source spec, each accepted ADR it must agree with,
-and S-000 when it exists. -->
+Method (chosen during planning; see the new-task skill's Verification Methods):
+a test task keeps the command block. An inspection task replaces it with an
+`Inspection:` line, one bullet per acceptance criterion to check, and one per
+reference: the source spec, each accepted ADR it must agree with, and S-000 when
+it exists. A demonstration task replaces it with a `Demonstration:` line, the
+command or steps, and the expected observation. Every task also lists the
+project's full test suite command. -->
 
 ```bash
 # Command(s) to verify the task is complete
