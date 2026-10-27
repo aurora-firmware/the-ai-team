@@ -14,9 +14,6 @@ Provides:
     allowed ``status`` values per work-item kind.
   - ``iter_items(folder)`` / ``find_item(folder, item_id)`` — enumerate and
     look up work-item files.
-  - ``legacy_work_item_dirs(project_dir)`` / ``legacy_warning(dirs)`` — detect
-    pre-tracker ``tasks/``, ``bugs/``, ``change-requests/``, and ``archive/``
-    folders that still hold files, and describe how to migrate them.
 
 This module has no Typer dependency and does not import the locator.
 """
@@ -39,10 +36,6 @@ TASK_STATUSES = (
 )
 BUG_STATUSES = ("open", "in-progress", "resolved")
 CHANGE_REQUEST_STATUSES = ("pending", "approved", "rejected")
-
-LEGACY_WORK_ITEM_DIRS = ("tasks", "bugs", "change-requests", "archive")
-
-MIGRATION_GUIDE = "'Migrating to the local tracker' in the ai-team setup guide"
 
 
 def _toml_tracker_dir(repo: Path) -> str | None:
@@ -145,28 +138,3 @@ def find_item(folder: Path, item_id: str) -> Path | None:
         if path.stem == item_id or path.stem.startswith(f"{item_id}-"):
             return path
     return None
-
-
-def legacy_work_item_dirs(project_dir: Path) -> list[Path]:
-    """Return pre-tracker work-item folders under *project_dir* that still hold files."""
-    legacy: list[Path] = []
-    for name in LEGACY_WORK_ITEM_DIRS:
-        folder = project_dir / name
-        if not folder.is_dir():
-            continue
-        if any(
-            path.is_file() and not _should_skip(path) for path in folder.rglob("*.md")
-        ):
-            legacy.append(folder)
-    return legacy
-
-
-def legacy_warning(dirs: list[Path]) -> str:
-    """Describe legacy folders that must be migrated into the tracker."""
-    names = ", ".join(str(folder) for folder in dirs)
-    return (
-        f"Warning: legacy work-item folders still hold files: {names}. "
-        "Tasks, bugs, and change-requests now live in the local tracker "
-        "(see `ai-team tracker path`); these files are ignored until migrated. "
-        f"Follow {MIGRATION_GUIDE}."
-    )

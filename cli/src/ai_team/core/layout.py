@@ -15,12 +15,7 @@ from typing import Literal
 from ai_team.core.config import is_valid_project_dir
 from ai_team.core.locator import DEFAULT_PROJECT_DIR, ProjectRoot
 from ai_team.core.tool_paths import EXPORT_PATHS
-from ai_team.core.tracker import (
-    MIGRATION_GUIDE,
-    is_inside,
-    legacy_work_item_dirs,
-    resolve_tracker_dir,
-)
+from ai_team.core.tracker import is_inside, resolve_tracker_dir
 from ai_team.core.validate import Finding as ArtifactFinding
 from ai_team.core.validate import validate_project
 
@@ -211,7 +206,7 @@ def _missing_directory_fix(contract: LayoutContract, path: Path) -> str:
 
 
 def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report an unignored in-repository tracker and unmigrated legacy folders."""
+    """Report an in-repository tracker that git does not ignore."""
 
     findings: list[LayoutFinding] = []
     tracker = resolve_tracker_dir(contract.repo)
@@ -234,17 +229,6 @@ def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
                     f"Add '/{display_path.split('/')[0]}/' to the repository's root .gitignore.",
                 )
             )
-
-    for folder in legacy_work_item_dirs(contract.project_dir):
-        display_path = folder.relative_to(contract.repo).as_posix()
-        findings.append(
-            _finding(
-                1,
-                display_path,
-                f"Legacy work-item folder '{display_path}' still holds files; tasks, bugs, and change-requests now live in the local tracker.",
-                f"Follow {MIGRATION_GUIDE} to move the files into the tracker and remove the folder.",
-            )
-        )
     return findings
 
 
@@ -266,7 +250,7 @@ def _coding_guidelines_findings(contract: LayoutContract) -> list[LayoutFinding]
 
 
 def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report missing directories, tracker ignore problems, and legacy folders."""
+    """Report missing directories and tracker ignore problems."""
 
     findings = _tracker_findings(contract)
     findings.extend(_coding_guidelines_findings(contract))
