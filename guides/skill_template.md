@@ -228,7 +228,7 @@ When an orchestrator exhausts Phase 2, Step 1 (Architect) without resolution, it
 
 **Good example** (from `code-review/SKILL.md`):
 ```yaml
-description: Two-stage code review for completed tasks and bug fixes. Use when a Developer submits work and the Reviewer must check task acceptance or bug diagnosis criteria before reviewing code quality.
+description: Two-stage code review for completed tasks and bug fixes. Use when a Developer submits work and the Reviewer must check the Developer's claims and the project's rules, or check the Developer's answers to an earlier Review Verdict.
 ```
 
 **Avoid:**

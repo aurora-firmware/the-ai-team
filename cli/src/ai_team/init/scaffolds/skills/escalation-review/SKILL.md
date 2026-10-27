@@ -50,6 +50,8 @@ Classify the blocker as one of:
 If the issue can be resolved within the approved spec, provide a specific directive to the requesting role.
 The directive must include what to change, where to apply it, and how to verify it.
 
+When the latest Review Verdict still has `Open` findings, rule on each one from the evidence: the finding's Basis, the Developer's latest answer, and the Reviewer's latest note. A finding is **upheld** when it holds; the Developer then fixes it, and the Reviewer confirms the fix in the next review. A finding is **parked** when the work item meets its criteria without it. Do not prescribe the fix for an upheld finding; how to resolve it stays the Developer's decision.
+
 If the task or bug file needs clarification within existing scope, recommend the exact amendment and the owner who should make it.
 
 If the issue is architecture-affecting and within the approved spec, use `new-adr` or amend an existing ADR before implementation continues.
@@ -78,8 +80,8 @@ Directive:
 Verification:
 - <command or check that proves the directive worked>
 
-Parked findings:
-- <finding from the last FAIL verdict that the work item meets its criteria without, and why — or "none">
+Finding rulings:
+- <finding ID: upheld | parked, and the evidence that decides it, for every finding still Open in the latest Review Verdict — or "none">
 
 Product owner escalation required because:
 - <only when Result is ESCALATE>

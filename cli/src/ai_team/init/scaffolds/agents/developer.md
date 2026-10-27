@@ -19,7 +19,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 - `tdd` — primary workflow for all implementation work.
 - `debug` — required before bug fixes, and applied when tests fail unexpectedly or code does not behave as expected.
-- `receive-code-review` — answers each open finding of a FAIL Review Verdict on the task or bug branch.
+- `receive-code-review` — answers each open finding of the latest Review Verdict on the task or bug branch.
 - `new-bug` — to report pre-existing defects discovered outside the current task's scope through the CLI-backed bug creation flow.
 - `git-conventions` — used whenever committing implementation changes on the assigned task or bug branch.
 
@@ -39,7 +39,7 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 ## Interaction Pattern
 
 ### Receives Work From
-- **Development Loop** — receives one `in-progress` task (its tracker file path) and works on the assigned task branch, or the same task back after a FAIL Review Verdict.
+- **Development Loop** — receives one `in-progress` task (its tracker file path) and works on the assigned task branch, or the same task back with open review findings.
 - **Bug-Fix Loop** — receives one `in-progress` bug (its tracker file path) and works on the assigned bug branch.
 
 ### Hands Off To

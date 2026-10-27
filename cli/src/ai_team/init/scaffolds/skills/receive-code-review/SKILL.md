@@ -1,6 +1,6 @@
 ---
 name: receive-code-review
-description: Answers each open finding of an ai-team Review Verdict, either by fixing it on the task or bug branch or by showing with evidence that it does not hold. Use when an ai-team Developer resumes a task or bug whose latest Review Verdict in the tracker is FAIL.
+description: Answers each open finding of an ai-team Review Verdict, either by fixing it on the task or bug branch or by showing with evidence that it does not hold. Use when an ai-team Developer resumes a task or bug whose latest Review Verdict in the tracker lists Open findings.
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(new-bug), Skill(git-conventions)
 ---
 
@@ -12,7 +12,7 @@ The Reviewer saw the diff and the work item; the Developer holds the implementat
 
 ## Input Requirements
 
-- **Task or bug file** — its latest `### Review Verdict` is `FAIL` and lists findings with `**Status:** Open`. The file lives in the local tracker; the active loop passes its path.
+- **Task or bug file** — its latest `### Review Verdict` (`FAIL`, or `ESCALATE` after the Architect's guidance) lists findings with `**Status:** Open`. The file lives in the local tracker; the active loop passes its path.
 - **The assigned task or bug branch** — `task/T-NNN-...` or `bug/B-NNN-...`, checked out. Every change goes on this branch, before it is integrated.
 - **What the findings cite** — the acceptance criteria or fix contract, the Work Log, the approved spec, accepted ADRs, the project `AGENTS.md` and `{{project_dir}}/docs/coding_guidelines.md`.
 

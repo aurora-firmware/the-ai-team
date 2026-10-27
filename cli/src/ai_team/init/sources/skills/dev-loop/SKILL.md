@@ -133,7 +133,7 @@ Read the task file at the path reported by `ai-team show T-NNN --json`, and chec
 > "Pick up the task from the task file `<task-path>` and implement it using the tdd skill.
 > You are on branch `task/T-NNN-...`. Follow the task's declared verification method using the tdd skill. For test tasks, commit after each red→green→refactor cycle. For inspection and demonstration tasks, commit the changes and include the inspection or demonstration record in your Work Log handoff.
 > The task file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> If the task file's latest Review Verdict is FAIL, first answer every open finding with the receive-code-review skill, committing fixes on this branch, and include the `#### Review answers` block in your Work Log handoff.
+> If the task file's latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill, committing fixes on this branch, and include the `#### Review answers` block in your Work Log handoff.
 > Return a Work Log handoff entry at session end. The entry's heading is `### Session N — YYYY-MM-DD`; the body is free prose covering what was done, what was tried and rejected, and what remains. The loop will append it to the task file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
@@ -221,13 +221,14 @@ Follow the Phase 2 escalation chain below. Step 1 is a single Architect consulta
 > Attempted: <what the Developer tried and how many review cycles occurred>
 > Failed because: <why the task still cannot pass>
 > Question: <specific guidance needed to continue within the approved specification>
+> Rule on every finding still Open in the latest Review Verdict of the task file: <finding IDs, or none>.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
 If the Architect resolves the issue, go back to **Step 5** with the Architect's guidance.
 
-When findings are still in dispute between Reviewer and Developer, the Architect settles each one: **upheld**, which the Developer then fixes, or **parked**. Record each ruling under the latest verdict.
+Record each entry of the Architect's `Finding rulings` under the latest Review Verdict. An **upheld** finding stays `Open`; the Developer fixes it in Step 5.
 
-If the Architect adjudicates that specific findings of the last FAIL verdict should be **parked** rather than fixed — the task meets its criteria without them — the loop makes each parked finding a durable artifact before continuing; a ledger line in the chat is not one:
+If the Architect adjudicates that specific findings of the latest Review Verdict should be **parked** rather than fixed — the task meets its criteria without them — the loop makes each parked finding a durable artifact before continuing; a ledger line in the chat is not one:
 - file it as a new bug with the `new-bug` skill, naming this task and the finding, or
 - record it under a `### Recorded deviation — YYYY-MM-DD` heading in the task file with the Architect's rationale.
 

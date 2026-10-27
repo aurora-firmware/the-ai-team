@@ -115,7 +115,7 @@ Stay on the bug branch — no switch and no commit. That recorded entry is the f
 > You are on branch `bug/B-NNN-...`.
 > Use the recorded Diagnosis Log as the implementation contract.
 > The bug file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> If the bug file's latest Review Verdict is FAIL, first answer every open finding with the receive-code-review skill, committing fixes on this branch, and include the `#### Review answers` block in your Work Log handoff.
+> If the bug file's latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill, committing fixes on this branch, and include the `#### Review answers` block in your Work Log handoff.
 > Use the tdd skill where applicable: add or update a failing regression test when the defect can be tested automatically, verify it fails, implement the minimal fix, and verify it passes.
 > Commit after each red→green→refactor cycle.
 > Return a Work Log handoff entry at session end. The entry's heading is `### Session N — YYYY-MM-DD`; the body is free prose covering what was done, what was tried and rejected, and what remains. The loop will append it to the bug file.
@@ -209,13 +209,14 @@ Follow the Phase 2 escalation chain below. Step 1 is a single Architect consulta
 > Attempted: <what the Developer tried, including diagnosis attempts and review cycles>
 > Failed because: <why the bug still cannot pass>
 > Question: <specific guidance needed to continue within the bug report and approved specification>
+> Rule on every finding still Open in the latest Review Verdict of the bug file: <finding IDs, or none>.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
 If the Architect resolves the issue, go back to **Step 4** with the Architect's guidance when the escalation was raised during diagnosis, or to **Step 5** otherwise.
 
-When findings are still in dispute between Reviewer and Developer, the Architect settles each one: **upheld**, which the Developer then fixes, or **parked**. Record each ruling under the latest verdict.
+Record each entry of the Architect's `Finding rulings` under the latest Review Verdict. An **upheld** finding stays `Open`; the Developer fixes it in Step 5.
 
-If the Architect adjudicates that specific findings of the last FAIL verdict should be **parked** rather than fixed — the bug meets its criteria without them — the loop makes each parked finding a durable artifact before continuing; a ledger line in the chat is not one:
+If the Architect adjudicates that specific findings of the latest Review Verdict should be **parked** rather than fixed — the bug meets its criteria without them — the loop makes each parked finding a durable artifact before continuing; a ledger line in the chat is not one:
 - file it as a new bug with the `new-bug` skill, naming this bug and the finding, or
 - record it under a `### Recorded deviation — YYYY-MM-DD` heading in the bug file with the Architect's rationale.
 
