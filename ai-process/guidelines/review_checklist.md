@@ -1,9 +1,3 @@
----
-title: "Code Review Checklist"
-status: approved
-created: 2026-03-10
----
-
 # Code Review Checklist
 
 This checklist is used by the Reviewer role during the two-stage code review procedure.

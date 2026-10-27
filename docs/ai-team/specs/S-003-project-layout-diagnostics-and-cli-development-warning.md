@@ -1,6 +1,6 @@
 ---
 title: Project layout diagnostics and CLI development warning
-version: '0.4'
+version: '0.5'
 status: approved  # draft | review | approved | superseded
 created: '2026-06-24'
 author: planner
@@ -344,21 +344,9 @@ in `cli/tests/test_layout.py`.
 
 ### REQ-006 — Level 1: tracker placement
 
-Level 1 SHALL report a tracker folder inside the repository that git does not ignore,
-and a legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folder in the project
-directory that holds a markdown file at any depth other than `.gitkeep` or a
-`TEMPLATE-*.md` file, with a fix naming the documented migration procedure (S-006).
-
-#### AC-006.1 — Legacy work-item folder
-
-- **Given:** a project directory with `tasks/pending/T-001-old.md`, and an empty
-  `bugs/open/` folder
-- **When:** `check-layout` runs
-- **Then:** one level 1 finding names `tasks/` and the migration procedure; the empty
-  `bugs/` folder is not reported
-
-**Verification:** Test: `test_level_1_reports_unmigrated_legacy_work_item_folders` in
-`cli/tests/test_layout.py`.
+Level 1 SHALL report a tracker folder inside the repository that git does not ignore.
+It SHALL NOT report legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folders
+in the project directory (S-006 carries no migration).
 
 #### AC-006.2 — Unignored tracker
 
@@ -595,8 +583,8 @@ only local files, and no run-time target was agreed.
 - **The installed distribution carries its own version and project scaffold.**
   REQ-004, REQ-005 and REQ-009 compare against them. If the version cannot be read,
   the mismatch warning is skipped (AC-012.2).
-- **S-006 owns the tracker** location, the allowed `status` values and the migration
-  procedure that REQ-006 and REQ-007 check against.
+- **S-006 owns the tracker** location and the allowed `status` values that REQ-006
+  and REQ-007 check against.
 - **S-009 owns the project scaffold** and `init`, whose plain and `--update-skills`
   runs are the suggested fixes for missing directories.
 - **git is available** to tell whether an in-repository tracker folder is ignored
@@ -645,3 +633,4 @@ None.
 | 2026-10-25 | Claude is the only export target: the resolver no longer reads `[init] tools`; level 1 always expects `.claude/agents/` and `.claude/skills/` and drops the per-tool table and the legacy Codex skill finding; level 3 and the guidance configuration require root `AGENTS.md` only, with `CLAUDE.md` neither required nor read. Driven by CR-007 and ADR-003. | Codex support was dropped and the generated guidance file is `AGENTS.md`, which current Claude Code reads. | None in flight |
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (the `check-layout` output and exit contract and both warning texts), Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, Success Criteria and Open Questions; the Components section and the Validation Contracts became requirements. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
+| 2026-10-27 | REQ-006: level 1 no longer reports legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folders, and AC-006.1 (Legacy work-item folder) is removed; its identifier is not reused. The S-006 dependency no longer names a migration procedure. Version bumped to 0.5. | Product owner decision: no migration or backward compatibility before 1.0.0; S-006 removed its migration procedure and legacy warning (REQ-011, REQ-012). | The CLI still reports legacy folders; a bug records the deviation. |

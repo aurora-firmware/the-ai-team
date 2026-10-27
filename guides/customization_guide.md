@@ -1,9 +1,3 @@
----
-title: "Customization Guide"
-status: approved
-created: 2026-03-10
----
-
 # Customization Guide
 
 This guide explains what to adapt when adopting the AI team framework for your project.
@@ -29,7 +23,7 @@ Exported skill files in `.claude/skills/` may be edited for your project, but th
 ### Must Customize
 
 **`AGENTS.md`** — Your project's identity:
-- Replace the project name and purpose description.
+- Add a title and a short description of your project above the sections.
 - Add your tech stack, repository layout, and the specific build/run/test/lint commands agents should use.
 - Point agents to project-local conventions, including `ai-team/docs/coding_guidelines.md` if present.
 - Keep the five sections `ai-team check-layout` requires: `## Build and Install`, `## Test`, `## Run`, `## Lint and Format`, and `## Key Conventions`.
@@ -39,7 +33,7 @@ Exported skill files in `.claude/skills/` may be edited for your project, but th
 - Reference the framework workflow in a "Development Process" section.
 
 **Project-local coding guidance** — Stack-specific rules:
-- Keep `ai-process/guidelines/coding-standards.md` as the framework's general, language-agnostic baseline unless you are intentionally forking the process.
+- The framework's general, language-agnostic coding standards are built into the exported agents and skills; you do not edit them.
 - Put project-specific coding rules in `ai-team/docs/coding_guidelines.md` or another project-local document referenced by your `AGENTS.md`.
 - Include formatter, linter, test framework, dependency policy, naming conventions, file layout, and framework conventions there.
 - Agents and skills should discover these details from the target project instead of relying on hardcoded defaults in the framework.
@@ -96,7 +90,7 @@ test runner changed), update `AGENTS.md` in the same commit.
 #### Workflow after `ai-team init` scaffolds it
 
 1. Open the generated `AGENTS.md` from the starter template.
-2. Replace the placeholder project name and description.
+2. Replace the generic `# Project Guidance for Claude` title and introduction with your project's name and description.
 3. Fill in your actual commands under `## Build and Install`, `## Test`,
    `## Run`, and `## Lint and Format`.
 4. Add your tech stack, repo layout, and any agent-facing conventions under
@@ -106,31 +100,11 @@ test runner changed), update `AGENTS.md` in the same commit.
    without a yes, and `--force` overwrites root guidance only as described in
    the setup guide.
 
-### Optional Customization
+### Changing the Process
 
-**Agent subset** — Not every project needs all 5 agents:
+The agent roles, quality gates and escalation thresholds are defined by the framework's `ai-process/` documents, which are not exported, and carried out by the exported agents and skills. The workflow expects all five agents (Planner, Architect, Developer, Reviewer, Integrator): the procedures hand work to each of them by name (the loops spawn the Developer, Reviewer and Architect, integration hands merge conflicts to the Integrator, and Gate 2 runs between the Planner and the Architect).
 
-| Team Size | Recommended Agents |
-|---|---|
-| Solo (1 agent) | Developer (combines all roles) |
-| Small (2-3 agents) | Planner + Developer + Reviewer |
-| Standard (4 agents) | Planner + Developer + Reviewer + Integrator |
-| Full (5 agents) | All agents including Architect |
-
-To reduce the team: keep only the agent files you need. The workflow still works — agents whose roles are absent have their responsibilities absorbed by adjacent agents (e.g., without an integrator, the developer handles merges).
-
-**Quality gate criteria** — Adjust `ai-process/processes/quality-gates.md`:
-- Gate 1 is the product owner's specification approval.
-- Gate 2 is Architect task-plan preflight.
-- Gate 3 is code review.
-- Gate 4 is integration verification.
-- Gate 5 is the product owner's final merge sign-off.
-- If your project needs a different gate model, update `ai-process/processes/quality-gates.md`, `ai-process/processes/workflow-overview.md`, and the affected skills together.
-
-**Escalation thresholds** — In `ai-process/processes/escalation-procedure.md`:
-- Default: architect consultation after failure, then product owner escalation.
-- For faster iteration: skip architect, escalate directly to the product owner.
-- For more autonomy: allow two architect consultations before product owner escalation.
+To change the gate model, the escalation thresholds or the set of roles, change the framework itself: update `ai-process/` first, then the agents and skills that implement it, as described in the framework's README ("Contributing to This Project"). Editing the exported files in `.claude/` instead is possible, but an upgrade that updates the agents and skills overwrites those edits.
 
 ## Extending the Framework
 

@@ -1,9 +1,3 @@
----
-title: "AI Team System Overview"
-status: approved
-created: 2026-03-10
----
-
 # AI Team System Overview
 
 ## What This Defines
@@ -119,7 +113,7 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 
 Three document types in the AI team framework each have a distinct authority domain. Each type is the source of truth for its domain; placing information in the wrong type causes redundancy and drift.
 
-### Component map (`ai-process/architecture/component-map.md`)
+### Component map (`ai-process/architecture/component_map.md`)
 
 Authoritative for **structure**: which roles, processes, procedures, and gates exist; their purpose; lifecycle ownership; and the high-level data flow between them.
 When a component is added, removed, or reassigned, the component map is updated first.

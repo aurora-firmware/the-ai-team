@@ -1,9 +1,3 @@
----
-title: "Quality Gates"
-status: approved
-created: 2026-03-10
----
-
 # Quality Gates
 
 Gates are checkpoints where work must meet defined criteria before proceeding. They prevent defects from propagating downstream where they become more expensive to fix.
@@ -20,7 +14,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - No unresolved open questions that affect behavior, contracts, acceptance, or feasibility. Deferred internal investigations follow the `new-spec` Open Questions rule.
 - No remaining product-owner-answerable `[TODO]` markers.
 
-**Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec-authoring-guide.md`.
+**Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec_authoring_guide.md`.
 
 **S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that the architecture is detailed enough to derive tasks:
 - The content is in plain language.
@@ -44,7 +38,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - File conflict risks are identified and resolved through dependencies or task changes.
 - Interfaces are consistent across tasks: every type, function, or file a task consumes is produced by a task it depends on (or already exists), under the same name and signature.
 - Task plan is architecturally consistent with existing decisions.
-- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec-authoring-guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test that asserts the wording of prose or only proves a removal.
+- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec_authoring_guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test that asserts the wording of prose or only proves a removal.
 - No task contains placeholder text (`TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or a reference to something no task defines).
 
 **On failure:** Architect returns a correction request to the Planner. The Planner revises the task plan and resubmits it to Gate 2. The one exception: the Architect may fix an obvious missing dependency, file ordering, or naming mismatch directly in the planned task files, as the `spec-breakdown-review` skill allows.
@@ -56,7 +50,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 **Executable procedure:** the `architecture-consistency-review` skill, exported by `ai-team init`, owns the actual check, finding routing, and escalation behaviour. This section is the spec-layer description of *why* and *when* the duty runs; the skill is *how* it runs. The Architect runs it directly when authoring an ADR; for a created or amended spec or an approved change-request, the Planner-owned procedure hands the changed artifact to the Architect (Next Owner: Architect), who runs the review and returns findings — the same Planner↔Architect handoff pattern as Gate 2.
 **Why:** Approved specs and accepted ADRs are both binding sources of truth (see Gate 2). A new or changed decision can silently contradict something an existing spec or ADR already records, leaving two authoritative artifacts that disagree until someone notices by hand.
 **Check:** The Architect reads the changed artifact against every other approved spec and accepted ADR and confirms they remain mutually consistent. For draft specs and amended specs, this check only starts once product-owner-answerable `[TODO]` markers are resolved; for change-requests, it starts only after the product owner has approved a TODO-free request. Gate 2's `spec-breakdown-review` makes the equivalent consistency check on a *task plan* independently; this review covers the *artifact change itself*, regardless of whether any task plan is in flight. The two reviews are separate skills with separate inputs.
-**On drift:** The Architect names every affected artifact and routes the correction — the Planner amends affected specs (recording the change, and the driving ADR ID, in the Amendment Log), and the Architect amends or supersedes affected ADRs. In completion mode, when the spec is right and the completed work falls short, the Planner creates follow-up tasks instead of amending the spec. When the changed artifact is an approved change-request, the Planner treats that approved TODO-free request as authoritative for Planner-owned consistency fixes. If an Architect finding would alter the approved change-request's intent, the process stops for a product owner decision instead of applying the change procedurally. When reconciling the drift requires changing an approved specification beyond an in-flight amendment, the Architect escalates to the product owner per the [escalation procedure](escalation-procedure.md).
+**On drift:** The Architect names every affected artifact and routes the correction — the Planner amends affected specs (recording the change, and the driving ADR ID, in the Amendment Log), and the Architect amends or supersedes affected ADRs. In completion mode, when the spec is right and the completed work falls short, the Planner creates follow-up tasks instead of amending the spec. When the changed artifact is an approved change-request, the Planner treats that approved TODO-free request as authoritative for Planner-owned consistency fixes. If an Architect finding would alter the approved change-request's intent, the process stops for a product owner decision instead of applying the change procedurally. When reconciling the drift requires changing an approved specification beyond an in-flight amendment, the Architect escalates to the product owner per the [escalation procedure](escalation_procedure.md).
 
 ## Gate 3: Code Review
 
@@ -74,7 +68,7 @@ The Reviewer checks the work against what the Developer claims it achieves (the 
 
 ### Stage 2: Code Quality
 **Pass criteria:**
-- Code follows the coding standards: `ai-process/guidelines/coding-standards.md` (general) and `ai-team/docs/coding_guidelines.md` (project-specific tech-stack rules, if present).
+- Code follows the coding standards: `ai-process/guidelines/coding_standards.md` (general) and `ai-team/docs/coding_guidelines.md` (project-specific tech-stack rules, if present).
 - Relevant tests exist for the changed product behavior, and no test asserts the wording of skills, process documents, guides, or specs.
 - The Developer's Work Log records local test evidence or explains why a local test run was not possible.
 - For an inspection or demonstration task, the Work Log records the inspection (criteria and references checked, each conflict found and fixed, and the result) or the demonstration (steps run and the observed outcome), and the Reviewer checks the planning choice.

@@ -67,7 +67,8 @@ def _replace_project_skeleton(destination: Path, source: Path) -> None:
 
 
 def _copy_skill_supporting_folders(skill_dir: Path, skill_output_dir: Path) -> None:
-    # Copied verbatim: supporting files are never placeholder-filled.
+    # Copied verbatim here; `ai-team init` fills the placeholders when it writes
+    # them into a project.
     for folder_name in SKILL_SUPPORTING_FOLDERS:
         source_folder = skill_dir / folder_name
         if source_folder.is_dir():

@@ -8,11 +8,12 @@ of every command, flag, and argument, see [commands.md](commands.md).
 
 ## Table of Contents
 
-1. [Installation](#installation)
-2. [Initialisation](#initialisation)
-3. [Daily Workflows](#daily-workflows)
-4. [Project Folder Structure](#project-folder-structure)
-5. [For Maintainers](#for-maintainers)
+1. [Development warning](#development-warning)
+2. [Installation](#installation)
+3. [Initialisation](#initialisation)
+4. [Daily Workflows](#daily-workflows)
+5. [Project Folder Structure](#project-folder-structure)
+6. [For Maintainers](#for-maintainers)
 
 ---
 
@@ -58,7 +59,7 @@ The warning never changes stdout, `--json` output, or the exit code.
 ### From GitHub Releases
 
 ```bash
-pipx install https://github.com/<org>/<repo>/releases/download/<tag>/ai_team-<version>-py3-none-any.whl
+pipx install https://github.com/aurora-firmware/the-ai-team/releases/download/<tag>/ai_team-<version>-py3-none-any.whl
 ```
 
 ### From a local build
@@ -152,8 +153,9 @@ Warning: these skills or agents are not shipped by this version of ai-team; they
 
 ### What gets scaffolded
 
-`ai-team init` never copies `ai-process/`. All scaffolded files come from
-package-owned snapshots bundled inside the `ai_team.init.scaffolds` package.
+`ai-team init` never copies `ai-process/`. The agents, skills and project skeleton
+come from package-owned snapshots bundled inside the `ai_team.init.scaffolds`
+package; the starter root `AGENTS.md` comes from `ai_team.init.sources.root`.
 
 `init` always writes `.claude/agents/` and `.claude/skills/`. Running
 `ai-team init .` writes:
@@ -496,8 +498,7 @@ framework_version = "0.1.0"
 The `[project] dir` key is what the locator reads in strategy 3. It accepts any
 relative folder inside the repository, at any depth (for example
 `docs/ai-team`), with no `..` component; `check-layout` validates it and checks
-the artifacts inside it. Projects initialised before the default changed keep
-their `dir = "project"` setting and need no change.
+the artifacts inside it.
 
 To preset settings before the first `ai-team init`, write only the `[project]`,
 `[tracker]` and `[git]` tables and leave out `[init]`: `init` writes `[init]` itself,
@@ -519,7 +520,8 @@ Hand edits to generated files are overwritten by that refresh.
   .ai-team.toml               ← locator marker; written by ai-team init
   ai-team/                    ← artifact root (name comes from [project] dir)
     specs/                    ← feature specifications
-      archive/                ← superseded spec versions
+      archive/                ← superseded spec versions (not created by init;
+                              │  spec IDs and validation also scan it)
     decisions/                ← Architecture Decision Records (ADR-NNN-*.md)
     docs/                     ← project-specific docs: coding guidelines,
                               │  commands, stack-specific notes
@@ -539,8 +541,8 @@ and bug-fix loops write scratch review packages to
 `ai-team tracker path`.
 
 Artifact filenames follow the patterns `T-NNN-<slug>.md` (tasks),
-`B-NNN-<slug>.md` (bugs), `S-NNN-<slug>.md` (specs), and `ADR-NNN-<slug>.md`
-(ADRs). The CLI allocates the next sequential task, bug, and change-request ID
+`B-NNN-<slug>.md` (bugs), `CR-NNN-<slug>.md` (change-requests), `S-NNN-<slug>.md`
+(specs), and `ADR-NNN-<slug>.md` (ADRs). The CLI allocates the next sequential task, bug, and change-request ID
 by scanning the tracker, and the next spec ID by
 scanning `specs/` on the current branch. Legacy spec files without the `S-NNN-` prefix are
 also accepted by validation.
@@ -557,10 +559,7 @@ is harmless and removing it would reopen the race the lock exists to prevent.
 
 `ai-team init` scaffolds an `ai-team/.gitignore` with a `.ai-team.lock` entry,
 so the sentinel never shows up as untracked in `git status`, and a
-`docs/reports/` entry that keeps on-demand status reports untracked. Projects that ran `ai-team init` before this `.gitignore` was added
-will not receive it retroactively — add a `.ai-team.lock` entry to your own
-`.gitignore` (at the repository root or inside the project directory) to get
-the same effect.
+`docs/reports/` entry that keeps on-demand status reports untracked.
 
 ---
 
@@ -574,17 +573,23 @@ The `ai_team` package lives in `cli/src/ai_team/` and is structured as:
 |---|---|
 | `ai_team.cli` | Root Typer app and console-script entry point (`ai-team`). |
 | `ai_team.commands/` | One module per command group; auto-discovered at startup. |
+| `ai_team.commands._shared` | Helpers shared by several command modules (not mounted as a command). |
 | `ai_team.core/` | Pure-Python helpers with no Typer dependency. |
 | `ai_team.core.locator` | Project root resolution (four-strategy locator). |
+| `ai_team.core.config` | Reads `.ai-team.toml` settings and fills the `{{project_dir}}` and `{{integration_branch}}` placeholders. |
+| `ai_team.core.layout` | Layout contract and the `check-layout` levels. |
+| `ai_team.core.tracker` | Local tracker: folder resolution and work-item lookup. |
+| `ai_team.core.lock` | The `.ai-team.lock` sentinel for concurrent ID allocation. |
 | `ai_team.core.ids` | Sequential ID allocation (`T-NNN`, `B-NNN`, etc.). |
 | `ai_team.core.fs` | Artifact file read/write helpers. |
-| `ai_team.core.models` | Dataclasses for task, bug, spec, and ADR frontmatter. |
+| `ai_team.core.models` | Dataclasses for task, bug, change-request, spec, and ADR frontmatter. |
 | `ai_team.core.templates` | Loads bundled Markdown templates from the package. |
+| `ai_team.core.tool_paths` | Where the exported agents and skills go in a project. |
 | `ai_team.core.validate` | Artifact metadata validation logic. |
 | `ai_team.core.spec_content` | Structural checks for feature-spec bodies. |
-| `ai_team.templates/` | Bundled Markdown artifact templates (task, bug, spec, adr, report). |
-| `ai_team.init/` | Scaffold data for `ai-team init`. |
-| `ai_team.init.scaffolds/` | Package-owned snapshots: `scaffolds/{project,agents,skills}/`. |
+| `ai_team.templates/` | Bundled Markdown artifact templates (task, bug, change-request, spec, system-overview, adr, progress-report). Read at runtime. |
+| `ai_team.init.sources/` | Authored sources: `agents/`, `skills/`, `project/` (synced into `scaffolds/`) and `root/` (the starter root `AGENTS.md`, read at runtime). |
+| `ai_team.init.scaffolds/` | Generated, committed snapshots: `scaffolds/{project,agents,skills}/`. |
 | `ai_team.render` | Rich console and JSON output helpers. |
 
 ### How to add a new command
@@ -614,18 +619,19 @@ uv run pytest tests/test_task_new.py -v
 
 ### How to maintain scaffold sources
 
-The scaffold files shipped inside the package are **package-owned copies** —
-they are not read from the repository's `.claude/` tree at runtime. This
-means any change to the canonical agent or skill definitions must be reflected
-in the bundled snapshots before the next release.
+The scaffold files shipped inside the package are **package-owned copies**,
+generated from the sources and committed. Any change to a source must be
+reflected in the committed snapshots: `uv run pytest` fails when they differ
+from a fresh sync.
 
 The generator script `scripts/sync_init_scaffolds.py` keeps the snapshots
 in sync. It reads from:
 
 - `cli/src/ai_team/init/sources/skills/<name>/SKILL.md` — one source file per
-  skill (`sources/skills/<name>/SKILL.md`)
+  skill, plus its optional `assets/`, `references/` and `scripts/` folders
 - `cli/src/ai_team/init/sources/agents/*.md` — one source file per agent
-  (`sources/agents/*.md`)
+- `cli/src/ai_team/init/sources/project/` — the project skeleton's `AGENTS.md`,
+  `.gitignore` and `docs/coding_guidelines.md`
 
 and writes the output into:
 
@@ -635,9 +641,13 @@ and writes the output into:
 
 The three folders together are `scaffolds/{project,agents,skills}/`.
 
-Run `sync_init_scaffolds.py` whenever the canonical agent or skill files
-change. The script is also run automatically at the start of the local-build
-installation step (see `From a local build` above).
+Run `sync_init_scaffolds.py` whenever one of those sources changes, and commit
+the regenerated scaffolds with the change. The local-build installation steps
+(see `From a local build` above) also run it first; nothing runs it
+automatically.
+
+`sources/root/AGENTS.md` and the artifact templates in `cli/src/ai_team/templates/`
+are not synced: the CLI reads them from the installed package at runtime.
 
 `ai-team init` never copies `ai-process/`. The specification layer is
 intentionally excluded from the scaffold — only the implementation layer
@@ -666,6 +676,23 @@ git push origin 1.2.3
 
 CI then builds the wheel and sdist, regenerates `commands.md`, and publishes a
 GitHub Release with those files attached.
+
+**Release hygiene.** Public releases must not include secrets, tokens, passwords,
+environment variable values, usernames, emails, machine paths, hostnames, or any
+other data that could identify or compromise a machine. Before tagging, scan newly
+added docs, examples, and scratch files for sensitive material and replace it with
+placeholders if needed.
+
+**End-to-end packaging check.** Run this sequence from a clean shell to confirm
+the package builds, installs, and initializes correctly:
+
+```bash
+cd cli && python scripts/sync_init_scaffolds.py && uv build \
+  && pipx install --force dist/*.whl \
+  && d=$(mktemp -d) && ai-team init "$d" --no-interactive \
+  && ai-team --version && (cd "$d" && ai-team status) \
+  && test -d "$d/ai-team" && test -d "$d/.claude" && test -f "$d/.ai-team.toml"
+```
 
 To install the local wheel for manual testing:
 

@@ -1,10 +1,3 @@
----
-title: "Skill Testing Guide"
-status: draft
-created: 2026-10-19
-updated: 2026-10-19
----
-
 # Skill Testing Guide
 
 Skills are process documentation that an agent must follow under pressure. This guide applies test-driven development to them: watch an agent fail without the change, write the change to close that failure, then confirm the agent complies. Use it for every new skill and for any change to an enforcement rule — a rationalization table, a gate, a verdict rule, a loop step.

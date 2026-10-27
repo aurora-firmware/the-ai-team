@@ -1,15 +1,8 @@
----
-title: "Skill Template"
-status: draft
-created: 2026-04-22
-updated: 2026-04-27
----
-
 # Skill Template
 
 Use this template when creating a new skill for this framework. Skills are **procedures**: they describe what to do, in what order, with which inputs and outputs.
 
-This template reflects the conventions settled during the 2026-04 review of `.claude/` and the [Claude Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): concise `SKILL.md`, specific discovery metadata, progressive disclosure for detail, clear workflows, validation loops for quality-critical work.
+This template reflects the [Claude Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): concise `SKILL.md`, specific discovery metadata, progressive disclosure for detail, clear workflows, validation loops for quality-critical work.
 
 ## Core Principles
 
@@ -61,9 +54,9 @@ A skill file **should** contain:
 skill-name/
 ├── SKILL.md
 ├── assets/
-│   └── TEMPLATE-example.md
+│   └── example_template.md
 ├── references/
-│   └── reference-topic.md
+│   └── reference_topic.md
 └── scripts/
     └── helper.py
 ```
@@ -86,7 +79,8 @@ For **procedure skills**:
 4. `## Escalation` (if the skill can return `ESCALATE`)
 5. `## Output Format`
 6. `## Quality Criteria`
-7. `## Common Pitfalls`
+7. `## Rationalizations` (optional: a table of the excuses an agent gives for skipping a rule, each with its rebuttal; see `guides/skill_testing_guide.md`)
+8. `## Common Pitfalls`
 
 For **orchestrator skills**, append after `## Procedure`:
 
@@ -223,7 +217,7 @@ When an orchestrator exhausts Phase 2, Step 1 (Architect) without resolution, it
 `description`:
 - **Maximum 1024 characters.** Non-empty. No XML tags.
 - **Always third person.** The description is injected into the system prompt; first/second person ("I can…", "You can…") causes discovery problems.
-- State **what the skill does and when to use it** in the same sentence — concrete trigger words, artifacts, and process states. Put the weight on the triggering conditions and never list the steps: a description that summarizes the workflow gets followed in place of the skill (see `guides/skill-testing-guide.md`, *Skill Discovery Wording*).
+- State **what the skill does and when to use it** in the same sentence — concrete trigger words, artifacts, and process states. Put the weight on the triggering conditions and never list the steps: a description that summarizes the workflow gets followed in place of the skill (see `guides/skill_testing_guide.md`, *Skill Discovery Wording*).
 - Distinguish the skill from neighbouring skills.
 
 **Good example** (from `code-review/SKILL.md`):
@@ -282,7 +276,7 @@ Skills must not reference content outside `.claude/`. If a cross-cutting rule (e
 
 Keep `SKILL.md` focused on the core workflow. Move detail out when it is conditional, large, or only needed for some variants:
 
-- Put reusable templates in `assets/` (for example, a `TEMPLATE-report.md` that the skill copies and fills in).
+- Put reusable templates in `assets/` (for example, a `report_template.md` that the skill copies and fills in).
 - Put domain references, schemas, examples, or long policies in `references/`.
 - Put deterministic or fragile operations in `scripts/`.
 
@@ -431,7 +425,7 @@ If a skill invokes an MCP tool, always use the fully qualified `ServerName:tool_
 
 ## Validation And Evaluation
 
-The method for proving a skill or a rule change works — baseline pressure scenario, change, re-run — is in `guides/skill-testing-guide.md`. The steps below are the summary.
+The method for proving a skill or a rule change works — baseline pressure scenario, change, re-run — is in `guides/skill_testing_guide.md`. The steps below are the summary.
 
 Build evaluations **before** writing extensive documentation. Skills should solve real, observed problems — not imagined ones.
 

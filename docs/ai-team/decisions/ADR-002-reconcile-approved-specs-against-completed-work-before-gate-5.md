@@ -37,7 +37,7 @@ reconciliation once they are completed. Follow-up tasks are created `pending` an
 from Gate 2, because the finding and the approved spec already fix their scope; the re-run is
 their check. The Planner still chooses each follow-up task's verification method by the
 `new-task` rule: a test, an inspection, or a demonstration, as defined in
-`guides/spec-authoring-guide.md`. When it is unclear which side is authoritative, or
+`guides/spec_authoring_guide.md`. When it is unclear which side is authoritative, or
 both need to change, the Architect escalates to the product owner to decide. It also escalates when a
 re-run still finds drift on a finding whose follow-up tasks are completed, rather than routing
 another round of tasks that skip Gate 2.
@@ -99,7 +99,7 @@ on the product owner noticing deviations that no artifact records.
   spec-breakdown rule. A drift that persists after its follow-up tasks escalates to the product owner,
   so follow-up rounds cannot repeat without a product owner decision.
 - **2026-10-26:** Verification vocabulary. Tasks are now verified by a test, an inspection, or
-  a demonstration, as defined in `guides/spec-authoring-guide.md`; design review is folded
+  a demonstration, as defined in `guides/spec_authoring_guide.md`; design review is folded
   into inspection. The Planner chooses each follow-up task's verification method by the
   `new-task` rule, which replaces the spec-breakdown rule the 2026-10-21 entry names.
 - **2026-10-27:** Removed the deferred-Minor roll-up from the evidence. Code review no longer

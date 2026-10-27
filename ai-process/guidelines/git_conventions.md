@@ -1,9 +1,3 @@
----
-title: "Git Conventions"
-status: approved
-created: 2026-03-25
----
-
 # Git Conventions
 
 These rules apply to all AI roles working within any project that uses this framework.
