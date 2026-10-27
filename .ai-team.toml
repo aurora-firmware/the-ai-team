@@ -2,7 +2,7 @@
 dir = "docs/ai-team"
 
 [init]
-framework_version = "0.16.1"
+framework_version = "0.17.0"
 
 [tracker]
 dir = ".ai-team/tracker"

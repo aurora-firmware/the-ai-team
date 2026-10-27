@@ -1,3 +1,13 @@
 [tools]
 python = "3.14"
 uv = "latest"
+
+[env]
+# Released ai-team version (git tag). To try another ref locally, override it in the git-ignored mise.local.toml.
+AI_TEAM_REF = "0.17.0"
+_.path = ["{{config_root}}/.tmp/tools/bin"]
+
+[tasks."setup:ai-team"]
+description = "Install ai-team at AI_TEAM_REF into .tmp/tools"
+env = { UV_TOOL_DIR = "{{config_root}}/.tmp/tools/venvs", UV_TOOL_BIN_DIR = "{{config_root}}/.tmp/tools/bin" }
+run = 'uv tool install --reinstall --python 3.14 --from "git+https://github.com/aurora-firmware/the-ai-team.git@${AI_TEAM_REF}#subdirectory=cli" ai-team'

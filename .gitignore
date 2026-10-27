@@ -13,3 +13,7 @@ __pycache__/
 
 # ai-team local work-item tracker (tasks, bugs, change-requests)
 /.ai-team/
+
+# mise: released ai-team install (setup:ai-team) and local overrides
+/.tmp/
+/mise.local.toml
