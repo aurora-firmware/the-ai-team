@@ -171,7 +171,7 @@ def test_change_request_set_status_and_show(initialized_repo):
     assert [row["id"] for row in rows] == ["CR-001"]
 
 
-def test_commands_warn_while_legacy_folders_hold_files(initialized_repo):
+def test_commands_ignore_files_in_legacy_work_item_folders(initialized_repo):
     legacy = initialized_repo / "ai-team" / "tasks" / "pending" / "T-009-old.md"
     legacy.parent.mkdir(parents=True)
     legacy.write_text("legacy", encoding="utf-8")
@@ -180,13 +180,8 @@ def test_commands_warn_while_legacy_folders_hold_files(initialized_repo):
 
     assert result.exit_code == 0
     assert json.loads(result.stdout) == []
-    assert "legacy work-item folders" in result.stderr
-    assert str(initialized_repo / "ai-team" / "tasks") in result.stderr
-    assert "Migrating to the local tracker" in result.stderr
-
-    legacy.unlink()
-    result = _invoke("list", "tasks", "--json")
-    assert "legacy" not in result.stderr
+    assert "legacy" not in result.stderr.lower()
+    assert "migrat" not in result.stderr.lower()
 
 
 def test_project_in_a_repository_subfolder_keeps_its_tracker_beside_it(
@@ -238,14 +233,14 @@ def test_sibling_bare_repositories_keep_separate_trackers(tmp_path):
     assert resolve_tracker_dir(first_a) != resolve_tracker_dir(first_b)
 
 
-def test_legacy_archive_folder_triggers_the_warning(initialized_repo):
+def test_legacy_archive_folder_prints_no_warning(initialized_repo):
     legacy = initialized_repo / "ai-team" / "archive" / "2026-01" / "T-001-old.md"
     legacy.parent.mkdir(parents=True)
     legacy.write_text("legacy", encoding="utf-8")
 
     result = _invoke("validate", "--json")
 
-    assert str(initialized_repo / "ai-team" / "archive") in result.stderr
+    assert "legacy" not in result.stderr.lower()
 
 
 def test_tasks_may_cite_a_change_request_as_their_spec(initialized_repo):

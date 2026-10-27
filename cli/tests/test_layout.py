@@ -391,18 +391,14 @@ def test_level_2_reports_invalid_status_values_with_actionable_fix(
     assert "allowed values" in invalid.suggested_fix.lower()
 
 
-def test_level_1_reports_unmigrated_legacy_work_item_folders(tmp_path: Path) -> None:
+def test_level_1_does_not_report_legacy_work_item_folders(tmp_path: Path) -> None:
     _write_marker(tmp_path)
     _create_current_scaffold(tmp_path)
     _write(tmp_path / "ai-team" / "tasks" / "pending" / "T-001-old.md", "legacy")
     (tmp_path / "ai-team" / "bugs" / "open").mkdir(parents=True)
     contract, _ = resolve_layout(tmp_path, current_version="1.2.3")
 
-    findings = check_level_1(contract)
-
-    assert [finding.path for finding in findings] == ["ai-team/tasks"]
-    assert "legacy" in findings[0].problem.lower()
-    assert "migrating to the local tracker" in findings[0].suggested_fix.lower()
+    assert check_level_1(contract) == []
 
 
 def test_level_1_reports_tracker_inside_repository_that_git_does_not_ignore(

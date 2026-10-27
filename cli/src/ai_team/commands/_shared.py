@@ -11,7 +11,6 @@ import typer
 from ai_team.core.fs import read_artifact, write_artifact
 from ai_team.core.ids import overview_exists
 from ai_team.core.locator import ProjectRoot, find_project_root
-from ai_team.core.tracker import legacy_warning, legacy_work_item_dirs
 
 OVERVIEW_HINT = (
     "Hint: this project has no system overview (S-000). "
@@ -21,12 +20,8 @@ OVERVIEW_HINT = (
 
 
 def project_root() -> ProjectRoot:
-    """Locate the project from the cwd and warn about unmigrated legacy folders."""
-    root = find_project_root(Path.cwd())
-    legacy = legacy_work_item_dirs(root.project_dir)
-    if legacy:
-        typer.echo(legacy_warning(legacy), err=True)
-    return root
+    """Locate the project from the cwd."""
+    return find_project_root(Path.cwd())
 
 
 def hint_missing_overview(root: ProjectRoot) -> None:

@@ -238,9 +238,7 @@ The command runs four ordered validation levels:
    every directory in the current project scaffold, and the agent and skill
    directories. Extra directories are allowed. Also
    reports a tracker folder that lies inside the repository but is not ignored
-   by git, and legacy `tasks/`, `bugs/`, `change-requests/`, or `archive/`
-   folders in the project directory that still hold a markdown file other than
-   `.gitkeep` or `TEMPLATE-*.md`. Also reports a missing
+   by git. Also reports a missing
    `docs/coding_guidelines.md` in the project directory, with the suggested fix
    to create it from the scaffold placeholder.
 2. **Level 2 — artifact names and frontmatter.** Checks managed specs and
