@@ -51,7 +51,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 ## Architecture Consistency Review
 
-**When:** Whenever a specification, an ADR, or a change-request is created, accepted, amended, or superseded — at ADR authoring time (`new-adr`), after a draft spec is made TODO-free and before Gate 1 approval, after an amended spec is made TODO-free and before Architect consistency review continues, and after a change-request becomes TODO-free and gains product owner approval. This is a standing duty, not a numbered gate. It also runs on **completion**: after the task queue drains and before Gate 5 sign-off, the Architect re-reads each approved spec the work touched against the completed Work Logs, the ADRs created mid-flight, and the deferred-Minor roll-up, then confirms the spec is still true or routes corrections to the Planner: an amendment when the spec is stale, or follow-up tasks when the spec is right and the work falls short (ADR-002). The completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from.
+**When:** Whenever a specification, an ADR, or a change-request is created, accepted, amended, or superseded — at ADR authoring time (`new-adr`), after a draft spec is made TODO-free and before Gate 1 approval, after an amended spec is made TODO-free and before Architect consistency review continues, and after a change-request becomes TODO-free and gains product owner approval. This is a standing duty, not a numbered gate. It also runs on **completion**: after the task queue drains and before Gate 5 sign-off, the Architect re-reads each approved spec the work touched against the completed Work Logs and the ADRs created mid-flight, then confirms the spec is still true or routes corrections to the Planner: an amendment when the spec is stale, or follow-up tasks when the spec is right and the work falls short (ADR-002). The completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from.
 **Evaluator:** Architect.
 **Executable procedure:** the `architecture-consistency-review` skill, exported by `ai-team init`, owns the actual check, finding routing, and escalation behaviour. This section is the spec-layer description of *why* and *when* the duty runs; the skill is *how* it runs. The Architect runs it directly when authoring an ADR; for a created or amended spec or an approved change-request, the Planner-owned procedure hands the changed artifact to the Architect (Next Owner: Architect), who runs the review and returns findings — the same Planner↔Architect handoff pattern as Gate 2.
 **Why:** Approved specs and accepted ADRs are both binding sources of truth (see Gate 2). A new or changed decision can silently contradict something an existing spec or ADR already records, leaving two authoritative artifacts that disagree until someone notices by hand.
@@ -60,9 +60,11 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 ## Gate 3: Code Review
 
-**When:** After a Developer completes a task or bug fix.
+**When:** After a Developer completes a task or bug fix, and again after each Developer response to a FAIL verdict.
 **Evaluator:** Reviewer role (two stages).
 **Output:** Review Verdict entry recorded in the task or bug file in the local tracker.
+
+The Reviewer checks the work against what the Developer claims it achieves (the acceptance criteria or fix contract, and the Work Log) and against the project's rules. Each finding states what is not as claimed or required, and why, citing the claim or rule. A finding never proposes a fix: how to resolve it is the Developer's decision, and the Developer may show that the finding does not hold. The criteria below are what the Reviewer checks; any one not met is a finding.
 
 ### Stage 1: Spec Compliance
 **Pass criteria:**
@@ -88,7 +90,9 @@ For bug fixes, the Reviewer also verifies:
 - A regression test exists when the defect can be tested automatically, or the Work Log explains why only manual verification is possible.
 - The Fix Verification steps from the bug report were run or a clear reason is recorded.
 
-**On failure:** The Reviewer records specific feedback in the work item file. The active loop returns the work item to the Developer for another implementation cycle. After the third failed review or any `ESCALATE` verdict, the active loop consults the Architect before stopping for product owner action.
+**Review loop:** Gate 3 is an agreement between Reviewer and Developer, not a one-way verdict. The verdict is FAIL while any finding is open. The Developer answers every finding on the task or bug branch: it changes the code, docs, or claim when the Reviewer is right, or it shows with evidence that the finding does not hold (a misinterpretation, out of the work item's scope, or required by the task, spec, or an ADR). The next review checks each answer, and confirms a fix, accepts a justification, or keeps the finding open with what the answer does not address. The verdict is PASS only when every finding is confirmed fixed or accepted and the review raised no new one. No finding is carried past the work item: there are no non-blocking findings and no later roll-up.
+
+**On failure:** The active loop returns the work item to the Developer, who answers the open findings. After the third failed review or any `ESCALATE` verdict, the active loop consults the Architect, who settles findings still in dispute, before stopping for product owner action.
 
 ## Gate 4: Integration Tests
 

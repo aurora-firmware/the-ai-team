@@ -63,6 +63,6 @@ Use these checks when reviewing a bug fix:
 
 ## Review Verdict
 
-**Pass** — all checks are satisfied.
-**Fail** — one or more checks are not satisfied. Return to Developer with specific, actionable notes for each failed check.
+**Pass** — all checks are satisfied, and every earlier finding is confirmed fixed or its justification accepted.
+**Fail** — one or more checks are not satisfied, or an earlier finding is still open. Each finding states what is wrong and why, citing the claim or rule it fails; it never proposes a fix. The Developer answers every finding before the next review.
 **Escalate** — the code has a fundamental design issue that Developer fixes cannot resolve within the approved specification. The active loop consults the Architect.

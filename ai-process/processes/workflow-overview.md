@@ -170,9 +170,9 @@ Before claiming the first task, the loop discovers the project's documented base
 #### Developer details
 
 **Role:** Developer.
-**Procedure:** Test-driven implementation and debugging; for an inspection or demonstration task, a recorded inspection or demonstration.
+**Procedure:** Test-driven implementation and debugging; for an inspection or demonstration task, a recorded inspection or demonstration. After a FAIL verdict, an answer to each review finding.
 **Input:** An `in-progress` task file in the tracker.
-**Output:** Working code with passing tests on the task branch (for an inspection or demonstration task, its record in the Work Log in place of new tests), plus a Work Log entry returned to the development loop for the task file.
+**Output:** Working code with passing tests on the task branch (for an inspection or demonstration task, its record in the Work Log in place of new tests), plus a Work Log entry returned to the development loop for the task file. After a FAIL verdict, the Work Log entry also answers every open finding.
 
 #### Reviewer details
 
@@ -181,14 +181,17 @@ Before claiming the first task, the loop discovers the project's documented base
 **Input:** Completed task with code changes and Developer Work Log entry.
 **Output:** Verdict appended to the task file under `### Review Verdict — [date]`.
 **Two stages:**
-1. Spec compliance — does the code do what the task requires?
-2. Code quality — is it clean, secure, and maintainable?
+1. Spec compliance — does the work achieve what the task and the Developer's Work Log claim?
+2. Code quality — does it respect the project's rules?
+
+Each finding states what is wrong and why, never how to fix it.
 
 **On review failure:**
 1. The task stays `in-progress`.
-2. Reviewer appends the verdict and specific, actionable feedback under `### Review Verdict — [date]`.
-3. The development loop routes the task back to the Developer for fixes on the same branch.
-4. Up to two retries (three total review attempts): the first retry keeps the same Developer, the second uses a fresh Developer on the most capable tier. On a third failure, the development loop escalates to Architect. The Architect may park specific findings, each of which becomes a filed bug or a recorded deviation in the work item file.
+2. Reviewer appends the verdict and its findings under `### Review Verdict — [date]`.
+3. The development loop routes the task back to the Developer, who answers every finding on the same branch: a fix, or evidence that the finding does not hold.
+4. The next review checks each answer. The task passes only when Reviewer and Developer agree on every finding.
+5. Up to two retries (three total review attempts): the first retry keeps the same Developer, the second uses a fresh Developer on the most capable tier. On a third failure, the development loop escalates to Architect. The Architect may park specific findings, each of which becomes a filed bug or a recorded deviation in the work item file.
 
 #### When the development loop stops
 
@@ -252,7 +255,7 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
 9. On **PASS**: runs the integration procedure to merge the bug branch into its target branch, then sets the bug to `resolved` with `ai-team bug resolve`.
    - Existing-defect bugs target `dev-agent`.
    - Task-regression bugs target the preserved task branch, after which the product owner restarts the development loop to retry task integration.
-10. On **FAIL** (cycle 1): sends the bug back to the same Developer with the reviewer's feedback. On **FAIL** (cycle 2): sends it to a fresh Developer on the most capable model tier.
+10. On **FAIL** (cycle 1): sends the bug back to the same Developer, who answers every finding on the bug branch: a fix, or evidence that the finding does not hold. The next review checks each answer. On **FAIL** (cycle 2): sends it to a fresh Developer on the most capable model tier.
 11. On **FAIL** (cycle 3) or **ESCALATE**: consults the Architect first. If the Architect cannot resolve it, stops and escalates to the product owner.
 
 #### When to start the bug-fix loop
