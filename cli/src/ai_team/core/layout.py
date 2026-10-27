@@ -206,7 +206,7 @@ def _missing_directory_fix(contract: LayoutContract, path: Path) -> str:
 
 
 def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report an unignored in-repository tracker and unmigrated legacy folders."""
+    """Report an in-repository tracker that git does not ignore."""
 
     findings: list[LayoutFinding] = []
     tracker = resolve_tracker_dir(contract.repo)
@@ -250,7 +250,7 @@ def _coding_guidelines_findings(contract: LayoutContract) -> list[LayoutFinding]
 
 
 def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report missing directories, tracker ignore problems, and legacy folders."""
+    """Report missing directories and tracker ignore problems."""
 
     findings = _tracker_findings(contract)
     findings.extend(_coding_guidelines_findings(contract))
