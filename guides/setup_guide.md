@@ -52,6 +52,8 @@ Tasks, bugs, and change-requests do not live in the project directory. They live
 
 The `ai-process/` specification documents are not exported. They live in the AI team definition meta-repository and serve as the authoritative spec for the rules the agents and skills implement. You do not need them in your project.
 
+The exported files are package-owned: the generator `cli/scripts/sync_init_scaffolds.py` produces them from the sources in the CLI package (`cli/src/ai_team/init/sources/`). The framework's agents, skills and project skeleton are changed in those sources and regenerated, never in the exported copies (see [`cli/docs/usage.md`, How to maintain scaffold sources](../cli/docs/usage.md#how-to-maintain-scaffold-sources)).
+
 ### Step 3: Fill In Your Project's AGENTS.md
 
 Fill in the `AGENTS.md` in your project root. `AGENTS.md` is the only generated guidance file, and the one `ai-team check-layout` level 3 requires. The test instructions in this file are especially important: `dev-loop` starts baseline command discovery from root project guidance, then follows clear references to project-local docs such as `ai-team/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, `dev-loop` will ask the product owner for the intended command or for explicit confirmation that no automated baseline test is available before claiming a task.

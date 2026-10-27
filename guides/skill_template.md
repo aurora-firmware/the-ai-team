@@ -56,7 +56,7 @@ skill-name/
 ├── assets/
 │   └── example_template.md
 ├── references/
-│   └── reference-topic.md
+│   └── reference_topic.md
 └── scripts/
     └── helper.py
 ```
