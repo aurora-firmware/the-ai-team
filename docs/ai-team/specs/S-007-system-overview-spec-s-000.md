@@ -58,16 +58,16 @@ the S-000 component it covers.
 | Component | Responsibility | Owner |
 |---|---|---|
 | S-000 template | Fixed section structure for the overview | `cli/src/ai_team/templates/system-overview.md` |
-| S-000 content contract | Sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `guides/spec-authoring-guide.md` |
+| S-000 content contract | Sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `guides/spec_authoring_guide.md` |
 | Writing procedure | Writing S-000 with the product owner, greenfield or brownfield; completion after Gate 1; brownfield change request; hand-over to the bootstrap | `new-system-overview` skill |
 | Feature spec template | Purpose names the S-000 component; system-wide structure stays in S-000 | `cli/src/ai_team/templates/spec.md` and the `new-spec` skill |
 | CLI | Creates S-000, protects its ID, accepts bootstrap tasks from S-000, hints when S-000 is missing | `ai-team spec new`, `task new`, `validate` and the hint |
-| Project bootstrap | Tasks from S-000 that answer the Decisions needed and set up the environment and internal documentation, including the default `docs/development/` location | `spec-breakdown` skill, Gate 2 in `ai-process/processes/quality-gates.md` |
+| Project bootstrap | Tasks from S-000 that answer the Decisions needed and set up the environment and internal documentation, including the default `docs/development/` location | `spec-breakdown` skill, Gate 2 in `ai-process/processes/quality_gates.md` |
 | Session-start reading | Planner and Architect read S-000 first when it exists | Planner and Architect agent descriptions |
 | Overview suggestions | Suggest the overview when S-000 does not exist | `using-ai-team` and `brainstorm` skills |
 | Consistency check | A new or changed spec stays within S-000's components | `architecture-consistency-review` skill |
-| Gate 1 and completion review | S-000 pass criteria; S-000 excluded from the pre-Gate-5 completion review | `ai-process/processes/quality-gates.md` |
-| Planning-branch merge | S-000's planning branch merges after Gate 1 | `git-conventions` skill and `ai-process/guidelines/git-conventions.md` |
+| Gate 1 and completion review | S-000 pass criteria; S-000 excluded from the pre-Gate-5 completion review | `ai-process/processes/quality_gates.md` |
+| Planning-branch merge | S-000's planning branch merges after Gate 1 | `git-conventions` skill and `ai-process/guidelines/git_conventions.md` |
 
 ### Alternatives Considered
 
@@ -264,7 +264,7 @@ scope, the content S-000 excludes, and the S-000 versus spec boundary.
 
 #### AC-006.1 — Guide states the contract
 
-- **Given:** `guides/spec-authoring-guide.md`
+- **Given:** `guides/spec_authoring_guide.md`
 - **When:** its S-000 section is read
 - **Then:** it states each element above
 
@@ -354,3 +354,4 @@ None.
 | 2026-10-26 | Restructured to the spec format from PR #51, with three scope changes decided by the product owner. (1) Removed the backward-compatibility promises: old requirement 8's "existing approved specs stay valid unchanged", the content contract's "an S-000 with a flat Components list stays valid", and "existing specs are not rewritten to the new template" from the exclusions. (2) The S-000 content contract is no longer restated; REQ-006 makes the spec authoring guide its owner. (3) Process rules owned elsewhere (old requirements 3, 4, 6, 7, 9–14 and the Brownfield adoption section) are no longer restated; Responsibility Separation names their owners. New REQ-001–REQ-008 cover the CLI, template, guide, feature template and skill. Version bumped to 0.3. | The validator rejects approved specs without the new sections; the no-backward-compatibility policy; single ownership of shared rules. | None; the flat-list promise is removed from the guide, the system-overview template, and the `new-system-overview` and `architecture-consistency-review` skills on the same branch |
 | 2026-10-26 | AC-005.1 drops the removed `test_t078_s000_content_contract.py` test; AC-006.1, AC-007.1 and AC-008.1 are verified by inspection; Success Criterion 5 follows. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
+| 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |

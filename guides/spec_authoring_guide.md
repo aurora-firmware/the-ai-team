@@ -1,9 +1,3 @@
----
-title: "Spec Authoring Guide"
-status: draft
-created: 2026-05-15
----
-
 # Spec Authoring Guide
 
 A practical playbook for writing a specification that passes Gate 1 and gives the Planner enough information to decompose it into atomic tasks.

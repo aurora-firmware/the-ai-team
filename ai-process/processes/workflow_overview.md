@@ -1,9 +1,3 @@
----
-title: "AI Team Workflow Overview"
-status: approved
-created: 2026-03-10
----
-
 # AI Team Workflow Overview
 
 ## End-to-End Flow
@@ -112,7 +106,7 @@ Because the product owner shaped the spec throughout the dialogue, Gate 1 approv
 
 **Lighter path — change-request:** For smaller changes that do not warrant a full new spec, the Planner uses a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves product-owner-answerable `[TODO]` markers one at a time before the product owner approves the change-request. Once the product owner approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
 
-Feature specs follow the authoring contract in `guides/spec-authoring-guide.md`, implemented by the `new-spec` skill.
+Feature specs follow the authoring contract in `guides/spec_authoring_guide.md`, implemented by the `new-spec` skill.
 
 ### 2. Task Breakdown + Gate 2
 
@@ -123,7 +117,7 @@ Feature specs follow the authoring contract in `guides/spec-authoring-guide.md`,
 
 During breakdown the Planner explicitly considers whether the spec changes require documentation updates or test coverage updates. When they do, those updates are planned as implementation tasks or acceptance criteria — not as prerequisites before task creation. If documentation and test updates are not needed, the Planner omits them without creating placeholder tasks.
 
-The Planner also gives each task a verification method: a test, an inspection, or a demonstration, as defined in `guides/spec-authoring-guide.md`. Each task regenerates the generated files its own change affects and lists them in Files to Touch, so a plan has no trailing "regenerate everything" task.
+The Planner also gives each task a verification method: a test, an inspection, or a demonstration, as defined in `guides/spec_authoring_guide.md`. Each task regenerates the generated files its own change affects and lists them in Files to Touch, so a plan has no trailing "regenerate everything" task.
 
 Before task breakdown starts, the input artifact must be ready for execution: an approved spec must already be free of product-owner-answerable `[TODO]` markers, and an approved change-request must already be TODO-free, product-owner-approved, and reconciled against Architect consistency findings that do not change the approved intent. If a consistency finding would alter the approved change-request's intended scope, the process stops for a product owner decision instead of letting the Planner reinterpret the request.
 
@@ -317,11 +311,11 @@ The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that f
 
 Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, and Task Breakdown.
 
-Each gate's timing, evaluator, pass criteria, and failure handling are defined in `ai-process/processes/quality-gates.md`.
+Each gate's timing, evaluator, pass criteria, and failure handling are defined in `ai-process/processes/quality_gates.md`.
 
 ## Git Branching Strategy
 
-Full rules and commit format: `ai-process/guidelines/git-conventions.md`.
+Full rules and commit format: `ai-process/guidelines/git_conventions.md`.
 
 **Branches:**
 - `main` — product-owner-only, production releases.
@@ -346,11 +340,11 @@ At any point, if a role cannot complete its work:
 1. **Architect consultation** — the Architect reviews the situation and advises (one automatic attempt).
 2. **Product owner escalation** — if the Architect cannot resolve it, the issue is surfaced to the product owner.
 
-See `ai-process/processes/escalation-procedure.md` for details.
+See `ai-process/processes/escalation_procedure.md` for details.
 
 ## Quality Gates
 
-Five gates control the workflow (see `ai-process/processes/quality-gates.md` for full criteria):
+Five gates control the workflow (see `ai-process/processes/quality_gates.md` for full criteria):
 
 | Gate | Checkpoint | Evaluator | Phase boundary |
 |------|-----------|-----------|----------------|

@@ -1,9 +1,3 @@
----
-title: "Component Map"
-status: approved
-created: 2026-03-10
----
-
 # Component Map
 
 This document maps the ai-process roles, procedures, processes, and gates to their implementation files where applicable.

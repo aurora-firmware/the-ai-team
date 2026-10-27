@@ -1,17 +1,10 @@
----
-title: "Agent Template"
-status: draft
-created: 2026-04-22
-updated: 2026-04-24
----
-
 # Agent Template
 
 Use this template when creating or updating an agent for this framework.
 Agents are **roles**: they define identity, authority, scope, handoffs, and output expectations.
 Procedures — the steps, thresholds, and branching logic — belong in skills.
 
-This template applies the subagent best practices from Anthropics subagent course: specific descriptions, structured output, obstacle reporting, and limited tool access. It also reflects the conventions settled during the 2026-04 review of `.claude/`.
+This template applies Anthropic's subagent best practices: specific descriptions, structured output, obstacle reporting, and limited tool access.
 
 ## The Separation Rule
 
@@ -67,7 +60,7 @@ Each agent is one Markdown file under `cli/src/ai_team/init/sources/agents/<role
 name: agent-name
 description: Role-specific description that tells the caller exactly when to use this agent and what inputs to provide. Use for [specific workflow point]. Caller must provide [artifact/path/branch/context].
 tools: Read, Glob, Grep, Bash
-model: claude-sonnet-4-6
+model: sonnet
 skills: skill-one skill-two
 ---
 
@@ -187,10 +180,10 @@ Start with the narrowest viable tool set. Broader access is harder to reason abo
 
 | Role shape | Tool frontmatter |
 |---|---|
-| Read-only research / structural review | `Read, Glob, Grep, Bash` |
-| Read plus git / test inspection | `Read, Glob, Grep, Bash` |
-| Writes verdicts or planning documents | `Read, Glob, Grep, Write, Edit, Bash` |
-| Writes source and test code | `Read, Glob, Grep, Write, Edit, Bash` |
+| Reads only (research, git or test inspection) | `Read, Glob, Grep, Bash` |
+| Writes files (verdicts, planning documents, ADRs, source and test code) | `Read, Glob, Grep, Write, Edit, Bash` |
+
+All five canonical agents write files (the Reviewer appends Review Verdicts and files bugs, the Architect writes ADRs and edits planned tasks), so all of them use the second row.
 
 Every role that uses tracker skills requires `Bash` to invoke the `ai-team` CLI. `Folder Scope` defines its permitted writes.
 

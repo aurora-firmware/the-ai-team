@@ -1,9 +1,3 @@
----
-title: "Escalation Procedure"
-status: approved
-created: 2026-03-10
----
-
 # Escalation Procedure
 
 ## Overview
@@ -70,7 +64,7 @@ Question: [Specific question for the Architect]
 | Provide guidance | The blocked role applies the guidance and continues. No document changes needed. | Blocked role |
 | Defer the work | Task is set to `blocked` with the reason noted. The spec issue is not addressed now. | Development Loop |
 
-After a spec is amended, the Architect runs the [Architecture Consistency Review](quality-gates.md#architecture-consistency-review) (the `architecture-consistency-review` skill) to confirm the amended spec stays consistent with every other approved spec and accepted ADR, and routes any further amendments the change exposes.
+After a spec is amended, the Architect runs the [Architecture Consistency Review](quality_gates.md#architecture-consistency-review) (the `architecture-consistency-review` skill) to confirm the amended spec stays consistent with every other approved spec and accepted ADR, and routes any further amendments the change exposes.
 
 ## When to Escalate
 

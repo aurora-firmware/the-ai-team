@@ -62,7 +62,7 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
         |                     ^           |              |              |
         |                     |           | FAIL         | regression   |
         |                     +-----------+              v              |
-        |                                      bug report in open/      |
+        |                                 open bug in the tracker       |
         +-------------------------+---------------------+---------------+
                                   |                     |
                                   | queue empty         | bugs exist
@@ -81,20 +81,21 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
 
 ## Agent Roles
 
-Each agent implements a distinct role defined in `ai-process/architecture/`:
+Each agent implements a distinct role defined in [`ai-process/architecture/component_map.md`](ai-process/architecture/component_map.md):
 
 | Agent | Responsibility |
 |---|---|
-| **Planner** | Turns approved specs into atomic, independent tasks |
-| **Architect** | Designs systems, validates plans, unblocks structural problems |
-| **Developer** | Writes tests and production code following TDD |
-| **Reviewer** | Two-stage code review: spec compliance, then code quality |
-| **Integrator** | Merges branches, runs integration tests, resolves conflicts |
+| **Planner** | Creates specifications with the product owner, then decomposes approved specifications into executable tasks |
+| **Architect** | Owns structural review: Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
+| **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code |
+| **Reviewer** | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality |
+| **Integrator** | Resolves merge conflicts; supports task and bug integration into target branches |
 
 ## Skills
 
 Skills are reusable procedures agents invoke for common activities.
-Each skill implements a workflow or action defined in the ai-process:
+Each skill implements a workflow or action defined in the ai-process.
+Every skill can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
 
 | Skill | What it implements |
 |---|---|
@@ -104,7 +105,7 @@ Each skill implements a workflow or action defined in the ai-process:
 | **brainstorm** | Solution-space exploration before a spec is written |
 | **spec-breakdown** | Decomposition of a spec into atomic tasks |
 | **spec-breakdown-review** | Architect validation of task plans before development starts |
-| **tdd** | Test-driven development cycle |
+| **tdd** | Implementation by each task's planned verification method: a test-driven cycle for test tasks, a recorded inspection or demonstration for the others |
 | **debug** | Diagnosis-first debugging: reproduce or confirm, gather evidence, isolate, then fix |
 | **code-review** | Two-stage review of the Developer's claims and the project's rules, iterated until both agree on every finding |
 | **receive-code-review** | The Developer's answer to each review finding: a fix, or evidence that it does not hold |
@@ -112,33 +113,34 @@ Each skill implements a workflow or action defined in the ai-process:
 | **merge-conflicts** | Git conflict resolution preserving both sides' intent |
 | **integrate** | Branch merge with project-discovered verification and task completion |
 | **escalation-review** | Architect analysis for blocked work before product owner escalation |
-| **/dev-loop** | Autonomous Developer → Reviewer → Integration loop across the pending task queue |
-| **/bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
-| **/change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
-| **/new-spec** | Creates a specification by invoking `ai-team spec new`, then fills spec content |
-| **/new-task** | Creates a pending task by invoking `ai-team task new` |
-| **/new-bug** | Creates an evidence-backed bug report by invoking `ai-team bug new`, then fills bug content |
-| **/new-adr** | Creates an Architecture Decision Record by invoking `ai-team adr new`, then fills ADR content |
-| **/status-report** | On demand only: summarizes project state with `ai-team status`, and writes a report file with `ai-team report` only when asked |
+| **dev-loop** | Autonomous Developer → Reviewer → Integration loop across the pending task queue |
+| **bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
+| **change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
+| **new-spec** | Creates a specification by invoking `ai-team spec new`, then fills spec content |
+| **new-task** | Creates a pending task by invoking `ai-team task new` |
+| **new-bug** | Creates an evidence-backed bug report by invoking `ai-team bug new`, then fills bug content |
+| **new-adr** | Creates an Architecture Decision Record by invoking `ai-team adr new`, then fills ADR content |
+| **new-system-overview** | Creates the S-000 system overview by invoking `ai-team spec new --overview`, then fills it in |
+| **status-report** | On demand only: summarizes project state with `ai-team status`, and writes a report file with `ai-team report` only when asked |
 
 ## Agent Platform Compatibility
 
 The framework exports agent and skill definitions for Claude Code only. They are authored once as Markdown under `cli/src/ai_team/init/sources/` (`agents/*.md` and `skills/<name>/SKILL.md`) and exported by `ai-team init` into the target project's `.claude/agents/` and `.claude/skills/` directories. `init` has no tool option.
 
-This repository may also contain a `.claude/` folder at its root — it is **local agent configuration for this repository only**, is git-ignored, and is **not** part of the framework deliverable. It mirrors what `ai-team init` would write into a target project, but the CLI and the bundled scaffolds never read from it at runtime.
+The `.claude/` folder at this repository's root is local, git-ignored agent configuration (see [What This Is](#what-this-is)); the CLI and the bundled scaffolds never read from it.
 
 ## Using This Framework in Your Project
 
 Adopting the framework means installing the `ai-team` CLI, using it to scaffold the process files into your project, then adding project-local guidance for your stack and commands.
-The full walkthrough is in `guides/setup-guide.md`.
+The full walkthrough is in [`guides/setup_guide.md`](guides/setup_guide.md).
 For a narrated usage guide see [`cli/docs/usage.md`](cli/docs/usage.md); for an exhaustive command and flag reference see [`cli/docs/commands.md`](cli/docs/commands.md).
 
 ### Install the CLI
 
-Download and install the wheel from the project's GitHub Releases page:
+Requires Python 3.14 or later. Download and install the wheel from the project's GitHub Releases page:
 
 ```bash
-pipx install https://github.com/<org>/<repo>/releases/download/<tag>/ai_team-<version>-py3-none-any.whl
+pipx install https://github.com/aurora-firmware/the-ai-team/releases/download/<tag>/ai_team-<version>-py3-none-any.whl
 ```
 
 For a local build from this repository:
@@ -207,16 +209,18 @@ The normal workflow is:
 5. Bugs are filed in the local tracker and handled through `/bug-loop`.
 6. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
 
-See `guides/setup-guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
+See `guides/setup_guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 
 ## Guides
 
 | Guide | Purpose |
 |---|---|
-| [`guides/setup-guide.md`](guides/setup-guide.md) | Step-by-step walkthrough for bootstrapping a new project with the framework |
-| [`guides/customization-guide.md`](guides/customization-guide.md) | What to adapt when tailoring the framework to your project's stack and conventions |
+| [`guides/setup_guide.md`](guides/setup_guide.md) | Step-by-step walkthrough for bootstrapping a new project with the framework |
+| [`guides/customization_guide.md`](guides/customization_guide.md) | What to adapt when tailoring the framework to your project's stack and conventions |
 | [`guides/agent_template.md`](guides/agent_template.md) | Canonical template and rules for writing new agent definitions |
 | [`guides/skill_template.md`](guides/skill_template.md) | Canonical template and rules for writing new skill definitions |
+| [`guides/skill_testing_guide.md`](guides/skill_testing_guide.md) | Method for showing that a new or changed skill works |
+| [`guides/spec_authoring_guide.md`](guides/spec_authoring_guide.md) | Authoring contract for specifications and the S-000 system overview |
 
 ## Repository Structure
 
@@ -233,20 +237,20 @@ See `guides/setup-guide.md` for the complete file list, AGENTS.md starter templa
 │                        and generated reports under docs/reports/
 ├── .ai-team/tracker/    Local, git-ignored work-item tracker: tasks, bugs, and change-requests
 │                        (state is each file's status field; see `ai-team tracker path`)
-├── guides/              User-facing setup and customization guides
+├── guides/              Adopter setup and customization guides, and the authoring contracts
 └── cli/                 `ai-team` CLI package and bundled init scaffolds (authoritative agent
                          and skill sources live under cli/src/ai_team/init/sources/)
 ```
 
-> Not shown above: `.claude/` may exist at the repo root as **local-only, git-ignored** agent configuration used when running agents inside this meta-repo. It is not part of the framework deliverable.
 
 ## Contributing to This Project
 
-Changes to the framework follow the same workflow the framework defines.
+Changes to the framework follow the same workflow the framework defines, with the exceptions listed in [`AGENTS.md`](AGENTS.md) (review fixes on an open PR, and small housekeeping changes).
+`ai-process/` is the single source of truth: where anything else is unclear, it decides.
 
 - **Changing a rule** (workflow, standard, convention): update `ai-process/` first, then update any agents or skills that implement the changed rule.
 - **Changing an agent or skill**: verify that the change is consistent with — or explicitly revises — the relevant ai-process documents.
-- **Changing bundled init content**: update the package-owned source assets in `cli/src/ai_team/init/sources/` (`agents/`, `skills/`, `project/`, and `root/`), then run `python cli/scripts/sync_init_scaffolds.py` to regenerate the bundled scaffolds in `cli/src/ai_team/init/scaffolds/` so `ai-team init` ships the updated content.
+- **Changing bundled init content**: update the package-owned source assets in `cli/src/ai_team/init/sources/` (`agents/`, `skills/`, `project/`, and `root/`), then, for `agents/`, `skills/` and `project/`, run `python scripts/sync_init_scaffolds.py` from `cli/` and commit the regenerated `cli/src/ai_team/init/scaffolds/` so `ai-team init` ships the updated content. `root/` and `cli/src/ai_team/templates/` are read at runtime and need no sync.
 - **Changing a CLI command or flag**: update the source, then run `bash cli/scripts/gen_docs.sh` and commit the updated `cli/docs/commands.md` so the reference stays current.
 - **Architecture-affecting decisions**: record an ADR in `docs/ai-team/decisions/` before implementing.
 

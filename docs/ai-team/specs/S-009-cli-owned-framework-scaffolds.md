@@ -690,7 +690,7 @@ and `test_first_init_with_force_leaves_a_framework_named_codex_skill_folder_in_p
 
 ### REQ-020 — Documentation of ownership
 
-The README, `guides/setup-guide.md`, `cli/docs/` and the `ai-process/` architecture docs
+The README, `guides/setup_guide.md`, `cli/docs/` and the `ai-process/` architecture docs
 SHALL state that `ai-process/` is not exported, that the CLI package sources are the
 product source changed through the generator, and that repository-root tool folders are
 local configuration. `guides/skill_template.md` SHALL state which files of a source
@@ -803,3 +803,4 @@ None.
 | 2026-10-26 | AC-014.3 Verification names the new test for the interactive dry-run case instead of inspection. Wording only. Driven by the PR #55 review. | A test now covers the interactive case. | None |
 | 2026-10-26 | AC-005.1 replaces two removed prose tests with inspection; AC-020.1 and AC-020.2 are verified by inspection; AC-001.1 checks the absence of `body.md` and `metadata.toml` by inspection. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
+| 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |

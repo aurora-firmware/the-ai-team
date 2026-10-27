@@ -1,9 +1,3 @@
----
-title: "Markdown Conventions"
-status: approved
-created: 2026-03-10
----
-
 # Markdown Conventions
 
 Generated project artifacts are Markdown.
@@ -11,7 +5,7 @@ These conventions apply to bugs, tasks, specs, ADRs, and role/procedure outputs 
 
 ## Frontmatter
 
-Every document starts with YAML frontmatter enclosed in `---` fences:
+Every artifact the `ai-team` CLI creates from a bundled template (task, bug, change-request, spec, ADR, status report) starts with YAML frontmatter enclosed in `---` fences:
 
 ```yaml
 ---
@@ -21,7 +15,8 @@ created: 2026-01-15
 ---
 ```
 
-Additional fields depend on document type. See each `TEMPLATE-*.md` for the required fields.
+Additional fields depend on document type. The bundled templates in the CLI package (`cli/src/ai_team/templates/<type>.md`) show the required fields.
+Hand-written documents — guides, project guidance, coding guidelines, process documents — carry no frontmatter.
 
 ## Headings
 
@@ -68,7 +63,7 @@ Additional fields depend on document type. See each `TEMPLATE-*.md` for the requ
 
 ## Links and References
 
-- Use relative paths for cross-references within the repo: `[Quality Gates](ai-process/processes/quality-gates.md)`.
+- Use relative paths for cross-references within the repo: `[Quality Gates](ai-process/processes/quality_gates.md)`.
 - Use descriptive link text — not "click here" or bare URLs.
 
 ## Diagrams
@@ -79,6 +74,8 @@ Additional fields depend on document type. See each `TEMPLATE-*.md` for the requ
 
 ## File Naming
 
-- Lowercase with hyphens: `my-document-name.md`.
-- Templates are prefixed with `TEMPLATE-`: `TEMPLATE-task.md`.
-- ADRs are numbered: `001-short-title.md`.
+- Hand-written documents use lowercase snake_case: `my_document_name.md`.
+- Conventional entry-point files keep their usual names: `README.md`, `AGENTS.md`, `SKILL.md`.
+- Artifacts keep the names the `ai-team` CLI gives them: `T-NNN-<slug>.md`, `B-NNN-<slug>.md`, `CR-NNN-<slug>.md`, `S-NNN-<slug>.md`, `ADR-NNN-<slug>.md`.
+- Skill folders use lowercase names with hyphens (`spec-breakdown/`), as Claude Code requires.
+- Bundled artifact templates are named after the artifact type they render: `task.md`, `change-request.md`.

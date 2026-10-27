@@ -1,12 +1,6 @@
----
-title: "Project Coding Guidelines"
-status: draft
-created: 2026-03-12
----
-
 # Project Coding Guidelines
 
-This document extends the framework coding standards in `ai-process/guidelines/coding-standards.md` with the rules for this repository's CLI in `cli/`.
+This document extends the framework coding standards in `ai-process/guidelines/coding_standards.md` with the rules for this repository's CLI in `cli/`.
 
 ## Stack
 

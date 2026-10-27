@@ -1,9 +1,3 @@
----
-title: "Coding Standards"
-status: approved
-created: 2026-03-10
----
-
 # Coding Standards
 
 These standards apply to any implementation code produced by AI roles using this framework.
@@ -42,7 +36,7 @@ Project-specific overrides should be documented in the project's own guidelines.
 
 ## Testing
 
-- Every task that adds or changes product behavior produces tests. The verification methods (test, inspection, demonstration) and when each applies are defined in `guides/spec-authoring-guide.md`.
+- Every task that adds or changes product behavior produces tests. The verification methods (test, inspection, demonstration) and when each applies are defined in `guides/spec_authoring_guide.md`.
 - Never write a test that asserts the wording of skills, process documents, guides, or specs, or one that only proves something was removed; those changes are verified by inspection.
 - Follow the test-driven implementation procedure: write the test first, verify it fails, implement, verify it passes.
 - Test behavior, not implementation details.

@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.6'
+version: '0.7'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -36,7 +36,6 @@ creates.
 | Planner taking a small change | Record it as a change-request instead of a full spec | P1 | `ai-team change-request new` creates a pending change-request in the tracker from the bundled template | REQ-015 |
 | Developer or Reviewer in a separate worktree | See the same work items as the loop in the main checkout | P1 | Every worktree resolves the same tracker folder | REQ-001, REQ-002 |
 | Product owner setting up a project | Get a working tracker with no manual configuration | P1 | `ai-team init` configures, creates and git-ignores the tracker | REQ-009 |
-| Product owner or agent with an existing project | Move legacy work items into the tracker | P2 | Commands warn until migration is done, and a documented procedure guides it | REQ-011, REQ-012 |
 | Product owner checking progress | See the state of the work | P2 | `list`, `show`, `status`, `report` and `validate` read state from the tracker | REQ-007, REQ-010 |
 
 ## Exclusions
@@ -47,7 +46,7 @@ creates.
 - **History of task, bug, and change-request files.** Git history no longer records them or their lifecycle changes. The Work Log and Review Verdict entries inside each file remain the record.
 - **Changing the Work Log, Diagnosis Log, or Review Verdict formats.** Only where they are written changes, not what they contain.
 - **Shared ID allocation for specs and ADRs.** Task, bug, and change-request IDs come from the single tracker folder and stop colliding across planning branches; spec and ADR IDs keep today's allocation from the files on the current branch.
-- **A migration command.** No command moves files out of a repository; migration is a documented manual procedure (REQ-012).
+- **Migrating legacy work items.** Work items a project kept in its project directory before this spec are not migrated: there is no migration command, no migration procedure and no legacy warning. The framework carries no backward compatibility before 1.0.0.
 
 ## Architecture
 
@@ -58,7 +57,6 @@ creates.
 - **Outside version control, inside the workspace.** The tracker is never committed, survives branch switches untouched, and lives where a dev container mounts the workspace by default (REQ-001, REQ-008, REQ-009).
 - **One tracker per repository.** Every git worktree of a repository resolves the same tracker folder, so a Developer working in a worktree and a loop working in the main checkout see the same state (REQ-002).
 - **Skills never touch tracker paths directly.** Skills locate, create, and transition tasks, bugs, and change-requests only through `ai-team` commands, and every state change is a command. A role may read and edit the body of a work-item file whose path an `ai-team` command reported, and a caller may pass such a reported path to another role. Every agent role that runs these skills has a shell. The one exception is scratch files that are not work items (REQ-013).
-- **Existing projects migrate explicitly.** No command moves files out of a repository. An agent migrates by hand, following a documented procedure, and commands warn while unmigrated files remain (REQ-011, REQ-012).
 
 ### System Diagram
 
@@ -85,7 +83,6 @@ creates.
 | Tracker configuration | Resolve the tracker folder for the current repository | Reads `.ai-team.toml`; exposes the resolved absolute path to every command |
 | Work-item store | Create, find, and transition tasks, bugs, and change-requests by ID | Field-based state; one flat folder per kind |
 | CLI commands | Product owner and skill entry points for tracker data | Existing command names keep working; state filters read the `status` field |
-| Migration | Guide an agent through moving legacy tasks, bugs, and change-requests into the tracker | A documented manual procedure plus a legacy-folder warning from the CLI |
 | Process skills and docs | Drive lifecycle through CLI commands, without lifecycle commits | Loops, integrate, code-review, spec-breakdown, change-request, git-conventions, workflow docs |
 
 ### Alternatives Considered
@@ -97,8 +94,9 @@ creates.
   PR #32 review: a project in a repository subfolder would lose its tracker from beside
   its configuration. Relative paths resolve against the `.ai-team.toml` folder in the
   main working tree instead.
-- **A migration command.** Rejected: no command moves files out of a repository, so
-  migration stays a documented manual procedure with a warning (REQ-011, REQ-012).
+- **A migration command, or a documented migration procedure with a legacy
+  warning.** Rejected: the framework carries no backward compatibility before 1.0.0,
+  so legacy work-item folders are neither migrated nor reported (see Exclusions).
 
 ## Interfaces
 
@@ -129,17 +127,13 @@ creates.
 with status `pending` and today's date, prints the absolute path (or, with `--json`,
 the `id` and `path`), and refuses to overwrite an existing file.
 
-**Exposed — legacy warning (REQ-011).** Written to stderr by tracker commands:
-`Warning: legacy work-item folders still hold files: <folders>. …`, naming the folders
-and the migration procedure.
-
 **Consumed.**
 - `.ai-team.toml`: `[tracker] dir` and `[project] dir`.
 - git, to find the main working tree or bare repository of a worktree.
 
 ## Workflow
 
-1. `ai-team init` writes a `[tracker]` section with the default folder, creates the folder, and makes git ignore it (REQ-009). ★ For an existing project, an agent follows the documented migration procedure once and commits the removal of the legacy folders (REQ-012).
+1. `ai-team init` writes a `[tracker]` section with the default folder, creates the folder, and makes git ignore it (REQ-009).
 2. `/change-request` creates the change-request in the tracker with status `pending` and opens a planning branch for any spec amendments or ADRs it drives; product owner approval sets it to `approved`, rejection to `rejected` (REQ-004). `/new-spec` opens its planning branch as before.
 3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005).
 4. After Gate 2 and the planning-branch merge, `spec-breakdown` sets that plan's tasks to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks become `cancelled` (REQ-004, REQ-005).
@@ -153,8 +147,9 @@ Failure and boundary paths: an unknown status or an unexpected source status is
 rejected without changing the file; a command run again on an item already in the
 destination status succeeds without change (REQ-004). An unknown ID names the
 searched tracker folder (REQ-007). A missing tracker folder reads as empty and is
-created on the first write (REQ-001). Legacy files in the project directory are
-ignored by commands and trigger the warning (REQ-011).
+created on the first write (REQ-001). Commands read work items only from the
+tracker; they neither read nor report `tasks/`, `bugs/`, `change-requests/` or
+`archive/` folders in the project directory.
 
 ## Behavioral Requirements
 
@@ -251,7 +246,7 @@ and SHALL succeed without change when the item is already in the destination sta
 #### AC-004.2 — Reason recorded
 
 - **Given:** a task or bug
-- **When:** `set-status` runs with `--reason "migrated from done"`
+- **When:** `set-status` runs with `--reason "duplicate of T-002"`
 - **Then:** the reason is recorded in the file
 
 **Verification:** Tests: `test_set_status_records_reason_in_work_log` in
@@ -398,40 +393,6 @@ an allowed value for its kind, and SHALL NOT compare folders with `status`.
 **Verification:** Test: `test_validate_emits_error_when_status_is_not_an_allowed_value`
 in `cli/tests/test_validate.py`.
 
-### REQ-011 — Legacy warning
-
-WHILE a legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folder in the
-project directory holds a markdown file, every tracker command SHALL write to stderr a
-warning naming the folders and the migration procedure, and SHALL ignore those files.
-Once the folders are empty or gone, no warning SHALL be written.
-
-#### AC-011.1 — Warning while files remain
-
-- **Given:** a legacy `tasks/pending/T-009-old.md` in the project directory
-- **When:** `list tasks --json` runs, then runs again after the file is removed
-- **Then:** the first run returns `[]` and warns on stderr naming the folder and
-  "Migrating to the local tracker"; the second run does not warn
-
-**Verification:** Tests: `test_commands_warn_while_legacy_folders_hold_files` and
-`test_legacy_archive_folder_triggers_the_warning` in `cli/tests/test_tracker.py`.
-
-### REQ-012 — Migration procedure
-
-The setup guide SHALL document a manual procedure that moves legacy tasks, bugs and
-change-requests into the tracker with their content unchanged, correcting each task's
-or bug's `status` to the state folder it came from where the two disagree, and adding
-the ignore rule.
-
-#### AC-012.1 — Procedure present
-
-- **Given:** `guides/setup-guide.md`
-- **When:** its "Migrating to the Local Tracker" section is read
-- **Then:** it says there is no migration command and gives the steps, including the
-  status reconciliation with `set-status --reason` and the commit of the folder
-  removal
-
-**Verification:** Inspection of `guides/setup-guide.md`.
-
 ### REQ-013 — Skills record lifecycle through commands
 
 The generated skills and agents SHALL change work-item state only through `ai-team`
@@ -532,7 +493,7 @@ writes was agreed.
 **Git ignore** (REQ-009)
 - **What must exist:** an ignore rule covering the tracker folder whenever it lies inside the repository.
 - **Where it lives:** the repository's root `.gitignore`.
-- **Constraints:** `ai-team init` adds the rule idempotently and never removes existing rules; the migration procedure tells the agent to add it.
+- **Constraints:** `ai-team init` adds the rule idempotently and never removes existing rules.
 - **Missing-value behaviour:** `check-layout` reports a finding when the tracker folder is inside the repository and not ignored (S-003).
 
 ## Assumptions and Dependencies
@@ -545,8 +506,7 @@ writes was agreed.
   tracker outside it.
 - **One working copy per tracker.** No locking across machines is provided (see
   Exclusions).
-- **S-003 `check-layout`** reports an unignored in-repository tracker and unmigrated
-  legacy folders.
+- **S-003 `check-layout`** reports an unignored in-repository tracker.
 - **The skills that record lifecycle** (`dev-loop`, `bug-loop`, `integrate`,
   `code-review`, `spec-breakdown`, `change-request`, `git-conventions`) follow
   REQ-013; a skill that commits a work-item file would break REQ-008.
@@ -558,17 +518,14 @@ writes was agreed.
 3. `ai-team list tasks --state <s>` returns exactly the tasks whose `status` field is `<s>`, and its JSON shape is unchanged (REQ-007).
 4. Run from two worktrees of the same repository, `ai-team tracker path` prints the same absolute path (REQ-002).
 5. `ai-team validate` reports a finding for any task, bug, or change-request whose `status` is not one of the allowed values, and no longer reports folder/status mismatches (REQ-010).
-6. While a legacy `tasks/`, `bugs/`, `change-requests/`, or `archive/` folder in the project directory still holds a markdown file, every tracker command prints a warning to stderr naming the folder and the migration procedure; once the folders are empty or gone, no warning is printed (REQ-011).
-7. Following the migration procedure on this repository moves every task, bug, and change-request out of `docs/ai-team/` into the tracker with contents unchanged except `status` corrected from the folder where the two disagreed, and `ai-team validate` reports no findings afterwards (REQ-012).
-8. In the generated skills, no step commits a task, bug, or change-request file, and no step switches branches to record lifecycle state (REQ-013).
-9. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-015).
+6. In the generated skills, no step commits a task, bug, or change-request file, and no step switches branches to record lifecycle state (REQ-013).
+7. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-010 and REQ-013–REQ-015).
 
 ## Implementation Order
 
 1. **Tracker core** — configuration, worktree-aware path resolution, field-based store, ID allocation. Observable: the store unit tests pass.
 2. **CLI commands** — all commands on the tracker, new status-transition and path commands, `init` and `check-layout` changes. Depends on phase 1. Observable: the success criteria for init, list, validate, and worktrees pass.
-3. **Migration** — the documented procedure and the legacy warning, then this repository's own migration. Depends on phase 2. Observable: the two migration criteria pass.
-4. **Process skills and docs** — skills, agents, git conventions, workflow docs, regenerated scaffolds. Depends on phase 2. Observable: the generated-skill criterion passes.
+3. **Process skills and docs** — skills, agents, git conventions, workflow docs, regenerated scaffolds. Depends on phase 2. Observable: the generated-skill criterion passes.
 
 ## Open Questions
 
@@ -585,3 +542,4 @@ None.
 - **2026-10-26 (CR-008):** removed the `ai-team archive` command and the tracker's `archive/YYYY-MM/` folder. REQ-006 and AC-006.1 (renamed "Tracker counts") allocate IDs from the tracker folders only; REQ-007 drops `archive` from its command list and the archive obligation; AC-007.3 (Archive) is retired and its identifier is not reused; the tracker layout table, `show` interface, System Diagram and work-item store responsibility no longer name the archive. REQ-011's legacy `archive/` folder warning is unchanged. Version bumped to 0.5. Driven by CR-008: no process step used the command, and keeping ID allocation and validation aware of the archive cost more than a shorter `tasks/` folder was worth. Affected tasks: the CR-008 task plan.
 - **2026-10-26 (verification methods):** AC-013.1, AC-013.2 and AC-013.3 are verified by inspection instead of tests that pinned skill wording. Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection.
 - **2026-10-26 (PR #59):** the actor called "the human" is now named the product owner, as S-000 defines it. Wording only.
+- **2026-10-27 (product owner decision):** the framework carries no migration or backward compatibility before 1.0.0. REQ-011 (legacy warning) and REQ-012 (migration procedure), with AC-011.1 and AC-012.1, are removed and their identifiers are not reused. Also removed: the "existing project" journey, the "Existing projects migrate explicitly" principle, the Migration responsibility, the legacy-warning interface, the migration step in Workflow, the migration note in the Git ignore configuration, the legacy-folder dependency on S-003, Success Criteria 6 and 7 (the later criteria are renumbered) and the Migration implementation phase. Commands read work items only from the tracker and neither read nor report legacy folders. The Exclusions and Alternatives Considered state the decision. Version bumped to 0.7. Affected work: the CLI still prints the legacy warning and `check-layout` still reports legacy folders; a bug records the deviation.

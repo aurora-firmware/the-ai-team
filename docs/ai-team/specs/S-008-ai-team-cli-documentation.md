@@ -15,10 +15,10 @@ This spec covers the CLI's part of the S-000 **End-user documentation** componen
 the CLI command mapping in the architecture layer. The CLI was built under a
 development spec, now superseded in `specs/archive/`, that described the CLI to be
 built rather than the CLI as it is, so users had to piece its behaviour together from
-the README, `guides/setup-guide.md` and `ai-team --help`, and maintainers had nothing
+the README, `guides/setup_guide.md` and `ai-team --help`, and maintainers had nothing
 on its module layout or release process. A reader can install, initialise and operate
 the CLI, and a maintainer can extend it, from `cli/docs/` alone; the command reference
-never drifts from the code; and `ai-process/architecture/component-map.md` records
+never drifts from the code; and `ai-process/architecture/component_map.md` records
 which skills invoke which CLI commands.
 
 ## Users and Journeys
@@ -27,7 +27,7 @@ which skills invoke which CLI commands.
 |---|---|---|---|---|
 | End user running `ai-team` in a consuming project | Install, initialise and use the CLI without reading its source | P1 | `cli/docs/usage.md` walks them from installation through daily workflows, and `cli/docs/commands.md` answers any flag question | REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-007 |
 | Maintainer developing the CLI in this repository | Find the module layout, add a command, test, build, release and keep the reference current | P1 | The maintainer section and one regeneration command cover each step | REQ-005, REQ-008, REQ-009, REQ-012 |
-| Reader of the architecture layer (human or agent) | Learn which skills use which CLI commands | P2 | `component-map.md` maps each action skill to its commands | REQ-010 |
+| Reader of the architecture layer (human or agent) | Learn which skills use which CLI commands | P2 | `component_map.md` maps each action skill to its commands | REQ-010 |
 | Newcomer starting from the README or setup guide | Reach the CLI documentation | P2 | Both link to `cli/docs/` | REQ-011 |
 
 ## Exclusions
@@ -36,7 +36,7 @@ What this specification explicitly does NOT cover:
 
 - **A separate maintainer document.** End-user and maintainer content share `cli/docs/usage.md`; there is no distinct `architecture.md` or `contributing.md` under `cli/docs/`.
 - **A hosted documentation site.** No MkDocs, Sphinx, Read the Docs, or published docs website. Documentation is plain Markdown read in-repo; a release attaches `commands.md` as a file (S-010).
-- **`guides/` and `cli/README.md` as documentation homes.** The CLI documentation lives in `cli/docs/`. CLI mentions in `README.md` and `guides/setup-guide.md` stay brief pointers that link into `cli/docs/`.
+- **`guides/` and `cli/README.md` as documentation homes.** The CLI documentation lives in `cli/docs/`. CLI mentions in `README.md` and `guides/setup_guide.md` stay brief pointers that link into `cli/docs/`.
 - **CLI behaviour.** This is a documentation spec. It does not define any CLI command, flag, or output; those are owned by the specs that introduce them, and `cli/docs/` describes the result.
 - **Re-documenting the framework process.** `cli/docs/` documents the CLI tool.
   The AI-team workflow, gates, and roles remain owned by `ai-process/` and the
@@ -53,7 +53,7 @@ What this specification explicitly does NOT cover:
 3. **Two files, two jobs.** `usage.md` is hand-written and explains *how to use and maintain* the CLI. `commands.md` is generated and is the *exhaustive reference*. The split keeps the generated file replaceable without touching hand-written content.
 4. **Committed, not built on demand.** `commands.md` is checked into the repository so it is readable without a build step, mirroring how `cli/` commits its bundled init scaffolds (REQ-007).
 5. **Drift is caught automatically.** Continuous integration fails when the committed `commands.md` differs from a fresh generation (S-010).
-6. **The architecture layer must mention the CLI.** `ai-process/` is the specification layer; `component-map.md` therefore records the CLI as a component the skills compose with (REQ-010).
+6. **The architecture layer must mention the CLI.** `ai-process/` is the specification layer; `component_map.md` therefore records the CLI as a component the skills compose with (REQ-010).
 
 ### System Diagram
 
@@ -77,7 +77,7 @@ What this specification explicitly does NOT cover:
         │ linked from                       │ referenced by
   ┌─────────────┐                  ┌──────────────────────────────┐
   │ README.md   │                  │ ai-process/architecture/     │
-  │ setup-guide │                  │ component-map.md             │
+  │ setup_guide │                  │ component_map.md             │
   └─────────────┘                  │  (CLI command mapping)       │
                                    └──────────────────────────────┘
 ```
@@ -90,8 +90,8 @@ What this specification explicitly does NOT cover:
 | `cli/docs/commands.md` | Generated exhaustive reference: every command group, subcommand, argument, and flag, including global flags. | Committed to the repo. Regenerated, never hand-edited. |
 | `cli/scripts/gen_docs.sh` | Thin wrapper that generates `cli/docs/commands.md` with a generated-file header. | The one regeneration command. |
 | CI drift check | Regenerates `commands.md` and fails when it differs from the committed file. | Owned by S-010. |
-| `ai-process/architecture/component-map.md` | Maps which skills invoke which `ai-team` commands. | Architecture layer records the CLI's role. |
-| `README.md`, `guides/setup-guide.md`, `AGENTS.md` | Brief CLI mentions that link into `cli/docs/`, and the contributor rule to regenerate `commands.md` when a command or flag changes. | Not documentation homes; just pointers and the rule. |
+| `ai-process/architecture/component_map.md` | Maps which skills invoke which `ai-team` commands. | Architecture layer records the CLI's role. |
+| `README.md`, `guides/setup_guide.md`, `AGENTS.md` | Brief CLI mentions that link into `cli/docs/`, and the contributor rule to regenerate `commands.md` when a command or flag changes. | Not documentation homes; just pointers and the rule. |
 
 ### Alternatives Considered
 
@@ -127,7 +127,7 @@ header. **Contract:**
   usage line to standard error and exits with status 2. A generation failure exits
   non-zero.
 
-**Exposed — `ai-process/architecture/component-map.md` (REQ-010).** A table mapping
+**Exposed — `ai-process/architecture/component_map.md` (REQ-010).** A table mapping
 each action skill to the `ai-team` commands it invokes.
 
 **Consumed.**
@@ -146,7 +146,7 @@ Commits the updated cli/docs/commands.md alongside the code change      (REQ-007
   ↓
 Updates cli/docs/usage.md by hand if a workflow or the folder structure changed
   ↓
-Updates component-map.md if a skill starts or stops invoking a command  (REQ-010)
+Updates component_map.md if a skill starts or stops invoking a command  (REQ-010)
   ↓
 CI lint job regenerates commands.md and fails on any difference (S-010)
 ```
@@ -327,13 +327,13 @@ in `cli/tests/test_gen_docs.py`.
 
 ### REQ-010 — CLI command mapping
 
-`ai-process/architecture/component-map.md` SHALL map each action skill to the
+`ai-process/architecture/component_map.md` SHALL map each action skill to the
 `ai-team` commands it invokes, and the mapping SHALL be updated when a skill starts or
 stops invoking a command.
 
 #### AC-010.1 — Mapping rows
 
-- **Given:** `component-map.md`
+- **Given:** `component_map.md`
 - **When:** its CLI mapping is read
 - **Then:** it maps `new-spec` to `ai-team spec new`, `new-system-overview` to
   `ai-team spec new --overview`, `new-task` to `ai-team task new`, `new-bug` to
@@ -341,18 +341,18 @@ stops invoking a command.
   `ai-team change-request new`, and `status-report` to `ai-team status` and
   `ai-team report`
 
-**Verification:** Inspection of `ai-process/architecture/component-map.md`.
+**Verification:** Inspection of `ai-process/architecture/component_map.md`.
 
 ### REQ-011 — Pointers and contributor rule
 
-`README.md` and `guides/setup-guide.md` SHALL link to `cli/docs/usage.md` and
+`README.md` and `guides/setup_guide.md` SHALL link to `cli/docs/usage.md` and
 `cli/docs/commands.md` rather than document the CLI themselves, and `README.md` and
 `AGENTS.md` SHALL tell contributors to run `gen_docs.sh` and commit the result when a
 command or flag changes.
 
 #### AC-011.1 — Links and rule present
 
-- **Given:** `README.md`, `guides/setup-guide.md` and `AGENTS.md`
+- **Given:** `README.md`, `guides/setup_guide.md` and `AGENTS.md`
 - **When:** they are searched for `cli/docs/` and `gen_docs.sh`
 - **Then:** the README and setup guide link to both files, and the README and
   `AGENTS.md` state the regeneration rule
@@ -407,12 +407,12 @@ data, and no generation-time target was agreed.
    topic (REQ-001–REQ-006).
 3. `test_usage_md_example_commands_exist_in_commands_md` passes, and inspection finds
    every flag `usage.md` names in `commands.md` (REQ-002, REQ-003).
-4. Each action skill that invokes a CLI command has a row in `component-map.md`
+4. Each action skill that invokes a CLI command has a row in `component_map.md`
    (REQ-010).
 
 ## Implementation Order
 
-All phases are delivered: the `typer-cli` dependency, `gen_docs.sh` and the committed `commands.md`; `usage.md`; the component-map CLI mapping; the archived development spec; and the README, setup-guide and contributor-rule pointers. The CI drift check was added under S-010. Later changes follow the amendment flow.
+All phases are delivered: the `typer-cli` dependency, `gen_docs.sh` and the committed `commands.md`; `usage.md`; the component-map CLI mapping; the archived development spec; and the README, setup_guide and contributor-rule pointers. The CI drift check was added under S-010. Later changes follow the amendment flow.
 
 ## Open Questions
 
@@ -432,3 +432,4 @@ drift check is wired in (S-010).
 | 2026-10-26 | The root guidance file is `AGENTS.md`; `CLAUDE.md` was renamed. Wording only. | This repository follows ADR-003: Claude Code reads root `AGENTS.md`. | None |
 | 2026-10-26 | REQ-003: the fifth daily workflow is "validate artifacts", without archiving. REQ-004: the tracker folder holds `tasks/`, `bugs/` and `change-requests/`, with no `archive/`; the project `specs/archive/` stays. AC-004.1 Verification now names `test_usage_md_describes_tracker_folders`, which already checks the tracker folders. Version bumped to 0.4. Driven by CR-008 and Architecture Consistency Review finding F2. | CR-008 removes the `ai-team archive` command and the tracker archive (S-006). | CR-008 task plan |
 | 2026-10-26 | REQ-001–REQ-006: `usage.md` content is verified by inspection; the keyword smoke tests in `cli/tests/test_usage_guide.py` were removed, and AC-003.1 keeps the test that checks example commands against `commands.md`. Success Criteria 2 and 3 follow. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
+| 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
