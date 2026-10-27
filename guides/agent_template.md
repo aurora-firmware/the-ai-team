@@ -217,7 +217,7 @@ Rationale: thresholds change as the procedure changes. Keeping them in one place
 |---|---|---|---|
 | Planner | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `brainstorm`, `spec-breakdown`, `new-spec`, `new-task`, `change-request`, `new-system-overview`, `git-conventions`, `evidence-before-claims` |
 | Architect | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `spec-breakdown-review`, `architecture-consistency-review`, `escalation-review`, `new-adr`, `git-conventions`, `evidence-before-claims` |
-| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `new-bug`, `git-conventions`, `evidence-before-claims` |
+| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `receive-code-review`, `new-bug`, `git-conventions`, `evidence-before-claims` |
 | Reviewer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `code-review`, `new-bug`, `evidence-before-claims` |
 | Integrator | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `integrate`, `merge-conflicts`, `git-conventions`, `evidence-before-claims` |
 

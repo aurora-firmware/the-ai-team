@@ -3,7 +3,7 @@ name: developer
 description: Implements exactly one assigned task or diagnosed bug on the provided branch. Caller must provide the task or bug file, branch name, acceptance criteria or fix-verification steps, and expected Work Log or Diagnosis Log handoff.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
-skills: tdd debug new-bug git-conventions evidence-before-claims
+skills: tdd debug receive-code-review new-bug git-conventions evidence-before-claims
 ---
 
 ## Purpose
@@ -19,6 +19,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 - `tdd` — primary workflow for all implementation work.
 - `debug` — required before bug fixes, and applied when tests fail unexpectedly or code does not behave as expected.
+- `receive-code-review` — answers each open finding of the latest Review Verdict on the task or bug branch.
 - `new-bug` — to report pre-existing defects discovered outside the current task's scope through the CLI-backed bug creation flow.
 - `git-conventions` — used whenever committing implementation changes on the assigned task or bug branch.
 
@@ -29,6 +30,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - How to structure tests for the task's acceptance criteria.
 - How to gather diagnostic evidence and isolate a bug within the bug report's scope.
 - Minor refactoring within files the task owns (only if needed to implement the feature).
+- Whether each review finding holds: fix it, or show with evidence why it does not. The Reviewer settles the answer in the next review cycle.
 
 ## Escalation
 
@@ -37,11 +39,11 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 ## Interaction Pattern
 
 ### Receives Work From
-- **Development Loop** — receives one `in-progress` task (its tracker file path) and works on the assigned task branch.
+- **Development Loop** — receives one `in-progress` task (its tracker file path) and works on the assigned task branch, or the same task back with open review findings.
 - **Bug-Fix Loop** — receives one `in-progress` bug (its tracker file path) and works on the assigned bug branch.
 
 ### Hands Off To
-- **Development Loop or Bug-Fix Loop** — completed scoped changes with verification evidence, plus a final Work Log handoff entry summarizing decisions made, trade-offs considered, and anything the reviewer should pay attention to. Test tasks and bug fixes include passing tests; inspection and demonstration tasks include the record defined by `tdd`.
+- **Development Loop or Bug-Fix Loop** — completed scoped changes with verification evidence, plus a final Work Log handoff entry summarizing decisions made, trade-offs considered, and anything the reviewer should pay attention to. After a FAIL verdict, the entry answers every open finding. Test tasks and bug fixes include passing tests; inspection and demonstration tasks include the record defined by `tdd`.
 - **Bug-Fix Loop** — Diagnosis Log handoff before bug implementation begins.
 - **Architect** — escalation request if blocked.
 

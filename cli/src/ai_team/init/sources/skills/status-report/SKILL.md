@@ -47,21 +47,14 @@ For each open bug with severity `critical` or `high`, list ID, title, and severi
 Inspect recent integration evidence from completed task Work Logs, resolved bug Work Logs, and recent integration commits when available.
 Record the latest integration-test result or state that no integration evidence was found.
 
-### Step 4a: Roll Up Deferred Minor Findings
-
-Scan the `### Review Verdict` sections of completed tasks and resolved bugs for `#### Deferred Minor findings` lists. Collect every entry with its work item ID and location.
-Classify entries ending in the literal ` — resolved: promoted to FAIL` marker as resolved for deferred-Minor triage. Retain their work item ID, location, finding and marker in resolved/promoted history; keep entries without that marker in the unresolved list. Preserve every collected entry in one of these two lists.
-Promotion resolves the deferred-Minor triage item, not the failure itself. Read the latest Review Verdict and Work Log for the promoted finding's outcome and cite that evidence in its history entry. If they do not establish a passing fix, state that the outcome is unverified or still failing, as the evidence indicates; the marker alone is never proof of a passing fix.
-A roll-up nobody reads is a silent discard, so present both lists to the product owner at Gate 5 and ask for a decision only on each unresolved finding: fix now (file a bug or task), accept, or defer with a reason. Do not drop entries because they look small.
-
-### Step 4b: Check Spec-Truth Reconciliation
+### Step 4a: Check Spec-Truth Reconciliation
 
 When every task is `completed`, check whether the Architect has run spec-truth reconciliation (`architecture-consistency-review` in completion mode) for the approved specs the work touched, and what it returned: read the dated `spec-truth reconciliation` line in each spec's Amendment Log, or in the change-request file for change-request work.
 If it has not run, or returned `FAIL` with routed corrections still open (an unapplied spec amendment, or a follow-up task not completed and re-reviewed), list that under `Recommended Actions` — Gate 5 requires a `PASS` or every routed correction done.
 
 ### Step 5: Produce Inline Summary
 
-Use `ai-team status` output as the inline summary, then always append the Step 4a roll-up and the Step 4b reconciliation state after it. If the command cannot run, manually present the report in this format:
+Use `ai-team status` output as the inline summary, then always append the Step 4a reconciliation state after it. If the command cannot run, manually present the report in this format:
 
 ```markdown
 ## Status Report — [today's date]
@@ -91,13 +84,6 @@ Use `ai-team status` output as the inline summary, then always append the Step 4
 
 ### Critical/High Bugs
 [list of critical and high severity open bugs]
-
-### Deferred Minor Findings
-Unresolved:
-[work item ID, location, finding, fix/accept/defer decision needed — or "none"]
-
-Resolved/promoted history:
-[work item ID, location, finding with ` — resolved: promoted to FAIL` marker, outcome with latest Review Verdict and Work Log evidence — or "none"]
 ```
 
 If there are blocked tasks, critical/high bugs, or spec-truth reconciliation has not passed, add a `Recommended Actions` section suggesting next steps.
@@ -128,9 +114,6 @@ Tell the product owner the file path. Commit it only if the product owner asks a
 - Counts exclude templates and `.gitkeep`.
 - Critical and high severity bugs are explicitly listed.
 - Blocked tasks include the blocking reason when one is recorded.
-- Every deferred Minor finding in the scanned Review Verdicts is retained in either the unresolved list or resolved/promoted history, with its work item ID and location.
-- Entries ending in ` — resolved: promoted to FAIL` retain that marker in resolved/promoted history; fix/accept/defer decisions are requested only for unresolved findings.
-- A promoted finding's outcome cites the latest Review Verdict and Work Log; promotion alone never establishes a passing fix.
 - When the queue is empty, the state of spec-truth reconciliation is stated.
 - The latest integration evidence is recorded or explicitly marked as not found.
 - The report gives the product owner enough context for Gate 5 final merge sign-off.

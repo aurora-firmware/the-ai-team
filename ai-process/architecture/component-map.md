@@ -33,7 +33,8 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Using AI Team | Match the situation to a skill and check gate preconditions before any other action | Main session (user-facing entry point) | `.claude/skills/using-ai-team/SKILL.md` |
 | TDD | Write a failing test, verify failure, implement the minimal change, verify pass, and refactor; for an inspection or demonstration task, carry it out and record the result | Developer | `.claude/skills/tdd/SKILL.md` |
 | Debug | Reproduce or confirm a defect, gather evidence, isolate the fault, record a root-cause hypothesis, then permit fixing | Developer | `.claude/skills/debug/SKILL.md` |
-| Code Review | Review tasks for acceptance compliance and bugs for diagnosis, root-cause fit, verification, and code quality | Reviewer | `.claude/skills/code-review/SKILL.md` |
+| Code Review | Review tasks and bug fixes against the Developer's claims and the project's rules, and settle the Developer's answers until both agree on every finding | Reviewer | `.claude/skills/code-review/SKILL.md` |
+| Receive Code Review | Answer each open review finding on the task or bug branch: fix it, or show with evidence that it does not hold | Developer | `.claude/skills/receive-code-review/SKILL.md` |
 | Integrate | Merge task or bug branches, run pre- and post-merge tests, promote completed work, and file regression bugs on failure | Development Loop, Bug-Fix Loop, Integrator | `.claude/skills/integrate/SKILL.md` |
 | Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Integrator | `.claude/skills/merge-conflicts/SKILL.md` |
 | Escalation Review | Analyse blocked work after role self-recovery and issue guidance or escalate to the product owner | Architect | `.claude/skills/escalation-review/SKILL.md` |

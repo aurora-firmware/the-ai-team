@@ -29,8 +29,7 @@ Add a standing duty, **spec-truth reconciliation**, that runs after the task que
 before the product owner gives Gate 5 sign-off.
 
 The Architect re-reads each approved spec touched by the completed work against the completed
-task and bug Work Logs, any ADRs created while the work was in flight, and the deferred-Minor
-roll-up, then either confirms the spec is still true or routes corrections to the Planner.
+task and bug Work Logs and any ADRs created while the work was in flight, then either confirms the spec is still true or routes corrections to the Planner.
 For each drift it first decides which side is authoritative. When the spec is stale, the
 Planner amends it. When the spec is right and the work falls short, the Planner creates
 follow-up tasks under the same spec or change-request, and the Architect re-runs the
@@ -103,4 +102,6 @@ on the product owner noticing deviations that no artifact records.
   a demonstration, as defined in `guides/spec-authoring-guide.md`; design review is folded
   into inspection. The Planner chooses each follow-up task's verification method by the
   `new-task` rule, which replaces the spec-breakdown rule the 2026-10-21 entry names.
-
+- **2026-10-27:** Removed the deferred-Minor roll-up from the evidence. Code review no longer
+  lets a finding pass unresolved: every finding is fixed or shown not to hold before the work
+  item is integrated (B-035), so completed work carries no deferred findings to read.
