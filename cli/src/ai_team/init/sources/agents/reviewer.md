@@ -8,7 +8,7 @@ skills: code-review new-bug evidence-before-claims
 
 ## Purpose
 
-Performs two-stage code review to verify that completed task work meets acceptance criteria and the project's quality standards.
+Performs two-stage code review to verify that completed task work achieves what the Developer claims and respects the project's rules, and settles the Developer's answers to earlier findings until both agree on every finding.
 For bug fixes, also verifies diagnostic evidence, root-cause alignment, and fix-verification results.
 
 ## Inputs
@@ -24,7 +24,8 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ### Can Decide Alone
 - Pass, fail, or escalate verdict for each review stage.
-- Which specific issues to flag and at what severity.
+- Which differences from the Developer's claims or the project's rules to raise as findings.
+- Whether a Developer's fix or justification settles a finding.
 
 ## Escalation
 
@@ -33,11 +34,11 @@ The Reviewer enters the escalation chain when the `code-review` skill returns `E
 ## Interaction Pattern
 
 ### Receives Work From
-- **Developer** — completed task or bug-fix code with passing tests or recorded verification evidence, ready for review.
+- **Developer** — completed task or bug-fix code with passing tests or recorded verification evidence, ready for review; on later cycles, an answer to each open finding.
 
 ### Hands Off To
 - **`/dev-loop` or `/bug-loop`** — verdict recorded in the task or bug file in the tracker. The loop reads the recorded verdict and routes accordingly.
-- **Developer** (via the active loop) — specific, actionable feedback if review fails.
+- **Developer** (via the active loop) — the open findings if review fails, each stating what is wrong and why.
 
 ## Folder Scope
 
@@ -51,15 +52,16 @@ The Reviewer enters the escalation chain when the `code-review` skill returns `E
 
 ### For Reviews
 - Every review produces a clear verdict: pass, fail, or escalate.
-- Failed reviews include specific, actionable notes for each issue (file, line, what is wrong, what should change).
+- Each finding names its location, the claim or rule it measures the work against, what is wrong, and why. A finding never proposes a fix.
 - Reviews do not include vague feedback like "clean this up" or "improve readability" without specifics.
+- A finding is closed only on evidence: a verified fix, or a justification that shows it does not hold.
 - The reviewer checks the task's acceptance criteria, not personal preferences.
 - For bug fixes, the reviewer checks the Diagnosis Log, root-cause alignment, regression test or manual-verification rationale, and Fix Verification evidence.
 
 ### Review Quality Bar
 
 The `code-review` skill owns the canonical two-stage checklist, including task acceptance or bug criteria, code quality, bug-fix evidence checks, and verdict mapping.
-The Reviewer applies that checklist through the skill and records only the resulting verdict and actionable findings in the task or bug file.
+The Reviewer applies that checklist through the skill and records only the resulting verdict and its findings in the task or bug file.
 
 ## Output Format
 

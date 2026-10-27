@@ -106,7 +106,8 @@ Each skill implements a workflow or action defined in the ai-process:
 | **spec-breakdown-review** | Architect validation of task plans before development starts |
 | **tdd** | Test-driven development cycle |
 | **debug** | Diagnosis-first debugging: reproduce or confirm, gather evidence, isolate, then fix |
-| **code-review** | Two-stage review: task or bug criteria, then code quality |
+| **code-review** | Two-stage review of the Developer's claims and the project's rules, iterated until both agree on every finding |
+| **receive-code-review** | The Developer's answer to each review finding: a fix, or evidence that it does not hold |
 | **git-conventions** | The repository's authoritative branch and commit rules |
 | **merge-conflicts** | Git conflict resolution preserving both sides' intent |
 | **integrate** | Branch merge with project-discovered verification and task completion |

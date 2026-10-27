@@ -32,6 +32,7 @@ Before the first action of a request — including a clarifying question, a code
 | A task is ready to implement | `tdd` |
 | A bug, failing test, or unexpected behavior must be fixed | `debug`, then `tdd` for the fix |
 | Completed task or bug work needs review | `code-review` |
+| A Review Verdict is FAIL and its findings need answers | `receive-code-review` |
 | A reviewed branch must be merged | `integrate`, and `merge-conflicts` when a conflict arises |
 | Work is blocked after self-recovery was exhausted | `escalation-review` |
 | A spec, task, bug, or ADR must be created | `new-spec`, `new-task`, `new-bug`, or `new-adr` — never hand-create the file |

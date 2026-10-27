@@ -107,8 +107,11 @@ The final entry serves as the handoff to the reviewer. -->
 
 ### Review Verdict — YYYY-MM-DD
 PASS | FAIL | ESCALATE
+Reviewed through: <HEAD sha>
 
-- For FAIL: file, location, what is wrong, what should change.
-- For PASS: brief confirmation that both stages passed.
+- Every finding of the work item, numbered F1, F2, ... across cycles: location,
+  the claim or rule it is measured against, what is wrong and why (never a fix),
+  and its status: Open, Fixed (confirmed), or Acknowledged.
+- For PASS: brief confirmation that both stages passed; every finding is closed.
 - For ESCALATE: design issue and why normal Developer fixes cannot resolve it.
 -->

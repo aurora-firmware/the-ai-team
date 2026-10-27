@@ -133,6 +133,7 @@ Read the task file at the path reported by `ai-team show T-NNN --json`, and chec
 > "Pick up the task from the task file `<task-path>` and implement it using the tdd skill.
 > You are on branch `task/T-NNN-...`. Follow the task's declared verification method using the tdd skill. For test tasks, commit after each red→green→refactor cycle. For inspection and demonstration tasks, commit the changes and include the inspection or demonstration record in your Work Log handoff.
 > The task file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
+> If the task file's latest Review Verdict is FAIL, first answer every open finding with the receive-code-review skill, committing fixes on this branch, and include the `#### Review answers` block in your Work Log handoff.
 > Return a Work Log handoff entry at session end. The entry's heading is `### Session N — YYYY-MM-DD`; the body is free prose covering what was done, what was tried and rejected, and what remains. The loop will append it to the task file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
@@ -154,6 +155,7 @@ git diff --stat BASE..HEAD
 git diff -U10 BASE..HEAD
 ```
 
+From the second review cycle on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict: the Reviewer settles earlier findings and raises new ones only against that range.
 Rewrite it before every review cycle so it covers the whole range, including commits from earlier cycles. Delete it when the task leaves the loop. It lives in the tracker, so it is never committed.
 
 **Spawn the Reviewer subagent** (tier: standard) with this prompt:
@@ -163,7 +165,7 @@ Rewrite it before every review cycle so it covers the whole range, including com
 > The review range and its diff are in the review package `<package-path>`; read that one file instead of deriving the diff yourself.
 > Append your verdict to the task file's Review section under `### Review Verdict — YYYY-MM-DD`. The task file is outside version control: do not commit it.
 > Treat the Work Log as unverified claims about the code and check them against the diff. Do not re-run tests the Work Log already shows passing.
-> Rate each finding Critical, Important, or Minor as the code-review skill defines. List Minor findings under `#### Deferred Minor findings` and anything you cannot confirm from the diff under `#### ⚠️ Cannot verify from diff`.
+> Record each finding as the code-review skill defines, stating what is wrong and why, never a fix. On a re-review, settle every open finding against the Developer's answer in the latest Work Log entry. List anything you cannot confirm from the diff under `#### ⚠️ Cannot verify from diff`.
 > Verdict must be one of: PASS, FAIL, or ESCALATE. On ESCALATE, include the four-field escalation request block defined in the code-review skill.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
@@ -178,9 +180,7 @@ Extract the verdict: **PASS**, **FAIL**, or **ESCALATE**.
 
 #### On PASS
 
-If the verdict lists `⚠️ Cannot verify from diff` items, resolve each one before integration, using what the loop knows (other completed work items' Work Logs, the approved spec, the repository). Append the resolution under the verdict. If an item cannot be confirmed, treat the verdict as FAIL for that item and go to **On FAIL**.
-
-Apply the same handling to a deferred Minor finding. If the loop's own checks show that a finding the Reviewer listed under `#### Deferred Minor findings` is a real failure, for example it breaks CI or contradicts the task, treat the verdict as FAIL for that item and go to **On FAIL**. This is the same handling as an unconfirmable `⚠️ Cannot verify from diff` item. When promoting a finding, append ` — resolved: promoted to FAIL` to that entry's line in the verdict's `#### Deferred Minor findings` list, so the Gate 5 roll-up shows it as resolved rather than still deferred.
+If the verdict lists `⚠️ Cannot verify from diff` items, resolve each one before integration, using what the loop knows (other completed work items' Work Logs, the approved spec, the repository). Append the resolution under the verdict. If an item cannot be confirmed, record it under the verdict as a new finding in the code-review format, with the next unused finding ID and `**Status:** Open`, treat the verdict as FAIL, and go to **On FAIL**.
 
 Before invoking integration, confirm that the task file holds both the Developer Work Log entry
 and the Review Verdict recorded in Steps 5 and 6. The `integrate` skill verifies that the latest
@@ -205,8 +205,8 @@ Increment the review cycle counter.
 
 Climb the capability ladder — each rung changes who attempts the fix, so a stuck task is not retried identically:
 
-- If **cycle = 1**: go back to **Step 5** with the same Developer, who keeps the continuity of the session. The Developer fixes the issues noted in the Review Verdict.
-- If **cycle = 2**: go back to **Step 5** with a **fresh Developer subagent on the most capable tier**. Pass only the task file path: its Work Log and Review Verdicts carry everything the fresh Developer needs, and it does not inherit the failed session's reasoning. This happens before any Architect consultation is spent.
+- If **cycle = 1**: go back to **Step 5** with the same Developer, who keeps the continuity of the session. The Developer answers every open finding of the Review Verdict with the `receive-code-review` skill.
+- If **cycle = 2**: go back to **Step 5** with a **fresh Developer subagent on the most capable tier**. Pass only the task file path: its Work Log and Review Verdicts carry everything the fresh Developer needs to answer the open findings, and it does not inherit the failed session's reasoning. This happens before any Architect consultation is spent.
 - If **cycle = 3**: treat as ESCALATE (max review cycles exceeded).
 
 #### On ESCALATE
@@ -224,6 +224,8 @@ Follow the Phase 2 escalation chain below. Step 1 is a single Architect consulta
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
 If the Architect resolves the issue, go back to **Step 5** with the Architect's guidance.
+
+When findings are still in dispute between Reviewer and Developer, the Architect settles each one: **upheld**, which the Developer then fixes, or **parked**. Record each ruling under the latest verdict.
 
 If the Architect adjudicates that specific findings of the last FAIL verdict should be **parked** rather than fixed — the task meets its criteria without them — the loop makes each parked finding a durable artifact before continuing; a ledger line in the chat is not one:
 - file it as a new bug with the `new-bug` skill, naming this task and the finding, or

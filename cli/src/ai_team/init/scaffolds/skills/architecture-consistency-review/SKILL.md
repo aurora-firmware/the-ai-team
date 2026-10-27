@@ -27,7 +27,7 @@ Whenever an architecture artifact changes:
 In completion mode the review confirms that each approved spec is still true of what was built. It uses the same binding set, findings block, routing rules, and verdicts as every other trigger, with these differences:
 
 - **Changed artifact** — each approved spec touched by the completed work, named by the caller. Do not review specs the work did not touch.
-- **Evidence read in place of a delta** — the Work Logs of the completed tasks and resolved bugs that implemented the spec, every ADR created or amended while the work was in flight, and the deferred-Minor findings listed under `#### Deferred Minor findings` in their Review Verdicts.
+- **Evidence read in place of a delta** — the Work Logs of the completed tasks and resolved bugs that implemented the spec, and every ADR created or amended while the work was in flight.
 - **Step 1** isolates what the spec asserts (requirements, interfaces, guarantees) instead of what changed.
 - **Step 3** checks each assertion against the evidence: a requirement the work did not deliver, behavior the work added that the spec does not describe, or an interface that now differs. Record each drift with the spec statement and the evidence that contradicts it.
 - **Routing** first decides, for each drift, which side is authoritative: the spec or the completed work.
