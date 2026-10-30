@@ -9,14 +9,15 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 **Pass criteria:**
 - The problem is clearly defined.
 - The proposed solution addresses the stated problem.
-- Architecture is described with enough detail to derive tasks.
+- Behaviour and interfaces are described with enough detail to design the architecture and derive tasks.
+- The spec makes no technology choice and records no implementation design; those are decided in Feature Architecture after Gate 1 (see `ai-process/processes/workflow_overview.md`).
 - Exclusions are explicitly stated.
 - No unresolved open questions that affect behavior, contracts, acceptance, or feasibility. Deferred internal investigations follow the `new-spec` Open Questions rule.
 - No remaining product-owner-answerable `[TODO]` markers.
 
 **Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec_authoring_guide.md`.
 
-**S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that the architecture is detailed enough to derive tasks:
+**S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that behaviour and interfaces are detailed enough to design the architecture and derive tasks:
 - The content is in plain language.
 - There is no technology or interfaces.
 - Every use case is tied to a pain point.
@@ -31,13 +32,13 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 **When:** After the Planner writes the task plan from either an approved specification or an approved change-request, before the development loop starts. Follow-up tasks routed by spec-truth reconciliation are exempt: they are created `pending`, and the reconciliation re-run checks them (ADR-002).
 **Evaluator:** Architect.
-**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by product owner approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
+**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with the architecture documents and existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by product owner approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
 **Pass criteria:**
 - Task plan covers every requirement in the approved specification (spec-coverage verification). For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the product owner recorded it as skipped (brownfield). S-000's solution components never need tasks.
 - Task dependencies are correct and complete.
 - File conflict risks are identified and resolved through dependencies or task changes.
 - Interfaces are consistent across tasks: every type, function, or file a task consumes is produced by a task it depends on (or already exists), under the same name and signature.
-- Task plan is architecturally consistent with existing decisions.
+- Task plan is architecturally consistent with the architecture documents and existing decisions, and Feature Architecture recorded every technology or design decision the plan relies on.
 - Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec_authoring_guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test that asserts the wording of prose or only proves a removal.
 - No task contains placeholder text (`TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or a reference to something no task defines).
 

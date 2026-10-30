@@ -86,7 +86,7 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 | Agent | Responsibility |
 |---|---|
 | **Planner** | Creates specifications with the product owner, then decomposes approved specifications into executable tasks |
-| **Architect** | Owns structural review: Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
+| **Architect** | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
 | **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code |
 | **Reviewer** | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality |
 | **Integrator** | Resolves merge conflicts; supports task and bug integration into target branches |
@@ -104,6 +104,7 @@ Every skill can be started as a slash command (`/<name>`); `status-report` is th
 | **using-ai-team** | Meta-skill: matches the situation to a skill, and checks gate preconditions, before any other action |
 | **brainstorm** | Solution-space exploration before a spec is written |
 | **spec-breakdown** | Decomposition of a spec into atomic tasks |
+| **feature-architecture** | Architect decision on how an approved spec or change-request is built, recorded in ADRs and the architecture documents |
 | **spec-breakdown-review** | Architect validation of task plans before development starts |
 | **tdd** | Implementation by each task's planned verification method: a test-driven cycle for test tasks, a recorded inspection or demonstration for the others |
 | **debug** | Diagnosis-first debugging: reproduce or confirm, gather evidence, isolate, then fix |
