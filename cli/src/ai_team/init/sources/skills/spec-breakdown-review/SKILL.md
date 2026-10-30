@@ -1,7 +1,7 @@
 ---
 name: spec-breakdown-review
 description: Validate a planned task plan before development starts. Use when the Planner has decomposed an approved specification into tasks and Gate 2 must confirm dependency correctness, file conflict risk, ADR consistency, atomicity, and implementation readiness.
-allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
+allowed-tools: Read, Grep, Glob, Write, Edit
 effort: high
 ---
 
@@ -55,11 +55,6 @@ Compare the task plan against existing ADRs and the architecture documents.
 If a task contradicts an existing decision or requires changing an approved specification, do not pass Gate 2.
 If a task relies on a technology or design that no architecture document or ADR decides, do not pass Gate 2: record it as an architecture gap and return it to the Planner, who runs Feature Architecture again (`spec-breakdown` Step 0a) and revises the task to follow the decision.
 When assessing architecture, if the plan contradicts the approved spec or existing ADRs, fail or escalate by following the existing Gate 2 procedure.
-Use `new-adr` only when the plan exposes a durable architecture-affecting decision within the approved spec.
-When invoking `new-adr`, provide the full required input set:
-- `title`: concise decision title derived from the architectural choice
-- `description`: the approved spec path, affected task IDs, relevant ADRs, and why the decision is durable rather than an implementation detail
-- `status`: `accepted` — the Architect is adopting the decision now as part of approving the task plan
 Escalate to the product owner through the Planner when the approved spec must change.
 
 ### Step 5a: Check Interface Consistency
