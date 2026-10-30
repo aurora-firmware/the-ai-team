@@ -43,7 +43,12 @@ For a feature spec or change-request, the Architect decides how the work is buil
 
 Wait for the Architect to complete.
 If the Architect escalates, stop and return the escalation to the product owner using the Phase 2 product owner report template defined in the `escalation-review` skill.
-If the output lists Spec findings, amend the spec on the planning branch to state the requirement instead of the technology, and record the change in its Amendment Log. When the restated requirement would change approved behaviour, ask the product owner first.
+If the output lists Spec findings, restate each one as the requirement the technology must meet, on the planning branch:
+- For a spec, amend it and record the change in its Amendment Log.
+- For a change-request, update its body in the tracker.
+
+When the restated requirement would change approved behaviour or the approved change-request intent, ask the product owner first.
+Then hand the amended spec or change-request to the Architect for `architecture-consistency-review` before Step 1, and revise on its findings.
 
 ### Step 1: Identify Components
 Read the specification and the architecture documents, and list every distinct unit of work.
@@ -108,7 +113,7 @@ The tracker is outside the repository, so the Planner passes the Architect the a
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
 Wait for the Architect to complete.
-If the Architect requests Planner revisions, address them in the task files and re-trigger the preflight.
+If the Architect requests Planner revisions, address them in the task files and re-trigger the preflight. For an architecture gap, run Step 0a again first, then revise the task to follow its decision.
 If the Architect escalates because the approved specification must change, stop and return the escalation to the product owner using the Phase 2 product owner report template defined in the `escalation-review` skill.
 
 ### Step 7: Merge the Planning Branch and Activate the Tasks

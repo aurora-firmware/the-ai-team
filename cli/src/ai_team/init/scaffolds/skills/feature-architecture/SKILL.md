@@ -30,7 +30,7 @@ If the architecture documents do not exist, create them at the location the proj
 
 ### Step 2: List What the Work Needs
 
-Go through the requirements, interfaces, quality requirements and configuration requirements, and list each thing the work needs from the architecture:
+Go through the requirements, interfaces, quality requirements and configuration requirements, and list each thing the work needs from the architecture. Add each Open Questions entry owned by the Architect: it is a need to decide, and the preference it names is weighed in Step 4, not taken as decided.
 
 - the components that carry it, and how they connect;
 - the technology each component uses: language, framework, libraries;
@@ -69,12 +69,13 @@ Commit the ADRs and the architecture-document changes on the planning branch, fo
 
 ## Escalation
 
-Return `ESCALATE` on first detection, without retrying, when:
+Return `ESCALATE` on first detection, without retrying, only when the decision requires changing an approved specification or the approved change-request intent:
 
 - no technology or design can meet a requirement, and meeting it needs the approved spec or change-request to change;
 - a decision would change approved behaviour or interfaces;
-- the best option brings a cost, licence, external account or operational duty that the spec does not mention;
-- a conflict needs an accepted ADR superseded and the change affects other approved specs.
+- a conflict needs an accepted ADR superseded and the change would make another approved spec untrue.
+
+Every other decision is the Architect's, including one that brings a cost or an external service; record that consequence in the ADR.
 
 ```text
 Problem: [what went wrong]

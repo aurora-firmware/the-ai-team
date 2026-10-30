@@ -88,7 +88,7 @@ For each approach describe concisely (one short paragraph each):
 - Which interfaces and existing behaviour change
 - Key trade-offs: user value, scope, flexibility, fit with existing specs and decisions
 
-Approaches differ in what the product does, not in how it is built. Do not compare technologies, frameworks, storage, or internal designs; the Architect decides those after Gate 1, in the `feature-architecture` step. When the product owner names a technology, record it as a question for the Architect, unless users or external systems see it.
+Approaches differ in what the product does, not in how it is built. Do not compare technologies, frameworks, storage, or internal designs; the Architect decides those after Gate 1, in the `feature-architecture` step. When the product owner names a technology, record it in the spec's Open Questions as a question for the Architect, as `new-spec` describes, unless users or external systems see it.
 
 Do not self-censor. Include approaches that seem impractical — they may contain useful ideas or help the product owner articulate what they *don't* want.
 
@@ -138,7 +138,7 @@ Invoke the `new-spec` skill to create the specification file. Provide the full r
 - `author`: `planner` unless the product owner provided a different author
 - `status`: `draft`
 
-`new-spec` handles template loading, frontmatter scaffolding, and section-by-section filling. It carries the **content-boundary rule** (no implementation code, config files, or build manifests in the spec body), the **section recipes** for each part of the template, and the **pre-submission checklist** — apply them through that skill rather than re-deriving them here.
+`new-spec` handles template loading, frontmatter scaffolding, and section-by-section filling. It carries the **content-boundary rule** (no technology choices, implementation design, implementation code, config files, or build manifests in the spec body), the **section recipes** for each part of the template, and the **pre-submission checklist** — apply them through that skill rather than re-deriving them here.
 
 When `new-spec` returns, check that Alternatives Considered records every approach rejected in Step 4 and the reason for each.
 

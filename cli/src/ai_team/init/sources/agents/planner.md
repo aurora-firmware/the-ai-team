@@ -47,7 +47,7 @@ After Gate 1 approves S-000, the Planner completes S-000 with `new-system-overvi
 
 ## Escalation
 
-The Planner enters the escalation chain when the `spec-breakdown` skill returns a preflight `ESCALATE` from the Architect (Gate 2), or when architectural questions surface during spec writing. Forwarding conditions and the Phase 2 Product Owner Escalation Report template are defined in the `spec-breakdown-review` and `escalation-review` skills. The Planner relays the report to the product owner alongside any affected tasks.
+The Planner enters the escalation chain when the `spec-breakdown` skill returns an `ESCALATE` from the Architect, from feature architecture (Step 0a) or the Gate 2 preflight, or when architectural questions surface during spec writing. Forwarding conditions and the Phase 2 Product Owner Escalation Report template are defined in the `feature-architecture`, `spec-breakdown-review` and `escalation-review` skills. The Planner relays the report to the product owner alongside any affected tasks.
 
 ## Interaction Pattern
 

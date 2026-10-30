@@ -164,6 +164,7 @@ Coarse phases (typically two to five). Each phase delivers an observable outcome
 
 Resolve questions affecting behavior, external contracts, acceptance, or feasibility before review, regardless of who can answer them.
 Only deferred internal design investigations that cannot change approved behavior may remain; name their owner and resolution condition, or write None.
+A question for the Architect, such as a technology the product owner prefers, is recorded here with the Architect as owner and "decided in Feature Architecture" as its resolution condition. It is a preference to weigh, not a choice the spec makes.
 
 ### Amendment Log
 

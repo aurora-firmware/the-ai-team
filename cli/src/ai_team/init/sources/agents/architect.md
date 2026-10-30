@@ -43,7 +43,7 @@ The check itself is owned by the `architecture-consistency-review` skill.
 
 ## Escalation
 
-The Architect is the target of Phase 2, Step 1 escalation (Architect Consultation) — it consumes structured escalation requests from blocked roles, and forwards to the product owner only when its own skills return `Result: ESCALATE`. Thresholds and forwarding conditions (spec change required, unresolvable after full analysis, circular-dependency-without-spec-change) are defined in the `escalation-review` and `spec-breakdown-review` skills. The Phase 2 Product Owner Escalation Report template also lives in `escalation-review`.
+The Architect is the target of Phase 2, Step 1 escalation (Architect Consultation) — it consumes structured escalation requests from blocked roles, and forwards to the product owner only when its own skills return `Result: ESCALATE`. Thresholds and forwarding conditions (spec change required, unresolvable after full analysis, circular-dependency-without-spec-change) are defined in the `escalation-review`, `spec-breakdown-review` and `feature-architecture` skills. The Phase 2 Product Owner Escalation Report template also lives in `escalation-review`.
 
 ## Interaction Pattern
 

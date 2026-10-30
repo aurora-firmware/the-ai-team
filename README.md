@@ -51,6 +51,9 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
         |                  Gate 1: product owner approval               |
         |                         |                                     |
         |                         v                                     |
+        |            Architect feature architecture                     |
+        |                         |                                     |
+        |                         v                                     |
         |             Planner task plan -> Gate 2: Architect            |
         |                         |                                     |
         +-------------------------+-------------------------------------+
@@ -204,11 +207,12 @@ Keep the framework files generic unless you intentionally fork the process.
 The normal workflow is:
 
 1. The product owner and Planner shape a specification; the product owner approves it at Gate 1.
-2. Planner decomposes the approved spec into tasks.
-3. Architect validates the task plan at Gate 2.
-4. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
-5. Bugs are filed in the local tracker and handled through `/bug-loop`.
-6. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
+2. Architect decides how the approved spec is built (feature architecture: technology and design, recorded in ADRs and the architecture documents).
+3. Planner decomposes the approved spec into tasks.
+4. Architect validates the task plan at Gate 2.
+5. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
+6. Bugs are filed in the local tracker and handled through `/bug-loop`.
+7. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
 
 See `guides/setup_guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 

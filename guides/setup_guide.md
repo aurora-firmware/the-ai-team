@@ -114,10 +114,11 @@ The typical feature workflow is then:
 1. **Describe a feature** — write what you want built.
 2. **Brainstorm** — the planner agent explores approaches and produces a specification (`/new-spec`).
 3. **Approve the spec** — the product owner reviews and approves (Gate 1).
-4. **Break into tasks** — the planner decomposes the spec into atomic tasks.
-5. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
-6. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop.
-7. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
-8. **Final approval** — the product owner approves the merge from `dev-agent` to `main` (Gate 5).
+4. **Decide the architecture** — the architect decides how the spec is built (technology and design) and records it in ADRs and the architecture documents.
+5. **Break into tasks** — the planner decomposes the spec into atomic tasks.
+6. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
+7. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop.
+8. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
+9. **Final approval** — the product owner approves the merge from `dev-agent` to `main` (Gate 5).
 
 For the full workflow details, see `ai-process/processes/workflow_overview.md`.

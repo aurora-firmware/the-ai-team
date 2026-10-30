@@ -329,7 +329,7 @@ The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that f
 | Gate 4: Integration Tests | Reviewed branch → completed task or bug | Integration procedure | Merged/completed or regression report |
 | Gate 5: Final Merge Sign-off | Completed queue → production merge | Product Owner | Approval to merge `dev-agent` to `main` |
 
-Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, and Task Breakdown.
+Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Feature Architecture, Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, Feature Architecture, and Task Breakdown.
 
 Each gate's timing, evaluator, pass criteria, and failure handling are defined in `ai-process/processes/quality_gates.md`.
 
@@ -340,7 +340,7 @@ Full rules and commit format: `ai-process/guidelines/git_conventions.md`.
 **Branches:**
 - `main` — product-owner-only, production releases.
 - `dev-agent` — integration target. The integration procedure merges task branches here during the development loop; the Integrator handles manual merges and conflict resolution. The Planner merges planning branches here after Gate 2 (S-000: after Gate 1, see the git conventions). Architects commit ADRs raised outside planning here.
-- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, and ADRs raised by its consistency review, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then.
+- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then.
 - `task/T-NNN-short-description` — implementation branch for a single task, deleted after successful integration.
 - `bug/B-NNN-short-description` — implementation branch for a single bug, created by the bug-fix loop from `dev-agent` or the bug report's `source_branch`, deleted after successful integration.
 

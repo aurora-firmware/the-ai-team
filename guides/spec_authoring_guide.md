@@ -194,6 +194,7 @@ A phase is not a task. The `spec-breakdown` skill produces the actual tasks from
 
 Before review or approval, resolve every question affecting required behavior, external contracts, acceptance, or feasibility, including technical questions the product owner cannot answer directly.
 Record only deferred internal design investigations here, each with an owner and resolution condition; they must not change approved behavior.
+A question for the Architect, such as a technology the product owner prefers, is recorded here with the Architect as owner and "decided in Feature Architecture" as its resolution condition. It is a preference to weigh, not a choice the spec makes.
 Write `None` when no investigations remain.
 Product-owner-answerable `[TODO]` markers must be resolved before Architecture Consistency Review; unresolved behavioral questions block it regardless of who can answer them.
 
