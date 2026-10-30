@@ -61,14 +61,16 @@ When invoked directly by the product owner and required fields are missing, ask 
 
 ## Content-boundary rule (strict)
 
-A specification describes **requirements, contracts, and measurable criteria in prose**. It does NOT embed:
+A specification describes **what the product does**: requirements, interface contracts, and measurable criteria in prose. It does NOT say how the product is built. The project's architecture documents and ADRs own the how, and the Architect decides it after Gate 1; the coding guidelines own how code is written. A spec does NOT contain:
+- Technology choices — languages, frameworks, libraries, storage engines, internal protocols and formats, hosting and services — even when an ADR has already decided them. State the requirement the technology must meet instead: "settings survive a restart", not "settings are stored in SQLite".
+- Implementation design — internal components and their responsibilities, system diagrams of internals, data models, rejected implementation approaches.
 - Implementation code (function signatures, class layouts, executable snippets that *are* the implementation).
 - Full configuration files, CI manifests, or build files.
 - File-by-file plans — those are the `spec-breakdown` skill's output.
 
 Concrete code, config, and manifests belong in the **tasks** that `spec-breakdown` produces and in the **Developer's output**, not in the spec body.
 
-**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. Internal implementation is never contract material.
+**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. A technology or format is part of an interface only when users or external systems see it: the format of a configuration file users edit, or a protocol an external system already speaks. A protocol or format the team picks for its own parts is a technology choice. Internal implementation is never contract material.
 
 If you find yourself pasting a near-complete file into the spec, you are writing the implementation — replace it with prose that describes what the file must guarantee.
 
@@ -95,20 +97,15 @@ Link each journey to the REQ identifiers that deliver it; use S-000 for system c
 
 ### Exclusions
 
-Record deliberately excluded behaviors and their reasons. Keep rejected implementation approaches and their rationale distinct from scope exclusions; choosing a design does not exclude a user capability.
+Record deliberately excluded behaviors and their reasons. Keep rejected alternatives and their rationale distinct from scope exclusions; choosing a solution does not exclude a user capability.
 
 Almost every spec has at least one. `"no exclusions apply"` should be rare and should follow an explicit product owner confirmation.
 
-### Architecture — Design Principles
+### Alternatives Considered
 
-Scoped to this spec. Each principle is a **constraint on the design space**, not an implementation choice. State it as a property the design must satisfy.
+Record each solution alternative rejected during brainstorm and the reason: a different behaviour, interaction, or interface for the same need. A rejected alternative is rationale, not an exclusion. Rejected implementation approaches belong in an ADR, not here. If no alternative was considered, write None with the reason.
 
-Good: "Validation must run in under three minutes on the median PR."
-Bad: "Use GitHub Actions." (That picks the implementation; reframe as a constraint, e.g. "must integrate with the project's existing PR review surface.")
-
-### Architecture — Alternatives Considered
-
-Record each approach rejected during design and the reason it was rejected. A rejected approach is rationale, not an exclusion. If no alternative was considered, write None with the reason.
+A constraint the solution must meet, such as a time limit or a rejection rule, is a requirement: write it as a Behavioral or Quality Requirement.
 
 ### Interfaces
 
@@ -143,7 +140,7 @@ Review applicability rather than manufacturing requirements to fill sections; if
 
 For each setting, four bullets:
 - **What must exist** — the requirement, named.
-- **Where it lives** — env var, config file, CI variable, secret store — described, not pasted.
+- **Where it lives** — where the user sets it: env var, config file, CI variable, secret store — described, not pasted.
 - **Constraints** — allowed range, format, security class.
 - **Missing-value behaviour** — default, error, or refuse-to-start.
 
@@ -191,7 +188,8 @@ Before returning the created spec, confirm every item:
 
 - [ ] **Problem is concrete.** Purpose names the problem, the trigger, and the observable outcome.
 - [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
-- [ ] **Each design principle is a constraint, not an implementation choice.**
+- [ ] **No technology choices or implementation design.** No languages, frameworks, libraries, storage engines, internal protocols or formats, internal components, or rejected implementation approaches. A technology appears only as Contract material, when users or external systems see it.
+- [ ] **Alternatives Considered lists solution alternatives**, each with its reason, or `None` with a reason.
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Any literal-value-as-contract block is labelled **Contract**.
 - [ ] **Every requirement is measurable.** It has one obligation, a stable REQ identifier, concrete AC scenarios, and a verification method.
 - [ ] **Discovery decisions are preserved.** Actors, journeys, applicable failure cases, and quality constraints are explicitly linked to requirements.

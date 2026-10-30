@@ -15,7 +15,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
 | `{{integration_branch}}` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2; Architects commit ADRs raised outside planning here |
-| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, and ADRs raised by its consistency review | Planner and Architect only — no source code |
+| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture | Planner and Architect only — no source code |
 | `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
 | `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts |
 
@@ -73,7 +73,7 @@ chore(plan): merge S-004 billing export
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch after Gate 2 passes (S-000: after Gate 1, once S-000 is `approved`) | `{{integration_branch}}` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts | `task/T-NNN-…` or `bug/B-NNN-…` |
-| **Architect** | After producing an ADR or amendment | `plan/…` when raised during planning; otherwise `{{integration_branch}}` |
+| **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning; otherwise `{{integration_branch}}` |
 | **Integrator** | One merge commit per task or bug branch merged into its target branch | target branch |
 
 ## Workspace Hygiene

@@ -31,6 +31,7 @@ def test_every_process_skill_is_reachable_from_the_dispatch_table():
         "change-request",
         "architecture-consistency-review",
         "spec-breakdown",
+        "feature-architecture",
         "spec-breakdown-review",
         "tdd",
         "debug",

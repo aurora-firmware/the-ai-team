@@ -16,6 +16,7 @@ Gate 2 technical readiness is owned by the `spec-breakdown-review` skill.
 - **Approved specification** — the spec that passed Gate 1 (Spec Approval).
 - **Project structure** — the existing codebase layout to determine file paths.
 - **Existing tasks** — current tasks from `ai-team list tasks --json`, to avoid conflicts or duplication.
+- **Architecture documents** — the documents the project guidance names for architecture and technology (by default `docs/development/architecture.md` and `docs/development/tech_stack.md`), as updated by the Feature Architecture step below.
 
 S-000 is the project overview. It is accepted as input for the project bootstrap tasks only, which cover its development-infrastructure components. Every other input is a feature spec or a change-request.
 
@@ -29,8 +30,24 @@ The breakdown runs on the planning branch of the spec or change-request it decom
 If that branch exists, run the before-point Workspace Hygiene check from the `git-conventions` skill and check it out.
 If it does not exist — the approved spec is already on `{{integration_branch}}` — open one as described in **Opening a Planning Branch** in the `git-conventions` skill.
 
+### Step 0a: Feature Architecture
+Skip this step for S-000: its bootstrap tasks write the first architecture documents.
+For a feature spec or change-request, the Architect decides how the work is built before any task is written.
+
+**Spawn the Architect subagent** (tier: most capable) with this prompt:
+
+> "Decide the feature architecture for the approved spec or change-request `<spec-or-cr-id>` at `<path>`, on the planning branch `plan/<id>-<slug>`.
+> Use the feature-architecture skill.
+> Return `Result: PASS` with the Covered and Decided lists when every need is covered or decided, or `Result: ESCALATE` when a need must go to the product owner.
+> Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+Wait for the Architect to complete.
+If the Architect escalates, stop and return the escalation to the product owner using the Phase 2 product owner report template defined in the `escalation-review` skill.
+If the output lists Spec findings, amend the spec on the planning branch to state the requirement instead of the technology, and record the change in its Amendment Log. When the restated requirement would change approved behaviour, ask the product owner first.
+
 ### Step 1: Identify Components
-Read the specification and list every distinct unit of work.
+Read the specification and the architecture documents, and list every distinct unit of work.
+Tasks follow the architecture documents and the ADRs; a task never chooses a technology or a design the architecture has not decided. A gap found while planning goes back to the Architect through Step 0a.
 A unit of work is something that produces a single testable outcome.
 
 ### Step 2: Define Dependencies
@@ -85,7 +102,7 @@ The tracker is outside the repository, so the Planner passes the Architect the a
 > "Review the planned task plan for the spec or change-request `<spec-or-cr-id>`.
 > The planned task files are: <task-id>: <absolute path>, one per task.
 > Use the spec-breakdown-review skill.
-> Validate dependency correctness, file conflict risk, architectural consistency with `{{project_dir}}/decisions/`, atomicity, and implementation readiness.
+> Validate dependency correctness, file conflict risk, architectural consistency with the architecture documents and `{{project_dir}}/decisions/`, atomicity, and implementation readiness.
 > If all is sound, return `Result: PASS` and state that the plan is ready for /dev-loop.
 > If issues are found, return `Result: FAIL` with exact Planner corrections, or `Result: ESCALATE` only when a problem requires changing the approved specification.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
@@ -129,4 +146,5 @@ Until this step, the tasks stay `planned` and invisible to `/dev-loop`, and `{{i
 - **Forgetting verification** — every task must have a way to prove it is done: a test, an inspection, or a demonstration. If you can name none, the acceptance criteria are not specific enough.
 - **Tests for prose or removals** — a test that pins the wording of a skill or guide, or that proves a command is gone, adds upkeep without checking product behavior. Plan an inspection instead.
 - **File conflicts** — two tasks creating the same file will cause merge conflicts. Restructure so one task creates the file and the other modifies it (with a dependency).
+- **Choosing the technology in a task** — a task that names a framework, library, or design the architecture documents and ADRs do not decide. Send the gap to the Architect instead.
 - **Planning solution work from S-000** — S-000 yields only the project bootstrap tasks. Refuse a request for solution work and name a feature spec as the input instead.

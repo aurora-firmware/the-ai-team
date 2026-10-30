@@ -82,11 +82,13 @@ If there are no material unknowns, skip this step and proceed.
 
 ### Step 3: Explore the Solution Space
 
-With clarified requirements, generate at least two distinct approaches.
+With clarified requirements, generate at least two distinct solution approaches: different behaviour, interaction, or interfaces for the same need.
 For each approach describe concisely (one short paragraph each):
-- How it works at a high level
-- What components or changes it requires
-- Key trade-offs: complexity, flexibility, implementation effort, alignment with existing architecture
+- What users and external systems see and do
+- Which interfaces and existing behaviour change
+- Key trade-offs: user value, scope, flexibility, fit with existing specs and decisions
+
+Approaches differ in what the product does, not in how it is built. Do not compare technologies, frameworks, storage, or internal designs; the Architect decides those after Gate 1, in the `feature-architecture` step. When the product owner names a technology, record it as a question for the Architect, unless users or external systems see it.
 
 Do not self-censor. Include approaches that seem impractical — they may contain useful ideas or help the product owner articulate what they *don't* want.
 
@@ -117,7 +119,7 @@ Present the chosen approach in these sections, one at a time, each sized to its 
 
 1. **What it does** — the outcome, the users and journeys it serves, and the main behavior.
 2. **Scope and exclusions** — an exclusions line with one or more concrete exclusions, or the exact statement "no exclusions apply" when the product owner confirms there are none.
-3. **Components and interfaces** — the parts that change and how they connect.
+3. **Interfaces** — what users and external systems see change: commands, screens, files they edit, APIs, messages.
 4. **Constraints and assumptions** — the constraints it must satisfy, the assumptions it relies on, and any quality thresholds the product owner agrees.
 5. **Behavior examples and verification** — key success, failure, and boundary examples, how failures are handled, and how success will be observed.
 
@@ -162,7 +164,8 @@ Because the product owner shaped the spec interactively, Gate 1 should be a quic
 - Exclusions are explicit.
 - The spec is self-contained: readable without opening other files, except precise references to existing external contracts.
 - Approved discovery decisions survive into identifiable requirements and acceptance scenarios, not only later task criteria.
-- Rejected implementation approaches are recorded in Alternatives Considered, distinct from out-of-scope behavior.
+- Rejected solution approaches are recorded in Alternatives Considered, distinct from out-of-scope behavior.
+- The spec makes no technology choice and records no implementation design.
 - The product owner confirmed the direction before the spec was written.
 - An oversized request was split into sub-projects, and only the first was brainstormed.
 - The product owner approved the design section by section, not only once at the end.
@@ -178,4 +181,5 @@ Because the product owner shaped the spec interactively, Gate 1 should be a quic
 - **Solving the wrong problem** — re-read the original request after generating alternatives to verify you are addressing the actual need.
 - **Scope creep** — if an alternative requires significantly more work, record it as an explicit exclusion in the spec's Exclusions section rather than folding it into the current scope.
 - **Missing constraints** — check `{{project_dir}}/decisions/` before proposing anything that contradicts a prior decision.
+- **Choosing the technology in the spec** — comparing frameworks, storage engines, or internal protocols as the alternatives, or writing them into requirements. The spec says what the product does; the Architect decides how it is built after Gate 1.
 - **Embedding the implementation in the spec** — pasting near-complete config files, CI manifests, or build files into the spec, instead of describing them as requirements. This pre-empts the task plan and the Developer, and the spec rots when the real code evolves. Describe the contract; the implementation is the Developer's job.

@@ -16,6 +16,7 @@ The result of this skill is a Findings block, which the architect role envelope 
 - **Approved specification** — the spec that passed Gate 1.
 - **Planned task files** — the absolute path of every planned task file, passed by the caller. The tracker is outside the repository, so do not search for task files under `{{project_dir}}/`.
 - **Decision records** — existing ADRs in `{{project_dir}}/decisions/`.
+- **Architecture documents** — the documents the project guidance names for architecture and technology (by default `docs/development/architecture.md` and `docs/development/tech_stack.md`).
 - **Project structure** — current files needed to verify paths and conflict risk.
 
 ## Procedure
@@ -25,7 +26,7 @@ Gate 2 is a technical preflight. During review, focus findings only on technical
 ### Step 1: Read Planning Context
 
 Read the approved specification and all task files for the plan under review.
-Read existing decision records in `{{project_dir}}/decisions/`.
+Read existing decision records in `{{project_dir}}/decisions/` and the architecture documents.
 Identify each task's dependencies, files to touch, acceptance criteria, and verification method.
 
 ### Step 2: Check Spec Coverage
@@ -50,8 +51,9 @@ If no dependency exists, add the dependency directly when the correction is obvi
 
 ### Step 5: Check Architectural Consistency
 
-Compare the task plan against existing ADRs and architecture docs.
+Compare the task plan against existing ADRs and the architecture documents.
 If a task contradicts an existing decision or requires changing an approved specification, do not pass Gate 2.
+If a task relies on a technology or design that no architecture document or ADR decides, do not pass Gate 2: record it as an architecture gap and return it to the Planner, who runs Feature Architecture again (`spec-breakdown` Step 0a) and revises the task to follow the decision.
 When assessing architecture, if the plan contradicts the approved spec or existing ADRs, fail or escalate by following the existing Gate 2 procedure.
 Use `new-adr` only when the plan exposes a durable architecture-affecting decision within the approved spec.
 When invoking `new-adr`, provide the full required input set:
