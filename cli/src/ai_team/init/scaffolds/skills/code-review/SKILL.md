@@ -22,7 +22,7 @@ The two-stage checklist below is the canonical quality bar for all code reviews.
 The review checks the work against two things:
 
 1. **The Developer's claims** — the acceptance criteria or fix contract the work says it meets, and every statement in the Work Log: what was done, what the tests show, what is out of scope.
-2. **The project's rules** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, the framework coding standards, the approved spec, accepted ADRs, and the task's own scope limits.
+2. **The project's rules** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, the framework coding standards, the approved spec, the architecture documents the project guidance names, accepted ADRs, and the task's own scope limits.
 
 Every place where the work differs from a claim or a rule is a **finding**. A finding states **what** is not as claimed or required and **why**, citing the claim or rule. **A finding never proposes a fix** — no patch, no "change X to Y", no "consider Z". How to resolve it is the Developer's decision, and the Developer may show that the finding does not hold.
 

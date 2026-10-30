@@ -14,7 +14,14 @@ Feature Request (product owner)          Change Request (product owner)
   ★ GATE 1: Spec Approval (product owner) ★│
           ↓                                │
 ┌──────────────────────────┐               │
-│  PLANNER: Task Breakdown │◄──────────────┘
+│  ARCHITECT: Feature      │◄──────────────┘
+│  Architecture            │  ← how it is built
+│  Technology and design   │
+│  ADRs, architecture docs │
+└─────────┬────────────────┘
+          ↓
+┌──────────────────────────┐
+│  PLANNER: Task Breakdown │
 │  Atomic tasks            │  ← structured decomposition
 │  Dependencies mapped     │
 │  Verification defined    │
@@ -107,12 +114,25 @@ Because the product owner shaped the spec throughout the dialogue, Gate 1 approv
 **Lighter path — change-request:** For smaller changes that do not warrant a full new spec, the Planner uses a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves product-owner-answerable `[TODO]` markers one at a time before the product owner approves the change-request. Once the product owner approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
 
 Feature specs follow the authoring contract in `guides/spec_authoring_guide.md`, implemented by the `new-spec` skill.
+A spec describes what the product does: its behaviour, requirements and interfaces. It makes no technology choice and records no implementation design; those are decided in Feature Architecture, after the spec is approved.
+
+### Feature Architecture
+
+**Role:** Architect.
+**Procedure:** `feature-architecture`, started by the Planner at the beginning of task breakdown.
+**Input:** The approved spec or approved change-request, the project's architecture documents, accepted ADRs, and the coding guidelines.
+**Output:** The architecture documents and ADRs updated on the spec's or change-request's planning branch, or a record that the existing architecture already covers the work.
+
+The spec says what the product does. The architecture says how it is built: technology, protocol stacks, and implementation design. The coding guidelines say how code is written with that stack.
+This step decides the how for one spec or change-request. The Architect checks whether the existing architecture covers the work. Where it does not, the Architect decides the missing technology and design, records each durable decision as an ADR, and updates the architecture documents. A decision that would change the approved behaviour or interfaces goes to the product owner instead.
+
+The project bootstrap writes the first architecture documents (by default `docs/development/architecture.md` and `docs/development/tech_stack.md`; the project guidance names their location). S-000 has no Feature Architecture step: its bootstrap tasks write those documents. Task breakdown, Gate 2, development, and review follow the architecture documents.
 
 ### 2. Task Breakdown + Gate 2
 
 **Role:** Planner (structured mode), then Architect (Gate 2 evaluator).
 **Procedure:** Structured task decomposition.
-**Input:** Approved specification (or approved change-request).
+**Input:** Approved specification (or approved change-request), and the architecture from Feature Architecture.
 **Output:** Set of tasks in the local tracker, created as `planned`, validated by the Architect, and set to `pending` once the planning branch merges.
 
 During breakdown the Planner explicitly considers whether the spec changes require documentation updates or test coverage updates. When they do, those updates are planned as implementation tasks or acceptance criteria — not as prerequisites before task creation. If documentation and test updates are not needed, the Planner omits them without creating placeholder tasks.
@@ -121,10 +141,10 @@ The Planner also gives each task a verification method: a test, an inspection, o
 
 Before task breakdown starts, the input artifact must be ready for execution: an approved spec must already be free of product-owner-answerable `[TODO]` markers, and an approved change-request must already be TODO-free, product-owner-approved, and reconciled against Architect consistency findings that do not change the approved intent. If a consistency finding would alter the approved change-request's intended scope, the process stops for a product owner decision instead of letting the Planner reinterpret the request.
 
-After the Planner writes the task files, the Architect automatically reviews the task plan at Gate 2. Gate 2 focuses on technical task-plan readiness — dependencies, file conflict risks, architectural consistency with existing decision records, atomicity, and verifiability. It does not reopen product or spec approval questions already settled at Gate 1.
+After the Planner writes the task files, the Architect automatically reviews the task plan at Gate 2. Gate 2 focuses on technical task-plan readiness — dependencies, file conflict risks, architectural consistency with the architecture documents and existing decision records, atomicity, and verifiability. It does not reopen product or spec approval questions already settled at Gate 1.
 - Checks dependency correctness and completeness.
 - Identifies any two tasks that modify the same file without a declared dependency (merge conflict risk).
-- Verifies architectural consistency with existing decision records.
+- Verifies architectural consistency with the architecture documents and existing decision records.
 - Returns a correction request to the Planner if problems are found; product-scope concerns that do not block technical readiness are noted as follow-up items, not Gate 2 failures.
 
 Gate 2 is automated and does not require product owner approval.
@@ -309,7 +329,7 @@ The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that f
 | Gate 4: Integration Tests | Reviewed branch → completed task or bug | Integration procedure | Merged/completed or regression report |
 | Gate 5: Final Merge Sign-off | Completed queue → production merge | Product Owner | Approval to merge `dev-agent` to `main` |
 
-Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, and Task Breakdown.
+Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Feature Architecture, Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, Feature Architecture, and Task Breakdown.
 
 Each gate's timing, evaluator, pass criteria, and failure handling are defined in `ai-process/processes/quality_gates.md`.
 
@@ -320,7 +340,7 @@ Full rules and commit format: `ai-process/guidelines/git_conventions.md`.
 **Branches:**
 - `main` — product-owner-only, production releases.
 - `dev-agent` — integration target. The integration procedure merges task branches here during the development loop; the Integrator handles manual merges and conflict resolution. The Planner merges planning branches here after Gate 2 (S-000: after Gate 1, see the git conventions). Architects commit ADRs raised outside planning here.
-- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, and ADRs raised by its consistency review, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then.
+- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then.
 - `task/T-NNN-short-description` — implementation branch for a single task, deleted after successful integration.
 - `bug/B-NNN-short-description` — implementation branch for a single bug, created by the bug-fix loop from `dev-agent` or the bug report's `source_branch`, deleted after successful integration.
 
@@ -348,7 +368,7 @@ Five gates control the workflow (see `ai-process/processes/quality_gates.md` for
 
 | Gate | Checkpoint | Evaluator | Phase boundary |
 |------|-----------|-----------|----------------|
-| 1 | Spec Approval | Product Owner | Brainstorm → Task Breakdown (skipped for change-request intake) |
+| 1 | Spec Approval | Product Owner | Brainstorm → Feature Architecture (skipped for change-request intake) |
 | 2 | Task Plan Preflight | Architect | Task Breakdown → Development Loop (applies to both spec and change-request derived tasks) |
 | 3 | Code Review | Reviewer | Implementation → Integration (per-task, inside the development loop) |
 | 4 | Integration Tests | Integration procedure | Review → Completed (per-task, inside the development loop) |

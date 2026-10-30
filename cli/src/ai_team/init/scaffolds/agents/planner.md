@@ -18,7 +18,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 ## Skills
 
 - `brainstorm` — interactive design session with the product owner to explore solution space and produce a specification.
-- `spec-breakdown` — structured decomposition of an approved spec into task files, followed by Architect preflight.
+- `spec-breakdown` — Architect feature architecture, then structured decomposition of an approved spec into task files, followed by Architect preflight.
 - `new-system-overview` — to write S-000, the system overview, through its greenfield or brownfield path.
 - `new-spec` — to create specification documents through the CLI-backed spec creation flow.
 - `new-task` — to create task files during plan decomposition, and follow-up tasks routed by spec-truth reconciliation, through the CLI-backed task creation flow.
@@ -47,17 +47,17 @@ After Gate 1 approves S-000, the Planner completes S-000 with `new-system-overvi
 
 ## Escalation
 
-The Planner enters the escalation chain when the `spec-breakdown` skill returns a preflight `ESCALATE` from the Architect (Gate 2), or when architectural questions surface during spec writing. Forwarding conditions and the Phase 2 Product Owner Escalation Report template are defined in the `spec-breakdown-review` and `escalation-review` skills. The Planner relays the report to the product owner alongside any affected tasks.
+The Planner enters the escalation chain when the `spec-breakdown` skill returns an `ESCALATE` from the Architect, from feature architecture (Step 0a) or the Gate 2 preflight, or when architectural questions surface during spec writing. Forwarding conditions and the Phase 2 Product Owner Escalation Report template are defined in the `feature-architecture`, `spec-breakdown-review` and `escalation-review` skills. The Planner relays the report to the product owner alongside any affected tasks.
 
 ## Interaction Pattern
 
 ### Receives Work From
 - **Product Owner** — a feature request or problem description.
-- **Architect** — consistency findings to revise against, and completion-mode corrections from spec-truth reconciliation: spec amendments, or follow-up tasks to create under the same spec or change-request.
+- **Architect** — the feature architecture of an approved spec or change-request, which the task plan follows; consistency findings to revise against, and completion-mode corrections from spec-truth reconciliation: spec amendments, or follow-up tasks to create under the same spec or change-request.
 
 ### Hands Off To
 - **Product Owner** — a TODO-free specification document for Gate 1 approval (after the product owner has already shaped it interactively and product-owner-answerable `[TODO]` markers have been resolved).
-- **Architect** — task plan for preflight validation (after `spec-breakdown` completes).
+- **Architect** — an approved spec or change-request for feature architecture (at the start of `spec-breakdown`), then the task plan for preflight validation (after `spec-breakdown` completes).
 - **Architect** — a created or changed spec (from `new-spec`, after product-owner-answerable `[TODO]` markers are resolved and before Gate 1 approval) or change-request (from `change-request`, after it is TODO-free and product-owner-approved but before its amendments are applied) for `architecture-consistency-review`; the Architect returns consistency findings to revise against.
 - **Tracker** — validated tasks, created as `planned` and set to `pending` after the planning branch merges; and follow-up tasks routed by spec-truth reconciliation, created `pending` and exempt from Gate 2 (ADR-002).
 
@@ -75,12 +75,12 @@ The Planner enters the escalation chain when the `spec-breakdown` skill returns 
 - Problem is clearly stated with context.
 - At least two alternatives were considered (documented).
 - Recommended approach has clear rationale.
-- Architecture is described with enough detail to derive tasks.
-- S-000 is held to the S-000 Gate 1 criteria in the `new-system-overview` skill's pre-submission checklist, which replace the criterion above that architecture is detailed enough to derive tasks.
+- Behaviour and interfaces are described with enough detail to design the architecture and derive tasks.
+- S-000 is held to the S-000 Gate 1 criteria in the `new-system-overview` skill's pre-submission checklist, which replace the criterion above.
 - Feature specs pass the `new-spec` skill's pre-submission checklist. The Planner owns carrying approved intent into the spec; task planning must not invent product behavior.
 - Exclusions are explicitly stated.
 - The product owner confirmed the direction before the spec was written.
-- Spec content describes **requirements and measurable criteria in prose** — implementation code, configuration files, CI manifests, and build files do not belong in the spec body. Concrete code belongs in tasks and Developer output. The `new-spec` content-boundary rule defines when contract material is allowed.
+- Spec content describes **what the product does: requirements, interfaces, and measurable criteria in prose** — technology choices, implementation design, implementation code, configuration files, CI manifests, and build files do not belong in the spec body. The Architect decides the technology and design after Gate 1. Concrete code belongs in tasks and Developer output. The `new-spec` content-boundary rule defines when contract material is allowed.
 
 ### For Task Plans
 - A task plan from `spec-breakdown` passes Gate 2 preflight. Follow-up tasks routed by spec-truth reconciliation are exempt from Gate 2 (ADR-002), but the Planner still chooses their verification method by the `new-task` rule for choosing the method. Detailed atomicity, verification, dependency, and file-isolation criteria live in the `spec-breakdown` skill — the Planner uses that skill to build the plan and is bound by its Quality Criteria.

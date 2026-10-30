@@ -66,7 +66,7 @@ For each binding artifact, decide whether the changed artifact contradicts it â€
 
 For a feature spec, also assess its own requirement completeness, consistent terminology, feasibility, mutually compatible constraints, assumptions, and acceptance coverage; a lack of conflicts with other documents alone does not establish readiness.
 Check that unresolved behavioral or feasibility questions have been resolved, and that public contract references are precise.
-Use the new-spec authoring contract for feature specifications; S-000 follows its system-overview contract.
+Use the new-spec authoring contract for feature specifications, including its content-boundary rule: a spec that makes a technology choice or records implementation design is a readiness gap, routed to the Planner like any other. S-000 follows its system-overview contract.
 
 ### Step 3b: Check Against S-000
 
