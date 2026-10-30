@@ -77,7 +77,12 @@ def test_system_overview_template_has_the_s000_sections_in_order() -> None:
 
 @pytest.mark.parametrize(
     "heading",
-    ["Architecture", "Workflow", "Configuration Requirements", "Implementation Order"],
+    [
+        "Alternatives Considered",
+        "Workflow",
+        "Configuration Requirements",
+        "Implementation Order",
+    ],
 )
 def test_system_overview_template_omits_feature_spec_heading(heading: str) -> None:
     assert heading not in _headings(load_template("system-overview"), "## ")
@@ -100,11 +105,12 @@ def test_system_overview_template_shows_one_component_example_with_all_fields() 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_spec_template_keeps_design_principles_and_interfaces_headings() -> None:
-    content = load_template("spec")
+def test_spec_template_has_alternatives_and_interfaces_but_no_architecture() -> None:
+    headings = _headings(load_template("spec"), "## ")
 
-    assert "Design Principles" in _headings(content, "### ")
-    assert "Interfaces" in _headings(content, "## ")
+    assert "Alternatives Considered" in headings
+    assert "Interfaces" in headings
+    assert "Architecture" not in headings
 
 
 DELIVERED_TREES = (
