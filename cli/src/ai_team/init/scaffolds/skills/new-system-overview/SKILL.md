@@ -40,7 +40,9 @@ Everything the project needs to build, check, document and deliver the solution;
 
 ## Input Requirements
 
-- `project name` — optional; use `$ARGUMENTS` when it is the only input, otherwise ask the product owner.
+Argument: `$ARGUMENTS`
+
+- `project name` — optional; use the argument when it is the only input, otherwise ask the product owner.
 - Whether the project already has specs, ADRs, docs, or code. If it does, follow **Brownfield adoption** (below) for step 4.
 
 ## Procedure
