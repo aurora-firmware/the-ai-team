@@ -275,3 +275,116 @@ def test_list_spec_filter_matches_every_form_of_a_spec_reference(initialized_rep
             ).stdout
         )
         assert [row["id"] for row in rows] == ["T-001", "T-002", "T-003"], query
+
+
+def test_list_plan_filter_includes_a_task_whose_source_spec_is_another_spec(
+    initialized_repo,
+):
+    _invoke(
+        "task",
+        "new",
+        "Own",
+        "--status",
+        "planned",
+        "--spec",
+        "S-003",
+        "--plan",
+        "S-003",
+    )
+    _invoke(
+        "task",
+        "new",
+        "Amendment",
+        "--status",
+        "planned",
+        "--spec",
+        "S-002",
+        "--plan",
+        "S-003",
+    )
+    _invoke(
+        "task",
+        "new",
+        "Other plan",
+        "--status",
+        "planned",
+        "--spec",
+        "S-002",
+        "--plan",
+        "S-004",
+    )
+
+    plan_rows = json.loads(
+        _invoke(
+            "list", "tasks", "--state", "planned", "--plan", "S-003", "--json"
+        ).stdout
+    )
+    spec_rows = json.loads(
+        _invoke(
+            "list", "tasks", "--state", "planned", "--spec", "S-002", "--json"
+        ).stdout
+    )
+
+    assert [row["id"] for row in plan_rows] == ["T-001", "T-002"]
+    assert [row["id"] for row in spec_rows] == ["T-002", "T-003"]
+
+
+def test_validate_flags_a_task_plan_that_resolves_to_no_spec_or_change_request(
+    initialized_repo,
+):
+    _invoke("change-request", "new", "Tweak")
+    _invoke("task", "new", "From CR", "--status", "planned", "--plan", "CR-001")
+    assert json.loads(_invoke("validate", "--tasks", "--json").stdout) == []
+
+    _invoke("task", "new", "Dangling", "--plan", "CR-009")
+
+    codes = [f["code"] for f in json.loads(_invoke("validate", "--json").stdout)]
+    assert codes == ["task-plan-missing"]
+
+
+def test_list_plan_filter_matches_every_form_of_a_plan_reference_and_combines_with_spec(
+    initialized_repo,
+):
+    specs = initialized_repo / "ai-team" / "specs"
+    specs.mkdir(parents=True, exist_ok=True)
+    (specs / "S-003-billing.md").write_text(
+        "---\ntitle: Billing\nversion: '0.1'\nstatus: approved\n"
+        "created: '2026-10-16'\nauthor: planner\nid: S-003\n---\n\n# Billing\n",
+        encoding="utf-8",
+    )
+    for title, spec, plan in (
+        ("Amendment", "S-002", "S-003"),
+        ("Own", "S-003", "S-003"),
+        ("Other plan", "S-002", "S-004"),
+    ):
+        _invoke(
+            "task", "new", title, "--status", "planned", "--spec", spec, "--plan", plan
+        )
+
+    by_plan_filename = json.loads(
+        _invoke(
+            "list",
+            "tasks",
+            "--state",
+            "planned",
+            "--plan",
+            "S-003-billing.md",
+            "--json",
+        ).stdout
+    )
+    by_plan_and_spec = json.loads(
+        _invoke(
+            "list",
+            "tasks",
+            "--state",
+            "planned",
+            "--plan",
+            "S-003",
+            "--spec",
+            "S-002",
+            "--json",
+        ).stdout
+    )
+
+    assert [row["id"] for row in by_plan_filename] == ["T-001", "T-002"]
+    assert [row["id"] for row in by_plan_and_spec] == ["T-001"]

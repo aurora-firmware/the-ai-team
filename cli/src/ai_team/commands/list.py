@@ -68,11 +68,15 @@ def tasks(
     spec: str | None = typer.Option(
         None, "--spec", help="Filter by source spec or change-request ID."
     ),
+    plan: str | None = typer.Option(
+        None, "--plan", help="Filter by the plan (spec or change-request ID)."
+    ),
     as_json: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:
     """List tasks from the tracker."""
     root = project_root()
     aliases = None if spec is None else spec_reference_aliases(root, spec)
+    plan_aliases = None if plan is None else spec_reference_aliases(root, plan)
     rows = [
         row
         for row in _collect_by_status(
@@ -86,12 +90,15 @@ def tasks(
                 "priority": task.priority,
                 "assigned-role": task.assigned_role,
                 "spec": task.spec or "",
+                "plan": task.plan or "",
             },
         )
-        if aliases is None or row["spec"] in aliases
+        if (aliases is None or row["spec"] in aliases)
+        and (plan_aliases is None or row["plan"] in plan_aliases)
     ]
     for row in rows:
         del row["spec"]
+        del row["plan"]
     if as_json:
         print_json(rows)
         return

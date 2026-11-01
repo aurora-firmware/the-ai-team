@@ -353,7 +353,7 @@ advisory hint to stderr: "this project has no system overview (S-000)". The
 hint is always on, never changes stdout or exit codes, and disappears once
 S-000 exists.
 
-`ai-team task new --spec S-000` creates the project bootstrap tasks, the
+`ai-team task new --spec S-000 --plan S-000` creates the project bootstrap tasks, the
 tasks that set a new project up from its system overview.
 `validate` does not report them, because their source spec is the system
 overview.

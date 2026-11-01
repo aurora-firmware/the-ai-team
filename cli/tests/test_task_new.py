@@ -180,6 +180,7 @@ def test_task_new_allocates_distinct_ids_for_two_concurrent_callers(
                 priority="medium",
                 assigned_role="unassigned",
                 spec=None,
+                plan=None,
                 status="pending",
                 as_json=False,
             )

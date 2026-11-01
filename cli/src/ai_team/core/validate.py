@@ -290,21 +290,22 @@ def validate_project(
             )
             _check_stateful_filename(findings, root, path, task.id)
             _check_status(findings, root, path, "Task", task.status, TASK_STATUSES)
-            if task.spec and not (
-                _spec_reference_exists(task.spec, spec_slugs)
-                or task.spec in change_request_ids
-            ):
-                findings.append(
-                    _finding(
-                        path,
-                        root,
-                        "task-spec-missing",
-                        (
-                            f"Task spec reference '{task.spec}' does not "
-                            "resolve to an existing spec or change-request."
-                        ),
+            for field_name, reference in (("spec", task.spec), ("plan", task.plan)):
+                if reference and not (
+                    _spec_reference_exists(reference, spec_slugs)
+                    or reference in change_request_ids
+                ):
+                    findings.append(
+                        _finding(
+                            path,
+                            root,
+                            f"task-{field_name}-missing",
+                            (
+                                f"Task {field_name} reference '{reference}' does "
+                                "not resolve to an existing spec or change-request."
+                            ),
+                        )
                     )
-                )
 
     if bugs:
         for path in iter_items(root.bugs):

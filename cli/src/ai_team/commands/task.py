@@ -84,6 +84,11 @@ def new_task(
     spec: str | None = typer.Option(
         None, "--spec", help="Source spec or change-request ID."
     ),
+    plan: str | None = typer.Option(
+        None,
+        "--plan",
+        help="Spec or change-request ID of the plan that introduces the task.",
+    ),
     status: NewTaskStatus = typer.Option(
         "pending",
         "--status",
@@ -110,6 +115,7 @@ def new_task(
             assigned_role=assigned_role,
             created=date.today().isoformat(),
             spec=spec,
+            plan=plan,
         )
         return dest, model, body
 

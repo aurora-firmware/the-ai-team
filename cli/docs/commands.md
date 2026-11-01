@@ -303,6 +303,7 @@ $ ai-team list tasks [OPTIONS]
 
 * `--state TEXT`: Filter by task status.
 * `--spec TEXT`: Filter by source spec or change-request ID.
+* `--plan TEXT`: Filter by the plan (spec or change-request ID).
 * `--json`: Emit JSON output.
 * `--help`: Show this message and exit.
 
@@ -501,6 +502,7 @@ $ ai-team task new [OPTIONS] TITLE
 * `--priority [critical|high|medium|low]`: [default: medium]
 * `--assigned-role TEXT`: [default: unassigned]
 * `--spec TEXT`: Source spec or change-request ID.
+* `--plan TEXT`: Spec or change-request ID of the plan that introduces the task.
 * `--status [planned|pending]`: &#x27;planned&#x27; keeps the task out of /dev-loop until its plan merges.  [default: pending]
 * `--json`: Emit JSON output.
 * `--help`: Show this message and exit.
