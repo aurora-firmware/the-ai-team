@@ -74,6 +74,14 @@ Body.
 """
 
 
+def _fields_of(rows: list[dict], *keys: str) -> list[dict]:
+    """Return *rows* reduced to *keys*, after checking each row carries an absolute path."""
+    for row in rows:
+        assert Path(row["path"]).is_absolute()
+        assert "state" not in row
+    return [{key: row[key] for key in keys} for row in rows]
+
+
 def _write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
@@ -159,7 +167,7 @@ def test_list_tasks_displays_all_states_in_rich_table_and_skips_templates(
     assert result.exit_code == 0
     assert "ID" in result.stdout
     assert "Title" in result.stdout
-    assert "State" in result.stdout
+    assert "Status" in result.stdout
     assert "Priority" in result.stdout
     assert "Assigned-Role" in result.stdout
     assert "T-001" in result.stdout
@@ -206,11 +214,11 @@ def test_list_tasks_json_outputs_plain_list_without_rich_table(monkeypatch, tmp_
 
     assert result.exit_code == 0
     parsed = json.loads(result.stdout)
-    assert parsed == [
+    assert _fields_of(parsed, "id", "title", "status", "priority", "assigned-role") == [
         {
             "id": "T-001",
             "title": "Pending task",
-            "state": "pending",
+            "status": "pending",
             "priority": "high",
             "assigned-role": "developer",
         }
@@ -243,7 +251,7 @@ def test_list_bugs_renders_table_and_json_and_skips_templates(monkeypatch, tmp_p
     assert table_result.exit_code == 0
     assert "ID" in table_result.stdout
     assert "Title" in table_result.stdout
-    assert "State" in table_result.stdout
+    assert "Status" in table_result.stdout
     assert "Severity" in table_result.stdout
     assert "B-001" in table_result.stdout
     assert "B-002" in table_result.stdout
@@ -252,17 +260,17 @@ def test_list_bugs_renders_table_and_json_and_skips_templates(monkeypatch, tmp_p
     json_result = CliRunner().invoke(app, ["list", "bugs", "--json"])
     assert json_result.exit_code == 0
     parsed = json.loads(json_result.stdout)
-    assert parsed == [
+    assert _fields_of(parsed, "id", "title", "status", "severity") == [
         {
             "id": "B-001",
             "title": "Open bug",
-            "state": "open",
+            "status": "open",
             "severity": "high",
         },
         {
             "id": "B-002",
             "title": "In-progress bug",
-            "state": "in-progress",
+            "status": "in-progress",
             "severity": "low",
         },
     ]
@@ -304,7 +312,9 @@ def test_list_specs_and_adrs_include_expected_columns_and_fields(monkeypatch, tm
 
     specs_json = CliRunner().invoke(app, ["list", "specs", "--json"])
     assert specs_json.exit_code == 0
-    assert json.loads(specs_json.stdout) == [
+    assert _fields_of(
+        json.loads(specs_json.stdout), "id", "title", "status", "version"
+    ) == [
         {
             "id": "S-001",
             "title": "CLI Spec",
@@ -323,7 +333,7 @@ def test_list_specs_and_adrs_include_expected_columns_and_fields(monkeypatch, tm
 
     adrs_json = CliRunner().invoke(app, ["list", "adrs", "--json"])
     assert adrs_json.exit_code == 0
-    assert json.loads(adrs_json.stdout) == [
+    assert _fields_of(json.loads(adrs_json.stdout), "id", "title", "status") == [
         {
             "id": "ADR-001",
             "title": "Use Rich tables",
@@ -335,7 +345,7 @@ def test_list_specs_and_adrs_include_expected_columns_and_fields(monkeypatch, tm
 def test_list_change_requests_displays_id_title_state_in_rich_table(
     monkeypatch, tmp_path
 ):
-    """`list change-requests` shows ID, Title, and State columns in a table."""
+    """`list change-requests` shows ID, Title, and Status columns in a table."""
     from ai_team.cli import app
 
     _write(
@@ -369,7 +379,7 @@ def test_list_change_requests_displays_id_title_state_in_rich_table(
     assert result.exit_code == 0
     assert "ID" in result.stdout
     assert "Title" in result.stdout
-    assert "State" in result.stdout
+    assert "Status" in result.stdout
     assert "CR-001" in result.stdout
     assert "Add new step" in result.stdout
     assert "CR-002" in result.stdout
@@ -396,11 +406,11 @@ def test_list_change_requests_json_outputs_machine_readable_rows(monkeypatch, tm
 
     assert result.exit_code == 0
     parsed = json.loads(result.stdout)
-    assert parsed == [
+    assert _fields_of(parsed, "id", "title", "status") == [
         {
             "id": "CR-001",
             "title": "Add new step",
-            "state": "pending",
+            "status": "pending",
         }
     ]
     assert "Change Requests" not in result.stdout
@@ -441,7 +451,7 @@ def test_list_specs_reports_frontmatter_id_not_filename_stem_for_prefixed_filena
 
     assert result.exit_code == 0
     parsed = json.loads(result.stdout)
-    assert parsed == [
+    assert _fields_of(parsed, "id", "title", "status", "version") == [
         {
             "id": "S-007",
             "title": "My Spec",

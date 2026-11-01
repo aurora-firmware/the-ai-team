@@ -13,7 +13,7 @@ effort: high
 - **Code changes** — the review package the loop wrote (`git log`, `git diff --stat`, and `git diff -U10` for `BASE..HEAD`, plus `git diff -U10` for `LAST..HEAD` on a re-review, where `LAST` is the head of the previous review), or a range to diff yourself. Review the whole `BASE..HEAD` range on a first review. Never review `HEAD~1` alone: a multi-commit branch silently loses its earlier commits.
 - **Test results** — the test evidence in the Developer's Work Log (command and output). Do not re-run tests the Work Log already shows passing; run a command only to check something the Work Log does not cover.
 
-The task or bug file lives in the local tracker, outside version control; `ai-team show <id> --json` reports its path.
+The task or bug file lives in the local tracker, outside version control; the `path` of `ai-team show <id> --json` is its location.
 Review verdicts are written there, never committed, and never placed on the implementation branch.
 The two-stage checklist below is the canonical quality bar for all code reviews.
 

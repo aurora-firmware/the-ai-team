@@ -23,7 +23,7 @@ Bugs live in the local tracker, outside version control. Their lifecycle state i
 The orchestrator reads and changes bug state only through the `ai-team` CLI:
 - `ai-team list bugs --state open` — work queue
 - `ai-team list bugs --state in-progress` — active bug slot
-- `ai-team show <bug-id> --json` — the bug file's `path` and current frontmatter
+- `ai-team show <bug-id> --json` — the bug file's `path` and its frontmatter fields (`id`, `status`, `severity`, ...), all at the top level
 - `ai-team bug start|resolve <bug-id>` — lifecycle transitions
 
 Because the bug file is outside every branch, every role reads it from the same path, including on task-regression bug branches based on a preserved task branch.

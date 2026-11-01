@@ -69,7 +69,9 @@ def test_spec_new_supports_custom_flags_and_json_output(monkeypatch, tmp_path):
     payload = json.loads(result.stdout)
 
     assert result.exit_code == 0
-    assert payload == {"id": "S-001", "path": str(expected)}
+    assert payload["id"] == "S-001"
+    assert payload["status"] == "review"
+    assert payload["path"] == str(expected)
     assert "┏" not in result.stdout
 
     spec = parse_spec(expected)
@@ -169,7 +171,8 @@ author: planner
     payload = json.loads(result.stdout)
 
     assert result.exit_code == 0
-    assert payload == {"id": "S-003", "path": str(expected)}
+    assert payload["id"] == "S-003"
+    assert payload["path"] == str(expected)
     assert "id: S-003" in expected.read_text(encoding="utf-8")
 
 
@@ -273,7 +276,7 @@ def test_spec_new_overview_creates_s_000_from_system_overview_template(
     assert "system overview spec (S-000)" in content
 
 
-def test_spec_new_overview_json_emits_id_and_path(monkeypatch, tmp_path):
+def test_spec_new_overview_json_emits_the_spec_object(monkeypatch, tmp_path):
     from ai_team.cli import app
 
     specs = _specs_dir(tmp_path)
@@ -281,10 +284,10 @@ def test_spec_new_overview_json_emits_id_and_path(monkeypatch, tmp_path):
     result = CliRunner().invoke(app, ["spec", "new", "--overview", "--json"])
 
     assert result.exit_code == 0
-    assert json.loads(result.stdout) == {
-        "id": "S-000",
-        "path": str(specs / "S-000-system-overview.md"),
-    }
+    payload = json.loads(result.stdout)
+    assert payload["id"] == "S-000"
+    assert payload["status"] == "draft"
+    assert payload["path"] == str(specs / "S-000-system-overview.md")
 
 
 def test_spec_new_overview_defaults_title_to_system_overview(monkeypatch, tmp_path):

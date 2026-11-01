@@ -197,7 +197,7 @@ Reached only when both Step 4 and Step 6 tests pass, or when Step 2 found no com
    Then restore any changes parked in Step 1, following git-conventions › Restoring Parked Changes: on the branch where they were parked, or on the destination branch when they were parked on the source branch this step deleted.
 
 5. **Report success**:
-   - The task status is `completed`: `ai-team show <task-id> --json` reports it. If it does not, stop and report that the lifecycle update did not land.
+   - The task status is `completed`: the top-level `status` of `ai-team show <task-id> --json` reports it. If it does not, stop and report that the lifecycle update did not land.
    - Source branch merged and deleted.
    - Work item ID and title when available.
    - Test counts: N passed before merge, N passed after merge.

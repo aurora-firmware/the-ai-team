@@ -13,7 +13,12 @@ from typing import Literal
 import typer
 from slugify import slugify
 
-from ai_team.commands._shared import hint_missing_overview, project_root, template_body
+from ai_team.commands._shared import (
+    artifact_object_from_file,
+    hint_missing_overview,
+    project_root,
+    template_body,
+)
 from ai_team.core.fs import ArtifactExists, read_artifact, update_status
 from ai_team.core.ids import next_change_request_id
 from ai_team.core.lock import LockTimeout, create_artifact_with_lock
@@ -64,7 +69,7 @@ def new_change_request(
 
     absolute_path = str(dest.resolve())
     if as_json:
-        print_json({"id": cr_id, "path": absolute_path})
+        print_json(artifact_object_from_file(dest, "change-request"))
         return
 
     typer.echo(absolute_path)

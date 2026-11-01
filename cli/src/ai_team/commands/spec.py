@@ -11,7 +11,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 from slugify import slugify
 
-from ai_team.commands._shared import hint_missing_overview
+from ai_team.commands._shared import artifact_object_from_file, hint_missing_overview
 from ai_team.core.fs import ArtifactExists
 from ai_team.core.ids import OVERVIEW_ID, next_spec_id, overview_exists
 from ai_team.core.locator import find_project_root
@@ -119,7 +119,7 @@ def new_spec(
 
     absolute_path = str(dest.resolve())
     if as_json:
-        print_json({"id": spec_id, "path": absolute_path})
+        print_json(artifact_object_from_file(dest, "spec"))
         return
 
     typer.echo(absolute_path)

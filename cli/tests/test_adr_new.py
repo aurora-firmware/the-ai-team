@@ -65,7 +65,9 @@ def test_adr_new_supports_custom_flags_and_json_output(monkeypatch, tmp_path):
     payload = json.loads(result.stdout)
 
     assert result.exit_code == 0
-    assert payload == {"id": "ADR-001", "path": str(expected)}
+    assert payload["id"] == "ADR-001"
+    assert payload["supersedes"] == "ADR-010"
+    assert payload["path"] == str(expected)
     assert "┏" not in result.stdout
 
     adr = parse_adr(expected)

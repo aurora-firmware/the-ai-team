@@ -1,6 +1,6 @@
 ---
 title: System Overview Spec (S-000)
-version: '0.4'
+version: '0.5'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-19'
 author: planner
@@ -84,8 +84,9 @@ the S-000 component it covers.
 **Exposed — `ai-team spec new --overview` (REQ-001).** Creates
 `<specs>/S-000-<slug>.md` from the system-overview template, with the usual spec
 frontmatter and ID `S-000`. The title argument is optional and defaults to
-`System Overview`. With `--json` it prints the `id` and `path`. It refuses, exiting
-non-zero, when an S-000 already exists in the specs folder or its archive.
+`System Overview`. With `--json` it prints the spec's JSON object (S-006 REQ-017). It
+refuses, exiting non-zero, when an S-000 already exists in the specs folder or its
+archive.
 
 **Exposed — the S-000 template (REQ-005).** **Contract:** the seven top-level sections
 in this order: Purpose, Users, Pain points, Use cases, Solution overview, Components,
@@ -142,11 +143,12 @@ specs folder or its archive.
 - **Given:** a project with no S-000
 - **When:** `ai-team spec new --overview --json` runs
 - **Then:** `S-000-system-overview.md` is created from the system-overview template
-  with title `System Overview`, and the JSON holds its `id` and `path`
+  with title `System Overview`, and the JSON is the spec's object (S-006 REQ-017),
+  with `id` `S-000`, its `status` and its absolute `path`
 
 **Verification:** Tests:
 `test_spec_new_overview_creates_s_000_from_system_overview_template`,
-`test_spec_new_overview_json_emits_id_and_path` and
+`test_spec_new_overview_json_emits_the_spec_object` and
 `test_spec_new_overview_defaults_title_to_system_overview` in
 `cli/tests/test_spec_new.py`.
 
@@ -356,3 +358,4 @@ None.
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
 | 2026-10-30 | Exclusions: the answers to S-000's technology questions belong in the project's architecture documents and ADRs, no longer in "later specs". No change to S-000's own scope. Driven by issue #64. | Specs describe what the product does; the architecture documents and ADRs describe how it is built, and no spec makes a technology choice. | None |
+| 2026-11-01 | Interfaces: `spec new --overview --json` prints the spec's JSON object, deferring to S-006 REQ-017, instead of only the `id` and `path`; AC-001.1's "Then" names that object (`id` `S-000`, `status`, absolute `path`) and its test is renamed `test_spec_new_overview_json_emits_the_spec_object`. Version bumped to 0.5. Driven by B-040 (product owner decision, 2026-11-01) and its Architecture Consistency Review finding C1. | S-006 REQ-017 gives every `new`, `list` and `show` command one flat JSON object; S-007 still described the old `id`-and-`path` output. | B-040 implements it |

@@ -79,7 +79,8 @@ def test_task_new_supports_custom_flags_and_json_output(monkeypatch, tmp_path):
     payload = json.loads(result.stdout)
 
     assert result.exit_code == 0
-    assert payload == {"id": "T-001", "path": str(expected)}
+    assert payload["id"] == "T-001"
+    assert payload["path"] == str(expected)
     assert "┏" not in result.stdout
 
     task = parse_task(expected)

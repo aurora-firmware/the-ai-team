@@ -15,6 +15,7 @@ from slugify import slugify
 
 from ai_team.commands._shared import (
     append_work_log_entry,
+    artifact_object_from_file,
     hint_missing_overview,
     project_root,
     template_body,
@@ -131,7 +132,7 @@ def new_task(
 
     absolute_path = str(dest.resolve())
     if as_json:
-        print_json({"id": task_id, "path": absolute_path})
+        print_json(artifact_object_from_file(dest, "task"))
         return
 
     typer.echo(absolute_path)

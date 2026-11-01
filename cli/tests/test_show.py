@@ -107,7 +107,7 @@ def test_show_exact_id_single_match_prints_markdown(monkeypatch, tmp_path):
     assert "Task body line." in result.stdout
 
 
-def test_show_json_outputs_path_frontmatter_and_body(monkeypatch, tmp_path):
+def test_show_json_returns_flat_fields_path_and_body(monkeypatch, tmp_path):
     """`--json` emits one JSON object and no Rich output."""
     import json
 
@@ -123,14 +123,12 @@ def test_show_json_outputs_path_frontmatter_and_body(monkeypatch, tmp_path):
     payload = json.loads(result.stdout)
     assert payload == {
         "path": str(task_path),
-        "frontmatter": {
-            "id": "T-002",
-            "title": "JSON case",
-            "status": "pending",
-            "priority": "medium",
-            "assigned-role": "developer",
-            "created": "2026-05-10",
-        },
+        "id": "T-002",
+        "title": "JSON case",
+        "status": "pending",
+        "priority": "medium",
+        "assigned-role": "developer",
+        "created": "2026-05-10",
         "body": "# JSON case\n\nBody for json.\n",
     }
 

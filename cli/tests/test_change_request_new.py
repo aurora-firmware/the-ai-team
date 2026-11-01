@@ -82,10 +82,10 @@ def test_change_request_new_writes_metadata_into_frontmatter(monkeypatch, tmp_pa
     assert cr.created == date.today().isoformat()
 
 
-def test_change_request_new_json_flag_emits_id_and_path_without_table(
+def test_change_request_new_json_flag_emits_the_change_request_object_without_table(
     monkeypatch, tmp_path
 ):
-    """`change-request new --json` emits id/path without table formatting."""
+    """`change-request new --json` emits the change-request object without table formatting."""
     from ai_team.cli import app
 
     _mkdir(tmp_path / ".ai-team" / "tracker" / "change-requests")
@@ -105,7 +105,9 @@ def test_change_request_new_json_flag_emits_id_and_path_without_table(
 
     assert result.exit_code == 0, result.output
     payload = json.loads(result.stdout)
-    assert payload == {"id": "CR-001", "path": str(expected)}
+    assert payload["id"] == "CR-001"
+    assert payload["status"] == "pending"
+    assert payload["path"] == str(expected)
     assert "┏" not in result.stdout
 
 
