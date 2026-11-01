@@ -275,3 +275,68 @@ def test_list_spec_filter_matches_every_form_of_a_spec_reference(initialized_rep
             ).stdout
         )
         assert [row["id"] for row in rows] == ["T-001", "T-002", "T-003"], query
+
+
+def test_list_plan_filter_includes_a_task_whose_source_spec_is_another_spec(
+    initialized_repo,
+):
+    _invoke(
+        "task",
+        "new",
+        "Own",
+        "--status",
+        "planned",
+        "--spec",
+        "S-003",
+        "--plan",
+        "S-003",
+    )
+    _invoke(
+        "task",
+        "new",
+        "Amendment",
+        "--status",
+        "planned",
+        "--spec",
+        "S-002",
+        "--plan",
+        "S-003",
+    )
+    _invoke(
+        "task",
+        "new",
+        "Other plan",
+        "--status",
+        "planned",
+        "--spec",
+        "S-002",
+        "--plan",
+        "S-004",
+    )
+
+    plan_rows = json.loads(
+        _invoke(
+            "list", "tasks", "--state", "planned", "--plan", "S-003", "--json"
+        ).stdout
+    )
+    spec_rows = json.loads(
+        _invoke(
+            "list", "tasks", "--state", "planned", "--spec", "S-002", "--json"
+        ).stdout
+    )
+
+    assert [row["id"] for row in plan_rows] == ["T-001", "T-002"]
+    assert [row["id"] for row in spec_rows] == ["T-002", "T-003"]
+
+
+def test_validate_flags_a_task_plan_that_resolves_to_no_spec_or_change_request(
+    initialized_repo,
+):
+    _invoke("change-request", "new", "Tweak")
+    _invoke("task", "new", "From CR", "--status", "planned", "--plan", "CR-001")
+    assert json.loads(_invoke("validate", "--tasks", "--json").stdout) == []
+
+    _invoke("task", "new", "Dangling", "--plan", "CR-009")
+
+    codes = [f["code"] for f in json.loads(_invoke("validate", "--json").stdout)]
+    assert codes == ["task-plan-missing"]

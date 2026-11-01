@@ -115,6 +115,7 @@ class Task:
     assigned_role: str  # YAML key: assigned-role
     created: str
     spec: str | None = None  # Optional reference to a spec slug
+    plan: str | None = None  # Optional spec or change-request whose plan introduced it
     # Holds the original CommentedMap from parsing so comments survive dump.
     # Excluded from equality and repr so it does not affect model comparisons.
     _source_map: CommentedMap | None = field(default=None, compare=False, repr=False)
@@ -210,6 +211,7 @@ def parse_task(path: Path) -> Task:
         assigned_role=str(_require(data, "assigned-role", path)),
         created=str(_require(data, "created", path)),
         spec=str(data["spec"]) if data.get("spec") is not None else None,
+        plan=str(data["plan"]) if data.get("plan") is not None else None,
         _source_map=data,
     )
 
@@ -319,6 +321,7 @@ _TASK_FIELDS: list[tuple[str, str]] = [
     ("assigned-role", "assigned_role"),
     ("created", "created"),
     ("spec", "spec"),  # optional — omitted when None
+    ("plan", "plan"),  # optional — omitted when None
 ]
 
 _BUG_FIELDS: list[tuple[str, str]] = [
