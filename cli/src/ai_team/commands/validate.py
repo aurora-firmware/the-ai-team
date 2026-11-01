@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import typer
+from rich.console import Console
 from rich.measure import Measurement
 from rich.table import Table
 
@@ -52,7 +53,7 @@ def _render_findings_table(findings: list[dict[str, str]]) -> None:
     natural_width = Measurement.get(
         console, console.options.update(max_width=UNLIMITED_WIDTH), table
     ).maximum
-    console.print(table, width=natural_width, crop=False)
+    Console(file=console.file, width=natural_width).print(table)
 
 
 @app.callback()
