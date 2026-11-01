@@ -70,18 +70,6 @@ def _setup_fake_repo(tmp_path: Path) -> Path:
         / ".gitignore",
         ".ai-team.lock\n",
     )
-    _write(
-        repo
-        / "cli"
-        / "src"
-        / "ai_team"
-        / "init"
-        / "sources"
-        / "project"
-        / "docs"
-        / "coding_guidelines.md",
-        "# Coding Guidelines\n\nFilled in by the project bootstrap.\n",
-    )
 
     # Seed stale generated output that should be removed.
     _write(
@@ -187,7 +175,6 @@ def test_sync_script_replaces_project_with_empty_lifecycle_skeleton(
         Path("specs/.gitkeep"),
         Path("decisions/.gitkeep"),
         Path("docs/.gitkeep"),
-        Path("docs/coding_guidelines.md"),
         Path("AGENTS.md"),
         Path(".gitignore"),
     }
@@ -221,29 +208,6 @@ def test_sync_script_copies_project_guidance_files_from_source(
     assert scaffold_text == source_text, (
         "scaffolds/project/AGENTS.md does not match sources/project/AGENTS.md"
     )
-
-
-def test_sync_script_copies_coding_guidelines_placeholder_into_project_docs(
-    tmp_path: Path,
-) -> None:
-    """AC-1: the skeleton's docs/coding_guidelines.md is generated from its source."""
-    repo = _setup_fake_repo(tmp_path)
-
-    subprocess.run(
-        [sys.executable, "cli/scripts/sync_init_scaffolds.py"],
-        cwd=repo,
-        check=True,
-    )
-
-    init_root = repo / "cli" / "src" / "ai_team" / "init"
-    source_text = (
-        init_root / "sources" / "project" / "docs" / "coding_guidelines.md"
-    ).read_text(encoding="utf-8")
-    scaffold_text = (
-        init_root / "scaffolds" / "project" / "docs" / "coding_guidelines.md"
-    ).read_text(encoding="utf-8")
-
-    assert scaffold_text == source_text
 
 
 def test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel(

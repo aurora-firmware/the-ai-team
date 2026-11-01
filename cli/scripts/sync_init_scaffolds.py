@@ -58,13 +58,6 @@ def _replace_project_skeleton(destination: Path, source: Path) -> None:
             )
         shutil.copy2(src, destination / root_file)
 
-    coding_guidelines = source / "docs" / "coding_guidelines.md"
-    if not coding_guidelines.is_file():
-        raise FileNotFoundError(
-            f"Expected project skeleton docs file does not exist: {coding_guidelines}"
-        )
-    shutil.copy2(coding_guidelines, destination / "docs" / "coding_guidelines.md")
-
 
 def _copy_skill_supporting_folders(skill_dir: Path, skill_output_dir: Path) -> None:
     # Copied verbatim here; `ai-team init` fills the placeholders when it writes

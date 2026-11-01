@@ -66,7 +66,7 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 
 ### Coding Standards
 
-The Developer's code must satisfy these framework standards. Project-specific overrides are documented in the target project's `{{project_dir}}/docs/coding_guidelines.md`.
+The Developer's code must satisfy these framework standards. Project-specific overrides are documented in the target project's coding guidelines: the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`).
 
 **General principles**
 1. **Clarity over cleverness.** Code is immediately understandable. No tricks, obscure idioms, or compact expressions for their own sake.
@@ -114,7 +114,7 @@ The Developer's code must satisfy these framework standards. Project-specific ov
 - Keep files under 300 lines. If larger, consider splitting.
 - Group related files in directories with clear purpose.
 
-For project-specific overrides, read `{{project_dir}}/docs/coding_guidelines.md` in the consuming project.
+For project-specific overrides, read the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`) in the consuming project.
 
 ## Output Format
 

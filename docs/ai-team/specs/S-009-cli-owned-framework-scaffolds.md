@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.9'
+version: '0.10'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -135,7 +135,7 @@ ai-team init
 **Exposed — source tree (REQ-001–REQ-005).** **Contract:**
 `cli/src/ai_team/init/sources/` holds `skills/<name>/SKILL.md` with optional
 `assets/`, `references/` and `scripts/` folders; `agents/*.md`; `project/` (the project
-`AGENTS.md`, `.gitignore` and the `coding_guidelines.md` placeholder); and `root/` (the
+`AGENTS.md` and `.gitignore`); and `root/` (the
 root `AGENTS.md` template). Source text names project settings only through the
 `{{project_dir}}` and `{{integration_branch}}` placeholders.
 
@@ -282,10 +282,10 @@ never a symlink.
 ### REQ-005 — Project skeleton
 
 The generated project skeleton SHALL hold `specs/`, `decisions/` and `docs/`, each kept
-with an empty placeholder file; a `docs/coding_guidelines.md` placeholder with no
-project-specific rules; the project `AGENTS.md`, which explains the purpose of the
-generated artifact folders and files; and a `.gitignore` that ignores the
-`.ai-team.lock` sentinel. It SHALL hold no task, bug or change-request folders.
+with an empty placeholder file; the project `AGENTS.md`, which explains the purpose of
+the generated artifact folders and files; and a `.gitignore` that ignores the
+`.ai-team.lock` sentinel. It SHALL hold no task, bug or change-request folders, and no
+coding guidelines file (REQ-016).
 
 #### AC-005.1 — Skeleton contents
 
@@ -294,11 +294,10 @@ generated artifact folders and files; and a `.gitignore` that ignores the
 - **Then:** the project scaffold holds exactly the folders and files above
 
 **Verification:** Tests: `test_sync_script_replaces_project_with_empty_lifecycle_skeleton`,
-`test_sync_script_copies_project_guidance_files_from_source`,
-`test_sync_script_copies_coding_guidelines_placeholder_into_project_docs` and
+`test_sync_script_copies_project_guidance_files_from_source` and
 `test_sync_script_copies_project_gitignore_ignoring_the_lock_sentinel` in
-`cli/tests/test_init_scaffolds.py`; inspection that the coding-guidelines placeholder
-holds no project-specific rules and that `AGENTS.md` explains the artifact folders.
+`cli/tests/test_init_scaffolds.py`; inspection that `AGENTS.md` explains the artifact
+folders.
 
 ### REQ-006 — Generator run
 
@@ -491,13 +490,12 @@ SHALL never be overwritten.
 
 #### AC-012.3 — Missing skeleton files
 
-- **Given:** an upgraded project missing its project directory, or missing
-  `docs/coding_guidelines.md` or a `specs/` placeholder
+- **Given:** an upgraded project missing its project directory, or missing a `specs/`
+  placeholder
 - **When:** `init --no-interactive` runs
 - **Then:** the missing files are written and reported as `WROTE`, without a question
 
 **Verification:** Tests: `test_upgrade_recreates_a_missing_project_directory`,
-`test_upgrade_recreates_a_missing_coding_guidelines_file_and_reports_it`,
 `test_upgrade_recreates_missing_specs_and_decisions_placeholders` and
 `test_force_upgrade_never_overwrites_an_existing_skeleton_file` in
 `cli/tests/test_init_upgrade.py`.
@@ -507,8 +505,7 @@ SHALL never be overwritten.
 On an adoption, `init` SHALL write `.ai-team.toml`, the project directory and the
 agents and skills, and SHALL ask once about the existing agent, skill and
 project-skeleton files it would replace, listing them all; `--force` SHALL answer yes.
-Root guidance and an existing `docs/coding_guidelines.md` SHALL NOT be part of that
-question. When the question is not answered yes, the files SHALL be kept and listed on
+Root guidance SHALL NOT be part of that question. When the question is not answered yes, the files SHALL be kept and listed on
 stderr.
 
 #### AC-013.1 — One question
@@ -524,13 +521,13 @@ stderr.
 
 #### AC-013.2 — Non-interactive and excluded files
 
-- **Given:** the same repository plus root `AGENTS.md` and `docs/coding_guidelines.md`
+- **Given:** the same repository plus root `AGENTS.md`
 - **When:** `init --no-interactive` runs
 - **Then:** existing files are kept and reported, the exit code is 0, and root guidance
-  and coding guidelines are not in the question
+  is not in the question
 
 **Verification:** Tests: `test_no_interactive_skips_existing_files_reports_them_and_exits_zero`
-and `test_does_not_ask_about_coding_guidelines_or_root_guidance` in
+and `test_does_not_ask_about_root_guidance` in
 `cli/tests/test_init_adoption.py`.
 
 ### REQ-014 — `--force` and `--dry-run`
@@ -581,8 +578,7 @@ in `cli/tests/test_init_upgrade.py`.
 replaces as `OVERWROTE: <path>`, matching its dry run's `WOULD WRITE` and
 `WOULD OVERWRITE`, and the tracker folder and the root `.gitignore` rule as
 `CREATED: <path>` and `UPDATED: <path>`, matching `WOULD CREATE` and `WOULD UPDATE`.
-Only an adoption SHALL list kept files, on stderr, excluding root guidance and an
-existing `docs/coding_guidelines.md`.
+Only an adoption SHALL list kept files, on stderr, excluding root guidance.
 
 #### AC-015.1 — New project
 
@@ -605,21 +601,38 @@ existing `docs/coding_guidelines.md`.
 **Verification:** Test: `test_upgrade_real_run_reports_every_file_its_dry_run_would_write`
 in `cli/tests/test_init_upgrade.py`.
 
-### REQ-016 — Coding guidelines kept
+### REQ-016 — Coding guidelines left to the project
 
-`init` SHALL write `docs/coding_guidelines.md` in the project directory only when it is
-missing, SHALL never overwrite it, even with `--force`, and SHALL NOT count an existing
-one as a collision.
+The coding guidelines are the document the project guidance names; the location rule
+and its default are owned by `ai-process/guidelines/coding_standards.md`. `init` SHALL
+NOT write a coding guidelines file, and SHALL NOT overwrite, report, or ask about a
+coding guidelines file the project keeps, at any location, with any flags.
 
-#### AC-016.1 — Existing guidelines
+#### AC-016.1 — Guidelines the project keeps
 
-- **Given:** a project with its own `docs/coding_guidelines.md`
-- **When:** `init --force` runs
-- **Then:** the file is unchanged and not reported
+- **Given:** an upgraded project and an adoption repository, each holding
+  `docs/coding_guidelines.md` in the project directory and
+  `docs/development/coding_guidelines.md` at the repository root
+- **When:** `init --force` runs in each
+- **Then:** both files are byte-for-byte unchanged, no report line names either, and
+  the adoption question does not list either
 
-**Verification:** Tests: `test_init_writes_coding_guidelines_placeholder_when_missing`,
-`test_init_keeps_existing_coding_guidelines_without_counting_a_collision` and
-`test_init_force_keeps_existing_coding_guidelines` in `cli/tests/test_init.py`.
+**Verification:** Tests: `test_init_force_upgrade_keeps_coding_guidelines_the_project_keeps`
+in `cli/tests/test_init.py` and
+`test_adoption_does_not_ask_about_or_list_coding_guidelines_the_project_keeps` in
+`cli/tests/test_init_adoption.py`.
+
+#### AC-016.2 — No guidelines written
+
+- **Given:** an empty git repository
+- **When:** `init --no-interactive` runs
+- **Then:** no coding guidelines file exists in the project directory or under
+  `docs/development/`, and no report line names one
+
+**Verification:** Inspection that the project scaffold sources and the generated
+scaffold hold no coding guidelines file; AC-005.1's exact-contents test
+`test_sync_script_replaces_project_with_empty_lifecycle_skeleton` is the regression
+check.
 
 ### REQ-017 — Root guidance
 
@@ -759,8 +772,8 @@ accessibility or performance target agreed; reproducibility is REQ-007.
    `ai-process/` exists (REQ-005, REQ-008–REQ-010, REQ-018).
 3. A dry run and the real run with the same flags report the same files in every case
    (REQ-014, REQ-015).
-4. No `init` run, with any flags, changes an existing `docs/coding_guidelines.md`
-   (REQ-016).
+4. No `init` run, with any flags, writes a coding guidelines file or changes one the
+   project keeps (REQ-016).
 5. The `init` and generator test files named in the acceptance scenarios pass
    (REQ-001–REQ-020).
 
@@ -804,3 +817,4 @@ None.
 | 2026-10-26 | AC-005.1 replaces two removed prose tests with inspection; AC-020.1 and AC-020.2 are verified by inspection; AC-001.1 checks the absence of `body.md` and `metadata.toml` by inspection. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
+| 2026-11-01 | Coding guidelines are no longer part of the project skeleton: REQ-005 and AC-005.1 drop the `docs/coding_guidelines.md` placeholder and its sync test; AC-012.3 drops the missing-guidelines upgrade case and its test; REQ-013 and AC-013.2 exclude only root guidance from the adoption question (test renamed `test_does_not_ask_about_root_guidance`); REQ-015 drops the guidelines exclusion from the kept-file list; REQ-016 is retitled "Coding guidelines left to the project": `init` writes no coding guidelines file and never overwrites, reports or asks about one the project keeps, with AC-016.1 rewritten and AC-016.2 added; the Interfaces source tree and Success Criterion 4 follow. The location rule (the document the project guidance names, default `docs/development/coding_guidelines.md`) is referenced, not restated; `ai-process/guidelines/coding_standards.md` owns it. Version bumped to 0.10. Driven by B-039 (product owner decision, 2026-11-01). | The scaffolded `{{project_dir}}/docs/coding_guidelines.md` placeholder disagreed with the S-000 bootstrap, which writes project documents to `docs/development/`, so projects kept an empty placeholder and agents read the wrong file. | B-039 implements it |

@@ -74,7 +74,7 @@ and the run summary is returned before the loop stops.
 
 The baseline guard runs once at loop startup. It is NOT re-checked between tasks. Rationale: post-merge regressions are caught by the integrate skill's destination-branch test step; re-checking between tasks adds latency without adding coverage.
 
-Discover and run the project's baseline test command from project-specific guidance before claiming any task. Start with root guidance (`AGENTS.md` or equivalent instructions provided in the session), then follow clear references to project-local docs such as `{{project_dir}}/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. Prefer an explicitly documented test command over inferring one from dependencies or filenames.
+Discover and run the project's baseline test command from project-specific guidance before claiming any task. Start with root guidance (`AGENTS.md` or equivalent instructions provided in the session), then follow clear references to project-local docs such as the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), README files, build configuration, or other documented test instructions. Prefer an explicitly documented test command over inferring one from dependencies or filenames.
 
 Skip this step when looping back after a completed task (control returns to Step 1, which skips Step 2 on subsequent iterations).
 

@@ -130,7 +130,6 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
     text = _generated_text(target) + (target / "AGENTS.md").read_text(encoding="utf-8")
     assert "{{" not in text
     assert "docs/ai-team/specs/" in text
-    assert "docs/ai-team/docs/coding_guidelines.md" in text
     assert "develop" in text
     assert "dev-agent" not in text
     # No path that still names the default folder without its parent.

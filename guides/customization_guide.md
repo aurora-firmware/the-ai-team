@@ -25,7 +25,7 @@ Exported skill files in `.claude/skills/` may be edited for your project, but th
 **`AGENTS.md`** — Your project's identity:
 - Add a title and a short description of your project above the sections.
 - Add your tech stack, repository layout, and the specific build/run/test/lint commands agents should use.
-- Point agents to project-local conventions, including `ai-team/docs/coding_guidelines.md` if present.
+- Point agents to project-local conventions, including the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`) if present.
 - Keep the five sections `ai-team check-layout` requires: `## Build and Install`, `## Test`, `## Run`, `## Lint and Format`, and `## Key Conventions`.
 
 **`README.md`** — Your project's README:
@@ -34,7 +34,7 @@ Exported skill files in `.claude/skills/` may be edited for your project, but th
 
 **Project-local coding guidance** — Stack-specific rules:
 - The framework's general, language-agnostic coding standards are built into the exported agents and skills; you do not edit them.
-- Put project-specific coding rules in `ai-team/docs/coding_guidelines.md` or another project-local document referenced by your `AGENTS.md`.
+- Put project-specific coding rules in the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), referenced by your `AGENTS.md`.
 - Include formatter, linter, test framework, dependency policy, naming conventions, file layout, and framework conventions there.
 - Agents and skills should discover these details from the target project instead of relying on hardcoded defaults in the framework.
 
@@ -135,5 +135,5 @@ If you have an existing codebase:
 3. Write or update `AGENTS.md` so agents can find project commands and repository layout.
 4. Migrate existing issues/tasks by creating a task for each open item with `ai-team task new` (they land in the local tracker).
 5. Write the S-000 system overview spec — what the project is for and how it divides into components (`ai-team spec new --overview` or the `new-system-overview` skill), and get it approved.
-6. Run the project bootstrap after S-000 is approved (`spec-breakdown` on S-000): its tasks fill in the project guidance and the coding guidelines in `ai-team/docs/coding_guidelines.md`, instead of you writing them by hand.
+6. Run the project bootstrap after S-000 is approved (`spec-breakdown` on S-000): its tasks fill in the project guidance and the coding guidelines (the document the project guidance names, default `docs/development/coding_guidelines.md`), instead of you writing them by hand.
 7. Create an ADR in `ai-team/decisions/` documenting the decision to adopt this framework.

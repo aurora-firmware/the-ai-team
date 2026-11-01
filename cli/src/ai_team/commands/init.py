@@ -34,10 +34,6 @@ app = typer.Typer(
 
 _ROOT_GUIDANCE_FILES = ["AGENTS.md"]
 
-# Project skeleton files that belong to the project once written: init creates
-# them only when missing, so a framework upgrade keeps the project's own copy.
-_KEEP_IF_EXISTS_PROJECT_FILES = [Path("docs") / "coding_guidelines.md"]
-
 # The ai-team docs an upgrade offers to refresh, relative to the project directory.
 _PROJECT_DOC_FILES = ["AGENTS.md", ".gitignore"]
 
@@ -75,18 +71,6 @@ def _tracker_ignore_rule(tracker_dir: str) -> str | None:
 def _plan_copies(source: Path, destination: Path) -> list[tuple[Path, Path]]:
     return [
         (path, destination / path.relative_to(source)) for path in _iter_files(source)
-    ]
-
-
-def _plan_project_copies(source: Path, project_root: Path) -> list[tuple[Path, Path]]:
-    """Plan the project skeleton copies, leaving out kept-if-existing files."""
-    return [
-        (path, destination)
-        for path, destination in _plan_copies(source, project_root)
-        if not (
-            destination.exists()
-            and destination.relative_to(project_root) in _KEEP_IF_EXISTS_PROJECT_FILES
-        )
     ]
 
 
@@ -267,9 +251,7 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
     if request.dry_run:
         typer.echo("CASE: upgrade")
     project_root = request.target_root / request.project_dir
-    project_plan = _plan_project_copies(
-        request.scaffolds_path / "project", project_root
-    )
+    project_plan = _plan_copies(request.scaffolds_path / "project", project_root)
     docs = {project_root / name for name in _PROJECT_DOC_FILES}
 
     if project_root.is_dir():
@@ -613,7 +595,7 @@ def init_command(
 
         planned: list[tuple[Path, Path]] = []
         planned.extend(
-            _plan_project_copies(scaffolds_path / "project", target_root / project_dir)
+            _plan_copies(scaffolds_path / "project", target_root / project_dir)
         )
 
         planned.extend(_plan_tool_copies(scaffolds_path, target_root))
