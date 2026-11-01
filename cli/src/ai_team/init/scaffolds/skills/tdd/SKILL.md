@@ -10,7 +10,7 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(debug), Skill(git-conv
 
 - **Task or bug file** — with acceptance criteria or fix-verification steps.
 - **Project test setup** — test framework, directory structure, how to run tests. Every task runs the full suite when the project documents one; an inspection task (see Inspection and demonstration tasks) also needs the references its Verification section lists.
-- **Target-project coding guidance** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, and any product-owner-provided instructions (the framework-level coding standards are carried by the invoking role's definition).
+- **Target-project coding guidance** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, the architecture documents the project guidance names (the technology and design the work must use), README, build configuration, and any product-owner-provided instructions (the framework-level coding standards are carried by the invoking role's definition).
 
 Task and bug files live in the local tracker, outside version control; the active loop passes their path.
 Read their existing Work Log and Diagnosis Log entries, but return new log content as a handoff to the active loop instead of editing lifecycle files directly.

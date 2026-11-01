@@ -51,6 +51,9 @@ The agents and skills authored under `cli/src/ai_team/init/sources/` are the **i
         |                  Gate 1: product owner approval               |
         |                         |                                     |
         |                         v                                     |
+        |            Architect feature architecture                     |
+        |                         |                                     |
+        |                         v                                     |
         |             Planner task plan -> Gate 2: Architect            |
         |                         |                                     |
         +-------------------------+-------------------------------------+
@@ -86,7 +89,7 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 | Agent | Responsibility |
 |---|---|
 | **Planner** | Creates specifications with the product owner, then decomposes approved specifications into executable tasks |
-| **Architect** | Owns structural review: Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
+| **Architect** | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
 | **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code |
 | **Reviewer** | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality |
 | **Integrator** | Resolves merge conflicts; supports task and bug integration into target branches |
@@ -104,6 +107,7 @@ Every skill can be started as a slash command (`/<name>`); `status-report` is th
 | **using-ai-team** | Meta-skill: matches the situation to a skill, and checks gate preconditions, before any other action |
 | **brainstorm** | Solution-space exploration before a spec is written |
 | **spec-breakdown** | Decomposition of a spec into atomic tasks |
+| **feature-architecture** | Architect decision on how an approved spec or change-request is built, recorded in ADRs and the architecture documents |
 | **spec-breakdown-review** | Architect validation of task plans before development starts |
 | **tdd** | Implementation by each task's planned verification method: a test-driven cycle for test tasks, a recorded inspection or demonstration for the others |
 | **debug** | Diagnosis-first debugging: reproduce or confirm, gather evidence, isolate, then fix |
@@ -203,11 +207,12 @@ Keep the framework files generic unless you intentionally fork the process.
 The normal workflow is:
 
 1. The product owner and Planner shape a specification; the product owner approves it at Gate 1.
-2. Planner decomposes the approved spec into tasks.
-3. Architect validates the task plan at Gate 2.
-4. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
-5. Bugs are filed in the local tracker and handled through `/bug-loop`.
-6. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
+2. Architect decides how the approved spec is built (feature architecture: technology and design, recorded in ADRs and the architecture documents).
+3. Planner decomposes the approved spec into tasks.
+4. Architect validates the task plan at Gate 2.
+5. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
+6. Bugs are filed in the local tracker and handled through `/bug-loop`.
+7. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
 
 See `guides/setup_guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 

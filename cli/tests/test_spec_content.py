@@ -216,14 +216,14 @@ def test_subsection_heading_alone_does_not_fill_a_required_section(
     monkeypatch, tmp_path
 ):
     body = feature_spec_body().replace(
-        "## Architecture\n\nNone — not applicable to this feature.",
-        "## Architecture\n\n### Design Principles",
+        "## Interfaces\n\nNone — not applicable to this feature.",
+        "## Interfaces\n\n### Exposed contracts",
     )
     _write_spec(tmp_path, body)
     exit_code, findings = _validate(monkeypatch, tmp_path)
     assert exit_code == 1
     assert any(
-        f["code"] == "spec-section-empty" and "Architecture" in f["message"]
+        f["code"] == "spec-section-empty" and "Interfaces" in f["message"]
         for f in findings
     )
 

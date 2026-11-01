@@ -81,6 +81,8 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 | Product Owner | Planner | Feature request or problem description |
 | Planner | Product Owner | Specification for approval |
 | Planner | Local tracker | Tasks created as `planned`, set to `pending` after the planning branch merges; follow-up tasks from spec-truth reconciliation are created `pending` (ADR-002) |
+| Planner | Architect | Approved spec or change-request for Feature Architecture (start of task breakdown) |
+| Architect | Planner | Feature architecture result: decisions recorded in ADRs and the architecture documents, and any spec statement that makes a technology choice |
 | Planner | Architect | Gate 2 evaluation request |
 | Planner | Architect | Created/changed spec or change-request for Architecture Consistency Review (before Gate 1, or before change-request amendments are applied) |
 | Architect | Planner | Consistency findings on a created/changed spec or change-request |

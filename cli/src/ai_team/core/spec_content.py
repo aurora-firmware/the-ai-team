@@ -9,7 +9,7 @@ FEATURE_SECTIONS = (
     "Purpose",
     "Users and Journeys",
     "Exclusions",
-    "Architecture",
+    "Alternatives Considered",
     "Interfaces",
     "Workflow",
     "Behavioral Requirements",

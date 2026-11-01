@@ -16,13 +16,19 @@ Write so all three can do their job from the spec alone, without guessing what y
 
 ## The content boundary
 
-> A specification describes requirements, contracts, and measurable criteria in prose. It does not embed implementation code, configuration files, or build manifests.
+> A specification describes what the product does: requirements, interface contracts, and measurable criteria in prose. It does not say how the product is built.
 
-**Belongs in the spec:** the problem, the outcome, the constraints, the interface contracts of the component or feature it covers (the decomposition into components lives in S-000), the success criteria, the exclusions.
+The spec owns the *what*. The project's architecture documents and ADRs own the *how*: technology, protocol stacks, and implementation design. The coding guidelines own how code is written with that stack. The Architect decides the how for a spec after Gate 1, in Feature Architecture; the spec never decides it, even when an ADR has already done so.
 
-**Does not belong in the spec:** function signatures, class layouts, full YAML/TOML/JSON config files, complete CI manifests, executable code that *is* the implementation, file-by-file task lists.
+**Belongs in the spec:** the problem, the outcome, the constraints, the interface contracts of the component or feature it covers (the decomposition into components lives in S-000), the settings users configure, the success criteria, the exclusions.
 
-**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. Internal implementation is never contract material.
+**Does not belong in the spec:**
+
+- **Technology choices** — languages, frameworks, libraries, storage engines, internal protocols and formats, hosting and services. State the requirement the technology must meet instead: "settings survive a restart", not "settings are stored in SQLite".
+- **Implementation design** — internal components and their responsibilities, system diagrams of internals, data models, rejected implementation approaches.
+- **Implementation artefacts** — function signatures, class layouts, full YAML/TOML/JSON config files, complete CI manifests, executable code that *is* the implementation, file-by-file task lists.
+
+**Contract material:** a code, schema, or config block is allowed when it defines an external contract — a public API schema or field definition, a wire-protocol fragment, an externally fixed configuration key. Label it **Contract**, not **Example**, and size it to the contract's ambiguity and risk. A technology or format is part of an interface only when users or external systems see it: the format of a configuration file users edit, or a protocol an external system already speaks. A protocol or format the team picks for its own parts is a technology choice. Internal implementation is never contract material.
 
 If you find yourself pasting a near-complete file, you are writing the implementation. Stop. Describe what the file must guarantee instead.
 
@@ -79,7 +85,7 @@ S-000 supplies the system context, but this section records the feature-specific
 
 ### Exclusions
 
-**Strategy:** record each behavior deliberately outside scope with its reason. Keep rejected implementation approaches and their rationale distinct from exclusions: choosing one design does not automatically exclude a user capability.
+**Strategy:** record each behavior deliberately outside scope with its reason. Keep rejected alternatives and their rationale distinct from exclusions: choosing one solution does not automatically exclude a user capability.
 
 Almost every spec has at least one exclusion. "No exclusions apply" should be rare, and should follow an explicit confirmation from the product owner.
 
@@ -89,20 +95,16 @@ Almost every spec has at least one exclusion. "No exclusions apply" should be ra
 
 **Weak:** "No exclusions." (Almost never true; often masks unresolved scope.)
 
-### Architecture — Design Principles
+### Alternatives Considered
 
-**Recipe:** scoped to this spec, principles are **constraints on the design space**, not implementation choices. State each as a property the design must satisfy.
+**Recipe:** list each solution alternative rejected during brainstorm and the reason it was rejected: a different behaviour, interaction, or interface for the same need. Rejected alternatives are rationale; excluded behavior goes in Exclusions. Rejected implementation approaches are not recorded here; the Architect records them in an ADR. If no alternative was considered, write `None` with the reason.
+
+A constraint the solution must meet, such as a time limit or a rejection rule, is a requirement: write it as a Behavioral or Quality Requirement.
 
 **Strong:**
-> - Validation must run in under three minutes on the median PR so reviewers are not blocked.
-> - The pipeline must reject unknown configuration keys instead of ignoring them.
-> - All network access during validation must be limited to the repository's own dependency mirror.
+> - **Blocking the merge by a reviewer's manual check.** Rejected because reviewers missed failures on busy days; an automated check blocks every PR the same way.
 
-**Weak:** "Use GitHub Actions." (Picks the implementation; better as a constraint: "must integrate with the project's existing PR review surface.")
-
-### Architecture — Alternatives Considered
-
-**Recipe:** list each approach rejected during design and the reason it was rejected. Rejected approaches are rationale; excluded behavior goes in Exclusions. If no alternative was considered, write `None` with the reason.
+**Weak:** "Rejected Jenkins in favour of GitHub Actions." (An implementation choice; it belongs in an ADR.)
 
 ### Interfaces
 
@@ -152,7 +154,7 @@ If none apply, state that conclusion and its reason instead of leaving placehold
 **Recipe:** for each setting, four bullets:
 
 - **What must exist** — the requirement, named.
-- **Where it lives** — env var, config file, CI variable, secret store — described, not pasted.
+- **Where it lives** — where the user sets it: env var, config file, CI variable, secret store — described, not pasted.
 - **Constraints** — allowed range, format, security class.
 - **Missing-value behaviour** — default, error, or refuse-to-start.
 
@@ -192,6 +194,7 @@ A phase is not a task. The `spec-breakdown` skill produces the actual tasks from
 
 Before review or approval, resolve every question affecting required behavior, external contracts, acceptance, or feasibility, including technical questions the product owner cannot answer directly.
 Record only deferred internal design investigations here, each with an owner and resolution condition; they must not change approved behavior.
+A question for the Architect, such as a technology the product owner prefers, is recorded here with the Architect as owner and "decided in Feature Architecture" as its resolution condition. It is a preference to weigh, not a choice the spec makes.
 Write `None` when no investigations remain.
 Product-owner-answerable `[TODO]` markers must be resolved before Architecture Consistency Review; unresolved behavioral questions block it regardless of who can answer them.
 
@@ -211,14 +214,14 @@ S-000 is the canonical project-overview spec: one document that says what the pr
 6. **Components** — the parts the system is divided into. Each component entry gives its name, its owned responsibility (what it is for), its boundary (what it is not responsible for), and the other components it works with. Components are split into the Solution and Development infrastructure groups (below).
 7. **Project exclusions** — what the project deliberately does not do, each with a one-line reason.
 
-S-000 contains no technology choices, interface definitions, configuration, implementation order, or per-component status. Those belong in feature specs, ADRs, and the tracker.
+S-000 contains no technology choices, interface definitions, configuration, implementation order, or per-component status. Interface definitions, configuration, and implementation order belong in feature specs; technology choices in the architecture documents and ADRs; per-component status in the tracker.
 
 **What a component is.** A component is a part of the software solution, or something that affects the solution's use, delivery or deployment. A component can be software, documentation (internal or for end users), delivery and deployment (pipelines, scripts), or tooling (development environment, debugging interfaces, test harnesses). Each component passes three checks: it serves at least one use case, or, in the infrastructure group, affects the solution's use, delivery or deployment; one spec could own its contract; and its boundary would hold if the implementation were reorganised.
 
 **Component groups.** Components fall into two groups, written as `### Solution` and `### Development infrastructure` subsections of Components; the seven top-level sections and their order do not change.
 
 - **Solution** — the software delivered to the end user that removes the pain points.
-- **Development infrastructure** — everything the project needs to build, check, document and deliver the solution; it is not delivered to the end user. Each infrastructure component also has a **Decisions needed** field: the questions that must be answered before development starts, such as the language and version, how the environment is reproduced, the test harness, the continuous-integration service, and where decisions are recorded. S-000 asks technology questions and never answers them; the answers belong in the project's internal development documentation, later specs and ADRs.
+- **Development infrastructure** — everything the project needs to build, check, document and deliver the solution; it is not delivered to the end user. Each infrastructure component also has a **Decisions needed** field: the questions that must be answered before development starts, such as the language and version, how the environment is reproduced, the test harness, the continuous-integration service, and where decisions are recorded. S-000 asks technology questions and never answers them; the answers belong in the project's architecture documents and ADRs, which the project bootstrap writes.
 
 **Users scope.** Users names the users of the solution. The people and agents who develop the project are served by the development infrastructure and are not listed unless they also use the solution.
 
@@ -270,7 +273,8 @@ Before declaring the spec ready for Gate 1, the author confirms each of these:
 
 - [ ] **Problem is concrete.** Purpose names the problem, the trigger, and the observable outcome.
 - [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
-- [ ] **Each design principle is a constraint, not an implementation choice.**
+- [ ] **No technology choices or implementation design.** No languages, frameworks, libraries, storage engines, internal protocols or formats, internal components, or rejected implementation approaches. A technology appears only as Contract material, when users or external systems see it.
+- [ ] **Alternatives Considered lists solution alternatives**, each with its reason, or `None` with a reason.
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Where a literal value is the contract, it is labelled **Contract**.
 - [ ] **Every requirement is measurable.** Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
 - [ ] **Discovery decisions are preserved.** Actors, journeys, applicable failure cases, and quality constraints are recorded and linked to requirements.

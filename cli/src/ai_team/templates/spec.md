@@ -10,9 +10,11 @@ author: "[Author name or agent role]"
 # [Specification Title]
 
 <!--
-Describe observable requirements and measurable outcomes, not implementation
-files or task lists. Fill this draft with the new-spec skill, which carries the
-section recipes and the pre-submission checklist.
+Describe what the product does: observable requirements, interfaces, and
+measurable outcomes. Make no technology choice and record no implementation
+design; the architecture documents and ADRs own those. Fill this draft with the
+new-spec skill, which carries the section recipes and the pre-submission
+checklist.
 -->
 
 ## Purpose
@@ -32,27 +34,20 @@ section recipes and the pre-submission checklist.
 
 ## Exclusions
 
-<!-- State excluded behavior and why; keep rejected implementation choices
-  distinct from scope exclusions. Confirm "no exclusions apply" with the product owner
+<!-- State excluded behavior and why; keep rejected alternatives distinct
+  from scope exclusions. Confirm "no exclusions apply" with the product owner
   if there are none. -->
 
 [TODO] State scope exclusions and their reasons.
 
-## Architecture
+## Alternatives Considered
 
-### Design Principles
+<!-- Each solution alternative rejected during brainstorm (a different
+  behavior, interaction, or interface) and why. Rejecting an alternative does
+  not exclude a user capability; excluded behavior belongs in Exclusions.
+  Rejected implementation approaches belong in ADRs, not here. -->
 
-<!-- Properties the design must satisfy, not implementation choices.
-  Reference the REQ identifiers owning observable constraints. -->
-
-[TODO] State the constraints on the design space.
-
-### Alternatives Considered
-
-<!-- Each rejected approach and why it was rejected. Rejecting an approach
-  does not exclude a user capability; excluded behavior belongs in Exclusions. -->
-
-[TODO] Record each rejected approach and the reason, or None with a reason.
+[TODO] Record each rejected alternative and the reason, or None with a reason.
 
 ## Interfaces
 
@@ -60,7 +55,8 @@ section recipes and the pre-submission checklist.
   enough detail to avoid incompatible implementations: inputs, outputs,
   validation, error outcomes, authorization, and compatibility as applicable.
   Public field definitions or precise versioned schema references are allowed
-  as Contract material. No internal function or private class inventories.
+  as Contract material. A technology or format appears only when users or
+  external systems see it. No internal function or private class inventories.
   There is no fixed line limit. -->
 
 [TODO] Define the external contracts and link their REQ identifiers.
@@ -104,7 +100,7 @@ section recipes and the pre-submission checklist.
 
 ## Configuration Requirements
 
-<!-- For each setting: what and why, where it lives, constraints, and behavior
+<!-- For each setting: what and why, where the user sets it, constraints, and behavior
   when missing or invalid. Reference its requirement. Do not paste full config
   files. If no settings are involved, state None with a reason. -->
 

@@ -28,7 +28,7 @@ Before the first action of a request — including a clarifying question, a code
 | S-000 is approved and no task names S-000 as its source spec | Suggest the project bootstrap (`spec-breakdown` on S-000) to the product owner |
 | A small change does not warrant a full spec | `change-request` |
 | A spec, ADR, or change-request was created or changed | `architecture-consistency-review` |
-| An approved spec needs a task breakdown | `spec-breakdown`, then `spec-breakdown-review` |
+| An approved spec needs a task breakdown | `spec-breakdown`, which starts with `feature-architecture`, then `spec-breakdown-review` |
 | A task is ready to implement | `tdd` |
 | A bug, failing test, or unexpected behavior must be fixed | `debug`, then `tdd` for the fix |
 | Completed task or bug work needs review | `code-review` |

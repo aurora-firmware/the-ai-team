@@ -28,7 +28,7 @@ When invoked directly and required fields are missing, ask only for the missing 
    - Follow **Opening a Planning Branch** in the `git-conventions` skill, running `ai-team change-request new "<title>" --json` at its step 3.
    - Parse the JSON response to capture `id` and `path`.
    - The change-request file is created in the local tracker, outside version control: never commit it.
-   - The planning branch carries only the spec amendments the change-request drives and any ADRs raised by its consistency review. Nothing reaches `{{integration_branch}}` until Gate 2 passes and `spec-breakdown` merges the branch.
+   - The planning branch carries only the spec amendments the change-request drives, any ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture. Nothing reaches `{{integration_branch}}` until Gate 2 passes and `spec-breakdown` merges the branch.
 
 3. Open the created file and replace template placeholders with the supplied description.
    - Keep the frontmatter produced by the CLI.
