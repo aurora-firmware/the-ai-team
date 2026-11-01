@@ -69,7 +69,7 @@ The Reviewer checks the work against what the Developer claims it achieves (the 
 
 ### Stage 2: Code Quality
 **Pass criteria:**
-- Code follows the coding standards: `ai-process/guidelines/coding_standards.md` (general) and `ai-team/docs/coding_guidelines.md` (project-specific tech-stack rules, if present).
+- Code follows the coding standards: `ai-process/guidelines/coding_standards.md` (general) and the project's coding guidelines, as `ai-process/guidelines/coding_standards.md` locates them (project-specific tech-stack rules, if present).
 - Relevant tests exist for the changed product behavior, and no test asserts the wording of skills, process documents, guides, or specs.
 - The Developer's Work Log records local test evidence or explains why a local test run was not possible.
 - For an inspection or demonstration task, the Work Log records the inspection (criteria and references checked, each conflict found and fixed, and the result) or the demonstration (steps run and the observed outcome), and the Reviewer checks the planning choice.

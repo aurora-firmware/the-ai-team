@@ -36,4 +36,4 @@ guessing.
 
 - Add project-specific coding standards, branch naming rules, or other norms
   that agents must follow.
-- Reference `{{project_dir}}/docs/coding_guidelines.md` for detailed rules.
+- Reference the coding guidelines (default `docs/development/coding_guidelines.md`) for detailed rules.

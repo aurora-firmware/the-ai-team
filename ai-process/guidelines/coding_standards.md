@@ -5,7 +5,7 @@ They are intentionally language-agnostic.
 When bootstrapping a new project, extend them with language-specific conventions, examples, and tooling rules relevant to your stack.
 Project-specific overrides should be documented in the project's own guidelines.
 
-**For project-specific rules** (language, tooling, naming and dependency specifics), see `ai-team/docs/coding_guidelines.md` (when working within a project). Each project should maintain its own extensions to these framework standards.
+**For project-specific rules** (language, tooling, naming and dependency specifics), see the project's coding guidelines. The location of the coding guidelines is the document the project guidance names (`AGENTS.md` or the project's other rules), by default `docs/development/coding_guidelines.md`, next to `architecture.md` and `tech_stack.md`. The project bootstrap writes it; `ai-team init` does not scaffold it. Each project should maintain its own extensions to these framework standards.
 
 ## General Principles
 
