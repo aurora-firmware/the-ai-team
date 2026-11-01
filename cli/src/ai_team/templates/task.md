@@ -9,18 +9,6 @@ created: YYYY-MM-DD
 
 # [Task Title]
 
-<!--
-Task Quality Rules (see the new-task skill for full details):
-  - Atomic — one clear outcome.
-  - One-shottable — ≤ 3–4 files touched, ≤ 5 ACs, Description ≈ 20 lines.
-  - Verifiable — Verification proves the task by one method: a test command, an Inspection: list, or a Demonstration: with steps and expected observation.
-  - Self-contained — Description is enough to start without follow-up questions.
-  - EARS — every AC matches one of the five EARS patterns below.
-  - Dependency-honest — list every prior task this one reads from or modifies.
-  - Interface-explicit — Interfaces names every type, function, or file the task consumes and produces.
-  - No placeholders — no TBD, TODO, "implement later", or "similar to Task N"; every name used is defined in this or a dependency task.
--->
-
 ## Description
 
 What needs to be done and why.

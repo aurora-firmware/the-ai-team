@@ -132,6 +132,21 @@ def test_task_new_substitutes_body_h1_with_provided_title(monkeypatch, tmp_path)
     assert "# [Task Title]" not in content
 
 
+def test_task_new_body_holds_no_task_quality_rules_comment(monkeypatch, tmp_path):
+    """B-047: the created task carries no template-only authoring guidance block."""
+    from ai_team.cli import app
+
+    _mkdir(tmp_path / ".ai-team" / "tracker" / "tasks")
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["task", "new", "Demo task"])
+
+    assert result.exit_code == 0
+
+    created = tmp_path / ".ai-team" / "tracker" / "tasks" / "T-001-demo-task.md"
+    assert "Task Quality Rules" not in created.read_text(encoding="utf-8")
+
+
 def test_task_new_allocates_distinct_ids_for_two_concurrent_callers(
     monkeypatch, tmp_path
 ):
