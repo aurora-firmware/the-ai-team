@@ -138,8 +138,8 @@ the `id` and `path`), and refuses to overwrite an existing file.
 
 1. `ai-team init` writes a `[tracker]` section with the default folder, creates the folder, and makes git ignore it (REQ-009).
 2. `/change-request` creates the change-request in the tracker with status `pending` and opens a planning branch for any spec amendments or ADRs it drives; product owner approval sets it to `approved`, rejection to `rejected` (REQ-004). `/new-spec` opens its planning branch as before.
-3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005).
-4. After Gate 2 and the planning-branch merge, `spec-breakdown` selects that plan's tasks by their `plan` field and sets them to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks become `cancelled` (REQ-004, REQ-005, REQ-016).
+3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf, and sets each task's `plan` to the spec or change-request being broken down; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005, REQ-016).
+4. After Gate 2 and the planning-branch merge, `spec-breakdown` selects that plan's tasks by their `plan` field and sets them to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks, those whose `plan` names it, become `cancelled` (REQ-004, REQ-005, REQ-016).
 5. `/dev-loop` lists `pending` tasks, sets the chosen one to `in-progress`, and creates the task branch. No commit (REQ-008, REQ-013).
 6. The loop appends the Developer's Work Log and the Reviewer appends the Review Verdict to the task file, from whatever branch is checked out. No commit, no switch (REQ-013).
 7. `integrate` reads the verdict from the task file, merges, and on success sets the task to `completed`. The merge commit is the only commit on `dev-agent` (REQ-013).
@@ -514,6 +514,20 @@ its own field so that the plan still selects the task.
 `test_validate_flags_a_task_plan_that_resolves_to_no_spec_or_change_request` in
 `cli/tests/test_tracker.py`.
 
+#### AC-016.3 — Plan filter across reference forms and with `--spec`
+
+- **Given:** an existing spec file `S-003-<slug>.md` with id `S-003`, a task created
+  with `--spec S-002 --plan S-003`, a task created with `--spec S-003 --plan S-003`,
+  and a task created with `--spec S-002 --plan S-004`
+- **When:** `list tasks --plan S-003-<slug>.md` and `list tasks --plan S-003 --spec S-002`
+  run
+- **Then:** the first lists both S-003 plan tasks and not the S-004 plan task; the
+  second lists only the task with source spec S-002 and plan S-003
+
+**Verification:** Test:
+`test_list_plan_filter_matches_every_form_of_a_plan_reference_and_combines_with_spec`
+in `cli/tests/test_tracker.py`.
+
 ## Quality Requirements
 
 None. The tracker is a local, single-user folder of Markdown files: no security,
@@ -581,4 +595,4 @@ None.
 - **2026-10-26 (verification methods):** AC-013.1, AC-013.2 and AC-013.3 are verified by inspection instead of tests that pinned skill wording. Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection.
 - **2026-10-26 (PR #59):** the actor called "the human" is now named the product owner, as S-000 defines it. Wording only.
 - **2026-10-27 (product owner decision):** the framework carries no migration or backward compatibility before 1.0.0. REQ-011 (legacy warning) and REQ-012 (migration procedure), with AC-011.1 and AC-012.1, are removed and their identifiers are not reused. Also removed: the "existing project" journey, the "Existing projects migrate explicitly" principle, the Migration responsibility, the legacy-warning interface, the migration step in Workflow, the migration note in the Git ignore configuration, the legacy-folder dependency on S-003, Success Criteria 6 and 7 (the later criteria are renumbered) and the Migration implementation phase. Commands read work items only from the tracker and neither read nor report legacy folders. The Exclusions and Alternatives Considered state the decision. Version bumped to 0.7. Affected work: the CLI still prints the legacy warning and `check-layout` still reports legacy folders; a bug records the deviation.
-- **2026-11-01 (B-042, product owner approval):** added REQ-016 (task plan membership) with AC-016.1 and AC-016.2: a task's optional `plan` field names the spec or change-request whose breakdown introduced it, set by `task new --plan`; `list tasks --plan` matches every form of a spec reference and combines with `--spec`; `validate` reports `task-plan-missing` for an unresolved `plan`. The Interfaces commands list `--plan`, Workflow step 4 selects a plan's tasks by `plan`, and the Planner journey and Success Criterion 7 cover REQ-016. REQ-014 is unchanged: `spec` stays the task's source. Version bumped to 0.8. Driven by B-042: a task implementing an amendment to another spec, made on a plan's branch, named that spec and so missed the plan's Gate 2 preflight and activation. Affected work: B-042 (commits d11b9481 and bb204125 implement the field, the flags, the finding and the `spec-breakdown` selection).
+- **2026-11-01 (B-042, product owner approval):** added REQ-016 (task plan membership) with AC-016.1, AC-016.2 and AC-016.3: a task's optional `plan` field names the spec or change-request whose breakdown introduced it, set by `task new --plan`; `list tasks --plan` matches every form of a spec reference and combines with `--spec`; `validate` reports `task-plan-missing` for an unresolved `plan`. AC-016.3 covers `--plan` matching another form of the plan reference and combining with `--spec` (Architecture Consistency Review finding A1). The Interfaces commands list `--plan`; Workflow step 3 has `spec-breakdown` set each task's `plan` to the spec or change-request being broken down (finding A2); Workflow step 4 selects a plan's tasks by `plan` for activation, and on abandonment cancels the planned tasks whose `plan` names the abandoned spec or change-request (finding A3); and the Planner journey and Success Criterion 7 cover REQ-016. REQ-014 is unchanged: `spec` stays the task's source. Version bumped to 0.8. Driven by B-042: a task implementing an amendment to another spec, made on a plan's branch, named that spec and so missed the plan's Gate 2 preflight and activation. Affected work: B-042 (commits d11b9481 and bb204125 implement the field, the flags, the finding and the `spec-breakdown` selection; B-042 still owes the AC-016.3 test and the `change-request` skill rejection step selecting by `--plan`).
