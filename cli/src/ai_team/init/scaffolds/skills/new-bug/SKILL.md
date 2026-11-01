@@ -11,6 +11,8 @@ Create a new bug report using `ai-team bug new --json`.
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Required:
 - `title`
 - `summary` (the bug template's Summary section)
@@ -33,7 +35,7 @@ When invoked directly by the product owner and required fields are missing, ask 
 
 ## Procedure
 
-1. Resolve inputs from the caller. Use `$ARGUMENTS` as `title` when it is the only provided input.
+1. Resolve inputs from the caller. Use the argument as `title` when it is the only provided input.
 2. Build the CLI command:
    - Base: `ai-team bug new "<title>" --severity "<severity>" --json`
    - Add `--task "<task>"` only when `task` is provided.

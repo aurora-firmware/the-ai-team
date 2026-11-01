@@ -11,7 +11,9 @@ Merge a reviewed task or bug branch into a destination branch after verifying ex
 
 ## Input Requirements
 
-Provided as `$ARGUMENTS`:
+Argument: `$ARGUMENTS`
+
+The argument holds:
 - **Required** — branch name (e.g., `task/T-012-settings-api`, `bug/B-003-login-crash`) **or** task ID (e.g., `T-012`). If a task ID is given, derive the branch by scanning `git branch` for a branch containing that ID.
 - **Optional** — destination branch (default: `{{integration_branch}}`). If provided as a second argument, use it; otherwise use `{{integration_branch}}`.
 
@@ -19,7 +21,7 @@ Provided as `$ARGUMENTS`:
 
 ### Step 1: Resolve Inputs
 
-1. Parse `$ARGUMENTS`:
+1. Parse the argument:
    - First token → branch or task ID.
    - Second token (if present) → destination branch; otherwise `destination = {{integration_branch}}`.
 2. If the input looks like a task ID (`T-NNN` pattern), run `git branch | grep <task-id>` to find the full branch name and set it as `source-branch`. If zero matches are found, stop with: "Branch for <task-id> not found. Check that the branch exists locally."

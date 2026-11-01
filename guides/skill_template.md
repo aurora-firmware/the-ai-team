@@ -408,6 +408,10 @@ Do not write "if you're doing this before August 2026, use X". Use a current sec
 
 Pick one term per concept and use it throughout the skill (e.g., always "API endpoint" — never mix in "URL", "route", "path"). Inconsistent vocabulary makes Claude hedge and re-derive meaning.
 
+### Name the argument once
+
+The harness replaces every `$ARGUMENTS` in a skill body with the argument value, empty when none is given, so prose that names it becomes unreadable ("If `` is empty"). Write `$ARGUMENTS` once, on an `Argument: `$ARGUMENTS`` line at the top of `## Input Requirements`, and write "the argument" everywhere else.
+
 ## Scripts
 
 For skills that bundle scripts under `scripts/`:

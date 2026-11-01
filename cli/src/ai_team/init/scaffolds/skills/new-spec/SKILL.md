@@ -11,6 +11,8 @@ Create a new specification document using `ai-team spec new --json`, then fill i
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required (free-form prose: problem, approach, exclusions, constraints; used to fill body sections in step 4 — NOT passed to the CLI)
@@ -25,7 +27,7 @@ When invoked directly by the product owner and required fields are missing, ask 
 1. Resolve inputs:
    - Use the caller-provided `title`, `description`, `author`, and `status` when they are present.
    - If invoked directly and some required fields are missing, ask only for the missing fields.
-   - Use `$ARGUMENTS` as the title when it is the only provided input.
+   - Use the argument as the title when it is the only provided input.
 
 2. Build the CLI command:
    - Base: `ai-team spec new "<title>" --json`

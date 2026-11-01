@@ -11,6 +11,8 @@ Create a new change-request artifact using `ai-team change-request new --json`, 
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required; summarize the requested change, why it is needed, affected specs or tasks, and any known risk
@@ -21,7 +23,7 @@ When invoked directly and required fields are missing, ask only for the missing 
 
 1. Resolve inputs:
    - Use the caller-provided `title` and `description` when present.
-   - Use `$ARGUMENTS` as the title when it is the only provided input.
+   - Use the argument as the title when it is the only provided input.
    - If the title or description is still missing, ask for the missing value.
 
 2. Open the planning branch and create the artifact:

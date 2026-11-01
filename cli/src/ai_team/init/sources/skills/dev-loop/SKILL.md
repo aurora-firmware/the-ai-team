@@ -12,7 +12,9 @@ Stops only at hard gates: empty queue, blocked task, or escalation.
 
 ## Input Requirements
 
-Optional: a single task ID or branch name as `$ARGUMENTS` (e.g., `T-012` or `task/T-012-my-feature`).
+Argument: `$ARGUMENTS`
+
+Optional: the argument is a single task ID or branch name (e.g., `T-012` or `task/T-012-my-feature`).
 - If provided, the loop processes only that task — it does not continue to the next task after completion or failure.
 - If omitted, the loop processes the full pending queue until empty, blocked, or escalated.
 
@@ -57,13 +59,13 @@ Each subagent starts cold, and the orchestrator's context is the scarce resource
 
 ### Step 1: Check the Queue
 
-If `$ARGUMENTS` is non-empty:
+If the argument is non-empty:
 - Parse it as a task ID (e.g., `T-012`) or branch name (e.g., `task/T-012-my-feature`). Extract the task ID either way.
 - Run `ai-team show <task-id> --json` and confirm its `status` is `pending`.
 - If the task does not exist or is not `pending`, stop with: "Task <task-id> is not a pending task. Check the task ID and its current status."
 - Use this single task as the queue. After it completes (success, blocked, or escalated), stop — do not continue to other tasks.
 
-If `$ARGUMENTS` is empty, discover pending tasks using: `ai-team list tasks --state pending`.
+If the argument is empty, discover pending tasks using: `ai-team list tasks --state pending`.
 Tasks with status `planned` are not part of the queue: their planning branch has not merged yet.
 If the queue is empty, proceed directly to **Step 8: Loop Complete** so the workspace is checked
 and the run summary is returned before the loop stops.
