@@ -14,6 +14,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 - Exclusions are explicitly stated.
 - No unresolved open questions that affect behavior, contracts, acceptance, or feasibility. Deferred internal investigations follow the `new-spec` Open Questions rule.
 - No remaining product-owner-answerable `[TODO]` markers.
+- Every amendment to another approved spec that the planning branch carries is listed for approval (see [Cross-spec amendments](#cross-spec-amendments)); a spec with an unlisted one fails.
 
 **Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec_authoring_guide.md`.
 
