@@ -738,3 +738,27 @@ def test_validate_task_change_request_reference_ignores_the_tracker_archive(
         finding["code"] == "task-spec-missing" and "CR-050" in finding["message"]
         for finding in findings
     )
+
+
+def test_validate_keeps_every_finding_value_whole_when_output_is_not_a_terminal(
+    monkeypatch, tmp_path
+):
+    """Piped output must not truncate or wrap table cells at 80 columns (B-046)."""
+    from ai_team.cli import app
+
+    _seed_valid_project(tmp_path)
+    slug = "a-very-long-task-slug-that-would-not-fit-in-an-eighty-column-table"
+    _write(
+        tmp_path / ".ai-team" / "tracker" / "tasks" / f"T-020-{slug}.md",
+        _task("T-020", "Long path", "done"),
+    )
+
+    monkeypatch.delenv("COLUMNS", raising=False)
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["validate"])
+
+    finding_line = next(
+        line for line in result.stdout.splitlines() if "status-invalid" in line
+    )
+    assert f"T-020-{slug}.md" in finding_line
+    assert "…" not in result.stdout
