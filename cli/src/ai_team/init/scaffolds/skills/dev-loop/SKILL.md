@@ -22,7 +22,7 @@ Tasks live in the local tracker, outside version control. Their lifecycle state 
 The orchestrator reads and changes task state only through the `ai-team` CLI:
 - `ai-team list tasks --state pending` — pending work queue
 - `ai-team list tasks --state in-progress` — active task slot
-- `ai-team show <task-id> --json` — the task file's `path` and current frontmatter
+- `ai-team show <task-id> --json` — the task file's `path` and its frontmatter fields (`id`, `status`, `priority`, ...), all at the top level
 - `ai-team task start|block <task-id>` — lifecycle transitions
 
 Recording lifecycle state never creates a commit and never needs a branch switch: the task file is outside every branch.

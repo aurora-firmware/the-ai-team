@@ -31,7 +31,7 @@ The command scans the project state directories, excludes template files and `.g
 ### Step 2: Count Current State
 
 Count specs and ADRs in `{{project_dir}}/specs/` and `{{project_dir}}/decisions/`, excluding template files and `.gitkeep`.
-Count tasks and bugs by status with `ai-team list tasks --json` and `ai-team list bugs --json` (the `state` field is the frontmatter `status`):
+Count tasks and bugs by status with `ai-team list tasks --json` and `ai-team list bugs --json` (each object carries the frontmatter `status`):
 - tasks: `planned`, `pending`, `in-progress`, `completed`, `blocked`, `cancelled`
 - bugs: `open`, `in-progress`, `resolved`
 

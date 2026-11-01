@@ -100,7 +100,7 @@ The tasks are already in the tracker with status `planned`, listed by `ai-team l
 They are outside version control: there is nothing to commit, and `/dev-loop` ignores them until Step 7 activates them.
 
 ### Step 6: Architect Preflight
-Run `ai-team list tasks --state planned --plan <spec-or-cr-id> --json`, then `ai-team show <task-id> --json` for each listed task, and collect each task's absolute `path`.
+Run `ai-team list tasks --state planned --plan <spec-or-cr-id> --json` and collect the absolute `path` of each listed task.
 The tracker is outside the repository, so the Planner passes the Architect the absolute task paths that `ai-team` reported in the prompt.
 
 **Spawn the Architect subagent** (tier: most capable) with this prompt:
