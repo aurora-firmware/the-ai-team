@@ -145,7 +145,8 @@ def test_planned_tasks_stay_out_of_the_pending_queue_until_activated(
         ).stdout
     )
     assert [row["id"] for row in planned] == ["T-001"]
-    assert set(planned[0]) == {"id", "title", "state", "priority", "assigned-role"}
+    assert planned[0]["status"] == "planned"
+    assert "state" not in planned[0]
 
     assert _invoke("task", "set-status", "T-001", "pending").exit_code == 0
     pending = json.loads(
@@ -163,7 +164,7 @@ def test_change_request_set_status_and_show(initialized_repo):
 
     shown = json.loads(_invoke("show", created["id"], "--json").stdout)
     assert shown["path"] == created["path"]
-    assert shown["frontmatter"]["status"] == "rejected"
+    assert shown["status"] == "rejected"
 
     rows = json.loads(
         _invoke("list", "change-requests", "--state", "rejected", "--json").stdout

@@ -9,7 +9,7 @@ from typing import Literal
 import typer
 from slugify import slugify
 
-from ai_team.commands._shared import hint_missing_overview
+from ai_team.commands._shared import artifact_object_from_file, hint_missing_overview
 from ai_team.core.fs import ArtifactExists, write_artifact
 from ai_team.core.ids import next_adr_id
 from ai_team.core.locator import find_project_root
@@ -72,7 +72,7 @@ def new_adr(
 
     absolute_path = str(dest.resolve())
     if as_json:
-        print_json({"id": adr_id, "path": absolute_path})
+        print_json(artifact_object_from_file(dest, "adr"))
         return
 
     typer.echo(absolute_path)

@@ -74,7 +74,10 @@ def test_bug_new_supports_custom_flags_and_json_output(monkeypatch, tmp_path):
     payload = json.loads(result.stdout)
 
     assert result.exit_code == 0
-    assert payload == {"id": "B-001", "path": str(expected)}
+    assert payload["id"] == "B-001"
+    assert payload["severity"] == "critical"
+    assert payload["task"] == "T-011"
+    assert payload["path"] == str(expected)
     assert "┏" not in result.stdout
 
     bug = parse_bug(expected)
