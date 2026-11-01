@@ -53,8 +53,15 @@ def _strip_comments(line: str) -> tuple[str, bool]:
     return "".join(kept), False
 
 
-def _prose(text: str) -> str:
-    """Exclude frontmatter, comments, and code from structural interpretation."""
+CODE_PLACEHOLDER = "code"
+
+
+def _prose(text: str, *, mark_code: bool = False) -> str:
+    """Exclude frontmatter, comments, and code from structural interpretation.
+
+    With mark_code, each code line becomes a placeholder word, so a section
+    holding only code still has content without its text being interpreted.
+    """
     text = re.sub(r"\A---[^\n]*\n.*?\n---[^\n]*(?:\n|$)", "", text, count=1, flags=re.S)
     lines = []
     fence = ""
@@ -78,15 +85,21 @@ def _prose(text: str) -> str:
                 and not marker[2].strip()
             ):
                 fence = ""
+            elif mark_code:
+                lines.append(CODE_PLACEHOLDER)
             continue
         blank = False
         if marker:
             fence = marker[1]
+            if mark_code:
+                lines.append(CODE_PLACEHOLDER)
         elif line.startswith(("    ", "\t")) and (
             indented_code or (previous_blank and not in_list)
         ):
             # Indented code, unless the indentation continues a list item.
             indented_code = True
+            if mark_code:
+                lines.append(CODE_PLACEHOLDER)
         else:
             line, in_comment = _strip_comments(line)
             blank = not line.strip()
@@ -117,7 +130,10 @@ def _blocks(text: str, level: int) -> list[tuple[str, str]]:
     ]
 
 
-def _section_issues(sections: list[tuple[str, str]]) -> list[Issue]:
+def _section_issues(
+    sections: list[tuple[str, str]], filled_sections: list[tuple[str, str]]
+) -> list[Issue]:
+    """Check section structure; filled_sections count code as content."""
     issues = []
     counts = Counter(title for title, _ in sections)
     for title in FEATURE_SECTIONS:
@@ -129,7 +145,7 @@ def _section_issues(sections: list[tuple[str, str]]) -> list[Issue]:
             issues.append(
                 ("spec-section-duplicate", f"Section '## {title}' is repeated.")
             )
-    for title, body in sections:
+    for title, body in filled_sections:
         content = re.sub(r"(?m)^ {0,3}#{1,6}[ \t]+.*$", "", body).strip()
         if title in FEATURE_SECTIONS and title != "Amendment Log" and not content:
             issues.append(
@@ -282,7 +298,8 @@ def validate_feature_content(text: str, *, status: str) -> list[Issue]:
     prose = _prose(text)
     sections = _blocks(prose, 2)
     preamble = re.split(r"(?m)^ {0,3}## ", prose, maxsplit=1)[0]
-    issues = _section_issues(sections) + _requirement_issues(
+    filled_sections = _blocks(_prose(text, mark_code=True), 2)
+    issues = _section_issues(sections, filled_sections) + _requirement_issues(
         [("", preamble), *sections]
     )
     placeholder_text = re.sub(r"(`+).*?\1", "", prose)
