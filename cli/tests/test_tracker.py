@@ -340,3 +340,51 @@ def test_validate_flags_a_task_plan_that_resolves_to_no_spec_or_change_request(
 
     codes = [f["code"] for f in json.loads(_invoke("validate", "--json").stdout)]
     assert codes == ["task-plan-missing"]
+
+
+def test_list_plan_filter_matches_every_form_of_a_plan_reference_and_combines_with_spec(
+    initialized_repo,
+):
+    specs = initialized_repo / "ai-team" / "specs"
+    specs.mkdir(parents=True, exist_ok=True)
+    (specs / "S-003-billing.md").write_text(
+        "---\ntitle: Billing\nversion: '0.1'\nstatus: approved\n"
+        "created: '2026-10-16'\nauthor: planner\nid: S-003\n---\n\n# Billing\n",
+        encoding="utf-8",
+    )
+    for title, spec, plan in (
+        ("Amendment", "S-002", "S-003"),
+        ("Own", "S-003", "S-003"),
+        ("Other plan", "S-002", "S-004"),
+    ):
+        _invoke(
+            "task", "new", title, "--status", "planned", "--spec", spec, "--plan", plan
+        )
+
+    by_plan_filename = json.loads(
+        _invoke(
+            "list",
+            "tasks",
+            "--state",
+            "planned",
+            "--plan",
+            "S-003-billing.md",
+            "--json",
+        ).stdout
+    )
+    by_plan_and_spec = json.loads(
+        _invoke(
+            "list",
+            "tasks",
+            "--state",
+            "planned",
+            "--plan",
+            "S-003",
+            "--spec",
+            "S-002",
+            "--json",
+        ).stdout
+    )
+
+    assert [row["id"] for row in by_plan_filename] == ["T-001", "T-002"]
+    assert [row["id"] for row in by_plan_and_spec] == ["T-001"]
