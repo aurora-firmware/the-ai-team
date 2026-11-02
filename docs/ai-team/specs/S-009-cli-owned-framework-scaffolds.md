@@ -56,79 +56,12 @@ What this specification explicitly does NOT cover:
   owned by S-003 (level 1 of the layout check) and the tracker by S-006. This spec
   refers to them rather than restating them.
 
-## Architecture
+## Alternatives Considered
 
-### Design Principles
-
-1. **CLI package owns exported framework assets.** Anything `ai-team init` writes into a
-   consuming project comes from package-owned data under `cli/src/ai_team/init/`
-   (REQ-001).
-2. **Root tool folders are local configuration.** Repository-root tool folders such as
-   `.claude/` are for developing this repository, not for shipping the framework, and no
-   source or generator reads them (REQ-001).
-3. **One file per skill.** Each skill is authored once as a source `SKILL.md`, its
-   frontmatter followed by its procedural body, in the form Claude reads. The generator
-   copies it unchanged; there is no header merge (REQ-002).
-4. **Generated output is reproducible.** The committed scaffolds must equal a fresh run
-   of the generator over the committed sources; a source change and its regenerated
-   output are committed together (REQ-007).
-5. **Project settings are filled in at init time.** Generated scaffolds keep their
-   placeholders; `init` is the only step that knows the project's settings (REQ-009).
-6. **No process duplication.** `ai-process/` remains the specification layer in this
-   repository and is not bundled into the CLI init scaffolds (REQ-018).
-7. **Documentation follows ownership.** README, guides, CLI docs, and architecture docs
-   describe the package-owned scaffolding model and name the generator, not root tool
-   folders, as the way exported definitions change (REQ-020).
-
-### System Diagram
-
-```
-Repository root (development workspace)
-  .claude/ (and other tool folders)  local tool config only, never read by the generator
-  ai-process/                authoritative process specification, not exported
-  cli/
-    scripts/sync_init_scaffolds.py   generator
-    src/ai_team/init/
-      sources/                       maintainers edit here
-        skills/<name>/SKILL.md, [assets/ references/ scripts/]
-        agents/*.md
-        project/         project AGENTS.md and .gitignore
-        root/            root AGENTS.md template
-      scaffolds/                     generated, committed, read by init
-        project/   agents/   skills/
-
-ai-team init
-  renders placeholders while copying package scaffolds
-  writes the project directory, the tool export paths (S-003 level 1),
-  the tracker folder (S-006) and .ai-team.toml
-  never writes ai-process/
-```
-
-### Responsibility Separation
-
-| Component | Responsibility | Notes |
-|---|---|---|
-| `cli/src/ai_team/init/sources/` | Canonical package-owned source assets for exported framework definitions. | Skill `SKILL.md` files, skill supporting folders, agents, project and root `AGENTS.md` templates. |
-| Scaffold generator | Produces the bundled scaffolds from the sources. | `cli/scripts/sync_init_scaffolds.py`; copies, never renders placeholders. |
-| `cli/src/ai_team/init/scaffolds/` | Generated package data consumed by `ai-team init`. | Contains `project/`, `agents/`, and `skills/`; never contains `ai-process/`. Do not edit by hand. |
-| `ai-team init` | Writes the agent and skill scaffolds and the project skeleton into a target repository, filling in the project's settings. | Export paths per S-003 level 1; tracker per S-006. |
-| Tests | Enforce that the scaffolds match a fresh generation, that supporting folders reach the export, and the `init` contract. | Prevent drift and CLI contract regression. |
-| Documentation | Explains the source-of-truth boundary and the generator. | README, setup and skill-authoring guides, `cli/docs/`. |
-
-### Alternatives Considered
-
-- **Direct package copies.** Keep separate Claude and Codex scaffold files directly
-  under the CLI package and copy them as-is. Simpler, but the shared skill text drifts
-  between tool formats unless every change is duplicated by hand.
-- **Shared skill body with generated tool scaffolds.** Store each skill body once and
-  generate Claude and Codex files with tool-specific metadata. Chosen while two tools
-  were exported; CR-007 dropped Codex, so the header merge no longer removes any
-  duplication, and each skill is now one source `SKILL.md` copied as is.
-- **Fully structured framework model.** Model agents and skills as structured data and
-  generate every tool artifact from that schema. Cleaner long-term but too broad: it
-  needs a new schema, migration rules, and a review of every agent definition.
-- **Rendering placeholders in the generator (CR-003).** Rejected: the project directory
-  and integration branch are only known when `init` runs in a consuming project.
+None. The alternatives weighed for this spec (per-tool scaffold copies, a
+shared skill body with generated per-tool headers, a structured framework model,
+and rendering placeholders in the generator) were implementation approaches for
+the generator; `docs/development/architecture.md` records them.
 
 ## Interfaces
 
@@ -818,3 +751,4 @@ None.
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
 | 2026-11-01 | Coding guidelines are no longer part of the project skeleton: REQ-005 and AC-005.1 drop the `docs/coding_guidelines.md` placeholder and its sync test; AC-012.3 drops the missing-guidelines upgrade case and its test; REQ-013 and AC-013.2 exclude only root guidance from the adoption question (test renamed `test_does_not_ask_about_root_guidance`); REQ-015 drops the guidelines exclusion from the kept-file list; REQ-016 is retitled "Coding guidelines left to the project": `init` writes no coding guidelines file and never overwrites, reports or asks about one the project keeps, with AC-016.1 rewritten and AC-016.2 added; the Interfaces source tree and Success Criterion 4 follow. The location rule (the document the project guidance names, default `docs/development/coding_guidelines.md`) is referenced, not restated; `ai-process/guidelines/coding_standards.md` owns it. Version bumped to 0.10. Driven by B-039 (product owner decision, 2026-11-01). | The scaffolded `{{project_dir}}/docs/coding_guidelines.md` placeholder disagreed with the S-000 bootstrap, which writes project documents to `docs/development/`, so projects kept an empty placeholder and agents read the wrong file. | B-039 implements it |
+| 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its four entries were implementation approaches for the generator and move to `docs/development/architecture.md`, and the section states None. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |

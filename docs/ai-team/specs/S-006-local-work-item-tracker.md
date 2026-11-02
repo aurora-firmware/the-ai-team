@@ -50,44 +50,7 @@ creates.
 - **Shared ID allocation for specs and ADRs.** Task, bug, and change-request IDs come from the single tracker folder and stop colliding across planning branches; spec and ADR IDs keep today's allocation from the files on the current branch.
 - **Migrating legacy work items.** Work items a project kept in its project directory before this spec are not migrated: there is no migration command, no migration procedure and no legacy warning. The framework carries no backward compatibility before 1.0.0.
 
-## Architecture
-
-### Design Principles
-
-- **Work items out, design documents in.** Tasks, bugs, and change-requests are work items and live in the tracker. Specs and ADRs are design documents and live in the repository (REQ-003).
-- **One source of truth for state.** A work item's lifecycle state is its frontmatter `status` value. No folder, filename, or branch encodes state (REQ-003, REQ-010).
-- **Outside version control, inside the workspace.** The tracker is never committed, survives branch switches untouched, and lives where a dev container mounts the workspace by default (REQ-001, REQ-008, REQ-009).
-- **One tracker per repository.** Every git worktree of a repository resolves the same tracker folder, so a Developer working in a worktree and a loop working in the main checkout see the same state (REQ-002).
-- **Skills never touch tracker paths directly.** Skills locate, create, and transition tasks, bugs, and change-requests only through `ai-team` commands, and every state change is a command. A role may read and edit the body of a work-item file whose path an `ai-team` command reported, and a caller may pass such a reported path to another role. Every agent role that runs these skills has a shell. The one exception is scratch files that are not work items (REQ-013).
-
-### System Diagram
-
-```
- .ai-team.toml ──[tracker] dir──┐
-                                ▼
- ai-team CLI ──────────► <tracker>/tasks/T-NNN-*.md            status: planned … completed
- (new, set-status,       <tracker>/bugs/B-NNN-*.md             status: open … resolved
-  list, show, status,    <tracker>/change-requests/CR-NNN-*.md status: pending … rejected
-  report, validate,      <tracker>/review-packages/   loop scratch files
-  tracker path)
-                                  ▲
-                                  │ append Work Log / Verdict to returned path
-                                  │
- skills (loops, integrate, ───────┘        project repo (git)
- code-review, spec-breakdown,  ───────►   specs, ADRs, source, tests
- change-request)
-```
-
-### Responsibility Separation
-
-| Component | Responsibility | Interface notes |
-|---|---|---|
-| Tracker configuration | Resolve the tracker folder for the current repository | Reads `.ai-team.toml`; exposes the resolved absolute path to every command |
-| Work-item store | Create, find, and transition tasks, bugs, and change-requests by ID | Field-based state; one flat folder per kind |
-| CLI commands | Product owner and skill entry points for tracker data | Existing command names keep working; state filters read the `status` field |
-| Process skills and docs | Drive lifecycle through CLI commands, without lifecycle commits | Loops, integrate, code-review, spec-breakdown, change-request, git-conventions, workflow docs |
-
-### Alternatives Considered
+## Alternatives Considered
 
 - **Keeping lifecycle folders in the repository.** Rejected: every state change is a
   file move and a commit on `dev-agent`, which costs about four lifecycle commits and
@@ -669,3 +632,4 @@ None.
 - **2026-10-27 (product owner decision):** the framework carries no migration or backward compatibility before 1.0.0. REQ-011 (legacy warning) and REQ-012 (migration procedure), with AC-011.1 and AC-012.1, are removed and their identifiers are not reused. Also removed: the "existing project" journey, the "Existing projects migrate explicitly" principle, the Migration responsibility, the legacy-warning interface, the migration step in Workflow, the migration note in the Git ignore configuration, the legacy-folder dependency on S-003, Success Criteria 6 and 7 (the later criteria are renumbered) and the Migration implementation phase. Commands read work items only from the tracker and neither read nor report legacy folders. The Exclusions and Alternatives Considered state the decision. Version bumped to 0.7. Affected work: the CLI still prints the legacy warning and `check-layout` still reports legacy folders; a bug records the deviation.
 - **2026-11-01 (B-042, product owner approval):** added REQ-016 (task plan membership) with AC-016.1, AC-016.2 and AC-016.3: a task's optional `plan` field names the spec or change-request whose breakdown introduced it, set by `task new --plan`; `list tasks --plan` matches every form of a spec reference and combines with `--spec`; `validate` reports `task-plan-missing` for an unresolved `plan`. AC-016.3 covers `--plan` matching another form of the plan reference and combining with `--spec` (Architecture Consistency Review finding A1). The Interfaces commands list `--plan`; Workflow step 3 has `spec-breakdown` set each task's `plan` to the spec or change-request being broken down (finding A2); Workflow step 4 selects a plan's tasks by `plan` for activation, and on abandonment cancels the planned tasks whose `plan` names the abandoned spec or change-request (finding A3); and the Planner journey and Success Criterion 7 cover REQ-016. REQ-014 is unchanged: `spec` stays the task's source. Version bumped to 0.8. Driven by B-042: a task implementing an amendment to another spec, made on a plan's branch, named that spec and so missed the plan's Gate 2 preflight and activation. Affected work: B-042 (commits d11b9481 and bb204125 implement the field, the flags, the finding and the `spec-breakdown` selection; B-042 still owes the AC-016.3 test and the `change-request` skill rejection step selecting by `--plan`).
 - **2026-11-01 (B-040, product owner decision):** added REQ-017 (one JSON object per artifact) with AC-017.1 to AC-017.4: with `--json`, `list`, `show` and `new` for tasks, bugs, change-requests, specs and ADRs print the same flat object, every frontmatter field at the top level plus the absolute `path`, the status under `status`, never `state`, and `show` adds `body`, with no `frontmatter` key. REQ-007 drops "`list` JSON row shapes SHALL stay unchanged" and AC-007.1 checks `status` instead of the `state` row key; the Interfaces commands list drops the frozen row shape and gains the JSON objects contract; the `change-request new` interface and AC-015.2 print the change-request object (test renamed `test_change_request_new_json_flag_emits_the_change_request_object_without_table`); Success Criterion 3 drops "its JSON shape is unchanged", Criterion 7 covers REQ-017 and Criterion 8 is added; the loops journey links REQ-017; the Purpose states that this spec owns the `--json` object shape of `new`, `list` and `show` for every artifact kind, specs and ADRs included, because those commands are shared across kinds (Architecture Consistency Review finding C2). No backward compatibility (pre-1.0). Version bumped to 0.9. Driven by B-040: the task commands returned three JSON shapes (`new` with `id` and `path` only, `list` rows with `state` and no `path`, `show` nesting the fields under `frontmatter`). Affected work: B-040 implements the shared object and updates the skills that parse this output.
+- **2026-11-02 (T-187, 0.19.0 template):** Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the tracker store and path resolution are described in `docs/development/architecture.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64).

@@ -44,62 +44,11 @@ What this specification explicitly does NOT cover:
 - **Publishing to a package index.** A release attaches its files to the GitHub
   Release only.
 
-## Architecture
+## Alternatives Considered
 
-### Design Principles
-
-- **No writes to the repository.** CI observes and reports. The only thing it
-  publishes is a GitHub Release for a version tag; it never commits or pushes
-  (REQ-009).
-- **Independent signals.** Test failures and lint failures are reported as separate
-  checks so one never masks the other (REQ-005).
-- **Self-contained runner setup.** Each job brings its own `uv` and Python 3.14
-  toolchain, so nothing is assumed about the shared self-hosted runner beyond Docker
-  support and network access to pull that toolchain.
-- **Single source of truth for tooling config.** Ruff configuration lives in
-  `cli/pyproject.toml`; the workflow invokes Ruff with no inline rule overrides
-  (REQ-002).
-- **Releases are gated.** A release is built only for a version tag and only after
-  `lint` and `test` pass (REQ-007).
-
-### System Diagram
-
-```
-        trigger: pull_request | push to main | push of a version tag
-                                   │
-                                   ▼
-             .github/workflows/ci.yml  (self-hosted docker runner,
-                                        uv + Python 3.14 container)
-                                   │
-              ┌────────────────────┴────────────────────┐
-              ▼                                         ▼
-        job: lint                                  job: test
-   ruff format --check, ruff check             uv run pytest
-   commands.md drift check
-              └────────────────────┬────────────────────┘
-                                   ▼ (version tags only, both passed)
-                             job: release
-   version from tag, uv build, regenerate commands.md,
-   publish GitHub Release
-```
-
-### Responsibility Separation
-
-| Component | Responsibility | Notes |
-|---|---|---|
-| `.github/workflows/ci.yml` | Defines the triggers and the `lint`, `test` and `release` jobs | The only workflow file |
-| `lint` job | Ruff format check, Ruff lint, and the generated-docs drift check over `cli/` | Fails on any violation or drift |
-| `test` job | Runs the CLI test suite | Fails on any test failure |
-| `release` job | Builds and publishes a GitHub Release for a version tag | Needs `lint` and `test`; the only job granted write permission |
-| `cli/pyproject.toml` | Declares Ruff as a dev dependency and holds the Ruff configuration | Single source of truth for lint/format rules |
-
-### Alternatives Considered
-
-- **Installing `uv` on the runner with the `astral-sh/setup-uv` action.** The original
-  design provisioned the toolchain with this action. It was replaced by running every
-  job in the `ghcr.io/astral-sh/uv:python3.14-trixie-slim` container, which brings
-  `uv` and Python 3.14 together and keeps the shared self-hosted runner free of
-  project-specific setup (CR-003).
+None. The one alternative weighed, provisioning `uv` with the
+`astral-sh/setup-uv` action instead of a job container, was an implementation
+approach; `docs/development/tech_stack.md` records it.
 
 ## Interfaces
 
@@ -461,3 +410,4 @@ runner's network access is confirmed there too.
 | 2026-10-20 | Moved out of `specs/archive/` as S-010 (was a duplicate `S-001`). The workflow contract now matches `.github/workflows/ci.yml`: version-tag triggers; jobs in the `uv` Python 3.14 container on the self-hosted docker runner; `actions/checkout@v6`; the `commands.md` drift check in `lint` (the exclusion of that check is removed); the `release` job (`contents: write`, publishes a GitHub Release, commits nothing); shallow checkout for `lint` and `test`. Ruff selection pinned to `E`, `F`, `I` ignoring `E501`. Resolved the three open questions from `cli/pyproject.toml` and `.github/workflows/ci.yml`; the embedded YAML and TOML became prose. Driven by CR-003 §10 and Architecture Consistency Review finding F5. | The spec was still `approved` in the archive and the only written contract for CI, but its exclusions, triggers and runner setup no longer matched the workflow. | None in flight |
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces, Behavioral Requirements REQ-001–REQ-008 with acceptance scenarios, Quality Requirements REQ-009, Assumptions and Dependencies, and Success Criteria; the Components section was split into Interfaces, requirements and Configuration Requirements, and its workflow line references were dropped. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
+| 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its one entry (the `setup-uv` action) was an implementation approach and moves to `docs/development/tech_stack.md`, and the section states None. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |

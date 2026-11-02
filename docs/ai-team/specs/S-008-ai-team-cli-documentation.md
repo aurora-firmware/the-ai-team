@@ -44,63 +44,11 @@ What this specification explicitly does NOT cover:
   skill files (S-009).
 - **Work-item and layout contracts.** The tracker layout is owned by S-006 and the expected project layout by S-003; `usage.md` describes them for readers but does not define them.
 
-## Architecture
+## Alternatives Considered
 
-### Design Principles
-
-1. **Docs are the source of truth for the CLI as it is.** `cli/docs/`, not the archived development spec, describes the CLI's current behaviour; the development spec stays archived as `superseded` so there are never two contradictory descriptions.
-2. **Generation over transcription for the reference.** The exhaustive command and flag reference must come from the CLI's own command definitions, so it cannot drift from the code (REQ-007). Hand-written prose is reserved for things a generator cannot produce: workflows, the project folder structure, and maintainer guidance.
-3. **Two files, two jobs.** `usage.md` is hand-written and explains *how to use and maintain* the CLI. `commands.md` is generated and is the *exhaustive reference*. The split keeps the generated file replaceable without touching hand-written content.
-4. **Committed, not built on demand.** `commands.md` is checked into the repository so it is readable without a build step, mirroring how `cli/` commits its bundled init scaffolds (REQ-007).
-5. **Drift is caught automatically.** Continuous integration fails when the committed `commands.md` differs from a fresh generation (S-010).
-6. **The architecture layer must mention the CLI.** `ai-process/` is the specification layer; `component_map.md` therefore records the CLI as a component the skills compose with (REQ-010).
-
-### System Diagram
-
-```
-  ┌──────────────────────┐         ┌───────────────────────────────┐
-  │  Typer app           │  intro- │  cli/scripts/gen_docs.sh      │
-  │  (ai_team.cli +      │  spect  │  wraps `typer ... utils docs` │
-  │   commands/*)        │────────▶│  → writes cli/docs/commands.md│
-  └──────────────────────┘         └───────────────────────────────┘
-                                        │ commits        ▲ re-runs and diffs
-                                        ▼                │
-  ┌──────────────────────────────────────────────┐  ┌──────────────────┐
-  │  cli/docs/                                   │  │ CI lint job      │
-  │    usage.md    ← hand-written: install, init,│  │ (S-010): fails   │
-  │                  workflows, folder structure,│  │ on any drift     │
-  │                  maintainer notes            │  └──────────────────┘
-  │    commands.md ← generated: every command,   │
-  │                  subcommand, flag            │
-  └──────────────────────────────────────────────┘
-        ▲                                   ▲
-        │ linked from                       │ referenced by
-  ┌─────────────┐                  ┌──────────────────────────────┐
-  │ README.md   │                  │ ai-process/architecture/     │
-  │ setup_guide │                  │ component_map.md             │
-  └─────────────┘                  │  (CLI command mapping)       │
-                                   └──────────────────────────────┘
-```
-
-### Responsibility Separation
-
-| Component | Responsibility | Notes |
-|---|---|---|
-| `cli/docs/usage.md` | Hand-written guide: installation, `init`, daily command workflows, the project and tracker folder structure, and a maintainer section. | Single file for both audiences. Owns everything a generator cannot produce. |
-| `cli/docs/commands.md` | Generated exhaustive reference: every command group, subcommand, argument, and flag, including global flags. | Committed to the repo. Regenerated, never hand-edited. |
-| `cli/scripts/gen_docs.sh` | Thin wrapper that generates `cli/docs/commands.md` with a generated-file header. | The one regeneration command. |
-| CI drift check | Regenerates `commands.md` and fails when it differs from the committed file. | Owned by S-010. |
-| `ai-process/architecture/component_map.md` | Maps which skills invoke which `ai-team` commands. | Architecture layer records the CLI's role. |
-| `README.md`, `guides/setup_guide.md`, `AGENTS.md` | Brief CLI mentions that link into `cli/docs/`, and the contributor rule to regenerate `commands.md` when a command or flag changes. | Not documentation homes; just pointers and the rule. |
-
-### Alternatives Considered
-
-- **A custom documentation generator.** Rejected to avoid maintaining generation code.
-  The reference comes from Typer's built-in `utils docs` command, and
-  `cli/scripts/gen_docs.sh` only wraps it and adds a header.
-- **Running `utils docs` through the installed `ai-team` console script.** Rejected
-  in favour of the module path `ai_team.cli`, so generation does not depend on an
-  installed console script (CR-003).
+None. The two alternatives weighed for the command reference, a custom
+generator and running `utils docs` through the installed console script, were
+implementation approaches; `docs/development/tech_stack.md` records them.
 
 ## Interfaces
 
@@ -417,7 +365,7 @@ All phases are delivered: the `typer-cli` dependency, `gen_docs.sh` and the comm
 ## Open Questions
 
 None. The three questions left open at approval are answered from the repository
-(CR-003): the `utils docs` invocation uses the module path (Alternatives Considered);
+(CR-003): the `utils docs` invocation uses the module path (`docs/development/tech_stack.md`);
 `typer-cli` is in the `dev` dependency group (Configuration Requirements); and the CI
 drift check is wired in (S-010).
 
@@ -433,3 +381,4 @@ drift check is wired in (S-010).
 | 2026-10-26 | REQ-003: the fifth daily workflow is "validate artifacts", without archiving. REQ-004: the tracker folder holds `tasks/`, `bugs/` and `change-requests/`, with no `archive/`; the project `specs/archive/` stays. AC-004.1 Verification now names `test_usage_md_describes_tracker_folders`, which already checks the tracker folders. Version bumped to 0.4. Driven by CR-008 and Architecture Consistency Review finding F2. | CR-008 removes the `ai-team archive` command and the tracker archive (S-006). | CR-008 task plan |
 | 2026-10-26 | REQ-001–REQ-006: `usage.md` content is verified by inspection; the keyword smoke tests in `cli/tests/test_usage_guide.py` were removed, and AC-003.1 keeps the test that checks example commands against `commands.md`. Success Criteria 2 and 3 follow. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
+| 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its two entries (a custom generator, the console-script invocation) were implementation approaches and move to `docs/development/tech_stack.md`, and the section states None; the two-file design moves to `docs/development/architecture.md`; Open Questions points to `tech_stack.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
