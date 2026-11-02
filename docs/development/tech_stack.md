@@ -28,15 +28,12 @@ these answers record the setup that already exists.
 - **Files kept out of version control.** `.gitignore`: the local agent folders
   (`.claude`, `.agents`, `.pi`), Python caches and wheels, root-level
   `pr-*-review.md` reports, the local tracker `/.ai-team/`, the mise tool install
-  `/.tmp/` and `/mise.local.toml`. `docs/ai-team/.gitignore` ignores the
-  `.ai-team.lock` sentinel.
-- **Files tracked on purpose.** Status reports written by `ai-team report` to
-  `docs/ai-team/docs/reports/` are tracked: this repository removed the scaffold's
-  `docs/reports/` ignore line from `docs/ai-team/.gitignore` and says so in
-  `docs/ai-team/AGENTS.md`. The folder appears with the first committed report.
-  `ai-team init --update-docs` (or `--force`) rewrites both files from the scaffold,
-  so re-apply the two edits after such an upgrade. The generated scaffolds in
-  `cli/src/ai_team/init/scaffolds/` are tracked too.
+  `/.tmp/` and `/mise.local.toml`. `docs/ai-team/.gitignore` is the scaffold's
+  unchanged: it ignores the `.ai-team.lock` sentinel and the status reports that
+  `ai-team report` writes to `docs/ai-team/docs/reports/`, so
+  `ai-team init --update-docs` leaves it as it is.
+- **Files tracked on purpose.** The generated scaffolds in
+  `cli/src/ai_team/init/scaffolds/`.
 - **Remote.** A remote is required. The repository is hosted on GitHub as
   `aurora-firmware/the-ai-team` and is reached as `origin`. Access is confirmed when
   `git ls-remote --heads origin` lists at least one branch.
@@ -59,7 +56,11 @@ these answers record the setup that already exists.
 
 - **Service and runners.** GitHub Actions (`.github/workflows/ci.yml`) on
   self-hosted Docker runners, in the `ghcr.io/astral-sh/uv:python3.14-trixie-slim`
-  container.
+  container. The container brings `uv` and Python 3.14 together, so the shared
+  runner needs only Docker and network access, and no job installs project-specific
+  tools on it. It replaced provisioning `uv` with the `astral-sh/setup-uv` action
+  (CR-003). Ruff runs with the rules in `cli/pyproject.toml` and no inline
+  overrides.
 - **Triggers.** Every pull request, pushes to `main`, and version tags
   (`X.Y.Z` or `X.Y.Z-label`).
 - **Checks that block a merge.** The `lint` job (ruff format check, ruff lint, and
@@ -69,6 +70,16 @@ these answers record the setup that already exists.
   builds the wheel and sdist with `uv build` (a `-label` suffix becomes a PEP 440
   local version) and publishes a GitHub Release with the wheel, the sdist and
   `cli/docs/commands.md`, with generated release notes.
+
+## Command reference generation
+
+- **Generator.** `cli/scripts/gen_docs.sh` wraps Typer's built-in `utils docs`
+  command (from `typer-cli`, in the `dev` dependency group) and adds the
+  generated-file header. A custom generator was rejected, to avoid maintaining
+  generation code.
+- **Invocation.** `utils docs` runs against the module path `ai_team.cli`, not the
+  installed `ai-team` console script, so generation does not depend on an installed
+  script (CR-003).
 
 ## Internal documentation
 

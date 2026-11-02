@@ -1,4 +1,5 @@
 .ai-team.lock
 
-# This repo tracks its status reports, so the scaffold's
-# `docs/reports/` ignore line is removed. `ai-team init --force` restores it.
+# On-demand status reports (see the status-report skill).
+# Remove this line if the project wants to track reports.
+docs/reports/
