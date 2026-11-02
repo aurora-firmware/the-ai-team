@@ -53,7 +53,7 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 |---|---|
 | Read | anywhere |
 | Write / Edit | implementation files and test files within the assigned task or bug scope; a new bug in the tracker only through the `new-bug` skill for out-of-scope defects |
-| Never touch | `{{project_dir}}/specs/` and `{{project_dir}}/decisions/` without exception, `{{project_dir}}/docs/` except the files a task whose source spec is S-000 lists in its Files to Touch, and tracker files (tasks, bugs, change-requests) except creating a bug through the `new-bug` skill — forbids `git add` and commit of tracker files from an implementation branch or any other branch, not just Write/Edit |
+| Never touch | `{{project_dir}}/specs/`, `{{project_dir}}/decisions/` and `{{project_dir}}/docs/` without exception, and tracker files (tasks, bugs, change-requests) except creating a bug through the `new-bug` skill — forbids `git add` and commit of tracker files from an implementation branch or any other branch, not just Write/Edit |
 
 ## Quality Bar
 

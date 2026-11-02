@@ -201,7 +201,7 @@ The most common loop is:
 4. Run `/bug-loop` for open bugs.
 5. Run `ai-team status` and `ai-team report` for Gate 5 sign-off context.
 
-After initialization, still fill in your project's `AGENTS.md`, stack-specific commands, and coding guidance in `ai-team/docs/`.
+After initialization, still fill in your project's `AGENTS.md`, stack-specific commands, and coding guidelines (by default `docs/development/coding_guidelines.md`; name another location in the project guidance).
 Keep the framework files generic unless you intentionally fork the process.
 
 The normal workflow is:
