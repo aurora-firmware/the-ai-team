@@ -49,54 +49,7 @@ What this specification explicitly does NOT cover:
   invoke `check-layout` or replace their current error messages with layout
   diagnostics.
 
-## Architecture
-
-### Design Principles
-
-- **Observation only.** Every check is read-only and produces diagnostics rather
-  than changing repository state (REQ-003).
-- **Ordered diagnosis.** Checks run from structural prerequisites to deeper
-  content validation so the report distinguishes missing inputs from malformed
-  inputs (REQ-005–REQ-010).
-- **Current installed contract.** Expected scaffolds, guidance requirements, and
-  framework version are evaluated against the running CLI distribution, not a
-  network source or a hard-coded historical release (REQ-004).
-- **Actionable aggregation.** One invocation reports all issues it can safely
-  determine, and every issue identifies the affected path, the violated rule,
-  and a suggested correction (REQ-010).
-- **Output compatibility.** The warnings appear without corrupting command output
-  intended for machine parsing (REQ-012).
-
-### System Diagram
-
-```
-CLI invocation
-  |
-  +--> development warning ---------------------------> stderr
-  |
-  +--> version mismatch warning (marker version differs) --> stderr
-  |
-  +--> check-layout
-         |
-         +--> level 1: expected directories + tracker placement
-         +--> level 2: artifact names + frontmatter
-         +--> level 3: configured root guidance
-         +--> level 4: scaffold/CLI version match
-         |
-         +--> aggregated issue report ----------------> CLI output
-```
-
-### Responsibility Separation
-
-| Component | Responsibility | Notes |
-|---|---|---|
-| CLI development warning | Tells users the CLI is evolving and where to report defects. | Emitted exactly once for every process invocation, including help, version, successful commands, failed commands, and commands using JSON output. |
-| Version mismatch warning | Tells users and agents that the project's scaffolds were written by a different CLI version than the one running. | Emitted once, on stderr, after the development warning. |
-| Layout contract resolver | Determines the repository root, configured project directory, expected scaffold directories, and running CLI version. | Consumes `.ai-team.toml` when present and the current installed package contract; does not consult the network. |
-| Layout checks | Evaluate the four validation levels without modifying the repository. | Later levels report blocked or missing prerequisites clearly instead of crashing. |
-| Issue reporter | Aggregates findings into human-readable CLI output. | Each finding exposes level, path, problem, and suggested fix; a clean project has an unambiguous success result. |
-
-### Alternatives Considered
+## Alternatives Considered
 
 - **`ai-team init --force` as the suggested fix** for a stale scaffold or a missing
   tool directory. Replaced by `ai-team init --update-skills`, because after CR-005
@@ -635,3 +588,4 @@ None.
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
 | 2026-10-27 | REQ-006: level 1 no longer reports legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folders, and AC-006.1 (Legacy work-item folder) is removed; its identifier is not reused. The S-006 dependency no longer names a migration procedure. Version bumped to 0.5. | Product owner decision: no migration or backward compatibility before 1.0.0; S-006 removed its migration procedure and legacy warning (REQ-011, REQ-012). | The CLI still reports legacy folders; a bug records the deviation. |
 | 2026-11-01 | REQ-005 and AC-005.2: level 1 no longer reports a missing `docs/coding_guidelines.md` in the project directory and does not check for a coding guidelines file; AC-005.2 is rewritten as "Coding guidelines not checked" and its two tests are replaced by `test_level_1_reports_no_finding_for_coding_guidelines_outside_the_project_directory`. Version bumped to 0.6. Driven by B-039 (product owner decision, 2026-11-01). | S-009 REQ-016 no longer scaffolds the file; the coding guidelines are the document the project guidance names (default `docs/development/coding_guidelines.md`, rule owned by `ai-process/guidelines/coding_standards.md`), so the finding was false for projects keeping them there. | B-039 implements it |
+| 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the check levels, the components behind them and the stderr warnings are described in `docs/development/architecture.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |

@@ -41,35 +41,9 @@ the S-000 component it covers.
 - **Technology choices and interface contracts in S-000.** S-000 may ask the technology questions, in a development-infrastructure component's Decisions needed; the answers belong in the project's architecture documents and ADRs.
 - **Mandatory S-000 in existing projects.** Projects that already have specs are not required to create S-000.
 - **A switch to turn the missing-S-000 hint off.** The hint is always on.
-- **Process rules for S-000.** Session-start reading, Gate 1 criteria, the completion review, the planning-branch merge, the project bootstrap and the brownfield findings are owned by the agents, skills and `ai-process/` documents listed under Responsibility Separation; this spec does not restate them.
+- **Process rules for S-000.** Session-start reading, Gate 1 criteria, the completion review, the planning-branch merge, the project bootstrap and the brownfield findings are owned by the agents, skills and `ai-process/` documents listed in `docs/development/architecture.md` (System overview support); this spec does not restate them.
 
-## Architecture
-
-### Design Principles
-
-- S-000 must stay abstract enough that it rarely changes: it describes what the project is for and how it is divided, not how any part works.
-- S-000 must be readable by a non-technical stakeholder; it uses plain language and names no technology. It may ask which technology to use; it never answers.
-- Every rule that treats S-000 differently from other specs must be keyed on the ID `S-000` alone (REQ-001–REQ-004).
-- S-000 produces only the project bootstrap tasks for its development-infrastructure components. Feature work always comes from a feature spec, never from S-000.
-- Each rule has one owner: the S-000 content contract lives in the spec authoring guide, procedures live in skills, process rules in agents and `ai-process/`, and enforcement lives in the CLI.
-
-### Responsibility Separation
-
-| Component | Responsibility | Owner |
-|---|---|---|
-| S-000 template | Fixed section structure for the overview | `cli/src/ai_team/templates/system-overview.md` |
-| S-000 content contract | Sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `guides/spec_authoring_guide.md` |
-| Writing procedure | Writing S-000 with the product owner, greenfield or brownfield; completion after Gate 1; brownfield change request; hand-over to the bootstrap | `new-system-overview` skill |
-| Feature spec template | Purpose names the S-000 component; system-wide structure stays in S-000 | `cli/src/ai_team/templates/spec.md` and the `new-spec` skill |
-| CLI | Creates S-000, protects its ID, accepts bootstrap tasks from S-000, hints when S-000 is missing | `ai-team spec new`, `task new`, `validate` and the hint |
-| Project bootstrap | Tasks from S-000 that answer the Decisions needed and set up the environment and internal documentation, including the default `docs/development/` location | `spec-breakdown` skill, Gate 2 in `ai-process/processes/quality_gates.md` |
-| Session-start reading | Planner and Architect read S-000 first when it exists | Planner and Architect agent descriptions |
-| Overview suggestions | Suggest the overview when S-000 does not exist | `using-ai-team` and `brainstorm` skills |
-| Consistency check | A new or changed spec stays within S-000's components | `architecture-consistency-review` skill |
-| Gate 1 and completion review | S-000 pass criteria; S-000 excluded from the pre-Gate-5 completion review | `ai-process/processes/quality_gates.md` |
-| Planning-branch merge | S-000's planning branch merges after Gate 1 | `git-conventions` skill and `ai-process/guidelines/git_conventions.md` |
-
-### Alternatives Considered
+## Alternatives Considered
 
 - **A separate artifact type or folder for the overview.** Rejected: as a spec, S-000
   reuses spec numbering, status, Gate 1, the Amendment Log and the consistency review
@@ -126,7 +100,7 @@ Architect checks each spec against S-000 (consistency review)
 ★ Product owner approves each spec (Gate 1) → breakdown → tasks
 ```
 
-The owners of each step are listed under Responsibility Separation. Failure paths:
+The owners of each step are listed in `docs/development/architecture.md`. Failure paths:
 `spec new --overview` refuses a second S-000, including one in the archive (REQ-001).
 While no S-000 exists, the CLI keeps hinting but never blocks (REQ-004).
 
@@ -316,7 +290,7 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
 
 - **The spec ID allocator and archive lookup** are shared with normal specs; REQ-001
   and REQ-002 rely on them treating `S-000` by ID alone.
-- **The owners under Responsibility Separation** keep the S-000 process rules. When
+- **The owners listed in `docs/development/architecture.md`** keep the S-000 process rules. When
   one changes, the owner changes; this spec changes only if the CLI, template or
   guide contract changes.
 
@@ -359,3 +333,4 @@ None.
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
 | 2026-10-30 | Exclusions: the answers to S-000's technology questions belong in the project's architecture documents and ADRs, no longer in "later specs". No change to S-000's own scope. Driven by issue #64. | Specs describe what the product does; the architecture documents and ADRs describe how it is built, and no spec makes a technology choice. | None |
 | 2026-11-01 | Interfaces: `spec new --overview --json` prints the spec's JSON object, deferring to S-006 REQ-017, instead of only the `id` and `path`; AC-001.1's "Then" names that object (`id` `S-000`, `status`, absolute `path`) and its test is renamed `test_spec_new_overview_json_emits_the_spec_object`. Version bumped to 0.5. Driven by B-040 (product owner decision, 2026-11-01) and its Architecture Consistency Review finding C1. | S-006 REQ-017 gives every `new`, `list` and `show` command one flat JSON object; S-007 still described the old `id`-and-`path` output. | B-040 implements it |
+| 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the owner of each S-000 rule, formerly under Responsibility Separation, is listed in `docs/development/architecture.md`, and Exclusions, Workflow and Assumptions point there. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
