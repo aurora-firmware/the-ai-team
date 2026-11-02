@@ -187,7 +187,7 @@ def test_spec_new_json_stdout_stays_clean_when_hint_is_printed(project):
 
     assert result.exit_code == 0
     assert OVERVIEW_HINT in result.stderr
-    assert set(json.loads(result.stdout)) == {"id", "path"}
+    assert {"id", "path"} <= set(json.loads(result.stdout))
 
 
 def test_spec_new_overview_prints_no_hint(project):
@@ -273,7 +273,7 @@ def test_tracker_new_commands_print_hint_to_stderr_when_no_s_000(project, args):
     assert result.exit_code == 0
     assert OVERVIEW_HINT in result.stderr
     assert OVERVIEW_HINT not in result.stdout
-    assert set(json.loads(result.stdout)) == {"id", "path"}
+    assert {"id", "path"} <= set(json.loads(result.stdout))
 
 
 @pytest.mark.parametrize("args", _TRACKER_COMMANDS)
@@ -300,4 +300,4 @@ def test_task_new_for_s_000_succeeds_and_still_prints_hint_when_s_000_is_missing
     assert result.exit_code == 0
     assert OVERVIEW_HINT in result.stderr
     assert OVERVIEW_HINT not in result.stdout
-    assert set(json.loads(result.stdout)) == {"id", "path"}
+    assert {"id", "path"} <= set(json.loads(result.stdout))

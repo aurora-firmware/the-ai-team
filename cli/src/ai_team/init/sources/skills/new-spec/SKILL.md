@@ -11,6 +11,8 @@ Create a new specification document using `ai-team spec new --json`, then fill i
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required (free-form prose: problem, approach, exclusions, constraints; used to fill body sections in step 4 — NOT passed to the CLI)
@@ -25,7 +27,7 @@ When invoked directly by the product owner and required fields are missing, ask 
 1. Resolve inputs:
    - Use the caller-provided `title`, `description`, `author`, and `status` when they are present.
    - If invoked directly and some required fields are missing, ask only for the missing fields.
-   - Use `$ARGUMENTS` as the title when it is the only provided input.
+   - Use the argument as the title when it is the only provided input.
 
 2. Build the CLI command:
    - Base: `ai-team spec new "<title>" --json`
@@ -55,7 +57,7 @@ When invoked directly by the product owner and required fields are missing, ask 
    Commit every later revision — Architect findings, `[TODO]` resolutions, Gate 1 approval — on the same planning branch, never on `{{integration_branch}}`.
 
 8. Remind that the new spec requires product owner Gate 1 approval unless the caller explicitly says it is already being prepared for that gate.
-9. Once product-owner-answerable `[TODO]` markers are resolved before Architecture Consistency Review, hand the draft spec to the Architect for an Architecture Consistency Review before Gate 1 (Next Owner: Architect). The Architect checks it against existing approved specs and accepted ADRs and returns findings — like a Gate 2 review, this does not amend the draft. Revise the draft on those findings until the Architect and Planner agree it is consistent; the product owner then approves at Gate 1 as usual.
+9. Once product-owner-answerable `[TODO]` markers are resolved before Architecture Consistency Review, hand the draft spec to the Architect for an Architecture Consistency Review before Gate 1 (Next Owner: Architect). The Architect checks it against existing approved specs and accepted ADRs and returns findings — like a Gate 2 review, this does not amend the draft. Revise the draft on those findings until the Architect and Planner agree it is consistent; the product owner then approves at Gate 1 as usual, with the list of amendments to other approved specs that the planning branch carries (the cross-spec amendment rule in the quality gates).
 
 ---
 

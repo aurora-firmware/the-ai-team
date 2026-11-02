@@ -31,7 +31,7 @@ The command scans the project state directories, excludes template files and `.g
 ### Step 2: Count Current State
 
 Count specs and ADRs in `{{project_dir}}/specs/` and `{{project_dir}}/decisions/`, excluding template files and `.gitkeep`.
-Count tasks and bugs by status with `ai-team list tasks --json` and `ai-team list bugs --json` (the `state` field is the frontmatter `status`):
+Count tasks and bugs by status with `ai-team list tasks --json` and `ai-team list bugs --json` (each object carries the frontmatter `status`):
 - tasks: `planned`, `pending`, `in-progress`, `completed`, `blocked`, `cancelled`
 - bugs: `open`, `in-progress`, `resolved`
 
@@ -99,6 +99,7 @@ ai-team report
 ```
 
 By default, it writes `{{project_dir}}/docs/reports/progress-report-[today's date].md` and creates `{{project_dir}}/docs/reports/` if needed.
+The location is fixed. Reports are generated output, not project documents, so they stay apart from the project's own documents (by default `docs/development/`, in the project root) wherever the project keeps those.
 The full report includes completed tasks, in-progress details, blocked items with action needed, bug listing, next actions, and risks or concerns.
 `{{project_dir}}/docs/reports/` is ignored by the scaffolded `{{project_dir}}/.gitignore`, so the file does not dirty the working tree.
 Tell the product owner the file path. Commit it only if the product owner asks and the project tracks reports.

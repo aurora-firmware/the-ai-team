@@ -15,6 +15,8 @@ Gate 2 technical readiness review is owned by the `spec-breakdown-review` skill.
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required when the caller wants Description filled immediately
@@ -22,6 +24,7 @@ Provide these values directly when possible:
 - `assigned-role` — optional; defaults to `unassigned`
 - `acceptance-criteria` — optional list to replace `AC-1 ...` placeholders
 - `spec` — optional; the source spec or change-request ID
+- `plan` — optional; the ID of the spec or change-request whose breakdown introduces the task, which can differ from `spec` when the task implements an amendment to another spec
 - `status` — optional; `planned` for tasks created during a spec breakdown (kept out of `/dev-loop` until the plan merges), otherwise `pending`
 
 When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
@@ -32,8 +35,8 @@ When invoked directly by the product owner and required fields are missing, ask 
 1. Resolve inputs:
    - Use the caller-provided `title`, `description`, `priority`, and `assigned-role` when they are present.
    - If invoked directly and some required fields are missing, ask only for the missing fields.
-   - Use `$ARGUMENTS` as the title when it is the only provided input.
-2. Run `ai-team task new "<title>" --priority <priority> [--assigned-role <assigned-role>] [--spec <spec>] [--status <status>] --json`.
+   - Use the argument as the title when it is the only provided input.
+2. Run `ai-team task new "<title>" --priority <priority> [--assigned-role <assigned-role>] [--spec <spec>] [--plan <plan>] [--status <status>] --json`.
    The task file is created in the local tracker, outside version control: never commit it.
 3. Parse the JSON response and capture:
    - `id` (e.g., `T-003`)

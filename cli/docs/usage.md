@@ -122,7 +122,7 @@ answers the second yes without asking; with `--no-interactive` an unanswered
 question is no. A yes on the agents and skills question also bumps
 `[init].framework_version` in `.ai-team.toml`, so run it to clear the version
 mismatch warning.
-`docs/coding_guidelines.md` is never overwritten, whatever the answers.
+`init` writes no coding guidelines file and never touches one the project keeps.
 
 **Adoption question.** Answering no (or running with `--no-interactive`) keeps
 every existing file, writes only the missing ones and lists the skipped files.
@@ -143,7 +143,7 @@ Warning: these skills or agents are not shipped by this version of ai-team; they
 | Flag | Description |
 |---|---|
 | `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (every approved overwrite, including `--update-docs` and `--update-skills` on an upgrade), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `AGENTS.md`, or a file covered by an upgrade or adoption question, that the interactive run would ask about; a dry run never prompts). The first line reports the detected case: `CASE: upgrade`, `CASE: new project` or `CASE: adoption`. Root guidance files the real run would skip are not listed. |
-| `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch` and any other tables are kept on an upgrade. `docs/coding_guidelines.md` is the exception: it is written only when missing and never overwritten, even with `--force`. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
+| `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch` and any other tables are kept on an upgrade. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
 | `--update-docs` | On an upgrade, update the ai-team docs without asking. |
 | `--update-skills` | On an upgrade, update the agents and skills without asking. |
 | `--project-dir TEXT` | Artifact folder, at any depth (e.g. `docs/ai-team`). Defaults to the configured `[project] dir`, else `ai-team`. Must be relative and contain no `..`. |
@@ -204,7 +204,7 @@ Existing root guidance files are never overwritten unless `--force` is also pass
 | `--force` | prompts; overwritten on yes | left untouched |
 | `--force --create-root-guidance` | overwritten, no prompt | overwritten, no prompt |
 
-Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance and an existing `docs/coding_guidelines.md` are not listed, and an upgrade lists no kept files. The `WROTE` and `OVERWROTE` lines cover root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
+Every file `init` creates is reported on stdout as `WROTE: <path>` (`WOULD WRITE` in a dry run) and every file it replaces as `OVERWROTE: <path>` (`WOULD OVERWRITE` in a dry run). The tracker folder it creates is reported as `CREATED: <path>` (`WOULD CREATE` in a dry run) and the root `.gitignore` it adds the tracker rule to as `UPDATED: <path>` (`WOULD UPDATE` in a dry run). Only an adoption lists kept files, on stderr: the existing agent, skill and project-skeleton files its overwrite question kept. Kept root guidance is not listed, and an upgrade lists no kept files. The `WROTE` and `OVERWROTE` lines cover root guidance, generated agents and skills, project-skeleton files, and `.ai-team.toml`.
 
 ### Example: preview then initialise
 
@@ -238,9 +238,7 @@ The command runs four ordered validation levels:
    every directory in the current project scaffold, and the agent and skill
    directories. Extra directories are allowed. Also
    reports a tracker folder that lies inside the repository but is not ignored
-   by git. Also reports a missing
-   `docs/coding_guidelines.md` in the project directory, with the suggested fix
-   to create it from the scaffold placeholder.
+   by git.
 2. **Level 2 — artifact names and frontmatter.** Checks managed specs and
    decisions in the project directory, and tasks, bugs, and change requests in
    the tracker, for the expected filename and required frontmatter. Tasks, bugs,
@@ -353,7 +351,7 @@ advisory hint to stderr: "this project has no system overview (S-000)". The
 hint is always on, never changes stdout or exit codes, and disappears once
 S-000 exists.
 
-`ai-team task new --spec S-000` creates the project bootstrap tasks, the
+`ai-team task new --spec S-000 --plan S-000` creates the project bootstrap tasks, the
 tasks that set a new project up from its system overview.
 `validate` does not report them, because their source spec is the system
 overview.
@@ -629,7 +627,7 @@ in sync. It reads from:
   skill, plus its optional `assets/`, `references/` and `scripts/` folders
 - `cli/src/ai_team/init/sources/agents/*.md` — one source file per agent
 - `cli/src/ai_team/init/sources/project/` — the project skeleton's `AGENTS.md`,
-  `.gitignore` and `docs/coding_guidelines.md`
+  and `.gitignore`
 
 and writes the output into:
 

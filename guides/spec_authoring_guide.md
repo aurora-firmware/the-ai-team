@@ -161,7 +161,7 @@ If none apply, state that conclusion and its reason instead of leaving placehold
 Do not paste a real configuration file. The Developer writes the file against the project's conventions; this section tells them what the file must guarantee.
 
 **Strong:**
-> - **Test command.** Must be discoverable from the project's `AGENTS.md` or `ai-team/docs/coding_guidelines.md`. The CI runner must read it from there, not hard-code it. If not found, the runner must fail with an actionable error rather than guessing.
+> - **Test command.** Must be discoverable from the project's `AGENTS.md` or the project's coding guidelines. The CI runner must read it from there, not hard-code it. If not found, the runner must fail with an actionable error rather than guessing.
 
 **Weak:** a 20-line `ci.yml` snippet.
 

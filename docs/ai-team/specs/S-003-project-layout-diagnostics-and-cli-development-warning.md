@@ -1,6 +1,6 @@
 ---
 title: Project layout diagnostics and CLI development warning
-version: '0.5'
+version: '0.6'
 status: approved  # draft | review | approved | superseded
 created: '2026-06-24'
 author: planner
@@ -289,9 +289,9 @@ in `cli/tests/test_check_layout.py`.
 
 Level 1 SHALL report as a finding each missing directory among the configured project
 directory, every directory in the current CLI project scaffold, `.claude/agents/` and
-`.claude/skills/`, and a missing `docs/coding_guidelines.md` in the project directory.
-It SHALL NOT read `[init] tools` and SHALL NOT report extra directories, including any
-Codex folder.
+`.claude/skills/`. It SHALL NOT read `[init] tools`, SHALL NOT report extra directories,
+including any Codex folder, and SHALL NOT check for a coding guidelines file, whose
+location the project guidance names (S-009 REQ-016).
 
 #### AC-005.1 — Missing scaffold directories
 
@@ -309,17 +309,17 @@ Codex folder.
 `test_level_1_suggests_update_skills_for_a_missing_tool_directory` in
 `cli/tests/test_layout.py`.
 
-#### AC-005.2 — Coding guidelines
+#### AC-005.2 — Coding guidelines not checked
 
-- **Given:** a project directory without `docs/coding_guidelines.md`
+- **Given:** a project with every expected directory and no `docs/coding_guidelines.md`
+  in the project directory, once with `docs/development/coding_guidelines.md` at the
+  repository root and once with no coding guidelines file at all
 - **When:** `check-layout` runs
-- **Then:** a level 1 finding suggests creating it from the scaffold placeholder; an
-  existing file of any content is not a finding
+- **Then:** level 1 reports no finding in either case
 
-**Verification:** Tests:
-`test_level_1_reports_missing_coding_guidelines_with_scaffold_fix` and
-`test_level_1_reports_no_finding_for_existing_coding_guidelines_of_any_content` in
-`cli/tests/test_layout.py`.
+**Verification:** Test:
+`test_level_1_reports_no_finding_for_coding_guidelines_outside_the_project_directory`
+in `cli/tests/test_layout.py`.
 
 #### AC-005.3 — Tool settings ignored
 
@@ -634,3 +634,4 @@ None.
 | 2026-10-25 | Restructured to the spec format from PR #51: added Users and Journeys, Alternatives Considered, Interfaces (the `check-layout` output and exit contract and both warning texts), Behavioral Requirements REQ-001–REQ-011 with acceptance scenarios, Quality Requirements REQ-012, Assumptions and Dependencies, Success Criteria and Open Questions; the Components section and the Validation Contracts became requirements. Format restructure only, no scope change, so the version is unchanged. | The validator now rejects approved specs without the new sections. | None |
 | 2026-10-26 | The actor called "the human" is now named the product owner, as S-000 defines it. Wording only. Driven by PR #59. | One name for the main actor across the framework and its specs. | None |
 | 2026-10-27 | REQ-006: level 1 no longer reports legacy `tasks/`, `bugs/`, `change-requests/` or `archive/` folders, and AC-006.1 (Legacy work-item folder) is removed; its identifier is not reused. The S-006 dependency no longer names a migration procedure. Version bumped to 0.5. | Product owner decision: no migration or backward compatibility before 1.0.0; S-006 removed its migration procedure and legacy warning (REQ-011, REQ-012). | The CLI still reports legacy folders; a bug records the deviation. |
+| 2026-11-01 | REQ-005 and AC-005.2: level 1 no longer reports a missing `docs/coding_guidelines.md` in the project directory and does not check for a coding guidelines file; AC-005.2 is rewritten as "Coding guidelines not checked" and its two tests are replaced by `test_level_1_reports_no_finding_for_coding_guidelines_outside_the_project_directory`. Version bumped to 0.6. Driven by B-039 (product owner decision, 2026-11-01). | S-009 REQ-016 no longer scaffolds the file; the coding guidelines are the document the project guidance names (default `docs/development/coding_guidelines.md`, rule owned by `ai-process/guidelines/coding_standards.md`), so the finding was false for projects keeping them there. | B-039 implements it |

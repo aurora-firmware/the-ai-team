@@ -24,7 +24,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
   Existing-defect bug branches are based on `dev-agent`; task-regression bug branches are based on the bug report's `source_branch`.
 - Planning branches are created from `dev-agent` when a spec or change-request is created. Every planning artifact for that work is committed there, never directly on `dev-agent`.
   The Planner merges the planning branch into `dev-agent` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. The only exception is S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into dev-agent with `--no-ff` after Gate 1, once S-000 is `approved`.
-  `dev-agent` therefore never carries a spec amendment without the task plan that implements it, except the S-000 planning branch, which merges after Gate 1 once S-000 is `approved`. Abandoning a spec or change-request means the product owner deletes its planning branch.
+  `dev-agent` therefore never carries a spec amendment without the task plan that implements it (cross-spec amendments follow the [Gate 1 rule](../processes/quality_gates.md#cross-spec-amendments)), except the S-000 planning branch, which merges after Gate 1 once S-000 is `approved`. Abandoning a spec or change-request means the product owner deletes its planning branch.
 - Tasks, bugs, and change-requests live in the local tracker (`ai-team tracker path`), outside version control and outside every branch.
   Their lifecycle state is the frontmatter `status` field. Recording state, Work Logs, Diagnosis Logs, or Review Verdicts never creates a commit and never requires a branch switch.
 

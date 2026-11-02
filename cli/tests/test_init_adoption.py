@@ -54,19 +54,34 @@ def test_keeps_existing_files_when_the_question_is_answered_no(tmp_path):
     assert (tmp_path / ".ai-team.toml").is_file()
 
 
-def test_does_not_ask_about_coding_guidelines_or_root_guidance(tmp_path):
-    guidelines, root_agents_md = _occupy(
-        tmp_path, "ai-team/docs/coding_guidelines.md", "AGENTS.md"
-    )
+def test_does_not_ask_about_root_guidance(tmp_path):
+    (root_agents_md,) = _occupy(tmp_path, "AGENTS.md")
 
     result = _init([*_base_args(tmp_path), "--no-interactive"])
 
     assert result.exit_code == 0
     assert "Overwrite" not in result.output
-    assert str(guidelines) not in result.stderr
     assert str(root_agents_md) not in result.stderr
-    assert guidelines.read_text(encoding="utf-8") == OCCUPIED
     assert root_agents_md.read_text(encoding="utf-8") == OCCUPIED
+
+
+def test_adoption_does_not_ask_about_or_list_coding_guidelines_the_project_keeps(
+    tmp_path,
+):
+    kept = _occupy(
+        tmp_path,
+        "ai-team/docs/coding_guidelines.md",
+        "docs/development/coding_guidelines.md",
+    )
+
+    result = _init([*_base_args(tmp_path), "--force", "--no-interactive"])
+
+    assert result.exit_code == 0
+    assert "Overwrite" not in result.output
+    for path in kept:
+        assert path.read_text(encoding="utf-8") == OCCUPIED
+        assert str(path) not in result.output
+        assert str(path) not in result.stderr
 
 
 def test_force_overwrites_existing_files_without_asking(tmp_path):

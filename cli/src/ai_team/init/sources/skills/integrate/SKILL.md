@@ -11,7 +11,9 @@ Merge a reviewed task or bug branch into a destination branch after verifying ex
 
 ## Input Requirements
 
-Provided as `$ARGUMENTS`:
+Argument: `$ARGUMENTS`
+
+The argument holds:
 - **Required** — branch name (e.g., `task/T-012-settings-api`, `bug/B-003-login-crash`) **or** task ID (e.g., `T-012`). If a task ID is given, derive the branch by scanning `git branch` for a branch containing that ID.
 - **Optional** — destination branch (default: `{{integration_branch}}`). If provided as a second argument, use it; otherwise use `{{integration_branch}}`.
 
@@ -19,7 +21,7 @@ Provided as `$ARGUMENTS`:
 
 ### Step 1: Resolve Inputs
 
-1. Parse `$ARGUMENTS`:
+1. Parse the argument:
    - First token → branch or task ID.
    - Second token (if present) → destination branch; otherwise `destination = {{integration_branch}}`.
 2. If the input looks like a task ID (`T-NNN` pattern), run `git branch | grep <task-id>` to find the full branch name and set it as `source-branch`. If zero matches are found, stop with: "Branch for <task-id> not found. Check that the branch exists locally."
@@ -43,7 +45,7 @@ Read them through the paths the `ai-team` CLI reports — never from a copy insi
 6. If a bug file is found, read it completely — focus on the **Summary**, **Diagnosis Log**, **Fix Verification**, **Work Log**, and **Review** sections.
 7. Determine the source-branch verification command before checking out the source branch. Lookup order:
    - The work item's `## Verification` or `## Fix Verification` section, if it contains concrete automated command(s). For a task whose Verification section holds an `Inspection:` or `Demonstration:` line, run only its full-suite command; the inspection or demonstration record was checked at Gate 3. When such a task lists no full-suite command because the project documents none, it has no source-branch command: skip Step 4, do not stop `BLOCKED`, and note the skipped run in the final report.
-   - Target-project guidance such as the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, README, build configuration, or product-owner-provided instructions.
+   - Target-project guidance such as the project `AGENTS.md`, the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), README, build configuration, or product-owner-provided instructions.
    - If no automated verification command can be determined from the work item or from project guidance, stop with `BLOCKED` and ask the product owner for the project verification command.
    This is the command Step 4 runs on the source branch. It is scoped to the work item and must not be assumed to also cover the destination branch.
 8. Determine the destination-branch verification command — the check Step 6 runs after the merge to catch regressions outside the work item's own declared scope. Do not default this to the source-branch command from item 7; determine it separately:
@@ -195,7 +197,7 @@ Reached only when both Step 4 and Step 6 tests pass, or when Step 2 found no com
    Then restore any changes parked in Step 1, following git-conventions › Restoring Parked Changes: on the branch where they were parked, or on the destination branch when they were parked on the source branch this step deleted.
 
 5. **Report success**:
-   - The task status is `completed`: `ai-team show <task-id> --json` reports it. If it does not, stop and report that the lifecycle update did not land.
+   - The task status is `completed`: the top-level `status` of `ai-team show <task-id> --json` reports it. If it does not, stop and report that the lifecycle update did not land.
    - Source branch merged and deleted.
    - Work item ID and title when available.
    - Test counts: N passed before merge, N passed after merge.

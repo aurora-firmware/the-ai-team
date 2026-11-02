@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.7'
+version: '0.9'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -21,7 +21,9 @@ hand. Tasks, bugs and change-requests now live in a local tracker folder outside
 version control, configured in `.ai-team.toml`, with the frontmatter `status` field as
 the only lifecycle state, while specs and ADRs stay in the repository. Recording any
 lifecycle change produces no commit and no branch switch, so the only commits a task
-produces are its implementation commits and its merge commit.
+produces are its implementation commits and its merge commit. Because `new`, `list`
+and `show` are shared by every artifact kind, this spec also owns the `--json` object
+shape of those commands for every kind, specs and ADRs included (REQ-017).
 
 This is phase 1 of moving task tracking out of the repository. Phase 2 (an external
 GitHub backend) is excluded below and depends on the CLI and skill seams this spec
@@ -31,8 +33,8 @@ creates.
 
 | Actor | Goal | Priority | Outcome | Requirements |
 |---|---|---|---|---|
-| Development and bug loops (agents) | Claim, log, review and complete work items without lifecycle commits or branch switches | P1 | Every state change is an `ai-team` command; Work Logs and verdicts are appended to the tracker file from any branch | REQ-003, REQ-004, REQ-007, REQ-008, REQ-013 |
-| Planner | Create a task plan that the development loop cannot pick up before Gate 2 | P1 | Planned tasks stay out of the `pending` queue until set to `pending` | REQ-005, REQ-014 |
+| Development and bug loops (agents) | Claim, log, review and complete work items without lifecycle commits or branch switches | P1 | Every state change is an `ai-team` command; Work Logs and verdicts are appended to the tracker file from any branch | REQ-003, REQ-004, REQ-007, REQ-008, REQ-013, REQ-017 |
+| Planner | Create a task plan that the development loop cannot pick up before Gate 2 | P1 | Planned tasks stay out of the `pending` queue until set to `pending`, and the plan selects every task its breakdown introduced, whatever spec the task implements | REQ-005, REQ-014, REQ-016 |
 | Planner taking a small change | Record it as a change-request instead of a full spec | P1 | `ai-team change-request new` creates a pending change-request in the tracker from the bundled template | REQ-015 |
 | Developer or Reviewer in a separate worktree | See the same work items as the loop in the main checkout | P1 | Every worktree resolves the same tracker folder | REQ-001, REQ-002 |
 | Product owner setting up a project | Get a working tracker with no manual configuration | P1 | `ai-team init` configures, creates and git-ignores the tracker | REQ-009 |
@@ -115,17 +117,27 @@ creates.
   `ai-team change-request set-status <id> <status>` set any allowed status; for tasks
   and bugs, `--reason` records why. The existing transitions (`task start`, `block`, `unblock`,
   `complete`; `bug start`, `resolve`) keep their names.
-- `ai-team list tasks|bugs|change-requests --state <s>` filters on the `status` field
-  and keeps its JSON row shape: `id`, `title`, `state`, `priority`, `assigned-role`
-  for tasks.
+- `ai-team list tasks|bugs|change-requests --state <s>` filters on the `status` field.
+  `list tasks` also filters by `--spec <id>` (REQ-014) and by `--plan <id>`
+  (REQ-016), and the two filters combine.
+- `ai-team task new --plan <id>` records the spec or change-request whose breakdown
+  introduced the task (REQ-016).
 - `ai-team show <id>` finds a work item in the tracker.
 - A command that cannot find an ID reports the tracker folder it searched and exits
   non-zero.
 
+**Exposed — JSON objects (REQ-017).** **Contract:** with `--json`, `list
+tasks|bugs|change-requests|specs|adrs` prints a JSON array of objects, and `show <id>`
+and `task|bug|change-request|spec|adr new` each print one object. An object is flat:
+every frontmatter field of the artifact at the top level under its frontmatter key
+(the lifecycle state under `status`), plus `path`, the artifact's absolute file path.
+`show` adds `body`, the file text after the frontmatter. No object holds a `state` or
+`frontmatter` key.
+
 **Exposed — `ai-team change-request new <title>` (REQ-015).** Creates
 `<tracker>/change-requests/CR-NNN-<slug>.md` from the bundled change-request template
 with status `pending` and today's date, prints the absolute path (or, with `--json`,
-the `id` and `path`), and refuses to overwrite an existing file.
+the change-request's JSON object, REQ-017), and refuses to overwrite an existing file.
 
 **Consumed.**
 - `.ai-team.toml`: `[tracker] dir` and `[project] dir`.
@@ -135,8 +147,8 @@ the `id` and `path`), and refuses to overwrite an existing file.
 
 1. `ai-team init` writes a `[tracker]` section with the default folder, creates the folder, and makes git ignore it (REQ-009).
 2. `/change-request` creates the change-request in the tracker with status `pending` and opens a planning branch for any spec amendments or ADRs it drives; product owner approval sets it to `approved`, rejection to `rejected` (REQ-004). `/new-spec` opens its planning branch as before.
-3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005).
-4. After Gate 2 and the planning-branch merge, `spec-breakdown` sets that plan's tasks to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks become `cancelled` (REQ-004, REQ-005).
+3. `spec-breakdown` creates tasks with status `planned` on the planning branch's behalf, and sets each task's `plan` to the spec or change-request being broken down; the tracker is shared, so the tasks exist immediately but stay invisible to `/dev-loop` (REQ-005, REQ-016).
+4. After Gate 2 and the planning-branch merge, `spec-breakdown` selects that plan's tasks by their `plan` field and sets them to `pending`. A planning branch with no commits — a change-request that amends no spec and raises no ADR — is deleted instead of merged. If a spec or change-request is abandoned, its planned tasks, those whose `plan` names it, become `cancelled` (REQ-004, REQ-005, REQ-016).
 5. `/dev-loop` lists `pending` tasks, sets the chosen one to `in-progress`, and creates the task branch. No commit (REQ-008, REQ-013).
 6. The loop appends the Developer's Work Log and the Reviewer appends the Review Verdict to the task file, from whatever branch is checked out. No commit, no switch (REQ-013).
 7. `integrate` reads the verdict from the task file, merges, and on success sets the task to `completed`. The merge commit is the only commit on `dev-agent` (REQ-013).
@@ -309,15 +321,15 @@ and `test_next_bug_id_scans_the_tracker_and_ignores_non_matching` in
 
 `task`, `bug`, `change-request`, `list`, `show`, `status`, `report` and `validate`
 SHALL read and write work items in the tracker. State filters SHALL match the
-`status` field, `list` JSON row shapes SHALL stay unchanged, and a command that cannot
-find an ID SHALL name the tracker folder it searched.
+`status` field, and a command that cannot find an ID SHALL name the tracker folder it
+searched. The JSON shape of their output is REQ-017.
 
 #### AC-007.1 — State filter
 
 - **Given:** tasks in several statuses
 - **When:** `list tasks --state <s> --json` runs
-- **Then:** it returns exactly the tasks whose `status` is `<s>`, each row with `id`,
-  `title`, `state`, `priority` and `assigned-role`
+- **Then:** it returns exactly the tasks whose `status` is `<s>`, each row with
+  `status` equal to `<s>`
 
 **Verification:** Tests: `test_planned_tasks_stay_out_of_the_pending_queue_until_activated`
 in `cli/tests/test_tracker.py` and
@@ -469,12 +481,123 @@ and `test_change_request_new_writes_metadata_into_frontmatter` in
 - **Given:** a project, and one where the target file already exists
 - **When:** `change-request new --json` runs in the first, and `change-request new` in
   the second
-- **Then:** the first prints only the `id` and `path`; the second fails and leaves
-  the file unchanged
+- **Then:** the first prints only the change-request's JSON object (REQ-017), with
+  its `id`, `status` `pending` and absolute `path`; the second fails and leaves the
+  file unchanged
 
-**Verification:** Tests: `test_change_request_new_json_flag_emits_id_and_path_without_table`
+**Verification:** Tests: `test_change_request_new_json_flag_emits_the_change_request_object_without_table`
 and `test_change_request_new_refuses_to_overwrite_existing_path` in
 `cli/tests/test_change_request_new.py`.
+
+### REQ-016 — Task plan membership
+
+A task's optional `plan` field SHALL name the spec or change-request whose breakdown
+introduced the task, which MAY differ from the task's source `spec`.
+`ai-team task new --plan <id>` SHALL set it. `list tasks --plan` SHALL match every
+form of a spec reference and SHALL combine with `--spec`. `validate` SHALL report
+`task-plan-missing` when a task's `plan` resolves to no spec or change-request.
+
+Rationale: a planning branch can amend a spec other than its own, and the task that
+implements that amendment names the amended spec as its source. Plan membership needs
+its own field so that the plan still selects the task.
+
+#### AC-016.1 — Task implementing another spec's amendment
+
+- **Given:** a task created with `--spec S-002 --plan S-003`, beside tasks of other
+  plans
+- **When:** `list tasks --plan S-003` and `list tasks --spec S-002` run
+- **Then:** the first lists the task with the other S-003 tasks only; the second still
+  lists it by its source spec
+
+**Verification:** Test:
+`test_list_plan_filter_includes_a_task_whose_source_spec_is_another_spec` in
+`cli/tests/test_tracker.py`.
+
+#### AC-016.2 — Unresolved plan
+
+- **Given:** a task whose `plan` names an existing change-request, and a task whose
+  `plan` names no spec or change-request
+- **When:** `validate` runs
+- **Then:** the first gives no finding; the second gives a `task-plan-missing` finding
+
+**Verification:** Test:
+`test_validate_flags_a_task_plan_that_resolves_to_no_spec_or_change_request` in
+`cli/tests/test_tracker.py`.
+
+#### AC-016.3 — Plan filter across reference forms and with `--spec`
+
+- **Given:** an existing spec file `S-003-<slug>.md` with id `S-003`, a task created
+  with `--spec S-002 --plan S-003`, a task created with `--spec S-003 --plan S-003`,
+  and a task created with `--spec S-002 --plan S-004`
+- **When:** `list tasks --plan S-003-<slug>.md` and `list tasks --plan S-003 --spec S-002`
+  run
+- **Then:** the first lists both S-003 plan tasks and not the S-004 plan task; the
+  second lists only the task with source spec S-002 and plan S-003
+
+**Verification:** Test:
+`test_list_plan_filter_matches_every_form_of_a_plan_reference_and_combines_with_spec`
+in `cli/tests/test_tracker.py`.
+
+### REQ-017 — One JSON object per artifact
+
+With `--json`, `list`, `show` and `new` for tasks, bugs, change-requests, specs and
+ADRs SHALL print each artifact as the same flat JSON object: every frontmatter field
+at the top level under its frontmatter key, plus `path`, the artifact's absolute file
+path. `show` SHALL add `body`, the file text after the frontmatter. No object SHALL
+hold a `state` or a `frontmatter` key.
+
+Rationale: skills parse this output. One shape lets a skill take `id`, `status`,
+`path`, `spec` or `plan` from whichever command it ran (product owner decision,
+B-040).
+
+#### AC-017.1 — Task object from `new`, `list` and `show`
+
+- **Given:** a task created with `task new "Demo" --spec S-001 --plan S-001 --json`
+- **When:** `list tasks --json` and `show <id> --json` run
+- **Then:** the `new` object, the task's `list` row and the `show` object without
+  `body` have the same keys and values, among them `id`, `title`, `status`
+  `pending`, `priority`, `assigned-role`, `spec`, `plan` and the absolute `path`, and
+  none has a `state` or `frontmatter` key
+
+**Verification:** Test: `test_task_json_object_is_the_same_from_new_list_and_show` in
+`cli/tests/test_json_objects.py`.
+
+#### AC-017.2 — Bug and change-request objects
+
+- **Given:** a bug created with `bug new --json` and a change-request created with
+  `change-request new --json`
+- **When:** `list bugs --json`, `list change-requests --json` and `show <id> --json`
+  run for each
+- **Then:** for each artifact the `new` object, its `list` row and the `show` object
+  without `body` have the same keys and values, including `status` and the absolute
+  `path`, and none has a `state` or `frontmatter` key
+
+**Verification:** Tests: `test_bug_json_object_is_the_same_from_new_list_and_show` and
+`test_change_request_json_object_is_the_same_from_new_list_and_show` in
+`cli/tests/test_json_objects.py`.
+
+#### AC-017.3 — Spec and ADR objects
+
+- **Given:** a spec created with `spec new --json` and an ADR created with
+  `adr new --json`
+- **When:** `list specs --json`, `list adrs --json` and `show <id> --json` run for each
+- **Then:** for each artifact the `new` object, its `list` row and the `show` object
+  without `body` have the same keys and values, including `id`, `status` and the
+  absolute `path`
+
+**Verification:** Tests: `test_spec_json_object_is_the_same_from_new_list_and_show` and
+`test_adr_json_object_is_the_same_from_new_list_and_show` in
+`cli/tests/test_json_objects.py`.
+
+#### AC-017.4 — `show` adds the body
+
+- **Given:** a task whose file has text after its frontmatter
+- **When:** `show <id> --json` runs
+- **Then:** the object's `body` equals that text, beside the flat frontmatter fields
+  and `path`
+
+**Verification:** Test: `test_show_json_returns_flat_fields_path_and_body` in
+`cli/tests/test_show.py`.
 
 ## Quality Requirements
 
@@ -515,11 +638,12 @@ writes was agreed.
 
 1. After `ai-team init` in an empty git repository, the project directory contains no `tasks/`, `bugs/`, or `change-requests/` folders and still contains `specs/` and `decisions/`, the tracker folder exists, and `git check-ignore` succeeds for it (REQ-009).
 2. Creating a task, bug, or change-request, moving it through every status, and appending text to it leaves `git status --porcelain` empty (REQ-008).
-3. `ai-team list tasks --state <s>` returns exactly the tasks whose `status` field is `<s>`, and its JSON shape is unchanged (REQ-007).
+3. `ai-team list tasks --state <s>` returns exactly the tasks whose `status` field is `<s>` (REQ-007).
 4. Run from two worktrees of the same repository, `ai-team tracker path` prints the same absolute path (REQ-002).
 5. `ai-team validate` reports a finding for any task, bug, or change-request whose `status` is not one of the allowed values, and no longer reports folder/status mismatches (REQ-010).
 6. In the generated skills, no step commits a task, bug, or change-request file, and no step switches branches to record lifecycle state (REQ-013).
-7. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-010 and REQ-013–REQ-015).
+7. The full CLI test suite passes, including tests updated from folder-based to field-based state (REQ-001–REQ-010 and REQ-013–REQ-017).
+8. For one task, bug, change-request, spec and ADR each, the `new`, `list` and `show` JSON objects have the same keys and values apart from `show`'s `body`, and none has a `state` or `frontmatter` key (REQ-017).
 
 ## Implementation Order
 
@@ -543,3 +667,5 @@ None.
 - **2026-10-26 (verification methods):** AC-013.1, AC-013.2 and AC-013.3 are verified by inspection instead of tests that pinned skill wording. Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection.
 - **2026-10-26 (PR #59):** the actor called "the human" is now named the product owner, as S-000 defines it. Wording only.
 - **2026-10-27 (product owner decision):** the framework carries no migration or backward compatibility before 1.0.0. REQ-011 (legacy warning) and REQ-012 (migration procedure), with AC-011.1 and AC-012.1, are removed and their identifiers are not reused. Also removed: the "existing project" journey, the "Existing projects migrate explicitly" principle, the Migration responsibility, the legacy-warning interface, the migration step in Workflow, the migration note in the Git ignore configuration, the legacy-folder dependency on S-003, Success Criteria 6 and 7 (the later criteria are renumbered) and the Migration implementation phase. Commands read work items only from the tracker and neither read nor report legacy folders. The Exclusions and Alternatives Considered state the decision. Version bumped to 0.7. Affected work: the CLI still prints the legacy warning and `check-layout` still reports legacy folders; a bug records the deviation.
+- **2026-11-01 (B-042, product owner approval):** added REQ-016 (task plan membership) with AC-016.1, AC-016.2 and AC-016.3: a task's optional `plan` field names the spec or change-request whose breakdown introduced it, set by `task new --plan`; `list tasks --plan` matches every form of a spec reference and combines with `--spec`; `validate` reports `task-plan-missing` for an unresolved `plan`. AC-016.3 covers `--plan` matching another form of the plan reference and combining with `--spec` (Architecture Consistency Review finding A1). The Interfaces commands list `--plan`; Workflow step 3 has `spec-breakdown` set each task's `plan` to the spec or change-request being broken down (finding A2); Workflow step 4 selects a plan's tasks by `plan` for activation, and on abandonment cancels the planned tasks whose `plan` names the abandoned spec or change-request (finding A3); and the Planner journey and Success Criterion 7 cover REQ-016. REQ-014 is unchanged: `spec` stays the task's source. Version bumped to 0.8. Driven by B-042: a task implementing an amendment to another spec, made on a plan's branch, named that spec and so missed the plan's Gate 2 preflight and activation. Affected work: B-042 (commits d11b9481 and bb204125 implement the field, the flags, the finding and the `spec-breakdown` selection; B-042 still owes the AC-016.3 test and the `change-request` skill rejection step selecting by `--plan`).
+- **2026-11-01 (B-040, product owner decision):** added REQ-017 (one JSON object per artifact) with AC-017.1 to AC-017.4: with `--json`, `list`, `show` and `new` for tasks, bugs, change-requests, specs and ADRs print the same flat object, every frontmatter field at the top level plus the absolute `path`, the status under `status`, never `state`, and `show` adds `body`, with no `frontmatter` key. REQ-007 drops "`list` JSON row shapes SHALL stay unchanged" and AC-007.1 checks `status` instead of the `state` row key; the Interfaces commands list drops the frozen row shape and gains the JSON objects contract; the `change-request new` interface and AC-015.2 print the change-request object (test renamed `test_change_request_new_json_flag_emits_the_change_request_object_without_table`); Success Criterion 3 drops "its JSON shape is unchanged", Criterion 7 covers REQ-017 and Criterion 8 is added; the loops journey links REQ-017; the Purpose states that this spec owns the `--json` object shape of `new`, `list` and `show` for every artifact kind, specs and ADRs included, because those commands are shared across kinds (Architecture Consistency Review finding C2). No backward compatibility (pre-1.0). Version bumped to 0.9. Driven by B-040: the task commands returned three JSON shapes (`new` with `id` and `path` only, `list` rows with `state` and no `path`, `show` nesting the fields under `frontmatter`). Affected work: B-040 implements the shared object and updates the skills that parse this output.

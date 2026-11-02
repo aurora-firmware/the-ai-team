@@ -228,6 +228,37 @@ def test_subsection_heading_alone_does_not_fill_a_required_section(
     )
 
 
+@pytest.mark.parametrize(
+    "diagram",
+    [
+        "```text\nA --> B\n```",
+        "~~~text\nA --> B\n~~~",
+        "    A --> B",
+    ],
+)
+def test_section_holding_only_code_counts_as_filled(monkeypatch, tmp_path, diagram):
+    body = feature_spec_body().replace(
+        "## Workflow\n\nNone — not applicable to this feature.",
+        f"## Workflow\n\n{diagram}",
+    )
+    _write_spec(tmp_path, body)
+    assert _validate(monkeypatch, tmp_path) == (0, [])
+
+
+def test_section_holding_only_a_comment_is_still_empty(monkeypatch, tmp_path):
+    body = feature_spec_body().replace(
+        "## Workflow\n\nNone — not applicable to this feature.",
+        "## Workflow\n\n<!-- describe the flow -->",
+    )
+    _write_spec(tmp_path, body)
+    exit_code, findings = _validate(monkeypatch, tmp_path)
+    assert exit_code == 1
+    assert any(
+        f["code"] == "spec-section-empty" and "Workflow" in f["message"]
+        for f in findings
+    )
+
+
 @pytest.mark.parametrize("disposition", ["It should be fast.", "None", "None."])
 def test_quality_disposition_must_use_requirements_or_explicit_non_applicability(
     monkeypatch, tmp_path, disposition

@@ -13,7 +13,7 @@ effort: high
 - **Code changes** — the review package the loop wrote (`git log`, `git diff --stat`, and `git diff -U10` for `BASE..HEAD`, plus `git diff -U10` for `LAST..HEAD` on a re-review, where `LAST` is the head of the previous review), or a range to diff yourself. Review the whole `BASE..HEAD` range on a first review. Never review `HEAD~1` alone: a multi-commit branch silently loses its earlier commits.
 - **Test results** — the test evidence in the Developer's Work Log (command and output). Do not re-run tests the Work Log already shows passing; run a command only to check something the Work Log does not cover.
 
-The task or bug file lives in the local tracker, outside version control; `ai-team show <id> --json` reports its path.
+The task or bug file lives in the local tracker, outside version control; the `path` of `ai-team show <id> --json` is its location.
 Review verdicts are written there, never committed, and never placed on the implementation branch.
 The two-stage checklist below is the canonical quality bar for all code reviews.
 
@@ -22,7 +22,7 @@ The two-stage checklist below is the canonical quality bar for all code reviews.
 The review checks the work against two things:
 
 1. **The Developer's claims** — the acceptance criteria or fix contract the work says it meets, and every statement in the Work Log: what was done, what the tests show, what is out of scope.
-2. **The project's rules** — the project `AGENTS.md`, `{{project_dir}}/docs/coding_guidelines.md`, the framework coding standards, the approved spec, the architecture documents the project guidance names, accepted ADRs, and the task's own scope limits.
+2. **The project's rules** — the project `AGENTS.md`, the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), the framework coding standards, the approved spec, the architecture documents the project guidance names, accepted ADRs, and the task's own scope limits.
 
 Every place where the work differs from a claim or a rule is a **finding**. A finding states **what** is not as claimed or required and **why**, citing the claim or rule. **A finding never proposes a fix** — no patch, no "change X to Y", no "consider Z". How to resolve it is the Developer's decision, and the Developer may show that the finding does not hold.
 

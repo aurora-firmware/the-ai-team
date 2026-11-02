@@ -8,7 +8,7 @@ from pathlib import Path
 
 import typer
 
-from ai_team.core.fs import read_artifact, write_artifact
+from ai_team.core.fs import ArtifactKind, read_artifact, write_artifact
 from ai_team.core.ids import overview_exists
 from ai_team.core.locator import ProjectRoot, find_project_root
 
@@ -22,6 +22,27 @@ OVERVIEW_HINT = (
 def project_root() -> ProjectRoot:
     """Locate the project from the cwd."""
     return find_project_root(Path.cwd())
+
+
+def artifact_object(model: object, path: Path) -> dict[str, object]:
+    """Return the flat JSON object of an artifact: its frontmatter fields plus ``path``.
+
+    Every ``--json`` output of ``new``, ``list`` and ``show`` goes through this
+    function so the three commands cannot drift apart (S-006 REQ-017).
+    """
+    source_map = getattr(model, "_source_map", None) or {}
+    fields: dict[str, object] = {
+        str(key): str(value) if value is not None else None
+        for key, value in source_map.items()
+    }
+    fields["path"] = str(path.resolve())
+    return fields
+
+
+def artifact_object_from_file(path: Path, kind: ArtifactKind) -> dict[str, object]:
+    """Parse the artifact file at *path* and return its flat JSON object."""
+    model, _ = read_artifact(path, kind)
+    return artifact_object(model, path)
 
 
 def hint_missing_overview(root: ProjectRoot) -> None:

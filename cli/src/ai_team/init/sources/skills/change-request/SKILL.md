@@ -11,6 +11,8 @@ Create a new change-request artifact using `ai-team change-request new --json`, 
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required; summarize the requested change, why it is needed, affected specs or tasks, and any known risk
@@ -21,7 +23,7 @@ When invoked directly and required fields are missing, ask only for the missing 
 
 1. Resolve inputs:
    - Use the caller-provided `title` and `description` when present.
-   - Use `$ARGUMENTS` as the title when it is the only provided input.
+   - Use the argument as the title when it is the only provided input.
    - If the title or description is still missing, ask for the missing value.
 
 2. Open the planning branch and create the artifact:
@@ -45,7 +47,7 @@ When invoked directly and required fields are missing, ask only for the missing 
 
 6. When the CR is TODO-free, ask the product owner to approve the full change-request as written.
    - On approval, run `ai-team change-request set-status <id> approved`.
-   - On rejection, run `ai-team change-request set-status <id> rejected`, set any of its `planned` tasks to `cancelled`, and ask the product owner whether to delete its planning branch. Stop.
+   - On rejection, run `ai-team change-request set-status <id> rejected`, set the `planned` tasks whose `plan` names it to `cancelled` (select them with `ai-team list tasks --state planned --plan <id>`), and ask the product owner whether to delete its planning branch. Stop.
 
 7. After the product owner approves the TODO-free CR, continue directly into Architecture Consistency Review rather than stopping with only a passive handoff.
    - Pass the approved change-request path and delta as the changed artifact under review.

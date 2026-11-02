@@ -11,6 +11,8 @@ Create a new Architecture Decision Record (ADR) using `ai-team adr new --json`.
 
 ## Input Requirements
 
+Argument: `$ARGUMENTS`
+
 Provide these values directly when possible:
 - `title` — required
 - `description` — required
@@ -22,7 +24,7 @@ When invoked directly by the product owner and required fields are missing, ask 
 
 ## Procedure
 
-1. Resolve inputs from the caller. Use `$ARGUMENTS` as `title` when it is the only provided input.
+1. Resolve inputs from the caller. Use the argument as `title` when it is the only provided input.
 2. Build the CLI command:
    - Base: `ai-team adr new "<title>" --status "<status>" --json`
    - Add `--supersedes "<supersedes>"` only when `supersedes` is provided.

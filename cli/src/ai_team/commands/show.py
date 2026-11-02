@@ -9,7 +9,7 @@ import typer
 from rich.markdown import Markdown
 from typer.core import TyperGroup
 
-from ai_team.commands._shared import project_root
+from ai_team.commands._shared import artifact_object, project_root
 from ai_team.core.fs import read_artifact
 from ai_team.core.locator import ProjectRoot
 from ai_team.core.tracker import iter_items
@@ -76,16 +76,6 @@ def _resolve_matches(
     ]
 
 
-def _frontmatter_dict(model: object) -> dict[str, object]:
-    source_map = getattr(model, "_source_map", None)
-    if source_map is None:
-        return {}
-    frontmatter: dict[str, object] = {}
-    for key, value in source_map.items():
-        frontmatter[str(key)] = str(value) if value is not None else None
-    return frontmatter
-
-
 @app.callback()
 def default(
     identifier: str,
@@ -115,13 +105,7 @@ def default(
     kind, selected = matches[0]
     if as_json:
         model, body = read_artifact(selected, kind)
-        print_json(
-            {
-                "path": str(selected),
-                "frontmatter": _frontmatter_dict(model),
-                "body": body,
-            }
-        )
+        print_json({**artifact_object(model, selected), "body": body})
         return
 
     # AC-1 requires rendering markdown output through Rich.

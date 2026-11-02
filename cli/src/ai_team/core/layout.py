@@ -232,28 +232,10 @@ def _tracker_findings(contract: LayoutContract) -> list[LayoutFinding]:
     return findings
 
 
-def _coding_guidelines_findings(contract: LayoutContract) -> list[LayoutFinding]:
-    """Report a missing docs/coding_guidelines.md; any existing content is accepted."""
-
-    guidelines = contract.project_dir / "docs" / "coding_guidelines.md"
-    if guidelines.is_file():
-        return []
-    display_path = guidelines.relative_to(contract.repo).as_posix()
-    return [
-        _finding(
-            1,
-            display_path,
-            f"Required project file '{display_path}' is missing.",
-            f"Create '{display_path}' from the scaffold placeholder.",
-        )
-    ]
-
-
 def check_level_1(contract: LayoutContract) -> list[LayoutFinding]:
     """Report missing directories and tracker ignore problems."""
 
     findings = _tracker_findings(contract)
-    findings.extend(_coding_guidelines_findings(contract))
     for path in _expected_directories(contract):
         if not path.is_dir():
             display_path = path.relative_to(contract.repo).as_posix()

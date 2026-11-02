@@ -14,7 +14,7 @@ The Reviewer saw the diff and the work item; the Developer holds the implementat
 
 - **Task or bug file** — its latest `### Review Verdict` (`FAIL`, or `ESCALATE` after the Architect's guidance) lists findings with `**Status:** Open`. The file lives in the local tracker; the active loop passes its path.
 - **The assigned task or bug branch** — `task/T-NNN-...` or `bug/B-NNN-...`, checked out. Every change goes on this branch, before it is integrated.
-- **What the findings cite** — the acceptance criteria or fix contract, the Work Log, the approved spec, accepted ADRs, the project `AGENTS.md` and `{{project_dir}}/docs/coding_guidelines.md`.
+- **What the findings cite** — the acceptance criteria or fix contract, the Work Log, the approved spec, accepted ADRs, the project `AGENTS.md` and the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`).
 
 Stop and return `BLOCKED` if the latest verdict has no open finding, or the branch is not the one the work item names.
 

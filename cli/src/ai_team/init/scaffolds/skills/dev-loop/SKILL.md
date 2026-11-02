@@ -12,7 +12,9 @@ Stops only at hard gates: empty queue, blocked task, or escalation.
 
 ## Input Requirements
 
-Optional: a single task ID or branch name as `$ARGUMENTS` (e.g., `T-012` or `task/T-012-my-feature`).
+Argument: `$ARGUMENTS`
+
+Optional: the argument is a single task ID or branch name (e.g., `T-012` or `task/T-012-my-feature`).
 - If provided, the loop processes only that task — it does not continue to the next task after completion or failure.
 - If omitted, the loop processes the full pending queue until empty, blocked, or escalated.
 
@@ -20,7 +22,7 @@ Tasks live in the local tracker, outside version control. Their lifecycle state 
 The orchestrator reads and changes task state only through the `ai-team` CLI:
 - `ai-team list tasks --state pending` — pending work queue
 - `ai-team list tasks --state in-progress` — active task slot
-- `ai-team show <task-id> --json` — the task file's `path` and current frontmatter
+- `ai-team show <task-id> --json` — the task file's `path` and its frontmatter fields (`id`, `status`, `priority`, ...), all at the top level
 - `ai-team task start|block <task-id>` — lifecycle transitions
 
 Recording lifecycle state never creates a commit and never needs a branch switch: the task file is outside every branch.
@@ -57,13 +59,13 @@ Each subagent starts cold, and the orchestrator's context is the scarce resource
 
 ### Step 1: Check the Queue
 
-If `$ARGUMENTS` is non-empty:
+If the argument is non-empty:
 - Parse it as a task ID (e.g., `T-012`) or branch name (e.g., `task/T-012-my-feature`). Extract the task ID either way.
 - Run `ai-team show <task-id> --json` and confirm its `status` is `pending`.
 - If the task does not exist or is not `pending`, stop with: "Task <task-id> is not a pending task. Check the task ID and its current status."
 - Use this single task as the queue. After it completes (success, blocked, or escalated), stop — do not continue to other tasks.
 
-If `$ARGUMENTS` is empty, discover pending tasks using: `ai-team list tasks --state pending`.
+If the argument is empty, discover pending tasks using: `ai-team list tasks --state pending`.
 Tasks with status `planned` are not part of the queue: their planning branch has not merged yet.
 If the queue is empty, proceed directly to **Step 8: Loop Complete** so the workspace is checked
 and the run summary is returned before the loop stops.
@@ -72,7 +74,7 @@ and the run summary is returned before the loop stops.
 
 The baseline guard runs once at loop startup. It is NOT re-checked between tasks. Rationale: post-merge regressions are caught by the integrate skill's destination-branch test step; re-checking between tasks adds latency without adding coverage.
 
-Discover and run the project's baseline test command from project-specific guidance before claiming any task. Start with root guidance (`AGENTS.md` or equivalent instructions provided in the session), then follow clear references to project-local docs such as `{{project_dir}}/docs/coding_guidelines.md`, README files, build configuration, or other documented test instructions. Prefer an explicitly documented test command over inferring one from dependencies or filenames.
+Discover and run the project's baseline test command from project-specific guidance before claiming any task. Start with root guidance (`AGENTS.md` or equivalent instructions provided in the session), then follow clear references to project-local docs such as the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), README files, build configuration, or other documented test instructions. Prefer an explicitly documented test command over inferring one from dependencies or filenames.
 
 Skip this step when looping back after a completed task (control returns to Step 1, which skips Step 2 on subsequent iterations).
 

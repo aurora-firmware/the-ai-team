@@ -13,7 +13,9 @@ Stops only when the queue is empty or when a bug requires product owner resoluti
 
 ## Input Requirements
 
-Optional: one or more bug IDs as `$ARGUMENTS` (e.g., `B-001 B-003`).
+Argument: `$ARGUMENTS`
+
+Optional: the argument is one or more bug IDs (e.g., `B-001 B-003`).
 - If bug IDs are provided, the loop processes only those bugs — skipping all others in the queue.
 - If omitted, the loop processes every bug with status `open`.
 
@@ -21,7 +23,7 @@ Bugs live in the local tracker, outside version control. Their lifecycle state i
 The orchestrator reads and changes bug state only through the `ai-team` CLI:
 - `ai-team list bugs --state open` — work queue
 - `ai-team list bugs --state in-progress` — active bug slot
-- `ai-team show <bug-id> --json` — the bug file's `path` and current frontmatter
+- `ai-team show <bug-id> --json` — the bug file's `path` and its frontmatter fields (`id`, `status`, `severity`, ...), all at the top level
 - `ai-team bug start|resolve <bug-id>` — lifecycle transitions
 
 Because the bug file is outside every branch, every role reads it from the same path, including on task-regression bug branches based on a preserved task branch.
@@ -58,13 +60,13 @@ Each subagent starts cold, and the orchestrator's context is the scarce resource
 
 ### Step 1: Check the Queue
 
-If `$ARGUMENTS` is non-empty:
+If the argument is non-empty:
 - Parse it as a space-separated list of bug IDs (e.g., `B-001 B-003`).
 - For each ID, run `ai-team show <id> --json` and confirm its `status` is `open`.
 - If any ID does not exist or is not `open`, stop with: "Bug <id> is not an open bug. Verify the ID and status."
 - Use this filtered list as the queue for the entire run.
 
-If `$ARGUMENTS` is empty, use `ai-team list bugs --state open` as the queue.
+If the argument is empty, use `ai-team list bugs --state open` as the queue.
 
 If the queue is empty, proceed directly to **Step 8: Loop Complete** so the workspace is checked
 and the run summary is returned before the loop stops.

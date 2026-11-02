@@ -23,8 +23,8 @@ S-000 is the project overview. It is accepted as input for the project bootstrap
 ## Procedure
 
 ### Step 0: Check Out the Planning Branch
-If the spec to break down is S-000, plan only the project bootstrap tasks for its development-infrastructure components, using `ai-team task new --spec S-000`; the plan goes through Gate 2 (Steps 6 and 7) as usual. If the request asks to plan solution work from S-000, refuse before any branch checkout, say that S-000 produces no solution work, create no task, and name the feature specs (listed by `ai-team list specs`) as the input.
-The bootstrap tasks produce: the answers to every Decisions needed, written by default to the `docs/development/` folder at the repository root, in `docs/development/architecture.md` (high-level design of the solution components) and `tech_stack.md` (the answers); when the project's rules say where such documents go, those rules win, and a task records the chosen location in the project guidance; environment configuration (container or environment manager, environment variables and settings); a remote access check; coding guidelines; internal documentation placeholders for the remaining documents; project guidance with the common rules and the build, test, lint and run commands; and the README project description written from S-000.
+If the spec to break down is S-000, plan only the project bootstrap tasks for its development-infrastructure components, using `ai-team task new --spec S-000 --plan S-000`; the plan goes through Gate 2 (Steps 6 and 7) as usual. If the request asks to plan solution work from S-000, refuse before any branch checkout, say that S-000 produces no solution work, create no task, and name the feature specs (listed by `ai-team list specs`) as the input.
+The bootstrap tasks produce: the answers to every Decisions needed, written by default to the `docs/development/` folder at the repository root, in `docs/development/architecture.md` (high-level design of the solution components) and `tech_stack.md` (the answers); when the project's rules say where such documents go, those rules win, and a task records the chosen location in the project guidance; environment configuration (container or environment manager, environment variables and settings); a remote access check; coding guidelines (by default `docs/development/coding_guidelines.md`, like the other documents); internal documentation placeholders for the remaining documents; project guidance with the common rules and the build, test, lint and run commands; and the README project description written from S-000.
 In a brownfield project (one with existing code, specs or documents), plan only the missing items; the product owner may skip items that already exist.
 The breakdown runs on the planning branch of the spec or change-request it decomposes (`plan/<id>-…`), never on `{{integration_branch}}`.
 If that branch exists, run the before-point Workspace Hygiene check from the `git-conventions` skill and check it out.
@@ -66,7 +66,8 @@ For each unit, invoke the `new-task` skill to create the task file. Provide the 
 - `description`: the task description
 - `priority`: the task priority
 - `assigned-role`: the intended owner, or `unassigned`
-- `spec`: the ID of the spec or change-request being decomposed
+- `spec`: the ID of the spec or change-request whose requirements the task implements. A task that implements an amendment this plan makes to another approved spec carries that other spec's ID
+- `plan`: the ID of the spec or change-request being decomposed, for every task, so the plan selects its tasks whichever spec each one implements
 - `status`: `planned`
 
 The `new-task` skill handles template loading, ID assignment, filename, and frontmatter scaffolding. Because all required fields are provided here, it should not ask follow-up questions.
@@ -95,11 +96,11 @@ Verify atomicity: can each task be completed in a single agent pass? If a task f
 Verify regeneration: does each task list the generated files its own change affects? If the plan ends with a separate "regenerate everything" task, move each regeneration into the task whose change requires it.
 
 ### Step 5: Place Tasks
-The tasks are already in the tracker with status `planned`, listed by `ai-team list tasks --state planned --spec <spec-or-cr-id>`.
+The tasks are already in the tracker with status `planned`, listed by `ai-team list tasks --state planned --plan <spec-or-cr-id>`.
 They are outside version control: there is nothing to commit, and `/dev-loop` ignores them until Step 7 activates them.
 
 ### Step 6: Architect Preflight
-Run `ai-team list tasks --state planned --spec <spec-or-cr-id> --json`, then `ai-team show <task-id> --json` for each listed task, and collect each task's absolute `path`.
+Run `ai-team list tasks --state planned --plan <spec-or-cr-id> --json` and collect the absolute `path` of each listed task.
 The tracker is outside the repository, so the Planner passes the Architect the absolute task paths that `ai-team` reported in the prompt.
 
 **Spawn the Architect subagent** (tier: most capable) with this prompt:
@@ -124,7 +125,7 @@ Only after the Architect returns `PASS`:
    A planning branch with no commits — a change-request that amends no spec and changes no ADR or architecture document — is not merged.
 3. Run the after-point Workspace Hygiene check.
 4. Delete the planning branch with `git branch -d plan/<id>-<slug>`. If `-d` refuses, stop and report — never force deletion.
-5. Activate the plan: for every task in `ai-team list tasks --state planned --spec <id>`, run `ai-team task set-status <task-id> pending`.
+5. Activate the plan: for every task in `ai-team list tasks --state planned --plan <id>`, run `ai-team task set-status <task-id> pending`.
 
 Until this step, the tasks stay `planned` and invisible to `/dev-loop`, and `{{integration_branch}}` carries none of the spec or change-request changes.
 

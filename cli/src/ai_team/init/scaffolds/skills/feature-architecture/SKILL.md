@@ -14,7 +14,7 @@ effort: high
 - **Approved work** — the path and ID of the approved feature spec or approved change-request, and its planning branch (`plan/<id>-…`).
 - **Architecture documents** — the documents the project guidance names for architecture and technology, by default `docs/development/architecture.md` (the design of the solution components) and `docs/development/tech_stack.md` (the technology answers).
 - **Decision records** — all ADRs in `{{project_dir}}/decisions/`; `accepted` ones are binding.
-- **Coding guidelines** — `{{project_dir}}/docs/coding_guidelines.md` and the project `AGENTS.md`.
+- **Coding guidelines** — the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`) and the project `AGENTS.md`.
 - **S-000** — when it exists and is approved.
 
 Return `BLOCKED` when the approved work or its planning branch is not provided. Return `BLOCKED` for S-000: its project bootstrap writes the first architecture documents, and it has no feature architecture.
