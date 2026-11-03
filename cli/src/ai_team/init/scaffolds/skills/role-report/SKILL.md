@@ -81,6 +81,8 @@ A result that goes back to a running loop names that loop, which routes it on (t
 | Reviewer | `Development Loop`, `Bug-Fix Loop`, `Architect`, `Product Owner`, `none` |
 | Integrator | `Architect`, `Product Owner`, `none` |
 
+A role that stops mid-procedure to hand back for another role's step (the Planner in `spec-breakdown`) returns `Result: PASS` with that role as `Next Owner` and a `Next Action` naming the step to resume at.
+
 Use these exact names.
 Do not write `Loop`, `active loop`, `Requesting agent` or a role the table does not list.
 

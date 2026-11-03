@@ -30,7 +30,7 @@ Before the first action of a request — including a clarifying question, a code
 | A small change does not warrant a full spec | `change-request` |
 | A spec, ADR, or change-request was created or changed | `architecture-consistency-review` |
 | An approved spec or change-request needs a task breakdown | `spec-breakdown` (run by the Planner) |
-| The Planner returns `Next Owner: Architect` during `spec-breakdown` | Spawn the Architect with the Planner's inputs: `feature-architecture` at the start of the breakdown, `spec-breakdown-review` (Gate 2) once the tasks are written. Then resume the Planner with the Architect's report |
+| The Planner returns `Next Owner: Architect` | Spawn the Architect with the skill and inputs the Planner's `Next Action` names: `architecture-consistency-review` for a review-ready spec, an approved change-request or an amendment; in `spec-breakdown`, `feature-architecture` at the start of the breakdown and `spec-breakdown-review` (Gate 2) once the tasks are written. Then resume the Planner with the Architect's report |
 | A task is ready to implement | `tdd` |
 | A bug, failing test, or unexpected behavior must be fixed | `debug`, then `tdd` for the fix |
 | Completed task or bug work needs review | `code-review` |

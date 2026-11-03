@@ -4,7 +4,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 ## Gate 1: Specification Approval
 
-**When:** After the Planner produces a design document from interactive brainstorming and resolves any product-owner-answerable `[TODO]` markers.
+**When:** After the Planner produces a spec — a feature spec from interactive brainstorming (`new-spec`), or S-000 from `new-system-overview` — resolves every product-owner-answerable `[TODO]` marker (S-000 keeps none at all), and the Architect's [Architecture Consistency Review](#architecture-consistency-review) of it passes.
 **Evaluator:** Product Owner.
 **Pass criteria:**
 - The problem is clearly defined.

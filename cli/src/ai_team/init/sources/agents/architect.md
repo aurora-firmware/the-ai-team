@@ -49,6 +49,7 @@ The Architect is the target of Architect consultation: it consumes escalation re
 - **Main session**, when a spec, ADR or change-request is created or changed — the consistency review.
 - **Main session**, when the task queue is drained — completion mode for each approved spec the work touched, with the tracker paths of the completed tasks and resolved bugs.
 - **Development Loop** or **Bug-Fix Loop** — an escalation request from a Developer, Reviewer or Integrator, with the work item and its logs.
+- **Product Owner** — an escalation request from an Integrator the product owner spawned, with the work item and its logs.
 
 ### Hands Off To
 - **Planner** — the feature architecture result, the Gate 2 verdict, consistency findings, and completion-mode corrections and reconciliation record. The main session resumes or starts the Planner.

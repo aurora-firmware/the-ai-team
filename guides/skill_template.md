@@ -33,7 +33,7 @@ A skill that works for Opus may need more detail for Haiku. If a skill will be i
 Skills fall into three categories. The shape of the `SKILL.md` differs slightly per category.
 
 - **Procedures** — analytical, multi-step work. Have a numbered `Procedure`, `Escalation` section, `Quality Criteria`, and `Common Pitfalls` when the Pitfalls rule leaves rows. Examples: `tdd`, `code-review`, `integrate`, `debug`, `merge-conflicts`, `spec-breakdown-review`, `escalation-review`, `brainstorm`, `spec-breakdown`.
-- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Cycle Counter Reset`, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`; the shared review cycle comes from `review-cycle`. Stay model-invocable so the product owner can delegate a loop to an agent; the `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
+- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`; the shared review cycle, with its cycle counter and its reset, comes from `review-cycle`, which the loops call. Stay model-invocable so the product owner can delegate a loop to an agent; the `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
 - **Actions** — simple document-creation or single-purpose operations. Short numbered list, usually no escalation section. Product-owner-only actions may carry `disable-model-invocation: true`; actions invoked by another skill must remain model-invocable. Examples: `new-spec`, `new-task`, `new-bug`, `new-adr`, `status-report`. Rule skills that agents and other skills preload (`git-conventions`, `coding-standards`, `role-report`, `evidence-before-claims`) use the same short shape.
 
 ## The Separation Rule
@@ -86,7 +86,7 @@ For **procedure skills**:
 
 For **orchestrator skills**, append after `## Procedure`:
 
-- `## Cycle Counter Reset` (if the procedure has review or retry cycles)
+- `## Cycle Counter Reset` (only when the skill owns its own review or retry cycles; `review-cycle` owns the loops' counter and its reset, so `dev-loop` and `bug-loop` omit it)
 - `## Commit Conventions` (canonical patterns — defer authoritative rules to `git-conventions`)
 - `## Hard Stops (Do Not Continue)`
 - `## What This Skill Does NOT Do`
@@ -180,15 +180,16 @@ Use the exact wording `**Spawn the <Role> subagent** (tier: <cheap | standard | 
 - Specify the expected verdict vocabulary (`PASS / FAIL / ESCALATE`, or the full Output Format block).
 - End with: *"Populate every field of the Output Format block, including `Obstacles Encountered`."*
 
-Example from `dev-loop/SKILL.md`:
+Example from `review-cycle/SKILL.md`, which `dev-loop` and `bug-loop` call:
 
 ```markdown
 **Spawn the Developer subagent** (tier: standard) with this prompt:
 
-> "Pick up the task from the task file `<task-path>` and implement it using the tdd skill.
-> You are on branch `task/T-NNN-...`. Commit after each red→green→refactor cycle.
-> The task file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> Return a Work Log handoff entry at session end, in the form the tdd skill defines. The loop will append it to the task file.
+> "Implement the <task | bug> in the <task | bug> file `<path>` with the tdd skill. For a bug, the latest Diagnosis Log entry is the fix contract.
+> You are on branch `<branch>`; commit there.
+> The <task | bug> file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
+> If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance recorded in the file since that verdict.
+> Return the Work Log handoff entry tdd Step 9 defines; the loop appends it to the file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 ```
 

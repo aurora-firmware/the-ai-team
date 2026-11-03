@@ -101,14 +101,14 @@ This phase is **interactive**. The Planner does not produce a finished document 
 
 1. Reads the request and checks for ambiguities.
 2. Asks focused clarifying questions (batched, about five per round as a recommendation) if material unknowns exist, covering the six internal brainstorm categories. Runs a second round if coverage requires it. Stops and waits for answers.
-3. Generates at least two solution alternatives and presents them briefly.
+3. Generates at least two solution alternatives when the need has real design choices, and presents them briefly. When it has only one sensible shape, says so and why; the spec then records `None`, with that reason, under Alternatives Considered.
 4. Asks the product owner to pick a direction (or provide the deciding constraint). Stops and waits.
 5. Asks follow-up questions on scope or behaviour if the chosen direction still has gaps. One round maximum.
-6. Confirms the approach in 2–3 sentences and gets explicit product owner sign-off before writing.
-7. Writes the specification.
-8. Resolves any remaining product-owner-answerable `[TODO]` markers one at a time before handing the draft to the Architect for Architecture Consistency Review or to the product owner for Gate 1 approval.
+6. Presents the chosen approach section by section, getting the product owner's confirmation of each section before the next, then confirms the whole approach in 2–3 sentences and gets explicit product owner sign-off before writing.
+7. Writes the specification with `new-spec`, which resolves any remaining product-owner-answerable `[TODO]` markers one at a time, sets the spec to `review`, commits it on the planning branch, and stops.
+8. The Planner then arranges the Architect's Architecture Consistency Review (it hands back to the main session, which spawns the Architect), revises the spec on the planning branch until the review passes, and presents it to the product owner for Gate 1.
 
-**Ends when:** The product owner approves the specification at Gate 1.
+**Ends when:** The product owner approves the specification at Gate 1; `new-spec` then sets it to `approved` and commits on the planning branch.
 Because the product owner shaped the spec throughout the dialogue, Gate 1 approval should be quick.
 
 **Lighter path — change-request:** For smaller changes that do not warrant a full new spec, the Planner uses a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves product-owner-answerable `[TODO]` markers one at a time before the product owner approves the change-request. Once the product owner approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
@@ -221,7 +221,8 @@ Each finding states what is wrong and why, never how to fix it.
 ### 5. Final Merge
 
 Integration happens per-task inside the development loop: after each Reviewer PASS, the integration procedure merges the task branch into `dev-agent`, runs the full test suite, and sets the task to `completed` (Gate 4).
-If integration fails because the task branch introduces a regression, the integration procedure reverts the merge, files a bug report that records the preserved task branch as `source_branch`, and leaves `dev-agent` clean.
+If the task branch's own check fails before the merge, nothing is merged and the failure goes back to the Developer as a review finding through the loop's review cycle.
+If integration fails because the task branch introduces a regression, the integration procedure reverts the merge, files a bug report that records the preserved task branch as `source_branch`, and leaves `dev-agent` clean. A failing test is attributed to the task branch when it passes on `dev-agent` after the revert; a failure that is not attributable is escalated to the Architect.
 The development loop stops until the regression bug is fixed on a branch based from that preserved task branch. The task stays `in-progress`, so the next development-loop run resumes it and retries its integration.
 
 Once the queue is empty and all tasks are `completed`, the development loop ends with a short run summary in the chat and does not write a report.

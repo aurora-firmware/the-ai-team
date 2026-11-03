@@ -92,7 +92,7 @@ Read the result (`review-cycle`, Reading a Role's Result):
    - bugs blocked, waiting on regression bugs, or stopped, with the reason;
    - regression bugs filed this run;
    - changes parked or restored and `.gitignore` patterns added by the hygiene check;
-   - the next action: `/bug-loop` for filed regressions; for a blocked bug, the product owner's decision and `ai-team bug unblock`; `/dev-loop` when a task waits for its regression fixes, which resumes the task and retries its integration.
+   - the next action: `/bug-loop` for filed regressions; for a blocked bug, the product owner's decision and `ai-team bug unblock`; `/dev-loop` when a task waits for its regression fixes, which resumes the task and retries its integration; when no bug is open, in-progress or blocked and no task is pending, in-progress or blocked, say that the queue is drained: the main session runs completion reconciliation with the Architect for the specs this work touched, then the product owner runs `/status-report` for Gate 5.
 
 Do not invoke `status-report`: the product owner runs it on demand.
 
