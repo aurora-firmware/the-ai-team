@@ -34,7 +34,7 @@ TASK_STATUSES = (
     "completed",
     "cancelled",
 )
-BUG_STATUSES = ("open", "in-progress", "resolved")
+BUG_STATUSES = ("open", "in-progress", "blocked", "resolved")
 CHANGE_REQUEST_STATUSES = ("pending", "approved", "rejected")
 
 

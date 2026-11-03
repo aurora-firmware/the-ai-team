@@ -48,6 +48,7 @@ def _summary_line(payload: dict[str, object]) -> str:
         f"Cancelled tasks: {tasks['cancelled']}. "
         f"Open bugs: {bugs['open']}. "
         f"Bugs in progress: {bugs['in_progress']}. "
+        f"Blocked bugs: {bugs['blocked']}. "
         f"Resolved bugs: {bugs['resolved']}. "
         f"ADRs: {counts['adrs']}. "
         f"Latest integration result: {payload['latest_integration_result']}."
@@ -96,9 +97,17 @@ def _in_progress_rows(payload: dict[str, object]) -> str:
     return _as_rows(rows, "| none | n/a | n/a | no in-progress tasks |")
 
 
+def _blocked_items(payload: dict[str, object]) -> list[object]:
+    """Return the blocked task rows followed by the blocked bug rows."""
+    blocked_tasks = payload["blocked_tasks"]
+    assert isinstance(blocked_tasks, list)
+    blocked_bugs = payload["blocked_bugs"]
+    assert isinstance(blocked_bugs, list)
+    return [*blocked_tasks, *blocked_bugs]
+
+
 def _blocked_rows(payload: dict[str, object]) -> str:
-    blocked = payload["blocked_tasks"]
-    assert isinstance(blocked, list)
+    blocked = _blocked_items(payload)
     rows: list[str] = []
     for row in blocked:
         if isinstance(row, dict):
@@ -113,7 +122,7 @@ def _blocked_rows(payload: dict[str, object]) -> str:
 def _diagnosis_status(state: str) -> str:
     if state == "open":
         return "n/a"
-    if state == "in-progress":
+    if state in ("in-progress", "blocked"):
         return "in progress"
     return "complete"
 
@@ -121,7 +130,7 @@ def _diagnosis_status(state: str) -> str:
 def _bug_rows(root) -> str:
     rows: list[str] = []
     bugs = [parse_bug(path) for path in iter_items(root.bugs)]
-    for state in ("open", "in-progress", "resolved"):
+    for state in ("open", "in-progress", "blocked", "resolved"):
         for bug in bugs:
             if bug.status != state:
                 continue
@@ -141,8 +150,7 @@ def _decision_rows(root) -> str:
 
 
 def _next_actions(payload: dict[str, object]) -> str:
-    blocked = payload["blocked_tasks"]
-    assert isinstance(blocked, list)
+    blocked = _blocked_items(payload)
     critical_high = payload["critical_high_open_bugs"]
     assert isinstance(critical_high, list)
     in_progress = payload["in_progress_tasks"]
@@ -166,14 +174,18 @@ def _next_actions(payload: dict[str, object]) -> str:
 
 
 def _risks_and_concerns(payload: dict[str, object]) -> str:
-    blocked = payload["blocked_tasks"]
-    assert isinstance(blocked, list)
+    blocked_tasks = payload["blocked_tasks"]
+    assert isinstance(blocked_tasks, list)
+    blocked_bugs = payload["blocked_bugs"]
+    assert isinstance(blocked_bugs, list)
     critical_high = payload["critical_high_open_bugs"]
     assert isinstance(critical_high, list)
 
     risks: list[str] = []
-    if blocked:
+    if blocked_tasks:
         risks.append("Blocked tasks may delay delivery.")
+    if blocked_bugs:
+        risks.append("Blocked bugs stay unfixed until they are unblocked.")
     if critical_high:
         risks.append("Critical/high bugs may impact release quality.")
     if not risks:

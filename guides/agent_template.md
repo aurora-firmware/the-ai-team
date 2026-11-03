@@ -25,11 +25,14 @@ If you need to write "I can decide X alone; Y needs the Architect; Z needs the p
 | Decision-authority boundaries (what I can decide alone) | ✅ | ✗ |
 | Spawned-by / hands-off-to graph | ✅ | ✗ |
 | Folder scope (read / write / never-touch paths) | ✅ | ✗ |
-| Quality bar ("done" criteria and embedded checklists) | ✅ | ✗ |
-| Structured output format | ✅ | ✅ (procedure skills only) |
+| Quality bar ("done" criteria) | ✅ | ✗ |
+| The role's Result values, Next Owner values and Summary hint | ✅ | ✗ |
+| The result report fields, evidence entry forms and the full Result / Next Owner vocabulary | ✗ | ✅ (`role-report`) |
+| Structured output of a procedure | ✗ | ✅ (procedure skills only) |
 | Numbered procedural steps | ✗ | ✅ |
 | Retry thresholds / escalation triggers | ✗ | ✅ |
-| The 4-field escalation request block | ✗ | ✅ |
+| The 4-field escalation request block | ✗ | ✅ (format: `escalation-review`; each skill that returns `ESCALATE` fills it for its trigger) |
+| Coding standards, review checklist | ✗ | ✅ (`coding-standards`, `code-review`) |
 
 ## Canonical Section Order
 
@@ -61,7 +64,7 @@ name: agent-name
 description: Role-specific description that tells the caller exactly when to use this agent and what inputs to provide. Use for [specific workflow point]. Caller must provide [artifact/path/branch/context].
 tools: Read, Glob, Grep, Bash
 model: sonnet
-skills: skill-one skill-two
+skills: skill-one skill-two role-report
 ---
 
 ## Purpose
@@ -78,6 +81,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `skill-one` — when this role uses it.
 - `skill-two` — when this role uses it.
 - `/action-skill` — when this role invokes it.
+- `role-report` — the format of every result this role returns.
 
 Skills define procedures. This agent invokes them but does not duplicate their steps.
 
@@ -90,7 +94,7 @@ Skills define procedures. This agent invokes them but does not duplicate their s
 
 ## Escalation
 
-The [Role] enters the escalation chain when the `<skill-name>` skill returns `ESCALATE`. Self-recovery thresholds and trigger conditions (retry counts, boundary violations, review cycles) are defined in that skill. The caller (active loop or product owner) routes the structured escalation request to the Architect via the `escalation-review` skill.
+The [Role] enters the escalation chain when the `<skill-name>` skill returns `ESCALATE`. Self-recovery thresholds and trigger conditions (retry counts, boundary violations, review cycles) are defined in that skill. The role appends the Escalation Request block the skill returned, as `role-report` describes. The caller (active loop or product owner) routes it to the Architect via the `escalation-review` skill.
 
 ## Interaction Pattern
 
@@ -116,42 +120,15 @@ The [Role] enters the escalation chain when the `<skill-name>` skill returns `ES
 - [Done criterion 2]
 - [Scope constraint]
 
-Embedded checklists (e.g., coding standards for Developer, review checklist for Reviewer) live under this heading. They describe *what good output looks like*, not *how to produce it*.
+Done criteria describe *what good output looks like*, not *how to produce it*. Checklists are not embedded here: coding standards live in the `coding-standards` skill, which the Developer and Reviewer preload, and the review checklist is carried out by the `code-review` skill.
 
 ## Output Format
 
-Always return:
+Return the report the `role-report` skill defines, with these values for this role:
 
-```text
-Result: PASS | FAIL | BLOCKED | ESCALATE
-
-Summary:
-- <brief statement of what was produced or decided>
-
-Artifacts:
-- <files created/updated/read as primary evidence>
-
-Evidence:
-- <commands run, checks performed, logs reviewed, verdict location, or "not run" with reason>
-
-Obstacles Encountered:
-- <setup issue, missing input, workaround, special command flag, dependency/import issue, environment quirk, or "none">
-
-Next Owner:
-- <Developer | Reviewer | Architect | Planner | Integrator | Product Owner | Loop | none>
-
-Next Action:
-- <specific follow-up required, or "none">
-```
-
-When `Result` is `ESCALATE`, append an Escalation Request block after the fields above:
-
-```text
-Problem: [what went wrong]
-Attempted: [what was tried, including retry count or review cycle]
-Failed because: [why it did not work]
-Question: [specific decision or guidance needed]
-```
+- **Result:** the values this role returns, from PASS | FAIL | BLOCKED | ESCALATE.
+- **Next Owner:** the owners this role hands to, from the Next Owner values `role-report` lists.
+- **Summary:** one hint on what this role's summary states (for example "the verdict and where it is recorded").
 ````
 
 ## Description Guidance
@@ -191,16 +168,16 @@ If a role has broad tools for platform reasons, restate path restrictions in `Fo
 
 ## Self-Contained `.claude/` Rule
 
-The `.claude/agents/` and `.claude/skills/` folders must be standalone. Agents must **not** reference content outside `.claude/` — no `ai-process/...` paths, no cross-repo citations. If a rule belongs to the framework spec (e.g. coding standards, review checklist), embed the content directly in the agent or skill that owns it, or create a dedicated skill (see `git-conventions` as an example of extracting cross-cutting rules into a skill when multiple callers need them).
+The `.claude/agents/` and `.claude/skills/` folders must be standalone. Agents must **not** reference content outside `.claude/` — no `ai-process/...` paths, no cross-repo citations. If a rule belongs to the framework spec, state the part the role or procedure carries out in the skill that owns it, or create a dedicated skill when multiple callers need it (see `git-conventions`, `coding-standards` and `role-report` as examples of cross-cutting rules extracted into a skill). The review checklist is carried out by `code-review`.
 
 ## Where Escalation Mechanics Live
 
-**In the agent** — only a one-paragraph `## Escalation` pointer naming which skill(s) own the thresholds.
+**In the agent** — only a one-paragraph `## Escalation` pointer naming which skill(s) own the thresholds. The agent carries no escalation request block: it appends the block its skill returned, as `role-report` describes.
 
 **In the skills the agent uses** — the actual mechanics:
 - Retry threshold (e.g., *"three consecutive Step 4 → Step 5 failures"*).
 - Boundary violations (e.g., *"task requires modifying a file not listed in Files to Touch"*).
-- The 4-field escalation request block (`Problem / Attempted / Failed because / Question`).
+- The 4-field escalation request block (`Problem / Attempted / Failed because / Question`), filled for the skill's trigger in the format `escalation-review` owns.
 
 Rationale: thresholds change as the procedure changes. Keeping them in one place (the skill) prevents drift across role definitions.
 
@@ -208,11 +185,11 @@ Rationale: thresholds change as the procedure changes. Keeping them in one place
 
 | Agent | Model | Tools | Main skills |
 |---|---|---|---|
-| Planner | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `brainstorm`, `spec-breakdown`, `new-spec`, `new-task`, `change-request`, `new-system-overview`, `git-conventions`, `evidence-before-claims` |
-| Architect | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `feature-architecture`, `spec-breakdown-review`, `architecture-consistency-review`, `escalation-review`, `new-adr`, `git-conventions`, `evidence-before-claims` |
-| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `receive-code-review`, `new-bug`, `git-conventions`, `evidence-before-claims` |
-| Reviewer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `code-review`, `new-bug`, `evidence-before-claims` |
-| Integrator | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `integrate`, `merge-conflicts`, `git-conventions`, `evidence-before-claims` |
+| Planner | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `brainstorm`, `spec-breakdown`, `new-spec`, `new-task`, `change-request`, `new-system-overview`, `git-conventions`, `evidence-before-claims`, `role-report` |
+| Architect | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `feature-architecture`, `spec-breakdown-review`, `architecture-consistency-review`, `escalation-review`, `new-adr`, `git-conventions`, `evidence-before-claims`, `role-report` |
+| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `receive-code-review`, `new-bug`, `coding-standards`, `git-conventions`, `evidence-before-claims`, `role-report` |
+| Reviewer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `code-review`, `new-bug`, `coding-standards`, `evidence-before-claims`, `role-report` |
+| Integrator | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `integrate`, `merge-conflicts`, `new-bug`, `git-conventions`, `evidence-before-claims`, `role-report` |
 
 Keep agents stable and small. When behavior becomes a repeatable sequence, create or update a skill rather than expanding the agent file.
 
@@ -223,4 +200,5 @@ Keep agents stable and small. When behavior becomes a repeatable sequence, creat
 - Generic-expertise descriptions ("expert X"). Describe the role, not the expertise.
 - Cross-referencing other agents operationally (*"spawned by the Integrator agent"* when in fact a skill is doing the work).
 - Broad tool access without Folder Scope restrictions.
+- Restating the `role-report` fields, evidence forms or escalation block in the agent.
 - Referencing `ai-process/` paths. Agents must be self-contained within `.claude/`.

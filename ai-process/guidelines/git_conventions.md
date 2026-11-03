@@ -10,21 +10,23 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 | Branch | Purpose | Who touches it |
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
-| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2; Architects commit ADRs raised outside planning here |
-| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture | Planner and Architect only — no source code |
+| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; Architects commit ADRs raised outside planning here |
+| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
 | `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
 | `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts |
 
 **Rules:**
 - No automated role ever commits to `main`.
-- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, and direct ADR commits from the Architect (no direct source code).
+- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, direct ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
 - Developer always works on a task branch, never on `dev-agent`.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
 - Bug branches are created when the bug-fix loop picks up a bug.
   Existing-defect bug branches are based on `dev-agent`; task-regression bug branches are based on the bug report's `source_branch`.
 - Planning branches are created from `dev-agent` when a spec or change-request is created. Every planning artifact for that work is committed there, never directly on `dev-agent`.
-  The Planner merges the planning branch into `dev-agent` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. The only exception is S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into dev-agent with `--no-ff` after Gate 1, once S-000 is `approved`.
-  `dev-agent` therefore never carries a spec amendment without the task plan that implements it (cross-spec amendments follow the [Gate 1 rule](../processes/quality_gates.md#cross-spec-amendments)), except the S-000 planning branch, which merges after Gate 1 once S-000 is `approved`. Abandoning a spec or change-request means the product owner deletes its planning branch.
+  The Planner merges the planning branch into `dev-agent` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. There are two exceptions:
+  - S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into dev-agent with `--no-ff` after Gate 1, once S-000 is `approved`.
+  - An [amendment planning branch](#amendment-planning-branch) that creates no tasks merges once the Architect's consistency review passes, or once its row is committed when it carries only a reconciliation record.
+  `dev-agent` therefore never carries a spec amendment without the task plan that implements it (cross-spec amendments follow the [Gate 1 rule](../processes/quality_gates.md#cross-spec-amendments)), except for those two exceptions. Abandoning a spec or change-request means the product owner deletes its planning branch.
 - Tasks, bugs, and change-requests live in the local tracker (`ai-team tracker path`), outside version control and outside every branch.
   Their lifecycle state is the frontmatter `status` field. Recording state, Work Logs, Diagnosis Logs, or Review Verdicts never creates a commit and never requires a branch switch.
 
@@ -40,6 +42,17 @@ The skill that creates a spec or change-request opens its planning branch:
 4. Run `git checkout -b plan/<id>-<slug>`. A new spec file is untracked and carries over; commit it there. A change-request is created in the tracker and is never committed.
 
 When an approved spec already on `dev-agent` needs a breakdown and has no planning branch, open one the same way and skip step 3.
+
+### Amendment Planning Branch
+
+An approved spec amended after its planning branch merged gets a new planning branch. This covers a spec that completion-mode spec-truth reconciliation finds stale, the product owner's "Revise the spec" escalation decision, and spec drift found during development. Follow-up tasks routed by reconciliation never need one: they go straight into the tracker as `pending`, exempt from Gate 2.
+
+1. The Planner opens `plan/S-NNN-<slug>` for the amended spec, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in [Opening a Planning Branch](#opening-a-planning-branch), skipping step 3.
+2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, adds the `Reconciliation record:` row when reconciliation drives the amendment (that row bumps no `version`), and commits on the branch.
+3. The Architect runs the architecture consistency review on the amended spec. Any ADR it raises is committed on the same branch.
+4. On PASS, the Planner merges the branch into `dev-agent` with `--no-ff` and deletes it with `git branch -d`, never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2, as for any planning branch.
+
+A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
 
 ## Commit Message Format
 
@@ -67,17 +80,15 @@ chore(plan): merge S-004 billing export
 | Role | Commits when | Branch |
 |---|---|---|
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
-| **Planner** | One merge commit per planning branch after Gate 2 passes (S-000: after Gate 1, once S-000 is `approved`) | `dev-agent` |
+| **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts | `task/T-NNN-…` or `bug/B-NNN-…` |
-| **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning; otherwise `dev-agent` |
-| **Integrator** | One merge commit per task or bug branch merged into its target branch | target branch |
-
-<!-- Implementation-layer copy: cli/src/ai_team/init/sources/skills/git-conventions/SKILL.md — changes must be made to both files atomically. -->
+| **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `dev-agent` |
+| **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
 
 ## Workspace Hygiene
 
 A dirty working tree must never block a procedure, and no procedure may leave one behind.
-Every orchestrating procedure (`dev-loop`, `bug-loop`, `integrate`, `spec-breakdown`) runs the hygiene check:
+Every procedure that switches branches or merges (among them `dev-loop`, `bug-loop`, `integrate`, `spec-breakdown`, and every skill that opens a planning branch) runs the hygiene check:
 
 - **Before** — at startup and before every branch switch.
 - **After** — after every merge, and before reporting the procedure complete or stopped.

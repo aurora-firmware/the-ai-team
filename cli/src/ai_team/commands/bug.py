@@ -32,7 +32,7 @@ NAME = "bug"
 app = typer.Typer(help="Create and manage bug artifacts.")
 
 Severity = Literal["critical", "high", "medium", "low"]
-BugStatus = Literal["open", "in-progress", "resolved"]
+BugStatus = Literal["open", "in-progress", "blocked", "resolved"]
 
 
 def _transition_bug(
@@ -134,6 +134,29 @@ def resolve_bug(bug_id: str) -> None:
     """Set an in-progress bug to resolved."""
     _transition_bug(
         bug_id, command="resolve", allowed_from=("in-progress",), new_status="resolved"
+    )
+
+
+@app.command("unblock")
+def unblock_bug(bug_id: str) -> None:
+    """Set a blocked bug back to in-progress."""
+    _transition_bug(
+        bug_id, command="unblock", allowed_from=("blocked",), new_status="in-progress"
+    )
+
+
+@app.command("block")
+def block_bug(
+    bug_id: str,
+    reason: str = typer.Option(..., "--reason"),
+) -> None:
+    """Set a bug to blocked and record the blocking reason in its Work Log."""
+    _transition_bug(
+        bug_id,
+        command="block",
+        allowed_from=None,
+        new_status="blocked",
+        work_log_text=f"Blocked: {reason}",
     )
 
 

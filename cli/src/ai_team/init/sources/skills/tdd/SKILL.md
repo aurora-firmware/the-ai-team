@@ -1,130 +1,134 @@
 ---
 name: tdd
 description: Implements assigned tasks using their planned verification method, a test-driven cycle for test tasks or a recorded inspection or demonstration for the others. Applies the test-driven cycle to bug fixes after a Diagnosis Log exists.
-allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(debug), Skill(git-conventions)
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(debug), Skill(receive-code-review), Skill(git-conventions)
 ---
 
 # Test-Driven Development (TDD)
 
 ## Input Requirements
 
-- **Task or bug file** — with acceptance criteria or fix-verification steps.
-- **Project test setup** — test framework, directory structure, how to run tests. Every task runs the full suite when the project documents one; an inspection task (see Inspection and demonstration tasks) also needs the references its Verification section lists.
-- **Target-project coding guidance** — the project `AGENTS.md`, the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`), the architecture documents the project guidance names (the technology and design the work must use), README, build configuration, and any product-owner-provided instructions (the framework-level coding standards are carried by the invoking role's definition).
+- **Task or bug file** — with acceptance criteria, or with Fix Verification steps and a recorded Diagnosis Log.
+- **Project test setup** — test framework, directory structure and how to run the tests, including the full suite when the project documents one. An inspection task also needs the references its Verification section lists.
+- **Target-project coding guidance** — the project `AGENTS.md`, the coding guidelines and architecture documents the project guidance names, README, build configuration, and any product-owner instructions. The framework standards are the `coding-standards` skill.
 
 Task and bug files live in the local tracker, outside version control; the active loop passes their path.
-Read their existing Work Log and Diagnosis Log entries, but return new log content as a handoff to the active loop instead of editing lifecycle files directly.
+Read them, but never edit them: return new log content as a handoff.
 
 ## Procedure
 
 ### Step 0: Read the Work Log
-Before reading the acceptance criteria or starting any other work, read every existing entry in the task or bug Work Log.
-This step is mandatory even on the first session, when the Work Log is empty and the read is a cheap no-op.
-For bug fixes, also read the Diagnosis Log.
-If no Diagnosis Log exists, stop and run the debug procedure before writing tests or implementation.
-If a Diagnosis Log exists, verify it contains a complete fix contract (reproduction status, evidence captured,
-isolated fault, root cause or fault hypothesis, planned verification) before proceeding. Use the fix contract as the implementation target for the bug fix cycle.
+
+Before anything else, read every existing Work Log entry.
+If the latest Review Verdict lists `Open` findings, answer them with `receive-code-review` before new work.
+
+For a bug fix, also read the Diagnosis Log. It must hold a complete fix contract, as the `debug` skill defines it.
+If it has none, or the latest one is incomplete, return `BLOCKED` naming what is missing: diagnosis is a separate, recorded cycle and never runs inline here.
+The fix contract is the implementation target.
 
 ### Step 1: Read the Acceptance Criteria or Fix Verification
-For each task criterion or bug fix-verification step, identify the testable behavior.
-Translate each criterion into one or more test cases with:
-- Input (what goes in)
-- Expected output (what comes out)
-- Edge cases (boundaries, empty inputs, error conditions)
 
-For a bug fix, use the fix contract from the Diagnosis Log as the implementation target.
-The first test should reproduce the diagnosed defect when practical.
+For each task criterion or Fix Verification step, identify the testable behavior: its input, expected output, and edge cases (boundaries, empty input, error conditions).
+For a bug fix, the first test reproduces the diagnosed defect when practical.
 
 ### Step 2: Write the Test
-Write a failing test for the first acceptance criterion.
-The test must be:
-- Descriptive: `test_returns_error_when_input_is_empty`.
-- Independent: no shared mutable state with other tests.
-- Deterministic: same result every time.
+
+Write one failing test for the next criterion, following the `coding-standards` testing rules.
 
 ### Step 3: Verify the Test Fails
-Run the test. It must fail.
-If it passes, the test does not test the new behavior. Rewrite it until it fails for the right reason.
+
+Run it. It must fail, for the reason the criterion describes.
+If it passes, it does not test the new behavior: rewrite it.
 
 ### Step 4: Write the Minimal Implementation
-Write the simplest code that makes the test pass.
-Do not add extra logic, error handling, or features beyond what the test requires.
+
+Write the simplest code that makes the test pass, with no logic, error handling or features beyond what the test requires.
 
 ### Step 5: Verify the Test Passes
-Run the test. It must pass.
-If it fails, fix the implementation (not the test, unless the test was wrong).
-If Step 4 → Step 5 fails three consecutive times on the same acceptance criterion, stop and apply the Escalation section below.
+
+Run it. It must pass. If it fails, fix the implementation, not the test (unless the test was wrong).
+If Step 4 → Step 5 fails three consecutive times on the same criterion, apply the Escalation section.
+If a test fails in a way the cycle does not explain, or code misbehaves, apply the `debug` skill; its fix contract goes in this session's Work Log entry (Step 9).
 
 ### Step 6: Refactor
-Clean up the code without changing behavior.
-Run all tests again to confirm nothing broke.
+
+Clean up without changing behavior, then run all tests again.
 
 ### Step 7: Commit the Cycle
-Commit the completed red -> green -> refactor cycle on the assigned implementation branch using the `git-conventions` skill.
-Keep implementation commits on `task/T-NNN-...` or `bug/B-NNN-...` only, and use a message that follows `<type>(<component>): <description>` without repeating the task or bug ID from the branch name.
+
+Commit the red → green → refactor cycle on the assigned `task/…` or `bug/…` branch with the `git-conventions` skill.
 
 ### Step 8: Repeat
-Go back to Step 2 for the next acceptance criterion.
-Continue until all criteria have tests and passing implementations.
 
-### Step 9: Prepare a Work Log Handoff
-After refactor and before handing back to the orchestrator, prepare a dated Work Log entry using the heading `### Session N — YYYY-MM-DD`.
-Use a free-prose body that summarizes what was done, what was tried and rejected, and what remains.
-When the task's Source Requirements cites AC scenarios, name the tests or review checks that verify each one.
-The session number increments monotonically across all sessions on the same task or bug.
-Return this entry to the active loop. The loop appends it to the task or bug file in the tracker.
+Return to Step 2 until every criterion has a passing test.
 
-## Inspection and demonstration tasks
+### Step 9: Write the Work Log Handoff
 
-This section applies when the task's Verification section holds the line `Inspection:` or `Demonstration:`, as the `new-task` skill's Verification Methods define them. The task template's Verification comment may precede that line, so detect the line, not the first line of the section.
-For such a task, work through the steps below in place of the red/green cycle (Steps 2-6) and write no test:
+This skill owns the Work Log entry. Write one per session:
+
+```markdown
+### Session N — YYYY-MM-DD
+<Free prose: what was done, decisions made, what was tried and rejected, what remains,
+and anything the Reviewer should look at.>
+
+Verification:
+- `<command>` — <decisive output: exit code, pass and fail counts, failing test names>
+
+Scenarios:
+- <AC scenario cited in Source Requirements> — <the test or check that verifies it>
+```
+
+- **Verification** lists every command run as evidence this session: the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them.
+- **Scenarios** appears only when Source Requirements cites AC scenarios.
+- Add the inspection or demonstration record, a `debug` fix contract, and the `#### Review answers` block from `receive-code-review` when they apply.
+- `N` increments across all sessions on the work item.
+
+Return the entry to the active loop, which appends it under `## Work Log`.
+The `Base commit:` line the loop wrote there stays as it is; the loop reads it to resume.
+
+## Inspection and Demonstration Tasks
+
+These apply when the task's Verification section holds an `Inspection:` or `Demonstration:` line, anywhere in the section (a template comment may precede it).
+Work through them in place of Steps 2-6, and write no test:
 
 1. Make the change within Files to Touch.
-2. **Inspection:** check each acceptance criterion the Verification section lists against the changed artifact. For prose, read every listed reference (the source spec, the accepted ADRs, and S-000 when it is listed) and fix every conflict in the changed text. Read S-000 now, when running the inspection, not at session start.
+2. **Inspection:** check each listed acceptance criterion against the changed artifact. For prose, read every listed reference (the source spec, the accepted ADRs, and S-000 when listed, read now rather than at session start) and fix every conflict in the changed text.
    **Demonstration:** run the listed command or steps and compare the outcome with the expected observation.
-3. Run the project's full test suite as the regression check, when the project documents one.
-4. Commit as in Step 7. Record in the Work Log handoff (Step 9) the inspection or demonstration record: for an inspection, each criterion and reference checked, each conflict found and how it was fixed, and the result; for a demonstration, the command or steps run and the observed outcome.
-5. If the change turns out to alter product behavior a test should cover, or needs a file outside Files to Touch, or a conflict can only be resolved by changing a reference document, escalate under the Escalation section below instead of adding an undeclared test.
+3. Run the full test suite as the regression check, when the project documents one.
+4. Commit as in Step 7. The Step 9 entry holds the record: for an inspection, each criterion and reference checked, each conflict found and how it was fixed, and the result; for a demonstration, the command or steps run and the observed outcome.
+5. If the change alters product behavior a test should cover, or a conflict can be resolved only by changing a reference document, apply the Escalation section instead of adding an undeclared test.
 
 Steps 0, 7 and 9 still apply.
 
 ## Escalation
 
-Return `ESCALATE` under any of these conditions. All cases use the same structured four-field request; the active loop forwards it to the Architect via the `escalation-review` skill. Do not resume the TDD cycle until the Architect responds.
+Return `ESCALATE` on any of these, and do not resume until the Architect responds. The active loop routes the request through `escalation-review`.
 
-**Retry threshold.** Three consecutive Step 4 → Step 5 failures on the same acceptance criterion.
-
-**Boundary violations (no retry — escalate on first detection):**
-- The task can only be completed by modifying a file that is not listed under `Files to Touch` in the task file.
-- Implementation reveals a dependency on another task that is not listed under `Dependencies`.
-- The acceptance criteria cannot be satisfied without changing the approved specification.
-- Requirements in the task are internally contradictory.
+- **Retry threshold** — three consecutive Step 4 → Step 5 failures on the same criterion.
+- **Boundary violations** (escalate on first detection):
+  - The work needs a file outside its scope: for a task, a file not under `Files to Touch`; for a bug, code beyond the fix contract's isolated fault and its regression test.
+  - It depends on another task not listed under `Dependencies`.
+  - The criteria cannot be met without changing the approved specification.
+  - The requirements are contradictory, ambiguous or untestable.
 
 ```text
-Problem: [the criterion that will not pass, or the boundary that was violated]
-Attempted: [implementations tried on retry, or why the boundary cannot be honoured as written]
-Failed because: [the specific reason — test output, scope mismatch, contradictory requirement]
-Question: [specific guidance needed to continue within the approved specification]
+Problem: [the criterion that will not pass, or the boundary hit]
+Attempted: [implementations tried and the retry count, or why the boundary cannot be honoured]
+Failed because: [test output, scope mismatch, or the contradictory or ambiguous requirement]
+Question: [the guidance needed to continue within the approved specification]
 ```
 
 ## Output Format
 
-- **Test files** — for test tasks, one or more test files covering all acceptance criteria.
-- **Implementation files** — for test tasks, production code that passes all tests.
-- **Inspection or demonstration record** — for those tasks, the Work Log handoff holds the record described in Inspection and demonstration tasks; no test file is produced.
-- **Verification** — the task's Verification section is satisfied: its commands pass, and for an inspection or demonstration task the record shows a pass.
-- **Work Log handoff** — the complete `### Session N — YYYY-MM-DD` entry for the active loop to record.
+- **Commits** — tests and implementation (or the inspected or demonstrated change) on the assigned branch, one per cycle.
+- **Work Log handoff** — the Step 9 entry.
 
 ## Quality Criteria
 
-- For test tasks, every acceptance criterion has at least one test. For inspection tasks, every listed criterion and reference was checked; for demonstration tasks, the listed steps were run. The record is in the Work Log handoff.
-- For test tasks, tests cover both success and failure paths.
-- For test tasks, tests are independent (no shared mutable state) and deterministic (same result every run, no flakiness).
-- For test tasks, test names describe the expected behavior, not the implementation (e.g., `test_returns_empty_list_when_no_items` not `test_get_items`).
-- For test tasks, the implementation is minimal — no code exists that is not required by a test.
-- For test tasks, all tests pass when run together.
-- Each completed TDD cycle is committed on the assigned implementation branch using the `git-conventions` skill.
-- The Work Log handoff contains one entry for the current session boundary.
+- Every criterion has a test that was seen failing and then passing, or, for an inspection or demonstration task, a record that covers every listed criterion and reference or step.
+- Tests cover success and failure paths, and all of them pass together.
+- No code exists that no test requires.
+- The Work Log entry lists every verification command with the output actually seen.
 
 ## Rationalizations
 
@@ -132,19 +136,12 @@ These thoughts mean stop and return to the test-first cycle.
 
 | Excuse | Reality |
 |---|---|
-| "It is too simple to need a test first." | Simple code breaks too. The test takes a minute to write and fixes the behavior in place. |
-| "I already wrote the code; deleting it is wasteful." | That time is spent either way. Rewriting from a failing test gives code you can trust; bolting tests on afterwards gives code you cannot. |
-| "I will add the tests right after." | A test written after the code passes on the first run, so it proves nothing about the behavior. |
-| "I manually checked it, so it works." | A manual check is not repeatable and is not recorded. The next change breaks it unnoticed. |
-| "The test passed immediately, so the behavior must already exist." | Then the test does not test the new behavior. Rewrite it until it fails for the right reason. |
-| "This refactor is quick, tests can wait." | Refactoring without a green suite is rewriting without a net. Run the tests after each step. |
+| "It is too simple to need a test first." | Simple code breaks too. The test takes a minute and fixes the behavior in place. |
+| "I already wrote the code; deleting it is wasteful." | Rewriting from a failing test gives code you can trust; tests bolted on afterwards do not. |
+| "I will add the tests right after." | A test written after the code passes on its first run, so it proves nothing. |
+| "I manually checked it, so it works." | A manual check is not repeatable or recorded. The next change breaks it unnoticed. |
 
 ## Common Pitfalls
 
-- **Starting work without reading the Work Log** — always read every existing Work Log entry before the acceptance criteria or any other work.
-- **Writing implementation first** — this defeats the purpose of TDD. Always write the test first.
-- **Tests that test implementation** — test what the code does (behavior), not how it does it (implementation details). If you refactor internals, tests should still pass.
-- **Skipping the "verify it fails" step** — a test that passes before implementation is not testing anything. It gives false confidence.
-- **Committing outside the branch model** — implementation commits belong only on the assigned task or bug branch, never on `{{integration_branch}}`.
-- **Over-refactoring** — refactor only when the code is messy enough to slow down the next test cycle. Do not refactor preemptively.
-- **Giant test functions** — each test should check one thing. If a test has multiple assertions checking different behaviors, split it.
+- **Over-refactoring** — refactor only what slows the next cycle, never preemptively.
+- **Giant test functions** — a test checks one behavior; split one whose assertions check several.

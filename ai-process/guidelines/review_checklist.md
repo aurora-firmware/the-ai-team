@@ -1,6 +1,7 @@
 # Code Review Checklist
 
 This checklist is used by the Reviewer role during the two-stage code review procedure.
+It is the owner of the review criteria; the `code-review` skill carries it out.
 
 ## Stage 1: Spec Compliance
 

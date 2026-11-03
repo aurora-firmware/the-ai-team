@@ -29,7 +29,7 @@ class InProgressTask:
 
 
 @dataclass(frozen=True)
-class BlockedTask:
+class BlockedItem:
     id: str
     title: str
     blocking_reason: str
@@ -105,19 +105,19 @@ def _latest_work_log_session(path: Path, kind: ArtifactKind) -> tuple[str, str] 
     return None
 
 
-def _latest_work_log_line(task_path: Path) -> str:
-    session = _latest_work_log_session(task_path, "task")
+def _latest_work_log_line(path: Path, kind: ArtifactKind) -> str:
+    session = _latest_work_log_session(path, kind)
     return session[1] if session else "not recorded"
 
 
-def _blocking_reason(task_path: Path) -> str:
-    task = parse_task(task_path)
-    source_map = task._source_map or {}
+def _blocking_reason(path: Path, item: object, kind: ArtifactKind) -> str:
+    """Return a blocked task's or bug's frontmatter reason, else its latest Work Log line."""
+    source_map = getattr(item, "_source_map", None) or {}
     for key in ("blocking-reason", "blocking_reason"):
         value = source_map.get(key)
         if value is not None and str(value).strip():
             return str(value).strip()
-    return _latest_work_log_line(task_path)
+    return _latest_work_log_line(path, kind)
 
 
 _SESSION_HEADING = re.compile(r"^### Session (\d+) — (\d{4}-\d{2}-\d{2})\s*$")
@@ -176,11 +176,22 @@ def _payload(root: ProjectRoot) -> dict[str, object]:
         for _, task in tasks_by_status.get("in-progress", [])
     ]
 
-    blocked_tasks: list[BlockedTask] = [
-        BlockedTask(
-            id=task.id, title=task.title, blocking_reason=_blocking_reason(path)
+    blocked_tasks: list[BlockedItem] = [
+        BlockedItem(
+            id=task.id,
+            title=task.title,
+            blocking_reason=_blocking_reason(path, task, "task"),
         )
         for path, task in tasks_by_status.get("blocked", [])
+    ]
+
+    blocked_bugs: list[BlockedItem] = [
+        BlockedItem(
+            id=bug.id,
+            title=bug.title,
+            blocking_reason=_blocking_reason(path, bug, "bug"),
+        )
+        for path, bug in bugs_by_status.get("blocked", [])
     ]
 
     critical_high_bugs: list[CriticalBug] = [
@@ -203,6 +214,7 @@ def _payload(root: ProjectRoot) -> dict[str, object]:
             "bugs": {
                 "open": count_bugs("open"),
                 "in_progress": count_bugs("in-progress"),
+                "blocked": count_bugs("blocked"),
                 "resolved": count_bugs("resolved"),
             },
             "adrs": _count(root.decisions),
@@ -222,6 +234,14 @@ def _payload(root: ProjectRoot) -> dict[str, object]:
                 "blocking_reason": task.blocking_reason,
             }
             for task in blocked_tasks
+        ],
+        "blocked_bugs": [
+            {
+                "id": bug.id,
+                "title": bug.title,
+                "blocking_reason": bug.blocking_reason,
+            }
+            for bug in blocked_bugs
         ],
         "critical_high_open_bugs": [
             {"id": bug.id, "title": bug.title, "severity": bug.severity}
@@ -250,8 +270,10 @@ def _to_markdown(payload: dict[str, object]) -> str:
 
     in_progress = payload["in_progress_tasks"]
     assert isinstance(in_progress, list)
-    blocked = payload["blocked_tasks"]
-    assert isinstance(blocked, list)
+    blocked_tasks = payload["blocked_tasks"]
+    assert isinstance(blocked_tasks, list)
+    blocked_bugs = payload["blocked_bugs"]
+    assert isinstance(blocked_bugs, list)
     critical_high = payload["critical_high_open_bugs"]
     assert isinstance(critical_high, list)
 
@@ -265,7 +287,7 @@ def _to_markdown(payload: dict[str, object]) -> str:
     blocked_lines = _list_lines(
         [
             f"{row['id']} — {row['title']}: {row['blocking_reason']}"
-            for row in blocked
+            for row in [*blocked_tasks, *blocked_bugs]
             if isinstance(row, dict)
         ]
     )
@@ -289,6 +311,7 @@ def _to_markdown(payload: dict[str, object]) -> str:
         f"- Cancelled tasks: {tasks['cancelled']}\n"
         f"- Open bugs: {bugs['open']}\n"
         f"- Bugs in progress: {bugs['in_progress']}\n"
+        f"- Blocked bugs: {bugs['blocked']}\n"
         f"- Resolved bugs: {bugs['resolved']}\n"
         f"- ADRs: {counts['adrs']}\n"
         f"- Latest integration result: {payload['latest_integration_result']}\n\n"
