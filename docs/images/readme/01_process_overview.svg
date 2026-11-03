@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 680" width="1120" height="680" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 704" width="1120" height="704" font-family="'AF Sans', sans-serif">
   <defs>
-    <marker id="m-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748B"/></marker><marker id="m-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F87171"/></marker><marker id="m-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#34D399"/></marker><marker id="m-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FB923C"/></marker><marker id="m-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FACC15"/></marker><marker id="m-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#60A5FA"/></marker><marker id="m-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A78BFA"/></marker><marker id="m-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22D3EE"/></marker>
+    <linearGradient id="brand" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#E63B26"/><stop offset=".5" stop-color="#F7941D"/><stop offset="1" stop-color="#F7941D"/></linearGradient>
+    <marker id="m-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9CA3AF"/></marker><marker id="m-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F4695A"/></marker><marker id="m-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22C55E"/></marker><marker id="m-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FABA6A"/></marker><marker id="m-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F7941D"/></marker><marker id="m-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3B82F6"/></marker>
     <style><![CDATA[
-      .bg    { fill: #0B1120; stroke: #1E293B; stroke-width: 1.5; }
-      .panel { fill: #0F172A; stroke: #1E293B; stroke-width: 1.5; }
-      .title { font-weight: 700; font-size: 28px; fill: #F8FAFC; letter-spacing: -0.4px; }
-      .sub   { font-size: 15px; fill: #94A3B8; }
-      .ph    { font-weight: 700; font-size: 17px; fill: #F8FAFC; }
-      .h     { font-weight: 700; font-size: 14px; fill: #F8FAFC; }
-      .t     { font-size: 12px; fill: #CBD5E1; }
-      .s     { font-size: 12px; fill: #94A3B8; }
-      .mono  { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-      .card  { fill: #111827; stroke-width: 1.6; }
-      .ln    { fill: none; stroke: #64748B; stroke-width: 1.6; }
+      @font-face { font-family: 'AF Display'; font-weight: 400; src: url(data:font/woff2;base64,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) format('woff2'); }
+      @font-face { font-family: 'AF Sans'; font-weight: 400; src: url(data:font/woff2;base64,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) format('woff2'); }
+      @font-face { font-family: 'AF Sans'; font-weight: 600; src: url(data:font/woff2;base64,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) format('woff2'); }
+
+      .title { font-family: 'AF Display', sans-serif; font-size: 26px; fill: #FFFFFF; }
+      .role  { font-family: 'AF Display', sans-serif; font-size: 12px; letter-spacing: .3px; }
+      .num   { font-family: 'AF Display', sans-serif; font-size: 20px; fill: #FFFFFF; }
+      .sub   { font-size: 17px; fill: #9CA3AF; }
+      .ph    { font-weight: 600; font-size: 18px; fill: #FFFFFF; }
+      .h     { font-weight: 600; font-size: 15px; fill: #FFFFFF; }
+      .t     { font-size: 13.5px; fill: #D8DAE8; }
+      .s     { font-size: 13px; fill: #9CA3AF; }
+      .cap   { font-size: 11px; letter-spacing: 1.5px; }
+      .mono  { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0; }
+      .sys   { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
 
       .n { opacity: 0; transform: translateY(8px); animation: rise .45s cubic-bezier(.2,.8,.3,1) forwards; }
       .e { opacity: 0; animation: f .4s ease forwards; }
@@ -27,7 +32,7 @@
       @keyframes f { to { opacity: 1; } }
       @keyframes rise { to { opacity: 1; transform: translateY(0); } }
       @keyframes flow { to { stroke-dashoffset: -24; } }
-      @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+      @keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
 
       @media (prefers-reduced-motion: reduce) {
         .n, .e { opacity: 1 !important; animation: none !important; transform: none !important; }
@@ -35,123 +40,134 @@
       }
     ]]></style>
   </defs>
-  <rect class="bg" x="1" y="1" width="1118" height="678" rx="18"/>
-  <g class="n d1"><text class="title" x="560" y="52" text-anchor="middle">From feature request to main</text>
-  <text class="sub" x="560" y="80" text-anchor="middle">Three phases and five gates. The Product Owner owns Gate 1 and Gate 5; agents run the rest.</text></g>
-<g class="n d1"><rect class="panel" x="30" y="110" width="380" height="540" rx="14"/><text xml:space="preserve" class="ph" x="220.0" y="140" text-anchor="middle">Spec + planning</text><text xml:space="preserve" class="s" x="220.0" y="159" text-anchor="middle">shaped with the Product Owner</text></g>
-<g class="n d1"><rect class="panel" x="440" y="110" width="350" height="540" rx="14"/><text xml:space="preserve" class="ph" x="615.0" y="140" text-anchor="middle">Development loop</text><text xml:space="preserve" class="s" x="615.0" y="159" text-anchor="middle">/dev-loop · runs on its own</text></g>
-<g class="n d1"><rect class="panel" x="820" y="110" width="270" height="220" rx="14"/><text xml:space="preserve" class="ph" x="955.0" y="140" text-anchor="middle">Final sign-off</text><text xml:space="preserve" class="s" x="955.0" y="159" text-anchor="middle">when the task queue is empty</text></g>
-<g class="n d1"><rect class="panel" x="820" y="350" width="270" height="300" rx="14"/><text xml:space="preserve" class="ph" x="955.0" y="380" text-anchor="middle">Bug loop</text><text xml:space="preserve" class="s" x="955.0" y="399" text-anchor="middle">/bug-loop · diagnosis first</text></g>
+  <rect x="1" y="1" width="1118" height="702" rx="18" fill="#080A24" stroke="#2E3372" stroke-width="1.5"/>
+  <g class="n d1"><text xml:space="preserve" class="title" x="560" y="54" text-anchor="middle">From feature request to main</text><rect x="490" y="70" width="140" height="3" rx="1.5" fill="url(#brand)"/><text xml:space="preserve" class="sub" x="560" y="100" text-anchor="middle">Three phases and five gates. The Product Owner owns Gate 1 and Gate 5; agents run the rest.</text></g>
+  <g transform="translate(0 24)">
+<g class="n d1"><rect x="30" y="110" width="380" height="540" rx="14" fill="#0F1340" stroke="#2E3372" stroke-width="1.5"/><text xml:space="preserve" class="ph" x="220.0" y="142" text-anchor="middle">Spec + planning</text><text xml:space="preserve" class="s" x="220.0" y="162" text-anchor="middle">shaped with the Product Owner</text></g>
+<g class="n d1"><rect x="440" y="110" width="350" height="540" rx="14" fill="#0F1340" stroke="#2E3372" stroke-width="1.5"/><text xml:space="preserve" class="ph" x="615.0" y="142" text-anchor="middle">Development loop</text><text xml:space="preserve" class="s" x="615.0" y="162" text-anchor="middle">/dev-loop · runs on its own</text></g>
+<g class="n d1"><rect x="820" y="110" width="270" height="220" rx="14" fill="#0F1340" stroke="#2E3372" stroke-width="1.5"/><text xml:space="preserve" class="ph" x="955.0" y="142" text-anchor="middle">Final sign-off</text><text xml:space="preserve" class="s" x="955.0" y="162" text-anchor="middle">when the task queue is empty</text></g>
+<g class="n d1"><rect x="820" y="350" width="270" height="300" rx="14" fill="#0F1340" stroke="#2E3372" stroke-width="1.5"/><text xml:space="preserve" class="ph" x="955.0" y="382" text-anchor="middle">Bug loop</text><text xml:space="preserve" class="s" x="955.0" y="402" text-anchor="middle">/bug-loop · diagnosis first</text></g>
 <g class="n d2">
-<rect class="card" x="48" y="180" width="230" height="46" rx="10" stroke="#FACC15" fill="#282A25"/>
-<text xml:space="preserve" class="h" x="163.0" y="200.0" text-anchor="middle">Feature request</text>
-<text xml:space="preserve" class="t" x="163.0" y="217.0" text-anchor="middle">Product Owner</text>
+<rect x="48" y="180" width="230" height="46" rx="10" fill="#1A1E4A" stroke="#F7941D" stroke-width="1.5"/>
+<text xml:space="preserve" class="h" x="163.0" y="200.0" text-anchor="middle" fill="#FFFFFF">Feature request</text>
+<text xml:space="preserve" class="s" x="163.0" y="218.0" text-anchor="middle">Product Owner</text>
 </g>
-<g class="e d3"><path d="M163,227 V252" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d3"><path d="M163,227 V252" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d3">
-<rect class="card" x="48" y="254" width="230" height="46" rx="10" stroke="#A78BFA" fill="#20243C"/>
-<text xml:space="preserve" class="h" x="163.0" y="274.0" text-anchor="middle">Brainstorm → spec</text>
-<text xml:space="preserve" class="t" x="163.0" y="291.0" text-anchor="middle">Planner with the Product Owner</text>
+<rect x="48" y="254" width="230" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="62" y="254" width="202" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="h" x="163.0" y="274.0" text-anchor="middle" fill="#FFFFFF">Brainstorm <tspan class="sys">→</tspan> spec</text>
+<text xml:space="preserve" class="s" x="163.0" y="292.0" text-anchor="middle">Planner with the Product Owner</text>
 </g>
-<g class="e d4"><path d="M163,301 V326" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d4"><path d="M163,301 V326" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d4">
-<rect class="card" x="48" y="328" width="230" height="46" rx="10" stroke="#FACC15" fill="#282A25" stroke-dasharray="5 4"/>
-<text xml:space="preserve" class="h" x="163.0" y="348.0" text-anchor="middle">Gate 1</text>
-<text xml:space="preserve" class="t" x="163.0" y="365.0" text-anchor="middle">Product Owner approves the spec</text>
+<rect x="48" y="328" width="230" height="46" rx="10" fill="#1A1E4A" stroke="url(#brand)" stroke-width="2"/>
+<text xml:space="preserve" class="h" x="163.0" y="348.0" text-anchor="middle" fill="#FFFFFF">Gate 1</text>
+<text xml:space="preserve" class="s" x="163.0" y="366.0" text-anchor="middle">Product Owner approves the spec</text>
 </g>
-<g class="e d5"><path d="M163,375 V400" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d5"><path d="M163,375 V400" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d5">
-<rect class="card" x="48" y="402" width="230" height="46" rx="10" stroke="#60A5FA" fill="#19263C"/>
-<text xml:space="preserve" class="h" x="163.0" y="422.0" text-anchor="middle">Feature architecture</text>
-<text xml:space="preserve" class="t" x="163.0" y="439.0" text-anchor="middle">Architect · ADRs</text>
+<rect x="48" y="402" width="230" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="62" y="402" width="202" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="h" x="163.0" y="422.0" text-anchor="middle" fill="#FFFFFF">Feature architecture</text>
+<text xml:space="preserve" class="s" x="163.0" y="440.0" text-anchor="middle">Architect · ADRs</text>
 </g>
-<g class="e d6"><path d="M163,449 V474" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d6"><path d="M163,449 V474" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d6">
-<rect class="card" x="48" y="476" width="230" height="46" rx="10" stroke="#A78BFA" fill="#20243C"/>
-<text xml:space="preserve" class="h" x="163.0" y="496.0" text-anchor="middle">Task breakdown</text>
-<text xml:space="preserve" class="t" x="163.0" y="513.0" text-anchor="middle">Planner · atomic tasks</text>
+<rect x="48" y="476" width="230" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="62" y="476" width="202" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="h" x="163.0" y="496.0" text-anchor="middle" fill="#FFFFFF">Task breakdown</text>
+<text xml:space="preserve" class="s" x="163.0" y="514.0" text-anchor="middle">Planner · atomic tasks</text>
 </g>
-<g class="e d7"><path d="M163,523 V548" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d7"><path d="M163,523 V548" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d7">
-<rect class="card" x="48" y="550" width="230" height="46" rx="10" stroke="#60A5FA" fill="#19263C" stroke-dasharray="5 4"/>
-<text xml:space="preserve" class="h" x="163.0" y="570.0" text-anchor="middle">Gate 2</text>
-<text xml:space="preserve" class="t" x="163.0" y="587.0" text-anchor="middle">Architect preflights the task plan</text>
+<rect x="48" y="550" width="230" height="46" rx="10" fill="#1A1E4A" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="h" x="163.0" y="570.0" text-anchor="middle" fill="#FFFFFF">Gate 2</text>
+<text xml:space="preserve" class="s" x="163.0" y="588.0" text-anchor="middle">Architect preflights the task plan</text>
 </g>
 <g class="n d3">
-<rect class="card" x="292" y="254" width="104" height="46" rx="10" stroke="#64748B" fill="#192131" stroke-dasharray="5 4"/>
-<text xml:space="preserve" class="t" x="344.0" y="274.0" text-anchor="middle">change-request</text>
-<text xml:space="preserve" class="t" x="344.0" y="291.0" text-anchor="middle">skips Gate 1</text>
+<rect x="290" y="254" width="108" height="46" rx="10" fill="#1A1E4A" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="t" x="344.0" y="274.0" text-anchor="middle" fill="#D8DAE8">change-request</text>
+<text xml:space="preserve" class="s" x="344.0" y="292.0" text-anchor="middle">skips Gate 1</text>
 </g>
-<g class="e d5"><path d="M344,301 V425 H282" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)" stroke-dasharray="5 4"/></g>
-<g class="e d8"><path d="M279,573 H425 V203 H507" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d5"><path d="M344,301 V425 H282" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)" stroke-dasharray="5 4"/></g>
+<g class="e d8"><path d="M279,573 H425 V203 H507" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d8">
-<rect class="card" x="510" y="180" width="210" height="46" rx="10" stroke="#64748B" fill="#192131"/>
-<text xml:space="preserve" class="h" x="615.0" y="200.0" text-anchor="middle">Next pending task</text>
-<text xml:space="preserve" class="t" x="615.0" y="217.0" text-anchor="middle">from the local tracker</text>
+<rect x="510" y="180" width="210" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<text xml:space="preserve" class="h" x="615.0" y="200.0" text-anchor="middle" fill="#FFFFFF">Next pending task</text>
+<text xml:space="preserve" class="s" x="615.0" y="218.0" text-anchor="middle">from the local tracker</text>
 </g>
-<g class="e d9"><path d="M615,227 V266" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d9"><path d="M615,227 V266" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d9">
-<rect class="card" x="510" y="270" width="210" height="46" rx="10" stroke="#22D3EE" fill="#132B3B"/>
-<text xml:space="preserve" class="h" x="615.0" y="290.0" text-anchor="middle">Developer</text>
-<text xml:space="preserve" class="t" x="615.0" y="307.0" text-anchor="middle">implements · TDD</text>
+<rect x="510" y="270" width="210" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="524" y="270" width="182" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="role" x="615.0" y="290.0" text-anchor="middle" fill="#F7941D">Developer</text>
+<text xml:space="preserve" class="s" x="615.0" y="308.0" text-anchor="middle">implements · TDD</text>
 </g>
-<g class="e d10"><path d="M615,317 V356" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d10"><path d="M615,317 V356" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d10">
-<rect class="card" x="510" y="360" width="210" height="46" rx="10" stroke="#F472B6" fill="#282135"/>
-<text xml:space="preserve" class="h" x="615.0" y="380.0" text-anchor="middle">Reviewer</text>
-<text xml:space="preserve" class="t" x="615.0" y="397.0" text-anchor="middle">Gate 3 · two-stage review</text>
+<rect x="510" y="360" width="210" height="46" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="524" y="360" width="182" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="role" x="615.0" y="380.0" text-anchor="middle" fill="#F7941D">Reviewer</text>
+<text xml:space="preserve" class="s" x="615.0" y="398.0" text-anchor="middle" fill="#3B82F6">Gate 3 · two-stage review</text>
 </g>
-<g class="e d11"><path d="M615,407 V446" fill="none" stroke="#34D399" stroke-width="1.6" marker-end="url(#m-ok)"/></g>
+<g class="e d11"><path d="M615,407 V446" fill="none" stroke="#22C55E" stroke-width="1.6" marker-end="url(#m-ok)"/></g>
 <g class="n d11">
-<rect class="card" x="510" y="450" width="210" height="46" rx="10" stroke="#34D399" fill="#142B32"/>
-<text xml:space="preserve" class="h" x="615.0" y="470.0" text-anchor="middle">Integration</text>
-<text xml:space="preserve" class="t" x="615.0" y="487.0" text-anchor="middle">Gate 4 · merge + full test suite</text>
+<rect x="510" y="450" width="210" height="46" rx="10" fill="#1A1E4A" stroke="#22C55E" stroke-width="1.5"/>
+<text xml:space="preserve" class="h" x="615.0" y="470.0" text-anchor="middle" fill="#FFFFFF">Integration</text>
+<text xml:space="preserve" class="s" x="615.0" y="488.0" text-anchor="middle" fill="#3B82F6">Gate 4 · merge + full test suite</text>
 </g>
-<g class="n d11"><text xml:space="preserve" class="s" x="628" y="437" text-anchor="start" fill="#34D399">PASS</text></g>
-<g class="e d11"><path d="M509,383 H486 V293 H507" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
-<g class="n d11"><text class="s" x="478" y="338" text-anchor="middle" fill="#F87171" transform="rotate(-90 478 338)">FAIL</text></g>
-<g class="e d12"><path d="M721,463 H752 V213 H723" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)" class="flow"/></g>
+<g class="n d11"><text xml:space="preserve" class="s" x="628" y="437" text-anchor="start" fill="#22C55E">PASS</text></g>
+<g class="e d11"><path d="M509,383 H486 V293 H507" fill="none" stroke="#F4695A" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
+<g class="n d11"><text class="s" x="476" y="338" text-anchor="middle" fill="#F4695A" transform="rotate(-90 476 338)">FAIL</text></g>
+<g class="e d12"><path d="M721,463 H752 V213 H723" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)" class="flow"/></g>
 <g class="n d12"><text class="s" x="766" y="338" text-anchor="middle" transform="rotate(-90 766 338)">next task</text></g>
-<g class="n d12"><text xml:space="preserve" class="s" x="615" y="548" text-anchor="middle">Stops on: empty queue · blocked task · escalation</text><text xml:space="preserve" class="s" x="615" y="568" text-anchor="middle">Up to 3 review cycles, then the Architect is consulted</text></g>
-<g class="e d12"><path d="M721,190 H850" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
-<g class="n d12"><text xml:space="preserve" class="s" x="726" y="182" text-anchor="start">queue empty</text></g>
-<g class="e d12"><path d="M721,485 H800 V437 H850" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)"/></g>
-<g class="n d12"><text xml:space="preserve" class="s" x="726" y="503" text-anchor="start" fill="#F87171">regression</text></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="615" y="548" text-anchor="middle">Stops on: empty queue · blocked task · escalation</text></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="615" y="568" text-anchor="middle">Up to 3 review cycles, then the Architect is consulted</text></g>
+<g class="e d12"><path d="M721,190 H850" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="727" y="182" text-anchor="start">queue empty</text></g>
+<g class="e d12"><path d="M721,485 H800 V437 H850" fill="none" stroke="#F4695A" stroke-width="1.6" marker-end="url(#m-r)"/></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="727" y="503" text-anchor="start" fill="#F4695A">regression</text></g>
 <g class="n d10">
-<rect class="card" x="853" y="176" width="204" height="36" rx="10" stroke="#60A5FA" fill="#19263C"/>
-<text xml:space="preserve" class="t" x="955.0" y="199.0" text-anchor="middle">Spec-truth check · Architect</text>
+<rect x="853" y="176" width="204" height="36" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="867" y="176" width="176" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="t" x="955.0" y="199.0" text-anchor="middle" fill="#FFFFFF">Spec-truth check · Architect</text>
 </g>
-<g class="e d10"><path d="M955,213 V224" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d10"><path d="M955,213 V224" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d11">
-<rect class="card" x="853" y="226" width="204" height="36" rx="10" stroke="#64748B" fill="#192131"/>
-<text xml:space="preserve" class="t" x="955.0" y="249.0" text-anchor="middle">Status report</text>
+<rect x="853" y="226" width="204" height="36" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<text xml:space="preserve" class="t" x="955.0" y="249.0" text-anchor="middle" fill="#FFFFFF">Status report</text>
 </g>
-<g class="e d11"><path d="M955,263 V274" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d11"><path d="M955,263 V274" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d12">
-<rect class="card" x="853" y="276" width="204" height="44" rx="10" stroke="#FACC15" fill="#282A25" stroke-dasharray="5 4"/>
-<text xml:space="preserve" class="h" x="955.0" y="295.0" text-anchor="middle">Gate 5 · Product Owner</text>
-<text xml:space="preserve" class="t" x="955.0" y="312.0" text-anchor="middle">approves dev-agent → main</text>
+<rect x="853" y="276" width="204" height="44" rx="10" fill="#1A1E4A" stroke="url(#brand)" stroke-width="2"/>
+<text xml:space="preserve" class="h" x="955.0" y="295.0" text-anchor="middle" fill="#FFFFFF">Gate 5 · Product Owner</text>
+<text xml:space="preserve" class="s" x="955.0" y="313.0" text-anchor="middle">approves dev-agent <tspan class="sys">→</tspan> main</text>
 </g>
 <g class="n d9">
-<rect class="card" x="853" y="420" width="204" height="34" rx="10" stroke="#22D3EE" fill="#132B3B"/>
-<text xml:space="preserve" class="t" x="955.0" y="442.0" text-anchor="middle">diagnose</text>
+<rect x="853" y="420" width="204" height="34" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="867" y="420" width="176" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="t" x="955.0" y="442.0" text-anchor="middle" fill="#FFFFFF">diagnose</text>
 </g>
-<g class="e d10"><path d="M955,455 V468" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d10"><path d="M955,455 V468" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d10">
-<rect class="card" x="853" y="470" width="204" height="34" rx="10" stroke="#22D3EE" fill="#132B3B"/>
-<text xml:space="preserve" class="t" x="955.0" y="492.0" text-anchor="middle">fix</text>
+<rect x="853" y="470" width="204" height="34" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="867" y="470" width="176" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="t" x="955.0" y="492.0" text-anchor="middle" fill="#FFFFFF">fix</text>
 </g>
-<g class="e d11"><path d="M955,505 V518" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d11"><path d="M955,505 V518" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d11">
-<rect class="card" x="853" y="520" width="204" height="34" rx="10" stroke="#F472B6" fill="#282135"/>
-<text xml:space="preserve" class="t" x="955.0" y="542.0" text-anchor="middle">review</text>
+<rect x="853" y="520" width="204" height="34" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
+<rect x="867" y="520" width="176" height="2.5" rx="1" fill="#F7941D"/>
+<text xml:space="preserve" class="t" x="955.0" y="542.0" text-anchor="middle" fill="#FFFFFF">review</text>
 </g>
-<g class="e d12"><path d="M955,555 V568" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="e d12"><path d="M955,555 V568" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d12">
-<rect class="card" x="853" y="570" width="204" height="34" rx="10" stroke="#34D399" fill="#142B32"/>
-<text xml:space="preserve" class="t" x="955.0" y="592.0" text-anchor="middle">integrate</text>
+<rect x="853" y="570" width="204" height="34" rx="10" fill="#1A1E4A" stroke="#22C55E" stroke-width="1.5"/>
+<text xml:space="preserve" class="t" x="955.0" y="592.0" text-anchor="middle" fill="#FFFFFF">integrate</text>
 </g>
-<g class="e d12"><path d="M852,537 H838 V487 H850" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
-<g class="n d12"><text class="s" x="832" y="512" text-anchor="middle" fill="#F87171" transform="rotate(-90 832 512)">FAIL</text></g>
+<g class="e d12"><path d="M852,537 H838 V487 H850" fill="none" stroke="#F4695A" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
+<g class="n d12"><text class="s" x="831" y="512" text-anchor="middle" fill="#F4695A" transform="rotate(-90 831 512)">FAIL</text></g>
 <g class="n d12"><text xml:space="preserve" class="s" x="955" y="630" text-anchor="middle">resolved bugs join the Gate 5 summary</text></g>
+  </g>
 </svg>
