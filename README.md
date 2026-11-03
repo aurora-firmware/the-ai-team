@@ -3,7 +3,7 @@
 A reusable operating framework for projects developed by AI agent teams.
 
 <p align="center">
-  <img src="docs/images/readme/00_two_gates.svg" alt="The product owner hands a feature request to Gate 1, where they approve the spec; Planner, Architect, Developer, Reviewer and Integration then run autonomously through Gates 2 to 4; the product owner approves the merge to main at Gate 5" width="850">
+  <img src="docs/images/readme/00_two_gates.svg" alt="The product owner hands a feature request to Gate 1, where they approve the spec; Planner, Architect, Developer, Reviewer and Integration then run autonomously through Gates 2 to 4; the product owner approves the merge to main at Gate 5" width="100%">
 </p>
 
 ## What This Is
@@ -25,7 +25,7 @@ ai-team is made of four components (see [S-000](docs/ai-team/specs/S-000-system-
 When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration**: it is not part of this framework's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
 
 <p align="center">
-  <img src="docs/images/readme/04_init_stamp.svg" alt="This repository's four components (team definition, generators, CLI, end-user docs) feed the ai-team init command, which writes .claude/agents, .claude/skills, the ai-team artifact folders, .ai-team.toml, an optional AGENTS.md and the local tracker into any project" width="780">
+  <img src="docs/images/readme/04_init_stamp.svg" alt="This repository's four components (team definition, generators, CLI, end-user docs) feed the ai-team init command, which writes .claude/agents, .claude/skills, the ai-team artifact folders, .ai-team.toml, an optional AGENTS.md and the local tracker into any project" width="100%">
 </p>
 
 Developer documentation for working on ai-team itself is in [`docs/development/`](docs/development/AGENTS.md).
@@ -44,7 +44,7 @@ Everything in `ai-process/` is the **specification layer** — the authoritative
 The agents and skills authored under `cli/src/ai_team/init/sources/` are the **implementation layer** — they must faithfully execute what the ai-process defines, and they are what `ai-team init` exports into a target project.
 
 <p align="center">
-  <img src="docs/images/readme/05_spec_vs_impl.svg" alt="ai-process/ (workflows, standards, structure) dictates the agents, skills and project skeleton under cli/src/ai_team/init/sources/, which are checked against it" width="780">
+  <img src="docs/images/readme/05_spec_vs_impl.svg" alt="ai-process/ (workflows, standards, structure) dictates the agents, skills and project skeleton under cli/src/ai_team/init/sources/, which are checked against it" width="100%">
 </p>
 
 ## Process Overview
@@ -53,19 +53,19 @@ Work moves through three phases.
 The product owner shapes and approves the specification, the agents plan and build it, and the product owner signs off on the result.
 
 <p align="center">
-  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="850">
+  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="100%">
 </p>
 
 Inside both loops every task or bug goes through the same review cycle: it is integrated only after the Reviewer passes it.
 
 <p align="center">
-  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect; a regression found at integration opens a bug for the bug loop" width="780">
+  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect; a regression found at integration opens a bug for the bug loop" width="100%">
 </p>
 
 Blocked work does not spin: a role first retries within its own threshold, then consults the Architect once, then hands the decision to the product owner.
 
 <p align="center">
-  <img src="docs/images/readme/03_escalation.svg" alt="A three-step ladder: role self-recovery, then one Architect consultation when the threshold is exceeded, then the Product Owner when it is not resolved; a resolved consultation returns to the role" width="780">
+  <img src="docs/images/readme/03_escalation.svg" alt="A three-step ladder: role self-recovery, then one Architect consultation when the threshold is exceeded, then the Product Owner when it is not resolved; a resolved consultation returns to the role" width="100%">
 </p>
 
 ## Agent Roles
@@ -194,7 +194,7 @@ After initialization, still fill in your project's `AGENTS.md`, stack-specific c
 Keep the framework files generic unless you intentionally fork the process.
 
 <p align="center">
-  <img src="docs/images/readme/06_quality_gates.svg" alt="Five gates on a timeline from feature request to main: 1 spec approval by the Product Owner, 2 task plan preflight by the Architect, 3 code review by the Reviewer, 4 integration tests by the integration procedure, 5 final sign-off by the Product Owner; gates 2 to 4 are automated" width="780">
+  <img src="docs/images/readme/06_quality_gates.svg" alt="Five gates on a timeline from feature request to main: 1 spec approval by the Product Owner, 2 task plan preflight by the Architect, 3 code review by the Reviewer, 4 integration tests by the integration procedure, 5 final sign-off by the Product Owner; gates 2 to 4 are automated" width="100%">
 </p>
 
 The normal workflow is:
