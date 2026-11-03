@@ -67,7 +67,7 @@ These skills use a subset:
 |---|---|
 | `code-review` | `PASS`, `FAIL`, `ESCALATE` |
 | `feature-architecture` | `PASS`, `BLOCKED`, `ESCALATE` |
-| `escalation-review` | `PASS` (guidance resolves the blocker), `ESCALATE` (product owner decision needed) |
+| `escalation-review` | `PASS` (guidance resolves the blocker), `BLOCKED` (request or work item missing), `ESCALATE` (product owner decision needed) |
 | `change-request` | `PASS`, `FAIL`, `BLOCKED` |
 
 **Next Owner** names who acts on this report next.

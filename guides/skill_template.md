@@ -206,7 +206,7 @@ allowed-tools: Read, Glob, Grep, Bash, Agent, Skill(integrate), Skill(git-conven
 
 ### Phase-2 product owner escalation
 
-When an orchestrator exhausts Phase 2, Step 1 (Architect) without resolution, it produces a Phase 2 Product Owner Escalation Report using the canonical template defined in `escalation-review/SKILL.md`. Do not reinvent the report shape — point at that template.
+When the Architect cannot resolve an escalation, it writes the Phase 2 Product Owner Escalation Report defined in `escalation-review`, and the orchestrator passes that report to the product owner unchanged. Orchestrators never write their own report.
 
 ## Frontmatter Guidance
 

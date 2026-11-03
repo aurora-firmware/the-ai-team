@@ -37,7 +37,7 @@ Before the first action of a request — including a clarifying question, a code
 | A Review Verdict lists Open findings that need answers | `receive-code-review` |
 | A reviewed branch must be merged | `integrate`, and `merge-conflicts` when a conflict arises |
 | Work is blocked after self-recovery was exhausted | `escalation-review` |
-| The task queue is drained: no task of a spec or change-request is still pending, in progress or blocked | Before `/status-report` and Gate 5, have the Architect run `architecture-consistency-review` in completion mode (spec-truth reconciliation) for each approved spec the work touched, S-000 excluded |
+| The task queue is drained: no task of a spec or change-request is still pending, in progress or blocked | Before `/status-report` and Gate 5, have the Architect run `architecture-consistency-review` in completion mode (spec-truth reconciliation) for each approved spec the work touched, S-000 excluded, passing those specs and the tracker paths of the completed tasks and bugs |
 | A spec, task, bug, or ADR must be created | `new-spec`, `new-task`, `new-bug`, or `new-adr` — never hand-create the file |
 | Anything commits, branches, or merges | `git-conventions` |
 | About to claim work is complete, passing, fixed, merged, or reviewed | `evidence-before-claims` |
