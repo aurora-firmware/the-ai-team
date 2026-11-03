@@ -1,7 +1,7 @@
 ---
 name: brainstorm
 description: Explore solution space for a feature request or problem. Use when a new feature needs a design before implementation, or when an existing approach was rejected and alternatives need exploration.
-allowed-tools: Read, Grep, Glob, Write, Skill(new-spec)
+allowed-tools: Read, Grep, Glob, Write, Bash, Skill(new-spec), Skill(new-system-overview)
 effort: high
 ---
 
@@ -20,166 +20,112 @@ The goal is to arrive at a well-understood, agreed direction *before* writing th
 
 ### Step 0: Triage the Scope
 
-When `ai-team list specs` shows no `S-000`, suggest to the product owner starting with the system overview (`new-system-overview`) before writing a feature spec; the product owner decides. If the product owner declines, continue as before; the suggestion is not repeated in the same session.
+When the S-000 row of the `using-ai-team` routing table applies, suggest the system overview first, as that row says; the product owner decides.
+If they accept, run `new-system-overview` instead of this skill.
 
 Read the request, then judge its size before spending any clarifying question.
-If it describes several independent subsystems — pieces that could be specified, built, and verified separately, such as "a billing system with invoicing, tax reporting, and a customer portal" — it is too large for one spec. An oversized spec needs constant amendment and stops being true.
+If it describes several independent subsystems — pieces that could be specified, built, and verified separately, such as "a billing system with invoicing, tax reporting, and a customer portal" — it is too large for one spec:
 
 1. Say so to the product owner, and list the independent sub-projects with one line each.
 2. Propose the order, and the dependency between sub-projects, if any.
 3. Ask the product owner to confirm the split, then brainstorm only the first sub-project. Each remaining sub-project gets its own brainstorm, spec, and task plan later.
 
-If the request is a single coherent unit, continue to Step 1 without comment.
-
 ### Step 1: Understand the Request
 
-Read the feature request thoroughly.
-Separate what is known from what is unknown or ambiguous:
-- **Known**: stated requirements, explicit constraints, referenced existing systems.
-- **Unknown**: unstated priorities, scope boundaries, user-facing behaviour details, performance expectations, integration points not mentioned.
-
-Read `{{project_dir}}/specs/` and `{{project_dir}}/decisions/` to surface any existing decisions that bear on this feature.
+Separate what is known (stated requirements, explicit constraints, referenced systems) from what is unknown or ambiguous (priorities, scope boundaries, user-facing behaviour, performance expectations, unmentioned integration points).
+Read `{{project_dir}}/specs/` and `{{project_dir}}/decisions/` for existing decisions that bear on this feature.
 
 ### Step 2: Clarification Round
 
 Before exploring solutions, resolve the unknowns that would materially change the solution space.
+Plan coverage with these internal categories; never show category names or labels to the product owner:
 
-Use these internal categories to plan coverage. Do not expose category names or `[Category]` labels in the questions you ask the product owner.
+- **Scope & Requirements** — required outcomes, boundaries, and always the exclusions question: "What is explicitly NOT included in this feature?"
+- **Technical Constraints** — performance targets, compatibility, integrations, rollout, security, operational limits.
+- **Users & Surfaces** — who is affected, which interfaces or workflows change, what each user type must experience.
+- **Edge Cases & Error Handling** — failure modes, unusual inputs, partial states, rollback needs.
+- **Prior Decisions** — existing specifications, decision records, and project conventions.
+- **Verification** — how success will be observed, tested, reviewed, or accepted.
 
-**Internal categories:**
-- **Scope & Requirements** — clarify required outcomes, boundaries, and the prominent exclusions question: "What is explicitly NOT included in this feature?"
-- **Technical Constraints** — identify constraints such as performance targets, backwards compatibility, integrations, rollout strategy, security, or operational limits.
-- **Users & Surfaces** — clarify who is affected, which interfaces or workflows change, and what each user type must experience.
-- **Edge Cases & Error Handling** — surface failure modes, unusual inputs, partial states, rollback needs, and expected handling.
-- **Prior Decisions** — check existing specifications, decision records, and project conventions for constraints or contradictions.
-- **Verification** — clarify how success will be observed, tested, reviewed, or accepted.
+Questions that often pay off: Which existing behavior must remain unchanged? What should happen when the required data is missing, stale, or contradictory? Which failure would be most damaging? Has any approach already been ruled out? What would make the first version acceptable to ship? If requirements conflict, which priority decides?
 
-**Example question pool:**
-- What outcome must this feature guarantee for the user?
-- What is explicitly NOT included in this feature?
-- Which existing behavior must remain unchanged?
-- Are there performance, compatibility, rollout, or operational constraints I should account for?
-- Which user types or workflows are affected first?
-- Are there surfaces where this should not appear, even if they seem related?
-- What should happen when the required data is missing, stale, or contradictory?
-- What failure mode would be most damaging if we handled it poorly?
-- Are there prior specs, decisions, or conventions this must follow?
-- Has any approach already been rejected or ruled out?
-- What would make the first version acceptable enough to ship?
-- How should we verify that the change works as intended?
-- What evidence should reviewers look for before approving the spec or implementation?
-- If requirements conflict, which priority should decide the trade-off?
-
-**Rules:**
-- Aim for about five focused questions per round as a recommendation, not a hard cap.
-- Coverage of all six internal categories is the binding constraint. If one round cannot cover the material unknowns clearly, ask another round before moving on.
-- Silent skip is acceptable when a category has no material unknown for this request. Do not ask filler questions.
-- Avoid details that belong in the implementation phase, such as exact naming or file structure, unless they materially change the solution space.
-- Prefer multiple-choice questions where the answers can be enumerated. Offer your recommended choice first and say why; leave an open option for the product owner's own answer.
+Rules:
+- Aim for about five focused questions per round. Coverage of all six categories is the binding constraint: run another round rather than leave a material unknown open.
+- Skip a category silently when it has no material unknown. Ask no filler questions.
+- Leave implementation details (naming, file structure) out unless they change the solution space.
+- Prefer multiple-choice questions. Offer your recommended choice first and say why; leave an open option for the product owner's own answer.
 - Ask the product owner and **stop**. Do not continue until answers are received.
 
-If there are no material unknowns, skip this step and proceed.
+If there are no material unknowns, skip this step.
 
 ### Step 3: Explore the Solution Space
 
-With clarified requirements, generate at least two distinct solution approaches: different behaviour, interaction, or interfaces for the same need.
-For each approach describe concisely (one short paragraph each):
-- What users and external systems see and do
-- Which interfaces and existing behaviour change
-- Key trade-offs: user value, scope, flexibility, fit with existing specs and decisions
+When the need has real design choices, generate at least two distinct approaches: different behaviour, interaction, or interfaces for the same need.
+When it has only one sensible shape, say so and why; the spec then records `None`, with that reason, under Alternatives Considered.
+Describe each approach in one short paragraph:
+- what users and external systems see and do;
+- which interfaces and existing behaviour change;
+- key trade-offs: user value, scope, flexibility, fit with existing specs and decisions.
 
-Approaches differ in what the product does, not in how it is built. Do not compare technologies, frameworks, storage, or internal designs; the Architect decides those after Gate 1, in the `feature-architecture` step. When the product owner names a technology, record it in the spec's Open Questions as a question for the Architect, as `new-spec` describes, unless users or external systems see it.
+Approaches differ in what the product does, not in how it is built. Do not compare technologies, frameworks, storage, or internal designs; the Architect decides those after Gate 1. When the product owner names a technology that users or external systems do not see, note it as a technology preference for Step 7.
 
-Do not self-censor. Include approaches that seem impractical — they may contain useful ideas or help the product owner articulate what they *don't* want.
-
-Do not write a full spec at this stage. These are sketches, not blueprints.
+Include approaches that seem impractical; they help the product owner say what they do *not* want. These are sketches, not a spec.
 
 ### Step 4: Present Alternatives and Get Direction
 
-Present the alternatives to the product owner in brief.
-**Lead with your recommended option and explain why** — tied to the product owner's stated priorities — before describing the others.
-Ask the product owner to indicate their preferred direction — or to name any constraint that should decide it.
+Present the alternatives briefly, **leading with your recommended option and why**, tied to the product owner's stated priorities.
+Ask for the preferred direction, or for the constraint that should decide it.
 
-**Stop and wait for the product owner's response before continuing.**
+**Stop and wait for the product owner's response.**
 
-If the product owner picks an approach with modifications, note the modifications.
-If the product owner is undecided, ask one focused question to identify the deciding factor (e.g. "Is extensibility or simplicity the higher priority here?").
+If the product owner picks an approach with modifications, note them.
+If they are undecided, ask one focused question to find the deciding factor (e.g. "Is extensibility or simplicity the higher priority here?").
 
 ### Step 5: Refine (if needed)
 
-If the chosen direction has remaining open questions about scope or behaviour — not about implementation — ask them now.
-Maximum one follow-up round.
-
-Skip this step if the direction is clear enough to write the spec.
+If the chosen direction still has open questions about scope or behaviour — not implementation — ask them now, in one follow-up round at most.
 
 ### Step 6: Confirm the Approach Section by Section
 
-The spec becomes durable truth, so the product owner signs off on the design incrementally, not once at the end.
-Present the chosen approach in these sections, one at a time, each sized to its complexity (a few sentences when straightforward, a short paragraph when nuanced):
+Present the chosen approach in these sections, one at a time, each sized to its complexity:
 
 1. **What it does** — the outcome, the users and journeys it serves, and the main behavior.
-2. **Scope and exclusions** — an exclusions line with one or more concrete exclusions, or the exact statement "no exclusions apply" when the product owner confirms there are none.
+2. **Scope and exclusions** — one or more concrete exclusions, or the exact statement "no exclusions apply" when the product owner confirms there are none.
 3. **Interfaces** — what users and external systems see change: commands, screens, files they edit, APIs, messages.
-4. **Constraints and assumptions** — the constraints it must satisfy, the assumptions it relies on, and any quality thresholds the product owner agrees.
+4. **Constraints and assumptions** — the constraints it must satisfy, the assumptions it relies on, configuration users set, and any quality thresholds the product owner agrees.
 5. **Behavior examples and verification** — key success, failure, and boundary examples, how failures are handled, and how success will be observed.
 
-After each section ask: "Does this section match your intent?" **Stop and wait for the product owner's answer before presenting the next section.**
-If the product owner corrects a section, revise it and confirm it again. If the correction changes an earlier section, return to that section.
+After each section ask: "Does this section match your intent?" **Stop and wait for the answer before presenting the next section.**
+If the product owner corrects a section, revise it and confirm it again; if the correction changes an earlier section, return to that section.
 
 When all sections are approved, state the full approach in two or three sentences and ask: "I'll write the spec based on this — ready?"
-
-**Stop and wait for confirmation before proceeding to Step 7.**
+**Stop and wait for confirmation.**
 
 ### Step 7: Produce the Specification
 
-Invoke the `new-spec` skill to create the specification file. Provide the full required input set in the invocation text:
-- `title`: the confirmed spec title
-- `description`: everything the product owner approved in Step 6 — users and journeys, behavior and its examples, constraints, assumptions, quality thresholds, and exclusions — plus the alternatives rejected in Step 4 with their rationale. Preserve decisions rather than compressing them into an outcome-only summary.
-- `author`: `planner` unless the product owner provided a different author
-- `status`: `draft`
+Invoke `new-spec` with:
+- `title`: the confirmed spec title;
+- `description`: everything approved in Step 6 — the problem, users and journeys, behavior and its examples, interfaces, constraints, assumptions, configuration, quality thresholds, and exclusions — plus the alternatives rejected in Step 4 with their reasons (or `None` with the reason from Step 3), and any technology preferences from Step 3 for the spec's Open Questions. Preserve each decision rather than compressing it into an outcome summary;
+- `author`: `planner` unless the product owner named another author;
+- `status`: `draft`.
 
-`new-spec` handles template loading, frontmatter scaffolding, and section-by-section filling. It carries the **content-boundary rule** (no technology choices, implementation design, implementation code, config files, or build manifests in the spec body), the **section recipes** for each part of the template, and the **pre-submission checklist** — apply them through that skill rather than re-deriving them here.
+`new-spec` writes, checks, resolves the remaining `[TODO]` markers with the product owner, sets the spec to `review`, commits it, and stops.
+When it returns, check that Alternatives Considered records every approach rejected in Step 4 with its reason, and that every Step 6 decision appears in the spec; fix any gap on the planning branch and commit it.
 
-When `new-spec` returns, check that Alternatives Considered records every approach rejected in Step 4 and the reason for each.
+## Output Format
 
-Scan the created spec for `[TODO]` markers before setting or treating the spec as review-ready.
-- For each product-owner-answerable `[TODO]` marker, ask the product owner one contextual question tied to that section or requirement.
-- After each answer, update the spec with the answer before continuing to the next marker.
-- Re-scan after each update so the next question reflects the current document state.
-
-If any product-owner-answerable `[TODO]` markers remain, explicitly report the blocker and stop.
-- The spec must not hand the spec to Architecture Consistency Review while those markers remain.
-- The spec must not hand the spec to Gate 1 approval while those markers remain.
-
-Before updating the spec `status` to `review`, confirm that every decision approved in Step 6 appears in the spec, then complete the `new-spec` handoff steps.
-
-Only then is the document ready for Architecture Consistency Review and Gate 1 confirmation.
-Because the product owner shaped the spec interactively, Gate 1 should be a quick confirmation — not a cold review.
+- **Final response:** `new-spec`'s result — the spec `id`, `path`, planning branch, and `status` — or the blocker it reported.
+  The spec then goes to the Architect's consistency review and to Gate 1, which the Planner arranges.
 
 ## Quality Criteria
 
-- Every clarifying question was material — not asked out of habit.
-- At least two alternatives were genuinely considered (not strawmen).
-- The chosen approach has clear rationale tied to the product owner's stated priorities.
-- Exclusions are explicit.
-- The spec is self-contained: readable without opening other files, except precise references to existing external contracts.
+- Every clarifying question was material.
+- Alternatives were genuine (not strawmen), and the recommendation was stated first with reasons tied to the product owner's priorities.
 - Approved discovery decisions survive into identifiable requirements and acceptance scenarios, not only later task criteria.
-- Rejected solution approaches are recorded in Alternatives Considered, distinct from out-of-scope behavior.
-- The spec makes no technology choice and records no implementation design.
-- The product owner confirmed the direction before the spec was written.
-- An oversized request was split into sub-projects, and only the first was brainstormed.
-- The product owner approved the design section by section, not only once at the end.
-- Recommended options were stated first, with reasons.
+- Rejected approaches are recorded in Alternatives Considered, distinct from out-of-scope behavior.
 
 ## Common Pitfalls
 
-- **Writing the spec before aligning** — producing a full document, then waiting for approval. The goal is to arrive at the spec *together*.
-- **Asking too many questions in one round** — aim for about five per round. If the six internal categories cannot be covered materially within that budget, run a second round rather than stretching a single round indefinitely.
-- **Brainstorming an oversized request whole** — a spec that spans several independent subsystems will need constant amendment. Split it in Step 0.
-- **One big confirmation at the end** — compressing the whole design into a single "does this match?" lets a wrong section ride through. Approve each section.
-- **Anchoring on the first idea** — always generate at least one meaningfully different alternative before committing to a direction.
+- **Writing the spec before aligning** — producing a full document, then waiting for approval. The spec is arrived at *together*.
 - **Solving the wrong problem** — re-read the original request after generating alternatives to verify you are addressing the actual need.
-- **Scope creep** — if an alternative requires significantly more work, record it as an explicit exclusion in the spec's Exclusions section rather than folding it into the current scope.
-- **Missing constraints** — check `{{project_dir}}/decisions/` before proposing anything that contradicts a prior decision.
-- **Choosing the technology in the spec** — comparing frameworks, storage engines, or internal protocols as the alternatives, or writing them into requirements. The spec says what the product does; the Architect decides how it is built after Gate 1.
-- **Embedding the implementation in the spec** — pasting near-complete config files, CI manifests, or build files into the spec, instead of describing them as requirements. This pre-empts the task plan and the Developer, and the spec rots when the real code evolves. Describe the contract; the implementation is the Developer's job.
+- **Scope creep** — an alternative that needs significantly more work becomes an explicit exclusion, not part of the current scope.
