@@ -10,7 +10,7 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Architect | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions; reads S-000 (the system overview) at session start, checking specs against it | Feature Architecture; Spec Breakdown Review; Architecture Consistency Review; Escalation Review; New ADR | Planner, through the main session (Feature Architecture at the start of task breakdown; Gate 2; Architecture Consistency Review for created/changed specs and change-requests), Any blocked role | Planner (architecture result, revision requests, consistency findings), Requesting role (directives), Product Owner (escalation), Decision Log, Architecture Documents | `.claude/agents/architect.md` |
 | Developer | Implements tasks and fixes bugs; diagnoses bugs before changing production code | TDD; Debug; Receive Code Review; Coding Standards | Development Loop or Bug-Fix Loop | Reviewer | `.claude/agents/developer.md` |
 | Reviewer | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality | Code Review; Coding Standards | Developer (via Development Loop or Bug-Fix Loop) | Development Loop or Bug-Fix Loop (verdict in task or bug file) | `.claude/agents/reviewer.md` |
-| Integrator | Resolves merge conflicts; supports task and bug integration into target branches | Integrate; Merge Conflicts | Development Loop or Bug-Fix Loop (integration), Product Owner (manual merges), Integrate (conflicts) | `dev-agent` or preserved task branch | `.claude/agents/integrator.md` |
+| Integrator | Resolves merge conflicts; supports task and bug integration into target branches | Integrate; Merge Conflicts | Product Owner (manual merges and conflicts); the loops run Integrate in process | `dev-agent` or preserved task branch | `.claude/agents/integrator.md` |
 
 ## Procedures
 
@@ -35,7 +35,7 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Receive Code Review | Answer each open review finding on the task or bug branch: fix it, or show with evidence that it does not hold | Developer | `.claude/skills/receive-code-review/SKILL.md` |
 | Review Cycle | Drive one work item through Developer → Reviewer cycles, Architect consultation at the review-cycle cap or on ESCALATE, and integration; resume an `in-progress` item on its existing branch | Development Loop, Bug-Fix Loop | `.claude/skills/review-cycle/SKILL.md` |
 | Integrate | Merge task or bug branches, run pre- and post-merge tests, promote completed work, and file regression bugs on failure | Development Loop, Bug-Fix Loop, Integrator | `.claude/skills/integrate/SKILL.md` |
-| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Integrator | `.claude/skills/merge-conflicts/SKILL.md` |
+| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Integrate | `.claude/skills/merge-conflicts/SKILL.md` |
 | Escalation Review | Analyse blocked work after role self-recovery and issue guidance or escalate to the product owner | Architect | `.claude/skills/escalation-review/SKILL.md` |
 | New Specification | Create a specification document from the standard template | Planner | `.claude/skills/new-spec/SKILL.md` |
 | New Task | Create a task in the local tracker from the standard template | Planner | `.claude/skills/new-task/SKILL.md` |
@@ -68,7 +68,7 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Local Tracker | Directory outside version control | Tasks, bugs, and change-requests; lifecycle state is the frontmatter `status` field; one tracker per repository, shared by all worktrees | `[tracker] dir` in `.ai-team.toml` (default `.ai-team/tracker/`) |
 | Decision Log | Directory | Architecture decision records | `ai-team/decisions/` |
 | Architecture Documents | Files | How the project is built: architecture, technology stack, protocol stacks, and implementation design; written by the project bootstrap and kept current by Feature Architecture | `docs/development/architecture.md` and `docs/development/tech_stack.md` by default; the project guidance names their location |
-| Root Guidance Files | Files | Project-level command documentation for autonomous agents; `## Test` section is the canonical home for the baseline test command consumed by `dev-loop` | `AGENTS.md` at the project root; scaffolded by `ai-team init` from templates in `cli/src/ai_team/init/sources/root/` |
+| Root Guidance Files | Files | Project-level command documentation for autonomous agents; `## Test` section is the canonical home for the baseline test command that `integrate`'s Discovery Order finds for `dev-loop` and `integrate` | `AGENTS.md` at the project root; scaffolded by `ai-team init` from templates in `cli/src/ai_team/init/sources/root/` |
 | Project Guidance Files | Files | Artifact directory orientation for agents; always generated by `ai-team init` | `ai-team/AGENTS.md`; scaffolded from `cli/src/ai_team/init/sources/project/` |
 | Templates | CLI package assets | Reusable document formats | `cli/src/ai_team/templates/` |
 | Process Docs | Directory | Workflow and procedure definitions (spec layer only — not exported by `ai-team init`) | `ai-process/processes/` |
