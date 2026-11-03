@@ -302,7 +302,8 @@ and `test_next_bug_id_scans_the_tracker_and_ignores_non_matching` in
 `task`, `bug`, `change-request`, `list`, `show`, `status`, `report` and `validate`
 SHALL read and write work items in the tracker. State filters SHALL match the
 `status` field, and a command that cannot find an ID SHALL name the tracker folder it
-searched. The JSON shape of their output is REQ-017.
+searched. `status` and `report` SHALL count and list blocked bugs beside blocked
+tasks. The JSON shape of their output is REQ-017.
 
 #### AC-007.1 — State filter
 
@@ -325,6 +326,18 @@ in `cli/tests/test_tracker.py` and
 in `cli/tests/test_task_lifecycle.py` and
 `test_bug_lifecycle_command_reports_not_found_and_names_tracker_folder` in
 `cli/tests/test_bug_lifecycle.py`.
+
+#### AC-007.4 — Blocked bugs
+
+- **Given:** a `blocked` bug with a reason in its Work Log
+- **When:** `status`, `status --json` or `report --out <file>` runs
+- **Then:** the output counts it under `Blocked bugs` and lists it with its reason;
+  the JSON carries it under `blocked_bugs`
+
+**Verification:** Tests: `test_status_counts_and_lists_blocked_bugs` in
+`cli/tests/test_status.py` and
+`test_report_out_writes_populated_report_with_status_summary_fields` in
+`cli/tests/test_report.py`.
 
 ### REQ-008 — No lifecycle commits
 
@@ -650,4 +663,4 @@ None.
 - **2026-11-01 (B-042, product owner approval):** added REQ-016 (task plan membership) with AC-016.1, AC-016.2 and AC-016.3: a task's optional `plan` field names the spec or change-request whose breakdown introduced it, set by `task new --plan`; `list tasks --plan` matches every form of a spec reference and combines with `--spec`; `validate` reports `task-plan-missing` for an unresolved `plan`. AC-016.3 covers `--plan` matching another form of the plan reference and combining with `--spec` (Architecture Consistency Review finding A1). The Interfaces commands list `--plan`; Workflow step 3 has `spec-breakdown` set each task's `plan` to the spec or change-request being broken down (finding A2); Workflow step 4 selects a plan's tasks by `plan` for activation, and on abandonment cancels the planned tasks whose `plan` names the abandoned spec or change-request (finding A3); and the Planner journey and Success Criterion 7 cover REQ-016. REQ-014 is unchanged: `spec` stays the task's source. Version bumped to 0.8. Driven by B-042: a task implementing an amendment to another spec, made on a plan's branch, named that spec and so missed the plan's Gate 2 preflight and activation. Affected work: B-042 (commits d11b9481 and bb204125 implement the field, the flags, the finding and the `spec-breakdown` selection; B-042 still owes the AC-016.3 test and the `change-request` skill rejection step selecting by `--plan`).
 - **2026-11-01 (B-040, product owner decision):** added REQ-017 (one JSON object per artifact) with AC-017.1 to AC-017.4: with `--json`, `list`, `show` and `new` for tasks, bugs, change-requests, specs and ADRs print the same flat object, every frontmatter field at the top level plus the absolute `path`, the status under `status`, never `state`, and `show` adds `body`, with no `frontmatter` key. REQ-007 drops "`list` JSON row shapes SHALL stay unchanged" and AC-007.1 checks `status` instead of the `state` row key; the Interfaces commands list drops the frozen row shape and gains the JSON objects contract; the `change-request new` interface and AC-015.2 print the change-request object (test renamed `test_change_request_new_json_flag_emits_the_change_request_object_without_table`); Success Criterion 3 drops "its JSON shape is unchanged", Criterion 7 covers REQ-017 and Criterion 8 is added; the loops journey links REQ-017; the Purpose states that this spec owns the `--json` object shape of `new`, `list` and `show` for every artifact kind, specs and ADRs included, because those commands are shared across kinds (Architecture Consistency Review finding C2). No backward compatibility (pre-1.0). Version bumped to 0.9. Driven by B-040: the task commands returned three JSON shapes (`new` with `id` and `path` only, `list` rows with `state` and no `path`, `show` nesting the fields under `frontmatter`). Affected work: B-040 implements the shared object and updates the skills that parse this output.
 - **2026-11-02 (T-187, 0.19.0 template):** Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the tracker store and path resolution are described in `docs/development/architecture.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64).
-- **2026-11-03 (product owner decision D8):** bugs gain the `blocked` status. The tracker layout table allows `blocked` for bugs; the Interfaces commands list adds `bug block <id> --reason <text>` (any status to `blocked`, reason recorded in the Work Log) and `bug unblock <id>` (`blocked` to `in-progress`), mirroring the task transitions; REQ-004 requires the bug `block` and `unblock` transitions and AC-004.5 covers them. `status` and `report` count and list blocked bugs beside blocked tasks under REQ-007. Version bumped to 0.10. Driven by the product owner's decision that a deferred escalation blocks the stopped item whether it is a task or a bug: a bug had no `blocked` state, so a deferred bug stayed `in-progress` and the bug-fix loop resumed it on its next run. Affected work: the CLI `bug` commands, `status` and `report`, and the bug-fix loop's escalation handling.
+- **2026-11-03 (product owner decision D8):** bugs gain the `blocked` status. The tracker layout table allows `blocked` for bugs; the Interfaces commands list adds `bug block <id> --reason <text>` (any status to `blocked`, reason recorded in the Work Log) and `bug unblock <id>` (`blocked` to `in-progress`), mirroring the task transitions; REQ-004 requires the bug `block` and `unblock` transitions and AC-004.5 covers them. REQ-007 requires `status` and `report` to count and list blocked bugs beside blocked tasks, and AC-007.4 covers them. Version bumped to 0.10. Driven by the product owner's decision that a deferred escalation blocks the stopped item whether it is a task or a bug: a bug had no `blocked` state, so a deferred bug stayed `in-progress` and the bug-fix loop resumed it on its next run. Affected work: the CLI `bug` commands, `status` and `report`, and the bug-fix loop's escalation handling.
