@@ -64,7 +64,7 @@ Question: [Specific question for the Architect]
 | Provide guidance | The guidance is recorded in the work item file. The stopped item then resumes, and the blocked role applies the guidance. | Blocked role |
 | Defer the work | The item is `blocked` with the reason noted: the loop already blocked it when it stopped, so it stays `blocked`. The spec issue is not addressed now, and no loop resumes the item until it is unblocked. | Product Owner |
 
-**Resuming the stopped item.** A task stopped by escalation is `blocked`. Once the decision is applied, `ai-team task unblock` sets it back to `in-progress`. A bug stopped by escalation stays `in-progress`; only a deferred bug is `blocked`, and `ai-team bug unblock` sets it back to `in-progress` once the blocker is resolved. At its next start, the loop resumes every `in-progress` item on its existing branch before it picks new work (see the [workflow overview](workflow_overview.md#when-the-development-loop-stops)); the product owner does not restart the item by hand.
+**Resuming the stopped item.** A task or bug stopped by escalation is `blocked`. Once the decision is applied, `ai-team task unblock` or `ai-team bug unblock` sets it back to `in-progress`. At its next start, the loop resumes every `in-progress` item on its existing branch before it picks new work (see the [workflow overview](workflow_overview.md#when-the-development-loop-stops)); the product owner does not restart the item by hand.
 
 ## When to Escalate
 
