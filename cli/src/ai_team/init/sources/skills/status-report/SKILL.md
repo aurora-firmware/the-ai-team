@@ -7,57 +7,30 @@ disable-model-invocation: true
 
 # Status Report
 
-Reporting is for the product owner and runs only on demand: the product owner invokes `/status-report`.
-The development and bug-fix loops never invoke this skill — they end with a short run summary instead.
+The development and bug-fix loops never invoke this skill; they end with a short run summary.
 
 ## Input Requirements
 
-- **Project state** — `{{project_dir}}/specs/` and `{{project_dir}}/decisions/` in the repository; tasks, bugs, and change-requests in the local tracker, read through `ai-team list`.
-- **Integration evidence** — completed task Work Logs, resolved bug Work Logs, or recent integration commits when available.
-- **AI team CLI** — `ai-team status` and `ai-team report` are available.
+- **The `ai-team` CLI:** `ai-team status` and `ai-team report`.
+- **Project state:** specs in `{{project_dir}}/specs/`, ADRs in `{{project_dir}}/decisions/`; tasks, bugs and change-requests in the local tracker.
 
 ## Procedure
 
-### Step 1: Generate Inline Summary
+### Step 1: Print the Summary
 
-Run the CLI status command from the repository root:
+Run `ai-team status` from the repository root.
+Its output is the inline summary: counts of specs, tasks by status, bugs by status (including `Blocked bugs`) and ADRs; the in-progress tasks; the blocked tasks and bugs with their reasons; the critical and high open bugs; and the latest integration result.
+Use it as printed. `ai-team status --json` gives the same data (`blocked_tasks`, `blocked_bugs`, …) when you need to reason over it.
 
-```bash
-ai-team status
-```
+If the command cannot run, collect the same data and present it in the CLI's format:
 
-The command scans the project state directories, excludes template files and `.gitkeep`, reads primary artifact metadata, inspects integration evidence, and prints the inline Gate 5 summary.
-
-### Step 2: Count Current State
-
-Count specs and ADRs in `{{project_dir}}/specs/` and `{{project_dir}}/decisions/`, excluding template files and `.gitkeep`.
-Count tasks and bugs by status with `ai-team list tasks --json` and `ai-team list bugs --json` (each object carries the frontmatter `status`):
-- tasks: `planned`, `pending`, `in-progress`, `completed`, `blocked`, `cancelled`
-- bugs: `open`, `in-progress`, `resolved`
-
-### Step 3: Read Primary Artifacts
-
-Read active specifications and list title, status, and latest amendment or version if present.
-For each task with status `in-progress`, read the frontmatter and list ID, title, and assigned role.
-For each task with status `blocked`, read the frontmatter and Work Log section to identify the blocking reason.
-For each open bug with severity `critical` or `high`, list ID, title, and severity.
-
-### Step 4: Inspect Integration Evidence
-
-Inspect recent integration evidence from completed task Work Logs, resolved bug Work Logs, and recent integration commits when available.
-Record the latest integration-test result or state that no integration evidence was found.
-
-### Step 4a: Check Spec-Truth Reconciliation
-
-When every task is `completed`, check whether the Architect has run spec-truth reconciliation (`architecture-consistency-review` in completion mode) for the approved specs the work touched, and what it returned: read the dated `spec-truth reconciliation` line in each spec's Amendment Log, or in the change-request file for change-request work.
-If it has not run, or returned `FAIL` with routed corrections still open (an unapplied spec amendment, or a follow-up task not completed and re-reviewed), list that under `Recommended Actions` — Gate 5 requires a `PASS` or every routed correction done.
-
-### Step 5: Produce Inline Summary
-
-Use `ai-team status` output as the inline summary, then always append the Step 4a reconciliation state after it. If the command cannot run, manually present the report in this format:
+- tasks and bugs by status from `ai-team list tasks --json` and `ai-team list bugs --json`: tasks `planned`, `pending`, `in-progress`, `completed`, `blocked`, `cancelled`; bugs `open`, `in-progress`, `blocked`, `resolved`;
+- specs and ADRs counted from their folders, excluding templates and `.gitkeep`;
+- the blocking reason of each blocked task or bug from its Work Log;
+- the latest integration result from completed task and resolved bug Work Logs and recent merge commits, or `not found`.
 
 ```markdown
-## Status Report — [today's date]
+## Status Report
 
 ### Summary
 - Active specs: N
@@ -67,61 +40,48 @@ Use `ai-team status` output as the inline summary, then always append the Step 4
 - Completed: N
 - Blocked: N
 - Cancelled tasks: N
-- Open bugs: N (X critical/high)
+- Open bugs: N
 - Bugs in progress: N
+- Blocked bugs: N
 - Resolved bugs: N
 - ADRs: N
 - Latest integration result: [result or not found]
 
-### Specifications
-[list active specs with title and status]
-
 ### In Progress
-[list of in-progress tasks with ID, title, role]
+[ID — title (assigned role), or "none"]
 
 ### Blocked
-[list of blocked tasks with ID, title, blocking reason]
+[blocked tasks and bugs: ID — title: blocking reason, or "none"]
 
 ### Critical/High Bugs
-[list of critical and high severity open bugs]
+[open bugs: ID — title (severity), or "none"]
 ```
 
-If there are blocked tasks, critical/high bugs, or spec-truth reconciliation has not passed, add a `Recommended Actions` section suggesting next steps.
+### Step 2: Check Completion Reconciliation
 
-### Step 6: Write Full Report (Only When Asked)
+When no task is `pending`, `in-progress` or `blocked` (cancelled tasks are allowed), check that the Architect's completion reconciliation (`architecture-consistency-review` in completion mode) has run for each approved spec the work touched, S-000 excluded.
+Read the dated `spec-truth reconciliation` line in the spec's Amendment Log, or in the change-request file for change-request work.
+Gate 5 needs a `PASS`, or every routed correction done: an applied spec amendment, or a follow-up task completed and re-reviewed.
+Append the reconciliation state after the summary.
 
-Skip this step unless the product owner explicitly asked for a report file. The inline summary is the default output.
+### Step 3: Recommend Actions
 
-When a file is requested, run the CLI report command from the repository root:
+When there are blocked tasks or bugs, critical or high open bugs, or a reconciliation that has not passed, append a `Recommended Actions` section with the next step for each.
 
-```bash
-ai-team report
-```
+### Step 4: Write the Report File (Only When Asked)
 
-By default, it writes `{{project_dir}}/docs/reports/progress-report-[today's date].md` and creates `{{project_dir}}/docs/reports/` if needed.
-The location is fixed. Reports are generated output, not project documents, so they stay apart from the project's own documents (by default `docs/development/`, in the project root) wherever the project keeps those.
-The full report includes completed tasks, in-progress details, blocked items with action needed, bug listing, next actions, and risks or concerns.
-`{{project_dir}}/docs/reports/` is ignored by the scaffolded `{{project_dir}}/.gitignore`, so the file does not dirty the working tree.
-Tell the product owner the file path. Commit it only if the product owner asks and the project tracks reports.
+Only when the product owner asks for a file, run `ai-team report`.
+It writes `{{project_dir}}/docs/reports/progress-report-<today>.md`, which the scaffolded `.gitignore` ignores.
+Tell the product owner the path, and commit the file only if they ask.
 
 ## Output Format
 
-- **Inline summary:** Gate 5 status summary using the markdown structure above.
-- **Report file:** `{{project_dir}}/docs/reports/progress-report-[today's date].md`, only when the product owner asked for one.
-- **Evidence:** latest integration result or a clear statement that no integration evidence was found.
+- **Inline summary:** the `ai-team status` output, then the reconciliation state and any `Recommended Actions`.
+- **Report file:** only when the product owner asked for one.
 
 ## Quality Criteria
 
-- Counts exclude templates and `.gitkeep`.
-- Critical and high severity bugs are explicitly listed.
-- Blocked tasks include the blocking reason when one is recorded.
-- When the queue is empty, the state of spec-truth reconciliation is stated.
-- The latest integration evidence is recorded or explicitly marked as not found.
-- The report gives the product owner enough context for Gate 5 final merge sign-off.
-
-## Common Pitfalls
-
-- Treating Gate 5 as a code review instead of a status sign-off.
-- Omitting critical or high severity open bugs.
-- Reporting green status without integration evidence.
-- Writing a report file nobody asked for — the inline summary is the default output.
+- Critical and high open bugs are listed, and every blocked task and bug has its reason when one is recorded.
+- The latest integration evidence is stated, or marked as not found.
+- When the queue is drained, the reconciliation state is stated.
+- The report gives the product owner enough context for Gate 5 sign-off, a status sign-off rather than a code review.

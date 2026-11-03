@@ -312,6 +312,17 @@ ai-team bug start B-001
 ai-team bug resolve B-001
 ```
 
+If a bug is deferred, block it the same way as a task; the bug-fix loop skips
+it until it is unblocked:
+
+```bash
+# Block with a reason (sets status: blocked)
+ai-team bug block B-001 --reason "Deferred until the payment provider fixes its API"
+
+# Unblock when the blocker is resolved (sets status: in-progress)
+ai-team bug unblock B-001
+```
+
 List bugs:
 
 ```bash
@@ -403,7 +414,7 @@ ai-team report --out /tmp/custom-report.md
 
 `ai-team status` shows counts of active specs (not superseded, excluding the
 S-000 overview), tasks in every state, bugs by state,
-in-progress tasks, blocked tasks, critical/high bugs, and the latest
+in-progress tasks, blocked tasks and bugs, critical/high bugs, and the latest
 integration result. The integration result cites the newest Work Log session
 of a completed task or resolved bug (ID, session, date, and first line), or
 `not found` when no such session exists. The integration result is read only

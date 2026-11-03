@@ -1,36 +1,41 @@
 ---
 name: new-adr
-description: Create a new Architecture Decision Record via the ai-team CLI. Use when an architecture-affecting decision must be recorded or an existing ADR superseded.
+description: Create a new Architecture Decision Record via the ai-team CLI. Use when an architecture-affecting decision must be recorded, an existing ADR superseded, or a proposed ADR accepted after the product owner's decision.
 argument-hint: "[optional: decision title]"
-allowed-tools: Read, Write, Bash, Skill(architecture-consistency-review)
+allowed-tools: Read, Write, Edit, Bash, Skill(architecture-consistency-review), Skill(git-conventions)
 ---
 
 # New ADR
 
-Create a new Architecture Decision Record (ADR) using `ai-team adr new --json`.
+Create an Architecture Decision Record (ADR) with `ai-team adr new --json`, commit it, and check it for consistency.
 
 ## Input Requirements
 
 Argument: `$ARGUMENTS`
 
-Provide these values directly when possible:
-- `title` — required
-- `description` — required
-- `status` — required (`proposed`, `accepted`, or `superseded`)
-- `supersedes` — optional ADR reference (for example, `ADR-002`)
+- `title` — required.
+- `description` — required: the context, the decision, the options considered and the reason for the choice.
+- `status` — required:
+  - `accepted` for a decision the Architect makes itself, the normal case;
+  - `proposed` only when the decision needs the product owner.
+- `supersedes` — optional: the ID of the ADR the new one replaces, for example `ADR-002`.
 
-When invoked by another skill, the caller should provide every required field in the invocation text and this skill must use them without asking follow-up questions.
-When invoked directly by the product owner and required fields are missing, ask only for the missing fields before proceeding.
+A calling skill provides every required field; use them without follow-up questions.
+When the product owner invokes this skill directly, ask only for the missing fields.
 
 ## Procedure
 
-1. Resolve inputs from the caller. Use the argument as `title` when it is the only provided input.
-2. Build the CLI command:
-   - Base: `ai-team adr new "<title>" --status "<status>" --json`
-   - Add `--supersedes "<supersedes>"` only when `supersedes` is provided.
-3. Execute the command and parse the JSON response to capture:
-   - `id` (for example, `ADR-003`)
-   - `path` (absolute path to the created ADR file)
-4. Open the created ADR file and fill body sections from the supplied `description`, replacing placeholder section content where appropriate.
-5. Confirm the file exists under `{{project_dir}}/decisions/` and return the CLI response values (`id` and `path`).
-6. After recording the ADR, run the `architecture-consistency-review` skill — the Architect runs both ADR creation and this review — to check the decision against every approved spec and accepted ADR before treating it as settled.
+1. Resolve the inputs. Use the argument as `title` when it is the only input.
+2. Run `ai-team adr new "<title>" --status "<status>" --json`, adding `--supersedes "<id>"` only when `supersedes` is given. Parse `id` and `path` from the JSON.
+3. Fill the ADR's body sections from `description`, replacing the template placeholders.
+4. When `supersedes` is given, set the old ADR's frontmatter `status:` to `superseded`.
+5. Commit the new ADR, and the superseded one, in one commit as `git-conventions` describes for the Architect: on the open planning branch (`plan/…`) during planning or for an amendment planning branch, otherwise on `{{integration_branch}}`. When another branch is checked out, such as a task branch during a loop, run the Hygiene Check, switch, commit, and switch back. Message: `docs(architecture): record <id> <short title>`.
+6. Unless the caller is `architecture-consistency-review`, which checks the ADR within its own review, run `architecture-consistency-review` on the new ADR.
+
+### Accepting a Proposed ADR
+
+When the product owner decides a `proposed` ADR, set its `status:` to `accepted`, commit it as in step 5 with the message `docs(architecture): accept <id> <short title>`, and run step 6 on it.
+
+## Output Format
+
+- **Final response:** the ADR `id` and `path`, the commit hash, and the consistency-review verdict (or "run by the caller").

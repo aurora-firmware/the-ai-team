@@ -230,8 +230,10 @@ def test_status_json_emits_structured_payload_without_rich_table(monkeypatch, tm
     assert payload["counts"]["bugs"] == {
         "open": 0,
         "in_progress": 0,
+        "blocked": 0,
         "resolved": 0,
     }
+    assert payload["blocked_bugs"] == []
     assert payload["counts"]["adrs"] == 0
     assert payload["latest_integration_result"] == "not found"
     assert "┏" not in result.stdout
@@ -278,6 +280,48 @@ stuck on reviewer approval
             "blocking_reason": "stuck on reviewer approval",
         }
     ]
+
+
+def test_status_counts_and_lists_blocked_bugs(monkeypatch, tmp_path):
+    """Blocked bugs are counted and listed with their latest Work Log reason."""
+    from ai_team.cli import app
+
+    blocked_bug = _bug("B-300", "Deferred crash", "high", "blocked") + (
+        "\n## Work Log\n\n### Session 1 — 2026-05-11\n"
+        "Blocked: deferred by the product owner\n"
+    )
+    _write(tmp_path / ".ai-team" / "tracker" / "bugs" / "B-300.md", blocked_bug)
+    _write(
+        tmp_path / ".ai-team" / "tracker" / "tasks" / "T-300.md",
+        _task(
+            "T-300",
+            "Blocked task",
+            "blocked",
+            extra_frontmatter="blocking-reason: waiting on dependency\n",
+        ),
+    )
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["status", "--json"])
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.stdout)
+    assert payload["counts"]["bugs"]["blocked"] == 1
+    assert payload["counts"]["tasks"]["blocked"] == 1
+    assert payload["blocked_bugs"] == [
+        {
+            "id": "B-300",
+            "title": "Deferred crash",
+            "blocking_reason": "Blocked: deferred by the product owner",
+        }
+    ]
+    assert [row["id"] for row in payload["blocked_tasks"]] == ["T-300"]
+    assert payload["critical_high_open_bugs"] == []
+
+    rich = CliRunner().invoke(app, ["status"])
+    assert "Blocked bugs: 1" in rich.stdout
+    assert "B-300" in rich.stdout
+    assert "deferred by the product owner" in rich.stdout
 
 
 def _git(tmp_path: Path, cmd: str) -> None:

@@ -4,60 +4,63 @@ description: Resolve git merge conflicts preserving the intent of both sides. Us
 allowed-tools: Read, Grep, Glob, Edit, Bash
 ---
 
-# Conflict Resolution
+# Merge Conflicts
 
 ## Input Requirements
 
-- **Both sides of the conflict** — the changes from each task or bug branch.
-- **Work item files for both sides** — what each task or bug fix was trying to accomplish.
-- **The base version** — the common ancestor before both changes.
+- **The merge in progress:** the source branch, the destination branch, and the conflicted files (`git status`).
+- **The source work item file:** what the task or bug fix on the source branch set out to do.
+- **The verification commands** the caller determined. Without them, find the project's commands with the Discovery Order of the `integrate` skill.
 
 ## Procedure
 
 ### Step 1: Understand Both Sides
-Read the task or bug files for both conflicting branches.
-Understand the INTENT of each change, not just the code.
-Ask: what was each task or bug fix trying to accomplish?
 
-### Step 2: Analyze the Conflict
-Examine the conflict markers in the file.
-Classify the conflict:
-- **Additive**: Both sides added new code in the same location. Resolution: include both additions in the correct order.
-- **Modifying**: Both sides changed the same existing code. Resolution: determine which change is correct, or combine them if they address different aspects.
-- **Structural**: Both sides reorganized the same code differently. Resolution: choose the structure that better serves both tasks, or escalate.
+1. Read the source work item file.
+2. The destination may carry many work items. For each conflicting hunk, find the destination commits that touched it (`git log --oneline <merge-base>..<destination> -- <file>`, `git blame` on the destination side). Their merge commits (`chore(tasks|bugs): merge <ID> …`) name the work items; read each file with `ai-team show <ID> --json`.
+3. Compare the versions: `git show :1:<file>` (base), `:2:<file>` (destination), `:3:<file>` (source).
+
+Establish what each side set out to do, not only what its code says.
+
+### Step 2: Classify Each Conflict
+
+- **Additive:** both sides added code in the same place. Keep both additions, in the right order.
+- **Modifying:** both sides changed the same code. Keep the correct change, or combine them when they address different aspects.
+- **Structural:** both sides reorganized the same code differently. Keep the structure that serves both work items.
 
 ### Step 3: Resolve
-Apply the resolution that preserves the intent of both changes.
-If the changes are incompatible (one deletes what the other modifies), or the conflict is Structural and neither side clearly serves both tasks, stop and return `ESCALATE` using the structured four-field request below. The caller (typically the `integrate` skill) routes the request to the Architect via the `escalation-review` skill.
+
+Edit each conflicted file so the result preserves the intent of both sides and drops nothing silently.
+When the changes are incompatible (one side deletes what the other modifies), or a Structural conflict has no structure that serves both work items, go to Step 5.
+
+### Step 4: Verify and Conclude
+
+1. Run the source work item's verification command on the resolved tree. When the caller is not `integrate`, also run the destination's full suite; `integrate` runs it after the merge concludes. If a test fails, the resolution is wrong: return to Step 3.
+2. Stage the resolved files with `git add <files>` and conclude with `git commit --no-edit`. This keeps the merge message the caller gave, in the `git-conventions` format (`chore(<kind>): merge <ID> <short-description>`); for a merge started without one, commit with that message.
+
+### Step 5: Abort
+
+Run `git merge --abort` and confirm with `git status` that no merge is in progress.
+Return `ESCALATE` (see Escalation).
+
+## Escalation
+
+Return `ESCALATE` from Step 5 with the four-field request in the format `escalation-review` owns; the caller routes it to the Architect.
 
 ```text
-Problem: [the specific conflict that cannot be resolved — file, lines, incompatibility]
-Attempted: [which resolution strategies were considered, including reading both work items]
-Failed because: [why neither side's intent can be preserved without guessing]
-Question: [specific decision or guidance needed from the Architect]
+Problem: [the conflict that cannot be resolved: file, lines, incompatibility]
+Attempted: [the resolutions considered, and the work items read on both sides]
+Failed because: [why neither side's intent can be kept without guessing]
+Question: [the decision or guidance needed]
 ```
-
-### Step 4: Verify
-Run the test suites or fix-verification commands for both work items to confirm neither is broken.
-Run the full integration test suite.
-If any test fails, the resolution was incorrect. Review and revise.
 
 ## Output Format
 
-- **Resolved file(s)** — the merged code with conflicts resolved.
-- **Resolution notes** — brief explanation of how each conflict was resolved and why.
-- **Test results** — confirmation that both work item verification suites pass.
+- **Result:** `PASS` (merge concluded) or `ESCALATE` (merge aborted).
+- **Resolution notes:** how each conflict was resolved and why, and the work items each side served.
+- **Verification:** the commands run on the resolved tree and their results.
 
 ## Quality Criteria
 
-- The intent of both changes is preserved in the merged result.
-- No code from either side is silently dropped.
-- All tests from both work items pass after resolution.
-- Resolution notes explain the reasoning (for future reference).
-
-## Common Pitfalls
-
-- **Choosing one side blindly** — "accept theirs" or "accept ours" without understanding what both sides intended. This silently drops work.
-- **Resolving without reading the work items** — the code alone may not reveal intent. Always check what each task or bug fix was supposed to accomplish.
-- **Not testing after resolution** — a syntactically correct merge can still be logically wrong. Always run tests.
-- **Resolving structural conflicts without escalating** — if two tasks fundamentally reorganized the same area, the resolution may require architectural guidance. Escalate rather than guess.
+- The intent of both sides is preserved, and no code from either side is silently dropped.
+- The merge was concluded with the caller's message, or aborted before returning `ESCALATE`.

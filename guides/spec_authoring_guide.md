@@ -66,7 +66,7 @@ The spec template follows this structure. The recipes below tell you how to writ
 
 ### Purpose
 
-**Recipe:** Three to four sentences, naming the S-000 component the spec covers.
+**Recipe:** Three to four sentences, naming the S-000 component the spec covers when an S-000 exists.
 1. The problem (what is broken or missing today).
 2. Why it matters now (the constraint or trigger that forced the spec).
 3. The outcome (what is observably true when the work is done).
@@ -97,7 +97,8 @@ Almost every spec has at least one exclusion. "No exclusions apply" should be ra
 
 ### Alternatives Considered
 
-**Recipe:** list each solution alternative rejected during brainstorm and the reason it was rejected: a different behaviour, interaction, or interface for the same need. Rejected alternatives are rationale; excluded behavior goes in Exclusions. Rejected implementation approaches are not recorded here; the Architect records them in an ADR. If no alternative was considered, write `None` with the reason.
+**Recipe:** list each solution alternative rejected during brainstorm and the reason it was rejected: a different behaviour, interaction, or interface for the same need. Rejected alternatives are rationale; excluded behavior goes in Exclusions. Rejected implementation approaches are not recorded here; the Architect records them in an ADR.
+When the design had real choices, at least two alternatives were considered, so at least one is listed. When it had only one sensible shape, write `None` with the reason.
 
 A constraint the solution must meet, such as a time limit or a rejection rule, is a requirement: write it as a Behavioral or Quality Requirement.
 
@@ -200,7 +201,8 @@ Product-owner-answerable `[TODO]` markers must be resolved before Architecture C
 
 ### Amendment Log
 
-**Recipe:** leave the table empty when the spec is first written. Add rows only after Gate 1 approval, when scope changes while tasks are in flight. Each row: date, what changed, why, affected requirements and tasks. Each amendment bumps the spec's minor `version` (for example `0.1` → `0.2`). A spec-truth reconciliation row records a verdict, changes no scope, and does not bump `version`.
+**Recipe:** leave the table empty when the spec is first written. Add rows only after Gate 1 approval, when scope changes. Each row gives the date, what changed and why, and the affected REQ/AC identifiers and tasks; each scope amendment bumps the spec's minor `version` (for example `0.1` → `0.2`). The one exception is a spec-truth reconciliation row from `architecture-consistency-review`, which records a verdict, changes no scope, and does not bump `version`.
+An amendment made after the spec's planning branch merged goes on an [amendment planning branch](../ai-process/guidelines/git_conventions.md#amendment-planning-branch).
 
 ## The system overview spec (S-000)
 
@@ -225,7 +227,7 @@ S-000 contains no technology choices, interface definitions, configuration, impl
 
 **Users scope.** Users names the users of the solution. The people and agents who develop the project are served by the development infrastructure and are not listed unless they also use the solution.
 
-**Boundary rule:** S-000 owns the decomposition — which components exist and what each is for. A spec owns the contract of one component or feature. A spec's Purpose names the S-000 component it covers.
+**Boundary rule:** S-000 owns the decomposition — which components exist and what each is for. A spec owns the contract of one component or feature. A spec's Purpose names the S-000 component it covers when an S-000 exists.
 
 ## How to write measurable success criteria
 
@@ -274,7 +276,7 @@ Before declaring the spec ready for Gate 1, the author confirms each of these:
 - [ ] **Problem is concrete.** Purpose names the problem, the trigger, and the observable outcome.
 - [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
 - [ ] **No technology choices or implementation design.** No languages, frameworks, libraries, storage engines, internal protocols or formats, internal components, or rejected implementation approaches. A technology appears only as Contract material, when users or external systems see it.
-- [ ] **Alternatives Considered lists solution alternatives**, each with its reason, or `None` with a reason.
+- [ ] **Alternatives Considered lists the rejected solution alternatives**, each with its reason (at least one when the design had real choices), or `None` with the reason.
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Where a literal value is the contract, it is labelled **Contract**.
 - [ ] **Every requirement is measurable.** Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
 - [ ] **Discovery decisions are preserved.** Actors, journeys, applicable failure cases, and quality constraints are recorded and linked to requirements.

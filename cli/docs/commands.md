@@ -90,6 +90,8 @@ $ ai-team bug [OPTIONS] COMMAND [ARGS]...
 * `new`: Create a new open bug in the tracker from...
 * `start`: Set an open bug to in-progress.
 * `resolve`: Set an in-progress bug to resolved.
+* `unblock`: Set a blocked bug back to in-progress.
+* `block`: Set a bug to blocked and record the...
 * `set-status`: Set a bug to any allowed status.
 
 ### `ai-team bug new`
@@ -150,6 +152,43 @@ $ ai-team bug resolve [OPTIONS] BUG_ID
 
 * `--help`: Show this message and exit.
 
+### `ai-team bug unblock`
+
+Set a blocked bug back to in-progress.
+
+**Usage**:
+
+```console
+$ ai-team bug unblock [OPTIONS] BUG_ID
+```
+
+**Arguments**:
+
+* `BUG_ID`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `ai-team bug block`
+
+Set a bug to blocked and record the blocking reason in its Work Log.
+
+**Usage**:
+
+```console
+$ ai-team bug block [OPTIONS] BUG_ID
+```
+
+**Arguments**:
+
+* `BUG_ID`: [required]
+
+**Options**:
+
+* `--reason TEXT`: [required]
+* `--help`: Show this message and exit.
+
 ### `ai-team bug set-status`
 
 Set a bug to any allowed status.
@@ -157,13 +196,13 @@ Set a bug to any allowed status.
 **Usage**:
 
 ```console
-$ ai-team bug set-status [OPTIONS] BUG_ID STATUS:{open|in-progress|resolved}
+$ ai-team bug set-status [OPTIONS] BUG_ID STATUS:{open|in-progress|blocked|resolved}
 ```
 
 **Arguments**:
 
 * `BUG_ID`: [required]
-* `STATUS:{open|in-progress|resolved}`: One of: open, in-progress, resolved  [required]
+* `STATUS:{open|in-progress|blocked|resolved}`: One of: open, in-progress, blocked, resolved  [required]
 
 **Options**:
 

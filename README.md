@@ -98,13 +98,14 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 
 Skills are reusable procedures agents invoke for common activities.
 Each skill implements a workflow or action defined in the ai-process.
-Every skill can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
+Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
 
 | Skill | What it implements |
 |---|---|
 | **architecture-consistency-review** | Checks new or changed architecture artifacts against approved specs and accepted ADRs |
 | **evidence-before-claims** | Fresh command and actual output required before any claim of completion, passing, or merged |
 | **using-ai-team** | Meta-skill: matches the situation to a skill, and checks gate preconditions, before any other action |
+| **role-report** | The result every agent returns: report fields, evidence entries, Result and Next Owner values, and passing on an escalation request |
 | **brainstorm** | Solution-space exploration before a spec is written |
 | **spec-breakdown** | Decomposition of a spec into atomic tasks |
 | **feature-architecture** | Architect decision on how an approved spec or change-request is built, recorded in ADRs and the architecture documents |
@@ -112,16 +113,18 @@ Every skill can be started as a slash command (`/<name>`); `status-report` is th
 | **tdd** | Implementation by each task's planned verification method: a test-driven cycle for test tasks, a recorded inspection or demonstration for the others |
 | **debug** | Diagnosis-first debugging: reproduce or confirm, gather evidence, isolate, then fix |
 | **code-review** | Two-stage review of the Developer's claims and the project's rules, iterated until both agree on every finding |
+| **coding-standards** | The general coding standards the Developer follows and the Reviewer checks, alongside the project's own coding guidelines |
 | **receive-code-review** | The Developer's answer to each review finding: a fix, or evidence that it does not hold |
 | **git-conventions** | The repository's authoritative branch and commit rules |
 | **merge-conflicts** | Git conflict resolution preserving both sides' intent |
 | **integrate** | Branch merge with project-discovered verification and task completion |
 | **escalation-review** | Architect analysis for blocked work before product owner escalation |
+| **review-cycle** | The Developer → Reviewer → Architect → integration cycle shared by both loops, including the review-cycle cap and resuming `in-progress` items |
 | **dev-loop** | Autonomous Developer → Reviewer → Integration loop across the pending task queue |
 | **bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
 | **change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
 | **new-spec** | Creates a specification by invoking `ai-team spec new`, then fills spec content |
-| **new-task** | Creates a pending task by invoking `ai-team task new` |
+| **new-task** | Creates a planned task by invoking `ai-team task new` |
 | **new-bug** | Creates an evidence-backed bug report by invoking `ai-team bug new`, then fills bug content |
 | **new-adr** | Creates an Architecture Decision Record by invoking `ai-team adr new`, then fills ADR content |
 | **new-system-overview** | Creates the S-000 system overview by invoking `ai-team spec new --overview`, then fills it in |
