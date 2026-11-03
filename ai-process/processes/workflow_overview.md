@@ -119,7 +119,7 @@ A spec describes what the product does: its behaviour, requirements and interfac
 ### Feature Architecture
 
 **Role:** Architect.
-**Procedure:** `feature-architecture`, started by the Planner at the beginning of task breakdown.
+**Procedure:** `feature-architecture`, requested by the Planner at the beginning of task breakdown and started by the main session (see [Task Breakdown + Gate 2](#2-task-breakdown--gate-2)).
 **Input:** The approved spec or approved change-request, the project's architecture documents, accepted ADRs, and the coding guidelines.
 **Output:** The architecture documents and ADRs updated on the spec's or change-request's planning branch, or a record that the existing architecture already covers the work.
 
@@ -135,13 +135,15 @@ The project bootstrap writes the first architecture documents (by default `docs/
 **Input:** Approved specification (or approved change-request), and the architecture from Feature Architecture.
 **Output:** Set of tasks in the local tracker, created as `planned`, validated by the Architect, and set to `pending` once the planning branch merges.
 
+The Planner does not start the Architect itself. Twice during breakdown it stops and hands back to the main session (the product owner's session) with the Architect as next owner: at the start, for Feature Architecture, and after it writes the task files, for Gate 2. The main session starts the Architect with the Planner's inputs, then resumes the Planner with the Architect's result.
+
 During breakdown the Planner explicitly considers whether the spec changes require documentation updates or test coverage updates. When they do, those updates are planned as implementation tasks or acceptance criteria — not as prerequisites before task creation. If documentation and test updates are not needed, the Planner omits them without creating placeholder tasks.
 
 The Planner also gives each task a verification method: a test, an inspection, or a demonstration, as defined in `guides/spec_authoring_guide.md`. Each task regenerates the generated files its own change affects and lists them in Files to Touch, so a plan has no trailing "regenerate everything" task.
 
 Before task breakdown starts, the input artifact must be ready for execution: an approved spec must already be free of product-owner-answerable `[TODO]` markers, and an approved change-request must already be TODO-free, product-owner-approved, and reconciled against Architect consistency findings that do not change the approved intent. If a consistency finding would alter the approved change-request's intended scope, the process stops for a product owner decision instead of letting the Planner reinterpret the request.
 
-After the Planner writes the task files, the Architect automatically reviews the task plan at Gate 2. Gate 2 focuses on technical task-plan readiness — dependencies, file conflict risks, architectural consistency with the architecture documents and existing decision records, atomicity, and verifiability. It does not reopen product or spec approval questions already settled at Gate 1.
+After the Planner writes the task files, the main session hands the task plan to the Architect, who reviews it at Gate 2 without waiting for the product owner. Gate 2 focuses on technical task-plan readiness — dependencies, file conflict risks, architectural consistency with the architecture documents and existing decision records, atomicity, and verifiability. It does not reopen product or spec approval questions already settled at Gate 1.
 - Checks dependency correctness and completeness.
 - Identifies any two tasks that modify the same file without a declared dependency (merge conflict risk).
 - Verifies architectural consistency with the architecture documents and existing decision records.
@@ -171,8 +173,8 @@ None of these steps creates a commit or needs a branch switch. Task-regression b
 
 Before claiming the first task, the loop discovers the project's documented baseline test command from project-specific guidance and runs it. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs such as the coding guidelines (located as `ai-process/guidelines/coding_standards.md` describes), README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or multiple plausible commands are documented without a clear baseline, the loop asks the product owner for the command or for explicit confirmation that no automated baseline test is available. If the command fails, the loop stops and reports the failure.
 
-1. Picks the next `pending` task (priority → dependency readiness → creation date), using `ai-team list tasks --state pending`.
-2. Sets it to `in-progress` with `ai-team task start` and creates the task branch from `dev-agent`.
+1. Resumes any `in-progress` task first, without asking the product owner: it checks out the task's existing branch, takes the base commit from the Work Log, and re-enters review, or integration when the latest verdict is PASS. A task is `in-progress` at startup after an interrupted run, after `ai-team task unblock`, or while its integration waits for a regression fix. Otherwise it picks the next `pending` task (priority → dependency readiness → creation date), using `ai-team list tasks --state pending`.
+2. Sets a picked task to `in-progress` with `ai-team task start` and creates the task branch from `dev-agent`.
 3. Assigns the task to the **Developer** for test-driven implementation and debugging — waits for completion and a Work Log handoff.
 4. Appends the Developer's Work Log entry to the task file in the tracker.
 5. Assigns the completed task to the **Reviewer** for two-stage code review — waits for a recorded verdict.
@@ -212,15 +214,15 @@ Each finding states what is wrong and why, never how to fix it.
 | Condition | Task state | Action required |
 |---|---|---|
 | Queue empty | All `completed` | The product owner approves final merge to `main` (Gate 5) |
-| Task blocked | Set to `blocked` | The product owner resolves blocker, restarts the development loop |
-| Product owner escalation | Set to `blocked` after Architect consultation fails | The product owner adjusts spec or task, restarts the development loop |
-| A task already `in-progress` at startup | Unchanged | The product owner decides whether to resume or abandon |
+| Task blocked | Set to `blocked` | The product owner resolves the blocker, unblocks the task (`in-progress`), and restarts the development loop, which resumes it |
+| Product owner escalation | Set to `blocked` after Architect consultation fails | The product owner decides as the escalation procedure describes, unblocks the task, and restarts the development loop, which resumes it |
+| Integration regression | Stays `in-progress`; the task branch is preserved | The product owner runs the bug-fix loop, then restarts the development loop, which resumes the task and retries its integration |
 
 ### 5. Final Merge
 
 Integration happens per-task inside the development loop: after each Reviewer PASS, the integration procedure merges the task branch into `dev-agent`, runs the full test suite, and sets the task to `completed` (Gate 4).
 If integration fails because the task branch introduces a regression, the integration procedure reverts the merge, files a bug report that records the preserved task branch as `source_branch`, and leaves `dev-agent` clean.
-The development loop stops until the regression bug is fixed on a branch based from that preserved task branch.
+The development loop stops until the regression bug is fixed on a branch based from that preserved task branch. The task stays `in-progress`, so the next development-loop run resumes it and retries its integration.
 
 Once the queue is empty and all tasks are `completed`, the development loop ends with a short run summary in the chat and does not write a report.
 Before Gate 5 the Architect runs spec-truth reconciliation (`architecture-consistency-review` in completion mode, ADR-002) for each approved spec the work touched, then the product owner runs `/status-report`, which produces the status summary. Reporting is on demand.
@@ -256,8 +258,8 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
 
 #### What the bug-fix loop does
 
-1. Picks the highest-severity open bug (critical → high → medium → low, oldest first on ties).
-2. Sets it to `in-progress` with `ai-team bug start`, creates a bug branch, and chooses the branch base from the bug type:
+1. Resumes any `in-progress` bug first, without asking the product owner, the same way the development loop resumes a task: on its existing bug branch, re-entering diagnosis, review, or integration where the bug file shows it stopped. Otherwise it picks the highest-severity open bug (critical → high → medium → low, oldest first on ties).
+2. Sets a picked bug to `in-progress` with `ai-team bug start`, creates a bug branch, and chooses the branch base from the bug type:
    - Existing defect on `dev-agent`: create the bug branch from `dev-agent`.
    - Regression introduced by a task branch: create the bug branch from the bug report's non-empty `source_branch`.
 3. Assigns the bug to the **Developer** for diagnosis — passes the bug file path and waits for a Diagnosis Log handoff before implementation continues.
@@ -268,9 +270,9 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
 8. Assigns the completed fix to the **Reviewer** — waits for a verdict recorded in the bug file.
 9. On **PASS**: runs the integration procedure to merge the bug branch into its target branch, then sets the bug to `resolved` with `ai-team bug resolve`.
    - Existing-defect bugs target `dev-agent`.
-   - Task-regression bugs target the preserved task branch, after which the product owner restarts the development loop to retry task integration.
+   - Task-regression bugs target the preserved task branch. The product owner then restarts the development loop, which resumes the task and retries its integration.
 10. On **FAIL** (cycle 1): sends the bug back to the same Developer, who answers every finding on the bug branch: a fix, or evidence that the finding does not hold. The next review checks each answer. On **FAIL** (cycle 2): sends it to a fresh Developer on the most capable model tier.
-11. On **FAIL** (cycle 3) or **ESCALATE**: consults the Architect first. If the Architect cannot resolve it, stops and escalates to the product owner.
+11. On **FAIL** (cycle 3) or **ESCALATE**: consults the Architect first. If the Architect cannot resolve it, stops and escalates to the product owner. The bug stays `in-progress`, and the next run resumes it once the product owner has decided.
 
 #### When to start the bug-fix loop
 
@@ -288,12 +290,12 @@ The typical cycle after regressions: development loop stops → bugs filed → t
 |---|---|---|---|
 | `planned` | Planner | Task is created during spec breakdown, on behalf of a planning branch | The planning branch merges after Gate 2 (`pending`) or its spec or change-request is abandoned (`cancelled`) |
 | `pending` | Planner | The planning branch merged after Gate 2, or the task is a follow-up routed by spec-truth reconciliation, which is exempt from Gate 2 (ADR-002) | Development loop selects it |
-| `in-progress` | Development loop | Task is claimed and a task branch is created | Reviewer passes, task is blocked, or task is abandoned |
+| `in-progress` | Development loop | Task is claimed and a task branch is created, or a `blocked` task is unblocked | Reviewer passes, task is blocked, or task is abandoned. A loop that starts with the task `in-progress` resumes it on its existing branch |
 | task branch | Developer | Developer receives assignment | Developer submits for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
 | integration pending | Integration procedure | Reviewer returns PASS | Integration succeeds or fails |
 | `completed` | Integration procedure | Merge and tests pass | Task is included in the Gate 5 status summary |
-| `blocked` | Development loop or Escalation procedure | Max retries, escalation, or unresolved blocker | The product owner or Planner resolves blocker and returns task to `pending` or `in-progress` |
+| `blocked` | Development loop or Escalation procedure | Max retries, escalation, or unresolved blocker | The product owner or Planner resolves the blocker and runs `ai-team task unblock` (`in-progress`); the next loop run resumes the task |
 | `cancelled` | Planner | Its spec or change-request was abandoned before work started | — |
 
 The development loop owns task state transitions and records Developer Work Log handoffs in the task file.
@@ -306,7 +308,7 @@ The integration procedure owns merge and post-merge validation.
 | State | Owner | Entry condition | Exit condition |
 |---|---|---|---|
 | `open` | Bug creator (product owner, Reviewer, Developer, or integration procedure) | Regression or defect is filed | Bug-fix loop selects it |
-| `in-progress` | Bug-fix loop | Bug branch is created | Reviewer passes, or escalation stops the bug-fix loop |
+| `in-progress` | Bug-fix loop | Bug branch is created | Reviewer passes. A bug stopped by escalation stays `in-progress`, and the next loop run resumes it on its existing branch |
 | diagnosis pending | Developer | Developer receives bug assignment | Defect is reproduced or evidence-backed non-reproduction is documented |
 | bug branch | Developer | Root cause or fault hypothesis is recorded | Developer submits fix for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
@@ -315,7 +317,7 @@ The integration procedure owns merge and post-merge validation.
 
 Bug branch base is part of the bug contract.
 Existing-defect bugs use `dev-agent` as both source and target branch.
-Task-regression bugs use the preserved task branch as both source and target branch, then the development loop retries the original task integration.
+Task-regression bugs use the preserved task branch as both source and target branch. The original task stays `in-progress`, so the next development-loop run resumes it and retries its integration.
 The bug file stays in the tracker even when the bug branch is based on another branch.
 The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that file, and the Reviewer records verdicts there before the loop reads them.
 
@@ -340,7 +342,7 @@ Full rules and commit format: `ai-process/guidelines/git_conventions.md`.
 **Branches:**
 - `main` — product-owner-only, production releases.
 - `dev-agent` — integration target. The integration procedure merges task branches here during the development loop; the Integrator handles manual merges and conflict resolution. The Planner merges planning branches here after Gate 2 (S-000: after Gate 1, see the git conventions). Architects commit ADRs raised outside planning here.
-- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then.
+- `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` — planning branch for one spec or change-request. It carries the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture, and is merged into `dev-agent` only after Gate 2 passes (S-000: after Gate 1, see the git conventions); its tasks stay `planned` in the tracker until then. A spec amended after its Gate 2 (spec-truth reconciliation, the "Revise the spec" escalation decision, or drift found during development) gets a new amendment planning branch, which merges once the Architect's consistency review passes, or after Gate 2 when the amendment creates tasks.
 - `task/T-NNN-short-description` — implementation branch for a single task, deleted after successful integration.
 - `bug/B-NNN-short-description` — implementation branch for a single bug, created by the bug-fix loop from `dev-agent` or the bug report's `source_branch`, deleted after successful integration.
 
@@ -351,7 +353,7 @@ Full rules and commit format: `ai-process/guidelines/git_conventions.md`.
 - The integration procedure is also the standard path for merging bug branches into their target branch.
 - Tasks, bugs, and change-requests live in the local tracker, outside version control; no branch holds lifecycle state and no lifecycle change creates a commit.
 - Branches blocked at review stay open on their task branch until the blocker is resolved.
-- Spec and change-request work never lands on `dev-agent` before its task plan passes Gate 2. There are two exceptions: a follow-up task routed by spec-truth reconciliation, which the reconciliation re-run checks instead (ADR-002), and S-000, whose own planning branch merges after Gate 1; only its bootstrap task plan goes through Gate 2.
+- Spec and change-request work never lands on `dev-agent` before its task plan passes Gate 2. There are three exceptions: a follow-up task routed by spec-truth reconciliation, which the reconciliation re-run checks instead (ADR-002); S-000, whose own planning branch merges after Gate 1, while only its bootstrap task plan goes through Gate 2; and an amendment planning branch that creates no tasks, which merges after the Architect's consistency review passes.
 - Every orchestrating procedure applies the Workspace Hygiene check from the git conventions before it starts, before every branch switch, after every merge, and before it ends. No procedure leaves untracked files or uncommitted changes behind.
 
 ## Escalation

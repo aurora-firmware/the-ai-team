@@ -59,12 +59,12 @@ Question: [Specific question for the Architect]
 
 | Product owner decision | What happens next | Role responsible |
 |---------------|-------------------|-------------------|
-| Revise the spec | Planner edits spec in-place, adds entry to the spec's Amendment Log section, and identifies affected tasks. The Development Loop adds a note to each affected `in-progress` task referencing the amendment. | Planner, then Development Loop |
-| Modify the task | The product owner updates the task file directly with new or changed requirements, or the Planner raises a change-request. Developer re-reads the task and continues. | Product Owner, or Planner through a change-request |
-| Provide guidance | The blocked role applies the guidance and continues. No document changes needed. | Blocked role |
-| Defer the work | Task is set to `blocked` with the reason noted. The spec issue is not addressed now. | Development Loop |
+| Revise the spec | The Planner amends the spec on an [amendment planning branch](../guidelines/git_conventions.md#amendment-planning-branch), adds an entry to the spec's Amendment Log section, and identifies affected tasks. The Architect runs the [Architecture Consistency Review](quality_gates.md#architecture-consistency-review) (the `architecture-consistency-review` skill) on the amended spec and routes any further amendments the change exposes; on PASS the Planner merges the branch. The loop adds a note to each affected `in-progress` task referencing the amendment. The stopped item then resumes. | Planner and Architect, then the loop |
+| Modify the task | The product owner updates the task file directly with new or changed requirements, or the Planner raises a change-request. The stopped item then resumes, and the Developer re-reads the task. | Product Owner, or Planner through a change-request |
+| Provide guidance | The guidance is recorded in the work item file. The stopped item then resumes, and the blocked role applies the guidance. | Blocked role |
+| Defer the work | The task stays `blocked` with the reason noted. The spec issue is not addressed now, and no loop resumes the task until it is unblocked. | Product Owner |
 
-After a spec is amended, the Architect runs the [Architecture Consistency Review](quality_gates.md#architecture-consistency-review) (the `architecture-consistency-review` skill) to confirm the amended spec stays consistent with every other approved spec and accepted ADR, and routes any further amendments the change exposes.
+**Resuming the stopped item.** A task stopped by escalation is `blocked`. Once the decision is applied, `ai-team task unblock` sets it back to `in-progress`. A bug has no `blocked` state and stays `in-progress`. At its next start, the loop resumes every `in-progress` item on its existing branch before it picks new work (see the [workflow overview](workflow_overview.md#when-the-development-loop-stops)); the product owner does not restart the item by hand.
 
 ## When to Escalate
 

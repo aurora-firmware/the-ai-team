@@ -32,9 +32,9 @@ A skill that works for Opus may need more detail for Haiku. If a skill will be i
 
 Skills fall into three categories. The shape of the `SKILL.md` differs slightly per category.
 
-- **Procedures** — analytical, multi-step work. Have a numbered `Procedure`, `Escalation` section, `Quality Criteria`, and `Common Pitfalls`. Examples: `tdd`, `code-review`, `integrate`, `debug`, `merge-conflicts`, `spec-breakdown-review`, `escalation-review`, `brainstorm`, `spec-breakdown`.
-- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Cycle Counter Reset`, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`. Stay model-invocable so the product owner can delegate a loop to an agent; the `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
-- **Actions** — simple document-creation or single-purpose operations. Short numbered list, usually no escalation section. Product-owner-only actions may carry `disable-model-invocation: true`; actions invoked by another skill must remain model-invocable. Examples: `new-spec`, `new-task`, `new-bug`, `new-adr`, `status-report`, `git-conventions`.
+- **Procedures** — analytical, multi-step work. Have a numbered `Procedure`, `Escalation` section, `Quality Criteria`, and `Common Pitfalls` when the Pitfalls rule leaves rows. Examples: `tdd`, `code-review`, `integrate`, `debug`, `merge-conflicts`, `spec-breakdown-review`, `escalation-review`, `brainstorm`, `spec-breakdown`.
+- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Cycle Counter Reset`, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`; the shared review cycle comes from `review-cycle`. Stay model-invocable so the product owner can delegate a loop to an agent; the `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
+- **Actions** — simple document-creation or single-purpose operations. Short numbered list, usually no escalation section. Product-owner-only actions may carry `disable-model-invocation: true`; actions invoked by another skill must remain model-invocable. Examples: `new-spec`, `new-task`, `new-bug`, `new-adr`, `status-report`. Rule skills that agents and other skills preload (`git-conventions`, `coding-standards`, `role-report`, `evidence-before-claims`) use the same short shape.
 
 ## The Separation Rule
 
@@ -80,7 +80,9 @@ For **procedure skills**:
 5. `## Output Format`
 6. `## Quality Criteria`
 7. `## Rationalizations` (optional: a table of the excuses an agent gives for skipping a rule, each with its rebuttal; see `guides/skill_testing_guide.md`)
-8. `## Common Pitfalls`
+8. `## Common Pitfalls` (optional)
+
+**Pitfalls rule.** A row in `## Common Pitfalls`, `## Rationalizations` or `## Red Flags` stays only if it names a failure that the steps do not already forbid in so many words. Delete a row that restates a step, a hard stop or a Quality Criterion. When no row is left, drop the section.
 
 For **orchestrator skills**, append after `## Procedure`:
 
@@ -129,7 +131,7 @@ Record the outcome in the required output location.
 
 ## Escalation
 
-Return `ESCALATE` under any of these conditions. All cases use the same structured four-field request; the active loop forwards it to the Architect via the `escalation-review` skill. Do not resume the procedure until the Architect responds.
+Return `ESCALATE` under any of these conditions, with the four-field request in the format `escalation-review` owns; the active loop forwards it to the Architect via the `escalation-review` skill. Do not resume the procedure until the Architect responds.
 
 **Retry threshold.** [State the concrete count, e.g. "three consecutive Step N failures"].
 
@@ -150,7 +152,7 @@ Question: [specific decision or guidance needed from the Architect]
 - **Log entry or verdict:** [required heading or format]
 - **Final response:** [what the caller should be told, including the verdict vocabulary]
 
-Skills used inside an agent's Output Format should align with the agent's `Result: PASS | FAIL | BLOCKED | ESCALATE` vocabulary. Do not invent alternative verdict words (e.g. a skill returning `Gate 2 Verdict:` when the surrounding agent output uses `Result:` — use `Result:`).
+Skills used inside an agent's report should align with the `Result: PASS | FAIL | BLOCKED | ESCALATE` vocabulary that `role-report` owns; the agent wraps the skill's output block in its report. Do not invent alternative verdict words (e.g. a skill returning `Gate 2 Verdict:` when the surrounding agent output uses `Result:` — use `Result:`).
 
 ## Quality Criteria
 
@@ -162,11 +164,7 @@ Skills used inside an agent's Output Format should align with the agent's `Resul
 
 ## Common Pitfalls
 
-- Using a vague description that does not help skill discovery.
-- Putting large reference material directly in `SKILL.md` instead of `references/`.
-- Offering many equivalent options instead of a recommended default.
-- Skipping validation or failing to define what success means.
-- Mixing role identity or authority into a procedure skill.
+- [A failure the steps above do not already forbid in so many words — see the Pitfalls rule]
 ````
 
 ## Orchestrator Additions
@@ -190,9 +188,13 @@ Example from `dev-loop/SKILL.md`:
 > "Pick up the task from the task file `<task-path>` and implement it using the tdd skill.
 > You are on branch `task/T-NNN-...`. Commit after each red→green→refactor cycle.
 > The task file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> Return a Work Log handoff entry at session end. The entry's heading is `### Session N — YYYY-MM-DD`; the body is free prose covering what was done, what was tried and rejected, and what remains. The loop will append it to the task file.
+> Return a Work Log handoff entry at session end, in the form the tdd skill defines. The loop will append it to the task file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 ```
+
+### Shared review cycle
+
+The Developer → Reviewer → Architect → integrate cycle, its review-cycle cap and the resume of an `in-progress` item are owned by the `review-cycle` skill. An orchestrator that drives that cycle (`dev-loop`, `bug-loop`) invokes `review-cycle` instead of restating it, and keeps only what differs for its work item.
 
 ### Frontmatter
 
@@ -257,9 +259,9 @@ Descriptive mentions — referring to skills the caller will invoke, or skills d
 
 ## Escalation Mechanics Live Here
 
-Agents carry only a one-paragraph `## Escalation` pointer. The actual mechanics — retry thresholds, boundary-violation triggers, the 4-field escalation request block — live in the skill. When you add or change a threshold, change it in the skill and the agent needs no edit.
+Agents carry only a one-paragraph `## Escalation` pointer, and append the block their skill returned as `role-report` describes. The actual mechanics — retry thresholds, boundary-violation triggers, the 4-field escalation request block — live in the skill. When you add or change a threshold, change it in the skill and the agent needs no edit.
 
-Uniform 4-field block (mandatory shape when a skill can return `ESCALATE`):
+The block's format is owned by `escalation-review`. Each skill that can return `ESCALATE` shows the four fields with one placeholder each, specialised to its own trigger:
 
 ```text
 Problem: [what went wrong]
@@ -270,7 +272,7 @@ Question: [specific decision or guidance needed]
 
 ## Self-Contained `.claude/` Rule
 
-Skills must not reference content outside `.claude/`. If a cross-cutting rule (e.g. git conventions, coding standards) is needed in multiple skills, extract it into its own skill (see `git-conventions`). If it is needed in only one role, embed it in that role's agent `Quality Bar` (see `developer.md` coding standards, `reviewer.md` review checklist).
+Skills must not reference content outside `.claude/`. If a cross-cutting rule is needed in multiple skills or roles, extract it into its own skill: `git-conventions` (branch and commit rules), `coding-standards` (the coding standards the Developer follows and the Reviewer checks) and `role-report` (the result every agent returns). A rule only one procedure needs stays in that skill; for example, `code-review` carries out the review checklist. Agents do not embed checklists.
 
 ## Progressive Disclosure
 
@@ -467,6 +469,8 @@ When Claude B forgets a rule, the rule probably isn't prominent enough — stren
 - Embedding role identity or authority in a skill.
 - Inventing a custom verdict vocabulary (`Gate 2 Verdict:`, `Review Status:`) instead of aligning with the caller's `Result:` shape.
 - Prose-only escalation without the 4-field structured block.
+- Pitfall, rationalization or red-flag rows that restate a step (see the Pitfalls rule).
+- Restating a rule another skill owns (`git-conventions`, `role-report`, `coding-standards`, `review-cycle`) instead of naming that skill.
 - Inconsistent spawn wording (`Spawn the X role`, `invoke the X agent`). Use `**Spawn the <Role> subagent** (tier: ...)` uniformly.
 - Declaring `Skill(x)` in `allowed-tools` when the skill only references `x` descriptively and never invokes it.
 - Referencing `ai-process/` paths. Skills must be self-contained within `.claude/`.
@@ -505,6 +509,7 @@ Before treating a skill as ready:
 - [ ] Validation loop where quality matters.
 - [ ] Verdict vocabulary aligned with `Result: PASS | FAIL | BLOCKED | ESCALATE`.
 - [ ] 4-field escalation block present if the skill can return `ESCALATE`.
+- [ ] Every Common Pitfalls, Rationalizations or Red Flags row passes the Pitfalls rule.
 - [ ] Orchestrators use `**Spawn the <Role> subagent** (tier: ...)` wording uniformly.
 
 **Scripts (if any)**
