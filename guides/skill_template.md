@@ -246,6 +246,9 @@ description: Use this when needed.     # no specifics
 - Set to `true` for product-owner-only actions such as `status-report`. Do not set it on orchestrators: they stay model-invocable so the product owner can delegate a loop to an agent, and the `using-ai-team` rule forbids starting one unasked.
 - Do not set it to `true` on a skill referenced through another skill's `Skill(<name>)` declaration. The target must remain model-invocable for that in-process call to work.
 
+`user-invocable`:
+- Set to `false` on rule skills that only agents preload and no one runs as a command, such as `role-report`. It hides the skill from the slash menu; agents still preload it and the model can still load it.
+
 ## Explicit Skill Invocation
 
 When one skill invokes another in-process, declare it in `allowed-tools` as `Skill(other-skill)` and reference it in prose by its backticked name. Example audit pattern:

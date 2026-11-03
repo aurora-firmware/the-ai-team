@@ -17,7 +17,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 
 **Rules:**
 - No automated role ever commits to `main`.
-- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, and direct ADR commits from the Architect (no direct source code).
+- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, direct ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
 - Developer always works on a task branch, never on `dev-agent`.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
 - Bug branches are created when the bug-fix loop picks up a bug.
@@ -81,12 +81,12 @@ chore(plan): merge S-004 billing export
 | **Planner** | One merge commit per planning branch after Gate 2 passes (S-000: after Gate 1, once S-000 is `approved`; an amendment planning branch that creates no tasks: after the Architect's consistency review passes) | `dev-agent` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts | `task/T-NNN-…` or `bug/B-NNN-…` |
 | **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `dev-agent` |
-| **Integrator** | One merge commit per task or bug branch merged into its target branch | target branch |
+| **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
 
 ## Workspace Hygiene
 
 A dirty working tree must never block a procedure, and no procedure may leave one behind.
-Every orchestrating procedure (`dev-loop`, `bug-loop`, `integrate`, `spec-breakdown`) runs the hygiene check:
+Every procedure that switches branches or merges (among them `dev-loop`, `bug-loop`, `integrate`, `spec-breakdown`, and every skill that opens a planning branch) runs the hygiene check:
 
 - **Before** — at startup and before every branch switch.
 - **After** — after every merge, and before reporting the procedure complete or stopped.

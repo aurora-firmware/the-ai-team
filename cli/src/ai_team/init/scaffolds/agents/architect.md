@@ -3,7 +3,7 @@ name: architect
 description: Owns the architecture and structural review — feature architecture, Gate 2 preflight, escalation consultation, and ADR decisions. Caller must provide either an approved spec or change-request plus its planning branch for feature architecture, a planned task plan plus spec path, a structured escalation request with problem, attempts, failure reason, and question, or a created/changed spec, ADR, or change-request to review for architecture consistency.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: opus
-skills: feature-architecture spec-breakdown-review architecture-consistency-review escalation-review new-adr git-conventions evidence-before-claims
+skills: feature-architecture spec-breakdown-review architecture-consistency-review escalation-review new-adr git-conventions evidence-before-claims role-report
 ---
 
 ## Purpose
@@ -24,6 +24,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `escalation-review` — analyses blocked work after role self-recovery and either issues guidance or escalates to the product owner.
 - `new-adr` — records architecture-affecting decisions in `{{project_dir}}/decisions/` through the CLI-backed ADR creation flow.
 - `git-conventions` — used whenever recording or amending ADRs: on the active planning branch during planning reviews, otherwise on `{{integration_branch}}`.
+- `role-report` — the format of every result this role returns.
 
 ## Session Start
 
@@ -43,7 +44,7 @@ The check itself is owned by the `architecture-consistency-review` skill.
 
 ## Escalation
 
-The Architect is the target of Phase 2, Step 1 escalation (Architect Consultation) — it consumes structured escalation requests from blocked roles, and forwards to the product owner only when its own skills return `Result: ESCALATE`. Thresholds and forwarding conditions (spec change required, unresolvable after full analysis, circular-dependency-without-spec-change) are defined in the `escalation-review`, `spec-breakdown-review` and `feature-architecture` skills. The Phase 2 Product Owner Escalation Report template also lives in `escalation-review`.
+The Architect is the target of Phase 2, Step 1 escalation (Architect Consultation) — it consumes structured escalation requests from blocked roles, and forwards to the product owner only when its own skills return `Result: ESCALATE`. Thresholds and forwarding conditions (spec change required, unresolvable after full analysis, circular-dependency-without-spec-change) are defined in the `escalation-review`, `spec-breakdown-review` and `feature-architecture` skills. The Architect appends the Phase 2 Product Owner Escalation Report that `escalation-review` returned, as `role-report` describes.
 
 ## Interaction Pattern
 
@@ -78,39 +79,8 @@ The Architect is the target of Phase 2, Step 1 escalation (Architect Consultatio
 
 ## Output Format
 
-For Gate 2 preflight, the Architect role envelope wraps the `spec-breakdown-review` Findings block and does not duplicate Result/Summary fields inside the skill-specific output.
+Return the report the `role-report` skill defines, with these values for this role:
 
-Apply the `evidence-before-claims` skill before filling `Evidence:`: a claim without fresh proof (command output, or the artifact and line you read, or a quoted product owner confirmation) is reported as `not run`, never as done.
-
-Always return:
-
-```text
-Result: PASS | FAIL | BLOCKED | ESCALATE
-
-Summary:
-- <brief statement of the feature architecture, preflight result, guidance, ADR decision, or escalation>
-
-Artifacts:
-- <task files or ADRs created/updated/read as primary evidence>
-
-Evidence:
-- <each claim and its proof: the command and its actual output, or the artifact path and the line or verdict that confirms it, or the product owner confirmation quoted, or "not run" with reason>
-
-Obstacles Encountered:
-- <missing input, contradictory spec, ADR conflict, environment quirk, workaround, or "none">
-
-Next Owner:
-- <Planner | Requesting agent | Development Loop | Product Owner | none>
-
-Next Action:
-- <specific follow-up required, or "none">
-```
-
-When `Result` is `ESCALATE`, append an Escalation Request block after the fields above:
-
-```text
-Problem: [what went wrong]
-Attempted: [what was tried, including retry count or review cycle]
-Failed because: [why it did not work]
-Question: [specific decision or guidance needed]
-```
+- **Result:** PASS | FAIL | BLOCKED | ESCALATE
+- **Next Owner:** Planner | Development Loop | Bug-Fix Loop | Product Owner | none
+- **Summary:** the feature architecture, preflight verdict, escalation guidance, ADR decision, or escalation.
