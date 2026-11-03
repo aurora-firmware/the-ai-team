@@ -34,7 +34,7 @@ When the product owner invokes this skill directly, ask only for the missing fie
 
 ### Accepting a Proposed ADR
 
-When the product owner decides a `proposed` ADR, set its `status:` to `accepted` and commit it as in step 5 with the message `docs(architecture): accept <id> <short title>`.
+When the product owner decides a `proposed` ADR, set its `status:` to `accepted`, commit it as in step 5 with the message `docs(architecture): accept <id> <short title>`, and run step 6 on it.
 
 ## Output Format
 

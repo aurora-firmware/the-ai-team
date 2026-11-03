@@ -55,8 +55,8 @@ Route each finding to the owner of the side that must change:
 | The side that must change | Correction |
 |---|---|
 | A draft spec, before Gate 1 | The Planner revises the draft. No Amendment Log entry |
-| An approved spec, while the planning branch of the spec or change-request under review is open | The Planner amends it on that branch and records the change, and the driving ADR ID, in its Amendment Log. Another approved spec than the branch's own is a cross-spec amendment, approved at the branch spec's Gate 1 as `git-conventions` Cross-Spec Amendments describes |
-| An approved spec whose planning branch has merged | The Planner amends it on an amendment planning branch, as `git-conventions` describes |
+| The approved spec under review, on its open planning branch or amendment planning branch, or the approved spec an open change-request planning branch amends | The Planner amends it on that branch and records the change, and the driving ADR ID, in its Amendment Log |
+| Another approved spec, while the branch spec's Gate 1 is still ahead | A cross-spec amendment on that branch, approved at that Gate 1 as `git-conventions` Cross-Spec Amendments describes |
 | An ADR | The Architect amends it, or supersedes it with `new-adr` |
 | A change-request finding that keeps its approved intent | The Planner applies it, anchored to the approved change-request |
 

@@ -68,7 +68,7 @@ These skills use a subset:
 | `code-review` | `PASS`, `FAIL`, `ESCALATE` |
 | `feature-architecture` | `PASS`, `BLOCKED`, `ESCALATE` |
 | `escalation-review` | `PASS` (guidance resolves the blocker), `BLOCKED` (request or work item missing), `ESCALATE` (product owner decision needed) |
-| `change-request` | `PASS`, `FAIL`, `BLOCKED` |
+| `change-request` | `PASS`, `FAIL`, `BLOCKED`, `ESCALATE` |
 
 **Next Owner** names who acts on this report next.
 A result that goes back to a running loop names that loop, which routes it on (to the Developer, the Reviewer, the Architect or integration); a role named outside a loop is spawned by the main session, and a loop named outside a loop run is one the product owner can start.
@@ -103,7 +103,7 @@ A cited run is labelled as cited and never presented as this role's own.
 
 ### Step 4: Pass On an Escalation
 
-When `Result` is `ESCALATE`, append after the report the block the skill returned, unchanged: its four-field Escalation Request, or the Phase 2 Product Owner Escalation Report when `escalation-review` produced one.
+When `Result` is `ESCALATE`, append after the report the blocks the skill returned, unchanged: the four-field Escalation Request, the Product Owner Escalation Report, or both, as the skill produced them.
 Do not rewrite the fields or merge blocks from several skills.
 
 When the escalation arose outside a skill, fill the four fields `Problem`, `Attempted` (including the number of retries), `Failed because` and `Question` in the format `escalation-review` defines.
@@ -112,7 +112,7 @@ The role never forwards the escalation itself: the caller routes it to the Archi
 
 ## Output Format
 
-- **Final response:** the report from Step 1, followed on `ESCALATE` by the block from Step 4.
+- **Final response:** the report from Step 1, followed on `ESCALATE` by the blocks from Step 4.
 
 ## Quality Criteria
 

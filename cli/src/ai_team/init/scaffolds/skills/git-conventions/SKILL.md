@@ -40,9 +40,9 @@ An approved spec already on `{{integration_branch}}` that needs a breakdown and 
 An approved spec amended after its planning branch merged — by spec-truth reconciliation, the product owner's "Revise the spec" escalation decision, or drift found during development — gets a new planning branch:
 
 1. The Planner opens `plan/S-NNN-<slug>`, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in Opening a Planning Branch, skipping step 3.
-2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, and commits on the branch.
+2. The Planner amends the spec, bumps its `version` (a spec-truth reconciliation row alone does not), records the change in its Amendment Log, and commits on the branch.
 3. The Architect runs the architecture consistency review on the amended spec and commits any ADR it raises on the same branch.
-4. On PASS, the Planner merges the branch (Merging a Planning Branch). If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2.
+4. On PASS, the Planner merges the branch (Merging a Planning Branch). If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2; follow-up tasks routed by spec-truth reconciliation are the exception, created `pending` with no Gate 2.
 
 ### Cross-Spec Amendments
 

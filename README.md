@@ -98,7 +98,7 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 
 Skills are reusable procedures agents invoke for common activities.
 Each skill implements a workflow or action defined in the ai-process.
-Every skill can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
+Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
 
 | Skill | What it implements |
 |---|---|

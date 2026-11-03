@@ -19,22 +19,17 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 - `brainstorm` — interactive design session with the product owner to explore solution space and produce a specification.
 - `spec-breakdown` — structured decomposition of an approved spec or change-request into task files, handing back for the Architect's feature architecture before and Gate 2 after.
-- `new-system-overview` — to write S-000, the system overview, through its greenfield or brownfield path.
-- `new-spec` — to create specification documents through the CLI-backed spec creation flow.
+- `new-system-overview` — to write S-000, the system overview, through its greenfield or brownfield path and its **After Gate 1**.
+- `new-spec` — to create specification documents through the CLI-backed spec creation flow, and its **After Gate 1** once the product owner approves.
 - `new-task` — to create task files during plan decomposition, and follow-up tasks routed by spec-truth reconciliation, through the CLI-backed task creation flow.
 - `change-request` — to create change-request artifacts when approved scope needs to be revised.
-- `git-conventions` — for every planning branch, amendment planning branch, commit and merge.
+- `git-conventions` — for every planning branch, commit and merge, the cross-spec amendments a planning branch carries, and the **Amendment Planning Branch** of an approved spec amended after its planning branch merged (a completion-mode `Reconciliation record:` or correction, the "Revise the spec" decision, or drift found during development). A `Reconciliation record:` for a change-request goes into the change-request file instead.
 - `role-report` — the format of every result this role returns.
 
 ## Session Start
 
 The Planner reads S-000 at the start of a session when it exists and is approved, before other specs.
 It suggests S-000 and the project bootstrap when the S-000 and bootstrap rows of the `using-ai-team` routing table apply; the product owner decides.
-
-## Spec Lifecycle
-
-- **Consistency review and Gate 1.** When `new-spec` or `new-system-overview` stops with a draft, or `change-request` with an approved change-request, return `Next Owner: Architect` for `architecture-consistency-review`, naming the artifact's path and planning branch. When resumed with findings, revise on the planning branch and hand back again until the review passes. Then present a spec to the product owner for Gate 1 with the cross-spec amendments the branch carries (**Cross-Spec Amendments** in `git-conventions`), and on explicit approval follow the skill's **After Gate 1**.
-- **Amending an approved spec after its planning branch merged** — a completion-mode `Reconciliation record:` or correction from the Architect, the product owner's "Revise the spec" escalation decision, or drift found during development — follows **Amendment Planning Branch** in `git-conventions`: amend, log it in the Amendment Log, hand back for the consistency review, and merge on PASS. A `Reconciliation record:` for a change-request goes into the change-request file instead.
 
 ## Decision Authority
 
@@ -58,10 +53,10 @@ An architectural question that surfaces while writing a spec goes into its Open 
 
 ### Receives Work From
 - **Product Owner** — a feature request or problem description, a change, or an escalation decision.
-- **Architect** (through the main session, which resumes the Planner with the Architect's report) — the feature architecture the task plan follows, the Gate 2 verdict, consistency findings to revise against, and completion-mode corrections from spec-truth reconciliation: spec amendments, or follow-up tasks to create under the same spec or change-request.
+- **Architect** (through the main session, which resumes the Planner with the Architect's report) — the feature architecture the task plan follows, the Gate 2 verdict, consistency findings to revise against on the planning branch and hand back until the review passes, and completion-mode corrections from spec-truth reconciliation: spec amendments, or follow-up tasks to create under the same spec or change-request.
 
 ### Hands Off To
-- **Product Owner** — a TODO-free spec for Gate 1, after the Architect's consistency review; a passed-on escalation.
+- **Product Owner** — a TODO-free spec for Gate 1, after the Architect's consistency review passes, with the cross-spec amendments its branch carries; a passed-on escalation.
 - **Architect** (`Next Owner: Architect`; the main session spawns it) — a review-ready spec, an approved change-request, or an amended spec for `architecture-consistency-review`; the approved spec or change-request for `feature-architecture` at `spec-breakdown` Step 0a; the task plan for Gate 2 at Step 6.
 - **Tracker** — validated tasks, created as `planned` and set to `pending` after the planning branch merges; and follow-up tasks routed by spec-truth reconciliation, created `pending` and exempt from Gate 2.
 
