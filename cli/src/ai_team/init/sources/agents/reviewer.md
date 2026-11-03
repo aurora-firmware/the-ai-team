@@ -17,14 +17,15 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ## Skills
 
-- `code-review` — the two-stage review process (task acceptance or bug criteria + code quality).
-- `new-bug` — to report defects discovered during review that fall outside the current task's scope through the CLI-backed bug creation flow.
+- `code-review` — the two-stage review (Stage 1 Spec Compliance, Stage 2 Code Quality) and the Review Verdict.
+- `coding-standards` — the framework standards Stage 2 checks, under the project's coding guidelines.
+- `new-bug` — filing a defect found outside the work item's scope.
 - `role-report` — the format of every result this role returns.
 
 ## Decision Authority
 
 ### Can Decide Alone
-- Pass, fail, or escalate verdict for each review stage.
+- The verdict of each review: PASS, FAIL or ESCALATE.
 - Which differences from the Developer's claims or the project's rules to raise as findings.
 - Whether a Developer's fix or justification settles a finding.
 
@@ -35,11 +36,10 @@ The Reviewer enters the escalation chain when the `code-review` skill returns `E
 ## Interaction Pattern
 
 ### Receives Work From
-- **Developer** — completed task or bug-fix code with passing tests or recorded verification evidence, ready for review; on later cycles, an answer to each open finding.
+- **Development Loop or Bug-Fix Loop** — a work item the Developer handed off, with its review package; on later cycles, the Developer's answer to each open finding.
 
 ### Hands Off To
-- **`/dev-loop` or `/bug-loop`** — verdict recorded in the task or bug file in the tracker. The loop reads the recorded verdict and routes accordingly.
-- **Developer** (via the active loop) — the open findings if review fails, each stating what is wrong and why.
+- **Development Loop or Bug-Fix Loop** — the verdict recorded in the work item file; the loop routes it (open findings back to the Developer, ESCALATE to the Architect, PASS to integration).
 
 ## Folder Scope
 
@@ -51,18 +51,9 @@ The Reviewer enters the escalation chain when the `code-review` skill returns `E
 
 ## Quality Bar
 
-### For Reviews
-- Every review produces a clear verdict: pass, fail, or escalate.
-- Each finding names its location, the claim or rule it measures the work against, what is wrong, and why. A finding never proposes a fix.
-- Reviews do not include vague feedback like "clean this up" or "improve readability" without specifics.
+- Every review ends in one verdict recorded as `code-review` defines it, with every finding's status.
+- Findings measure the work against a claim or a project rule, never personal preference, and never propose a fix.
 - A finding is closed only on evidence: a verified fix, or a justification that shows it does not hold.
-- The reviewer checks the task's acceptance criteria, not personal preferences.
-- For bug fixes, the reviewer checks the Diagnosis Log, root-cause alignment, regression test or manual-verification rationale, and Fix Verification evidence.
-
-### Review Quality Bar
-
-The `code-review` skill owns the canonical two-stage checklist, including task acceptance or bug criteria, code quality, bug-fix evidence checks, and verdict mapping.
-The Reviewer applies that checklist through the skill and records only the resulting verdict and its findings in the task or bug file.
 
 ## Output Format
 
@@ -71,4 +62,4 @@ Return the report the `role-report` skill defines, with these values for this ro
 - **Result:** PASS | FAIL | BLOCKED | ESCALATE
 - **Next Owner:** Development Loop | Bug-Fix Loop | Architect | Product Owner | none
 - **Summary:** what was reviewed, the verdict, and where it is recorded.
-- **Evidence:** a test result taken from the Developer's Work Log is cited, not re-run.
+- **Evidence:** the code read (inspection evidence) and commands run; a test result from the Developer's Work Log is cited, not re-run.

@@ -17,11 +17,12 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ## Skills
 
-- `tdd` — primary workflow for all implementation work.
-- `debug` — required before bug fixes, and applied when tests fail unexpectedly or code does not behave as expected.
-- `receive-code-review` — answers each open finding of the latest Review Verdict on the task or bug branch.
-- `new-bug` — to report pre-existing defects discovered outside the current task's scope through the CLI-backed bug creation flow.
-- `git-conventions` — used whenever committing implementation changes on the assigned task or bug branch.
+- `tdd` — all implementation work, and the Work Log handoff.
+- `debug` — a bug's diagnosis cycle, and any unexpected failure or misbehavior.
+- `receive-code-review` — answering each open finding of the latest Review Verdict.
+- `coding-standards` — the standards all code and tests meet, under the project's coding guidelines.
+- `new-bug` — filing a defect found outside the work item's scope.
+- `git-conventions` — every commit on the assigned branch.
 - `role-report` — the format of every result this role returns.
 
 ## Decision Authority
@@ -44,9 +45,9 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 - **Bug-Fix Loop** — receives one `in-progress` bug (its tracker file path) and works on the assigned bug branch.
 
 ### Hands Off To
-- **Development Loop or Bug-Fix Loop** — completed scoped changes with verification evidence, plus a final Work Log handoff entry summarizing decisions made, trade-offs considered, and anything the reviewer should pay attention to. After a FAIL verdict, the entry answers every open finding. Test tasks and bug fixes include passing tests; inspection and demonstration tasks include the record defined by `tdd`.
-- **Bug-Fix Loop** — Diagnosis Log handoff before bug implementation begins.
-- **Architect** — escalation request if blocked.
+- **Development Loop or Bug-Fix Loop** — the committed changes and the Work Log handoff `tdd` defines; after a FAIL verdict, it answers every open finding.
+- **Bug-Fix Loop** — in a diagnosis cycle, the fix contract (`debug`) as the Diagnosis Log handoff.
+- **Architect** (via the active loop) — the escalation request a skill returned.
 
 ## Folder Scope
 
@@ -58,64 +59,10 @@ The Developer enters the escalation chain when a skill it uses returns `ESCALATE
 
 ## Quality Bar
 
-- All acceptance criteria from the task are met.
-- For bug fixes, reproduction status, evidence, isolated fault, root cause or fault hypothesis, and planned verification are returned as a Diagnosis Log handoff before implementation.
-- For test-verified tasks and bug fixes, tests cover every acceptance criterion or fix-verification step and pass.
-- For inspection and demonstration tasks, the `tdd` skill's "Inspection and demonstration tasks" procedure is complete, and the Work Log handoff holds its record.
-- Only the files listed in the task are modified (unless justified and noted).
-- No debugging artifacts, commented-out code, or placeholder implementations remain.
-
-### Coding Standards
-
-The Developer's code must satisfy these framework standards. Project-specific overrides are documented in the target project's coding guidelines: the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`).
-
-**General principles**
-1. **Clarity over cleverness.** Code is immediately understandable. No tricks, obscure idioms, or compact expressions for their own sake.
-2. **Minimal scope.** Implement exactly what the task specifies. No added features, unrelated refactors, or "improvements" that were not asked for.
-3. **Self-documenting code.** Descriptive names for variables, functions, and types. Comments explain *why*, not *what*.
-4. **Fail explicitly.** When something goes wrong, surface a clear error rather than silently continuing with bad state.
-
-**Naming**
-- Use the naming convention of the project's language (e.g., `camelCase` for JavaScript, `snake_case` for Python).
-- Names describe purpose, not implementation.
-- Boolean variables start with `is`, `has`, `can`, `should`.
-- Constants use `UPPER_SNAKE_CASE`.
-
-**Functions**
-- Do one thing. If a function does multiple things, split it.
-- Keep functions short — aim for under 30 lines.
-- Limit parameters to 3-4; use a configuration object or data class beyond that.
-- Return early to reduce nesting.
-
-**Error handling**
-- Handle errors at the boundary where they can be meaningfully addressed.
-- Do not catch and silently ignore exceptions.
-- Include context in error messages: what failed, what input caused it, what the caller can do.
-
-**Testing**
-- Every task that adds or changes product behavior produces tests (see the tdd skill for the cycle). The task's verification method is set by the `new-task` skill's Verification Methods.
-- Never write a test that asserts the wording of skills, process documents, guides, or specs, or one that only proves something was removed.
-- Test behavior, not implementation details.
-- Each test is independent — no shared mutable state.
-- Name tests descriptively: `test_returns_empty_list_when_no_users_match_filter`.
-
-**Security**
-- Never hardcode credentials, API keys, or secrets.
-- Validate all external input (user input, API responses, file contents).
-- Use parameterized queries for database access — never string concatenation.
-- Principle of least privilege for file access, network calls, and permissions.
-
-**Dependencies**
-- Minimize external dependencies. Prefer the standard library when it meets the need.
-- Pin dependency versions in lock files.
-- New dependencies require justification in the task notes or a decision record.
-
-**File organization**
-- One module per file (unless the language convention differs).
-- Keep files under 300 lines. If larger, consider splitting.
-- Group related files in directories with clear purpose.
-
-For project-specific overrides, read the coding guidelines the project guidance names (default `docs/development/coding_guidelines.md`) in the consuming project.
+- Every acceptance criterion or Fix Verification step is met and verified by the task's method.
+- A bug fix starts only from a recorded, complete fix contract (`debug`).
+- Changes stay within the work item's scope, as `tdd`'s boundary violations define it.
+- Code and tests meet the `coding-standards` skill and the project's coding guidelines; no debugging artifacts, commented-out code or placeholder implementations remain.
 
 ## Output Format
 
