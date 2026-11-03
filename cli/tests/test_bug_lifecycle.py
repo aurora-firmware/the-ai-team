@@ -4,6 +4,7 @@ Bugs live in the local tracker; every transition rewrites the frontmatter
 ``status`` in place and never moves the file.
 """
 
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -42,7 +43,11 @@ def _write_bug(tmp_path: Path, bug_id: str, status: str) -> Path:
 
 @pytest.mark.parametrize(
     ("command", "from_status", "to_status"),
-    [("start", "open", "in-progress"), ("resolve", "in-progress", "resolved")],
+    [
+        ("start", "open", "in-progress"),
+        ("resolve", "in-progress", "resolved"),
+        ("unblock", "blocked", "in-progress"),
+    ],
 )
 def test_bug_transition_updates_status_in_place(
     monkeypatch, tmp_path, command, from_status, to_status
@@ -60,11 +65,52 @@ def test_bug_transition_updates_status_in_place(
     assert parse_bug(path).status == to_status
 
 
+def test_bug_block_sets_blocked_and_appends_reason(monkeypatch, tmp_path):
+    """`bug block --reason` sets blocked status and logs a dated reason entry."""
+    from ai_team.cli import app
+
+    path = _write_bug(tmp_path, "B-012", "in-progress")
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write("\n## Work Log\n\n### Session 1 — 2026-05-09\ndiagnosis started\n")
+
+    monkeypatch.chdir(tmp_path)
+    reason = "deferred by the product owner"
+    result = CliRunner().invoke(app, ["bug", "block", "B-012", "--reason", reason])
+
+    assert result.exit_code == 0, result.output
+    assert parse_bug(path).status == "blocked"
+    _, body = read_artifact(path, "bug")
+    assert "### Session 2" in body
+    assert date.today().isoformat() in body
+    assert f"Blocked: {reason}" in body
+
+
+def test_bug_block_accepts_resolved_bug(monkeypatch, tmp_path):
+    """`bug block` can block a bug from any status."""
+    from ai_team.cli import app
+
+    path = _write_bug(tmp_path, "B-013", "resolved")
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(
+        app, ["bug", "block", "B-013", "--reason", "regressed, waiting on upstream"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert parse_bug(path).status == "blocked"
+
+
 @pytest.mark.parametrize(
-    ("command", "status"), [("start", "in-progress"), ("resolve", "resolved")]
+    ("command", "status", "extra_args"),
+    [
+        ("start", "in-progress", []),
+        ("resolve", "resolved", []),
+        ("block", "blocked", ["--reason", "new reason"]),
+        ("unblock", "in-progress", []),
+    ],
 )
 def test_bug_lifecycle_command_is_idempotent_when_already_in_destination_status(
-    monkeypatch, tmp_path, command, status
+    monkeypatch, tmp_path, command, status, extra_args
 ):
     """A bug already in the target status is left byte-for-byte unchanged."""
     from ai_team.cli import app
@@ -73,7 +119,7 @@ def test_bug_lifecycle_command_is_idempotent_when_already_in_destination_status(
     before_bytes = path.read_bytes()
 
     monkeypatch.chdir(tmp_path)
-    result = CliRunner().invoke(app, ["bug", command, "B-009"])
+    result = CliRunner().invoke(app, ["bug", command, "B-009", *extra_args])
 
     assert result.exit_code == 0
     assert f"already in {status}" in result.output
@@ -81,7 +127,14 @@ def test_bug_lifecycle_command_is_idempotent_when_already_in_destination_status(
 
 
 @pytest.mark.parametrize(
-    ("command", "status"), [("start", "resolved"), ("resolve", "open")]
+    ("command", "status"),
+    [
+        ("start", "resolved"),
+        ("start", "blocked"),
+        ("resolve", "open"),
+        ("resolve", "blocked"),
+        ("unblock", "open"),
+    ],
 )
 def test_bug_lifecycle_command_rejects_unexpected_source_status(
     monkeypatch, tmp_path, command, status
@@ -90,13 +143,42 @@ def test_bug_lifecycle_command_rejects_unexpected_source_status(
     from ai_team.cli import app
 
     path = _write_bug(tmp_path, "B-010", status)
+    before_bytes = path.read_bytes()
 
     monkeypatch.chdir(tmp_path)
     result = CliRunner().invoke(app, ["bug", command, "B-010"])
 
     assert result.exit_code != 0
     assert f"is '{status}'" in result.stderr
+    assert path.read_bytes() == before_bytes
+
+
+@pytest.mark.parametrize("status", ["open", "in-progress", "blocked", "resolved"])
+def test_bug_set_status_accepts_every_allowed_status(monkeypatch, tmp_path, status):
+    """`bug set-status` moves a bug to any allowed status."""
+    from ai_team.cli import app
+
+    start = "open" if status != "open" else "in-progress"
+    path = _write_bug(tmp_path, "B-014", start)
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["bug", "set-status", "B-014", status])
+
+    assert result.exit_code == 0, result.output
     assert parse_bug(path).status == status
+
+
+def test_bug_set_status_rejects_unknown_status(monkeypatch, tmp_path):
+    """`bug set-status` refuses values outside the allowed bug statuses."""
+    from ai_team.cli import app
+
+    path = _write_bug(tmp_path, "B-015", "open")
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["bug", "set-status", "B-015", "deferred"])
+
+    assert result.exit_code != 0
+    assert parse_bug(path).status == "open"
 
 
 def test_bug_set_status_records_reason(monkeypatch, tmp_path):
@@ -116,9 +198,17 @@ def test_bug_set_status_records_reason(monkeypatch, tmp_path):
     assert "Status set to open: regressed again" in body
 
 
-@pytest.mark.parametrize("command", ["start", "resolve"])
+@pytest.mark.parametrize(
+    ("command", "extra_args"),
+    [
+        ("start", []),
+        ("resolve", []),
+        ("block", ["--reason", "deferred"]),
+        ("unblock", []),
+    ],
+)
 def test_bug_lifecycle_command_reports_not_found_and_names_tracker_folder(
-    monkeypatch, tmp_path, command
+    monkeypatch, tmp_path, command, extra_args
 ):
     """A missing bug ID returns non-zero and names the tracker bugs folder."""
     from ai_team.cli import app
@@ -126,7 +216,7 @@ def test_bug_lifecycle_command_reports_not_found_and_names_tracker_folder(
     (tmp_path / "ai-team").mkdir()
 
     monkeypatch.chdir(tmp_path)
-    result = CliRunner().invoke(app, ["bug", command, "B-999"])
+    result = CliRunner().invoke(app, ["bug", command, "B-999", *extra_args])
 
     assert result.exit_code != 0
     assert "not found" in result.stderr.lower()

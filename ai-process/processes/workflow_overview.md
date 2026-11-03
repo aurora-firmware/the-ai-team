@@ -258,7 +258,7 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
 
 #### What the bug-fix loop does
 
-1. Resumes any `in-progress` bug first, without asking the product owner, the same way the development loop resumes a task: on its existing bug branch, re-entering diagnosis, review, or integration where the bug file shows it stopped. Otherwise it picks the highest-severity open bug (critical → high → medium → low, oldest first on ties).
+1. Resumes any `in-progress` bug first, without asking the product owner, the same way the development loop resumes a task: on its existing bug branch, re-entering diagnosis, review, or integration where the bug file shows it stopped. Otherwise it picks the highest-severity open bug (critical → high → medium → low, oldest first on ties). It never picks a `blocked` bug.
 2. Sets a picked bug to `in-progress` with `ai-team bug start`, creates a bug branch, and chooses the branch base from the bug type:
    - Existing defect on `dev-agent`: create the bug branch from `dev-agent`.
    - Regression introduced by a task branch: create the bug branch from the bug report's non-empty `source_branch`.
@@ -272,7 +272,7 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
    - Existing-defect bugs target `dev-agent`.
    - Task-regression bugs target the preserved task branch. The product owner then restarts the development loop, which resumes the task and retries its integration.
 10. On **FAIL** (cycle 1): sends the bug back to the same Developer, who answers every finding on the bug branch: a fix, or evidence that the finding does not hold. The next review checks each answer. On **FAIL** (cycle 2): sends it to a fresh Developer on the most capable model tier.
-11. On **FAIL** (cycle 3) or **ESCALATE**: consults the Architect first. If the Architect cannot resolve it, stops and escalates to the product owner. The bug stays `in-progress`, and the next run resumes it once the product owner has decided.
+11. On **FAIL** (cycle 3) or **ESCALATE**: consults the Architect first. If the Architect cannot resolve it, sets the bug to `blocked` with `ai-team bug block` and the reason, and stops for the product owner, the same as a task. Once the product owner has decided, `ai-team bug unblock` sets it back to `in-progress` and the next run resumes it; a deferred bug stays `blocked`.
 
 #### When to start the bug-fix loop
 
@@ -308,12 +308,13 @@ The integration procedure owns merge and post-merge validation.
 | State | Owner | Entry condition | Exit condition |
 |---|---|---|---|
 | `open` | Bug creator (product owner, Reviewer, Developer, or integration procedure) | Regression or defect is filed | Bug-fix loop selects it |
-| `in-progress` | Bug-fix loop | Bug branch is created | Reviewer passes. A bug stopped by escalation stays `in-progress`, and the next loop run resumes it on its existing branch |
+| `in-progress` | Bug-fix loop | Bug branch is created, or a `blocked` bug is unblocked | Reviewer passes, or bug is blocked. A loop run that stopped without blocking the bug resumes it on its existing branch |
 | diagnosis pending | Developer | Developer receives bug assignment | Defect is reproduced or evidence-backed non-reproduction is documented |
 | bug branch | Developer | Root cause or fault hypothesis is recorded | Developer submits fix for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
 | integration pending | Integration procedure | Reviewer returns PASS | Integration succeeds or fails |
 | `resolved` | Bug-fix loop | Fix is merged and tests pass | Bug is included in the Gate 5 status summary |
+| `blocked` | Bug-fix loop or Escalation procedure | Product owner escalation after the Architect consultation fails, or the product owner defers the bug (`ai-team bug block`) | The product owner resolves the blocker and runs `ai-team bug unblock` (`in-progress`); the next loop run resumes the bug |
 
 Bug branch base is part of the bug contract.
 Existing-defect bugs use `dev-agent` as both source and target branch.

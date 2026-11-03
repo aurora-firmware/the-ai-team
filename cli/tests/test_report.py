@@ -130,6 +130,17 @@ def test_report_out_writes_populated_report_with_status_summary_fields(
         ),
     )
 
+    _write(
+        tmp_path / ".ai-team" / "tracker" / "bugs" / "B-002.md",
+        BUG_TEMPLATE.format(
+            id="B-002",
+            title="Deferred issue",
+            severity="medium",
+            status="blocked",
+        )
+        + "\n## Work Log\n\n### Session 1 — 2026-05-11\nBlocked: deferred\n",
+    )
+
     out_path = tmp_path / "custom" / "reports" / "status.md"
     monkeypatch.chdir(tmp_path)
     result = CliRunner().invoke(app, ["report", "--out", str(out_path)])
@@ -143,6 +154,7 @@ def test_report_out_writes_populated_report_with_status_summary_fields(
     assert "In progress tasks: 1" in content
     assert "Blocked tasks: 1" in content
     assert "Open bugs: 1" in content
+    assert "Blocked bugs: 1" in content
 
     assert "| T-002 | Build report | reviewer | actively progressing |" in content
     assert (
@@ -150,9 +162,15 @@ def test_report_out_writes_populated_report_with_status_summary_fields(
         "Resolve blocker: waiting on API contract |"
     ) in content
     assert "| B-001 | Critical issue | critical | open | n/a |" in content
+    assert (
+        "| B-002 | Deferred issue | Blocked: deferred | Resolve blocker: Blocked: deferred |"
+    ) in content
+    assert "| B-002 | Deferred issue | medium | blocked | in progress |" in content
 
     assert "1. Unblock T-003: waiting on API contract" in content
+    assert "2. Unblock B-002: Blocked: deferred" in content
     assert "- Blocked tasks may delay delivery." in content
+    assert "- Blocked bugs stay unfixed until they are unblocked." in content
 
 
 def test_report_succeeds_with_legacy_bug_missing_created(

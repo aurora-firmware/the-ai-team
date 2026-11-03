@@ -37,7 +37,7 @@ One-paragraph overview of current project state.
 
 ## Blocked
 
-| Task ID | Title | Blocked By | Action Needed |
+| ID | Title | Blocked By | Action Needed |
 |---|---|---|---|
 | T-004 | Task title | What is blocking | What must happen to unblock |
 
