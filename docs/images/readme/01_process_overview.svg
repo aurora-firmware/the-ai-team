@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 680" width="1120" height="680" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="m-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748B"/></marker><marker id="m-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F87171"/></marker><marker id="m-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#34D399"/></marker><marker id="m-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FB923C"/></marker><marker id="m-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FACC15"/></marker><marker id="m-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#60A5FA"/></marker><marker id="m-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A78BFA"/></marker><marker id="m-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22D3EE"/></marker>
+    <style><![CDATA[
+      .bg    { fill: #0B1120; stroke: #1E293B; stroke-width: 1.5; }
+      .panel { fill: #0F172A; stroke: #1E293B; stroke-width: 1.5; }
+      .title { font-weight: 700; font-size: 28px; fill: #F8FAFC; letter-spacing: -0.4px; }
+      .sub   { font-size: 15px; fill: #94A3B8; }
+      .ph    { font-weight: 700; font-size: 17px; fill: #F8FAFC; }
+      .h     { font-weight: 700; font-size: 14px; fill: #F8FAFC; }
+      .t     { font-size: 12px; fill: #CBD5E1; }
+      .s     { font-size: 12px; fill: #94A3B8; }
+      .mono  { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .card  { fill: #111827; stroke-width: 1.6; }
+      .ln    { fill: none; stroke: #64748B; stroke-width: 1.6; }
+
+      .n { opacity: 0; transform: translateY(8px); animation: rise .45s cubic-bezier(.2,.8,.3,1) forwards; }
+      .e { opacity: 0; animation: f .4s ease forwards; }
+      .flow { stroke-dasharray: 6 6; animation: flow 1.2s linear infinite; }
+      .ants { stroke-dasharray: 8 6; animation: flow 2.4s linear infinite; }
+      .pulse { animation: pulse 2.4s ease-in-out infinite; }
+      .d1{animation-delay:.1s} .d2{animation-delay:.3s} .d3{animation-delay:.5s} .d4{animation-delay:.7s}
+      .d5{animation-delay:.9s} .d6{animation-delay:1.1s} .d7{animation-delay:1.3s} .d8{animation-delay:1.5s}
+      .d9{animation-delay:1.7s} .d10{animation-delay:1.9s} .d11{animation-delay:2.1s} .d12{animation-delay:2.3s}
+
+      @keyframes f { to { opacity: 1; } }
+      @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+      @keyframes flow { to { stroke-dashoffset: -24; } }
+      @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .n, .e { opacity: 1 !important; animation: none !important; transform: none !important; }
+        .flow, .ants, .pulse { animation: none !important; }
+      }
+    ]]></style>
+  </defs>
+  <rect class="bg" x="1" y="1" width="1118" height="678" rx="18"/>
+  <g class="n d1"><text class="title" x="560" y="52" text-anchor="middle">From feature request to main</text>
+  <text class="sub" x="560" y="80" text-anchor="middle">Three phases and five gates. The Product Owner owns Gate 1 and Gate 5; agents run the rest.</text></g>
+<g class="n d1"><rect class="panel" x="30" y="110" width="380" height="540" rx="14"/><text xml:space="preserve" class="ph" x="220.0" y="140" text-anchor="middle">Spec + planning</text><text xml:space="preserve" class="s" x="220.0" y="159" text-anchor="middle">shaped with the Product Owner</text></g>
+<g class="n d1"><rect class="panel" x="440" y="110" width="350" height="540" rx="14"/><text xml:space="preserve" class="ph" x="615.0" y="140" text-anchor="middle">Development loop</text><text xml:space="preserve" class="s" x="615.0" y="159" text-anchor="middle">/dev-loop · runs on its own</text></g>
+<g class="n d1"><rect class="panel" x="820" y="110" width="270" height="220" rx="14"/><text xml:space="preserve" class="ph" x="955.0" y="140" text-anchor="middle">Final sign-off</text><text xml:space="preserve" class="s" x="955.0" y="159" text-anchor="middle">when the task queue is empty</text></g>
+<g class="n d1"><rect class="panel" x="820" y="350" width="270" height="300" rx="14"/><text xml:space="preserve" class="ph" x="955.0" y="380" text-anchor="middle">Bug loop</text><text xml:space="preserve" class="s" x="955.0" y="399" text-anchor="middle">/bug-loop · diagnosis first</text></g>
+<g class="n d2">
+<rect class="card" x="48" y="180" width="230" height="46" rx="10" stroke="#FACC15" fill="#282A25"/>
+<text xml:space="preserve" class="h" x="163.0" y="200.0" text-anchor="middle">Feature request</text>
+<text xml:space="preserve" class="t" x="163.0" y="217.0" text-anchor="middle">Product Owner</text>
+</g>
+<g class="e d3"><path d="M163,227 V252" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d3">
+<rect class="card" x="48" y="254" width="230" height="46" rx="10" stroke="#A78BFA" fill="#20243C"/>
+<text xml:space="preserve" class="h" x="163.0" y="274.0" text-anchor="middle">Brainstorm → spec</text>
+<text xml:space="preserve" class="t" x="163.0" y="291.0" text-anchor="middle">Planner with the Product Owner</text>
+</g>
+<g class="e d4"><path d="M163,301 V326" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d4">
+<rect class="card" x="48" y="328" width="230" height="46" rx="10" stroke="#FACC15" fill="#282A25" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="h" x="163.0" y="348.0" text-anchor="middle">Gate 1</text>
+<text xml:space="preserve" class="t" x="163.0" y="365.0" text-anchor="middle">Product Owner approves the spec</text>
+</g>
+<g class="e d5"><path d="M163,375 V400" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d5">
+<rect class="card" x="48" y="402" width="230" height="46" rx="10" stroke="#60A5FA" fill="#19263C"/>
+<text xml:space="preserve" class="h" x="163.0" y="422.0" text-anchor="middle">Feature architecture</text>
+<text xml:space="preserve" class="t" x="163.0" y="439.0" text-anchor="middle">Architect · ADRs</text>
+</g>
+<g class="e d6"><path d="M163,449 V474" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d6">
+<rect class="card" x="48" y="476" width="230" height="46" rx="10" stroke="#A78BFA" fill="#20243C"/>
+<text xml:space="preserve" class="h" x="163.0" y="496.0" text-anchor="middle">Task breakdown</text>
+<text xml:space="preserve" class="t" x="163.0" y="513.0" text-anchor="middle">Planner · atomic tasks</text>
+</g>
+<g class="e d7"><path d="M163,523 V548" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d7">
+<rect class="card" x="48" y="550" width="230" height="46" rx="10" stroke="#60A5FA" fill="#19263C" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="h" x="163.0" y="570.0" text-anchor="middle">Gate 2</text>
+<text xml:space="preserve" class="t" x="163.0" y="587.0" text-anchor="middle">Architect preflights the task plan</text>
+</g>
+<g class="n d3">
+<rect class="card" x="292" y="254" width="104" height="46" rx="10" stroke="#64748B" fill="#192131" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="t" x="344.0" y="274.0" text-anchor="middle">change-request</text>
+<text xml:space="preserve" class="t" x="344.0" y="291.0" text-anchor="middle">skips Gate 1</text>
+</g>
+<g class="e d5"><path d="M344,301 V425 H282" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)" stroke-dasharray="5 4"/></g>
+<g class="e d8"><path d="M279,573 H425 V203 H507" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d8">
+<rect class="card" x="510" y="180" width="210" height="46" rx="10" stroke="#64748B" fill="#192131"/>
+<text xml:space="preserve" class="h" x="615.0" y="200.0" text-anchor="middle">Next pending task</text>
+<text xml:space="preserve" class="t" x="615.0" y="217.0" text-anchor="middle">from the local tracker</text>
+</g>
+<g class="e d9"><path d="M615,227 V266" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d9">
+<rect class="card" x="510" y="270" width="210" height="46" rx="10" stroke="#22D3EE" fill="#132B3B"/>
+<text xml:space="preserve" class="h" x="615.0" y="290.0" text-anchor="middle">Developer</text>
+<text xml:space="preserve" class="t" x="615.0" y="307.0" text-anchor="middle">implements · TDD</text>
+</g>
+<g class="e d10"><path d="M615,317 V356" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d10">
+<rect class="card" x="510" y="360" width="210" height="46" rx="10" stroke="#F472B6" fill="#282135"/>
+<text xml:space="preserve" class="h" x="615.0" y="380.0" text-anchor="middle">Reviewer</text>
+<text xml:space="preserve" class="t" x="615.0" y="397.0" text-anchor="middle">Gate 3 · two-stage review</text>
+</g>
+<g class="e d11"><path d="M615,407 V446" fill="none" stroke="#34D399" stroke-width="1.6" marker-end="url(#m-ok)"/></g>
+<g class="n d11">
+<rect class="card" x="510" y="450" width="210" height="46" rx="10" stroke="#34D399" fill="#142B32"/>
+<text xml:space="preserve" class="h" x="615.0" y="470.0" text-anchor="middle">Integration</text>
+<text xml:space="preserve" class="t" x="615.0" y="487.0" text-anchor="middle">Gate 4 · merge + full test suite</text>
+</g>
+<g class="n d11"><text xml:space="preserve" class="s" x="628" y="437" text-anchor="start" fill="#34D399">PASS</text></g>
+<g class="e d11"><path d="M509,383 H486 V293 H507" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
+<g class="n d11"><text class="s" x="478" y="338" text-anchor="middle" fill="#F87171" transform="rotate(-90 478 338)">FAIL</text></g>
+<g class="e d12"><path d="M721,463 H752 V213 H723" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)" class="flow"/></g>
+<g class="n d12"><text class="s" x="766" y="338" text-anchor="middle" transform="rotate(-90 766 338)">next task</text></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="615" y="548" text-anchor="middle">Stops on: empty queue · blocked task · escalation</text><text xml:space="preserve" class="s" x="615" y="568" text-anchor="middle">Up to 3 review cycles, then the Architect is consulted</text></g>
+<g class="e d12"><path d="M721,190 H850" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="726" y="182" text-anchor="start">queue empty</text></g>
+<g class="e d12"><path d="M721,485 H800 V437 H850" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)"/></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="726" y="503" text-anchor="start" fill="#F87171">regression</text></g>
+<g class="n d10">
+<rect class="card" x="853" y="176" width="204" height="36" rx="10" stroke="#60A5FA" fill="#19263C"/>
+<text xml:space="preserve" class="t" x="955.0" y="199.0" text-anchor="middle">Spec-truth check · Architect</text>
+</g>
+<g class="e d10"><path d="M955,213 V224" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d11">
+<rect class="card" x="853" y="226" width="204" height="36" rx="10" stroke="#64748B" fill="#192131"/>
+<text xml:space="preserve" class="t" x="955.0" y="249.0" text-anchor="middle">Status report</text>
+</g>
+<g class="e d11"><path d="M955,263 V274" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d12">
+<rect class="card" x="853" y="276" width="204" height="44" rx="10" stroke="#FACC15" fill="#282A25" stroke-dasharray="5 4"/>
+<text xml:space="preserve" class="h" x="955.0" y="295.0" text-anchor="middle">Gate 5 · Product Owner</text>
+<text xml:space="preserve" class="t" x="955.0" y="312.0" text-anchor="middle">approves dev-agent → main</text>
+</g>
+<g class="n d9">
+<rect class="card" x="853" y="420" width="204" height="34" rx="10" stroke="#22D3EE" fill="#132B3B"/>
+<text xml:space="preserve" class="t" x="955.0" y="442.0" text-anchor="middle">diagnose</text>
+</g>
+<g class="e d10"><path d="M955,455 V468" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d10">
+<rect class="card" x="853" y="470" width="204" height="34" rx="10" stroke="#22D3EE" fill="#132B3B"/>
+<text xml:space="preserve" class="t" x="955.0" y="492.0" text-anchor="middle">fix</text>
+</g>
+<g class="e d11"><path d="M955,505 V518" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d11">
+<rect class="card" x="853" y="520" width="204" height="34" rx="10" stroke="#F472B6" fill="#282135"/>
+<text xml:space="preserve" class="t" x="955.0" y="542.0" text-anchor="middle">review</text>
+</g>
+<g class="e d12"><path d="M955,555 V568" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d12">
+<rect class="card" x="853" y="570" width="204" height="34" rx="10" stroke="#34D399" fill="#142B32"/>
+<text xml:space="preserve" class="t" x="955.0" y="592.0" text-anchor="middle">integrate</text>
+</g>
+<g class="e d12"><path d="M852,537 H838 V487 H850" fill="none" stroke="#F87171" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
+<g class="n d12"><text class="s" x="832" y="512" text-anchor="middle" fill="#F87171" transform="rotate(-90 832 512)">FAIL</text></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="955" y="630" text-anchor="middle">resolved bugs join the Gate 5 summary</text></g>
+</svg>

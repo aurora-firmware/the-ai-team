@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 410" width="1120" height="410" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="m-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748B"/></marker><marker id="m-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F87171"/></marker><marker id="m-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#34D399"/></marker><marker id="m-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FB923C"/></marker><marker id="m-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FACC15"/></marker><marker id="m-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#60A5FA"/></marker><marker id="m-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A78BFA"/></marker><marker id="m-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22D3EE"/></marker>
+    <style><![CDATA[
+      .bg    { fill: #0B1120; stroke: #1E293B; stroke-width: 1.5; }
+      .panel { fill: #0F172A; stroke: #1E293B; stroke-width: 1.5; }
+      .title { font-weight: 700; font-size: 28px; fill: #F8FAFC; letter-spacing: -0.4px; }
+      .sub   { font-size: 15px; fill: #94A3B8; }
+      .ph    { font-weight: 700; font-size: 17px; fill: #F8FAFC; }
+      .h     { font-weight: 700; font-size: 14px; fill: #F8FAFC; }
+      .t     { font-size: 12px; fill: #CBD5E1; }
+      .s     { font-size: 12px; fill: #94A3B8; }
+      .mono  { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .card  { fill: #111827; stroke-width: 1.6; }
+      .ln    { fill: none; stroke: #64748B; stroke-width: 1.6; }
+
+      .n { opacity: 0; transform: translateY(8px); animation: rise .45s cubic-bezier(.2,.8,.3,1) forwards; }
+      .e { opacity: 0; animation: f .4s ease forwards; }
+      .flow { stroke-dasharray: 6 6; animation: flow 1.2s linear infinite; }
+      .ants { stroke-dasharray: 8 6; animation: flow 2.4s linear infinite; }
+      .pulse { animation: pulse 2.4s ease-in-out infinite; }
+      .d1{animation-delay:.1s} .d2{animation-delay:.3s} .d3{animation-delay:.5s} .d4{animation-delay:.7s}
+      .d5{animation-delay:.9s} .d6{animation-delay:1.1s} .d7{animation-delay:1.3s} .d8{animation-delay:1.5s}
+      .d9{animation-delay:1.7s} .d10{animation-delay:1.9s} .d11{animation-delay:2.1s} .d12{animation-delay:2.3s}
+
+      @keyframes f { to { opacity: 1; } }
+      @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+      @keyframes flow { to { stroke-dashoffset: -24; } }
+      @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .n, .e { opacity: 1 !important; animation: none !important; transform: none !important; }
+        .flow, .ants, .pulse { animation: none !important; }
+      }
+    ]]></style>
+  </defs>
+  <rect class="bg" x="1" y="1" width="1118" height="408" rx="18"/>
+  <g class="n d1"><text class="title" x="560" y="52" text-anchor="middle">Rules first, implementation second</text>
+  <text class="sub" x="560" y="80" text-anchor="middle">ai-process/ decides. Agents and skills carry it out faithfully.</text></g>
+<g class="n d2"><rect class="panel" x="40" y="110" width="440" height="230" rx="14"/><text xml:space="preserve" class="ph" x="260.0" y="140" text-anchor="middle">ai-process/</text><text xml:space="preserve" class="s" x="260.0" y="159" text-anchor="middle">specification layer · the single source of truth</text></g>
+<g class="n d3"><rect x="60" y="180" width="400" height="40" rx="8" fill="#282A25" stroke="#FACC15" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="78" y="205" text-anchor="start">Workflows</text><text xml:space="preserve" class="t mono" x="442" y="205" text-anchor="end">processes/</text></g>
+<g class="n d4"><rect x="60" y="230" width="400" height="40" rx="8" fill="#282A25" stroke="#FACC15" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="78" y="255" text-anchor="start">Standards</text><text xml:space="preserve" class="t mono" x="442" y="255" text-anchor="end">guidelines/</text></g>
+<g class="n d5"><rect x="60" y="280" width="400" height="40" rx="8" fill="#282A25" stroke="#FACC15" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="78" y="305" text-anchor="start">Structure</text><text xml:space="preserve" class="t mono" x="442" y="305" text-anchor="end">architecture/</text></g>
+<g class="n d6"><rect class="panel" x="640" y="110" width="440" height="230" rx="14"/><text xml:space="preserve" class="ph" x="860.0" y="140" text-anchor="middle">cli/src/ai_team/init/sources/</text><text xml:space="preserve" class="s" x="860.0" y="159" text-anchor="middle">implementation layer · exported by ai-team init</text></g>
+<g class="n d7"><rect x="660" y="180" width="400" height="40" rx="8" fill="#20243C" stroke="#A78BFA" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="678" y="205" text-anchor="start">Agents</text><text xml:space="preserve" class="t mono" x="1042" y="205" text-anchor="end">agents/*.md</text></g>
+<g class="n d8"><rect x="660" y="230" width="400" height="40" rx="8" fill="#132B3B" stroke="#22D3EE" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="678" y="255" text-anchor="start">Skills</text><text xml:space="preserve" class="t mono" x="1042" y="255" text-anchor="end">skills/&lt;name&gt;/SKILL.md</text></g>
+<g class="n d9"><rect x="660" y="280" width="400" height="40" rx="8" fill="#192131" stroke="#64748B" stroke-opacity=".7"/><text xml:space="preserve" class="h" x="678" y="305" text-anchor="start">Project skeleton</text><text xml:space="preserve" class="t mono" x="1042" y="305" text-anchor="end">project/ · root/</text></g>
+<g class="e d6"><path d="M482,200 H636" fill="none" stroke="#FACC15" stroke-width="2" marker-end="url(#m-y)" class="flow"/></g>
+<g class="n d6"><text xml:space="preserve" class="t" x="560" y="190" text-anchor="middle" fill="#FACC15">dictates</text></g>
+<g class="e d10"><path d="M638,260 H486" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)" stroke-dasharray="5 4"/></g>
+<g class="n d10"><text xml:space="preserve" class="s" x="560" y="284" text-anchor="middle">checked against</text></g>
+<g class="n d11"><text xml:space="preserve" class="s" x="560" y="380" text-anchor="middle">Change a rule in ai-process/ first, then update the agents and skills that implement it. Never let them contradict each other.</text></g>
+</svg>

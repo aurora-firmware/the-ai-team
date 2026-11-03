@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 545" width="1120" height="545" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="m-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748B"/></marker><marker id="m-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F87171"/></marker><marker id="m-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#34D399"/></marker><marker id="m-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FB923C"/></marker><marker id="m-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FACC15"/></marker><marker id="m-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#60A5FA"/></marker><marker id="m-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A78BFA"/></marker><marker id="m-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22D3EE"/></marker>
+    <style><![CDATA[
+      .bg    { fill: #0B1120; stroke: #1E293B; stroke-width: 1.5; }
+      .panel { fill: #0F172A; stroke: #1E293B; stroke-width: 1.5; }
+      .title { font-weight: 700; font-size: 28px; fill: #F8FAFC; letter-spacing: -0.4px; }
+      .sub   { font-size: 15px; fill: #94A3B8; }
+      .ph    { font-weight: 700; font-size: 17px; fill: #F8FAFC; }
+      .h     { font-weight: 700; font-size: 14px; fill: #F8FAFC; }
+      .t     { font-size: 12px; fill: #CBD5E1; }
+      .s     { font-size: 12px; fill: #94A3B8; }
+      .mono  { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .card  { fill: #111827; stroke-width: 1.6; }
+      .ln    { fill: none; stroke: #64748B; stroke-width: 1.6; }
+
+      .n { opacity: 0; transform: translateY(8px); animation: rise .45s cubic-bezier(.2,.8,.3,1) forwards; }
+      .e { opacity: 0; animation: f .4s ease forwards; }
+      .flow { stroke-dasharray: 6 6; animation: flow 1.2s linear infinite; }
+      .ants { stroke-dasharray: 8 6; animation: flow 2.4s linear infinite; }
+      .pulse { animation: pulse 2.4s ease-in-out infinite; }
+      .d1{animation-delay:.1s} .d2{animation-delay:.3s} .d3{animation-delay:.5s} .d4{animation-delay:.7s}
+      .d5{animation-delay:.9s} .d6{animation-delay:1.1s} .d7{animation-delay:1.3s} .d8{animation-delay:1.5s}
+      .d9{animation-delay:1.7s} .d10{animation-delay:1.9s} .d11{animation-delay:2.1s} .d12{animation-delay:2.3s}
+
+      @keyframes f { to { opacity: 1; } }
+      @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+      @keyframes flow { to { stroke-dashoffset: -24; } }
+      @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .n, .e { opacity: 1 !important; animation: none !important; transform: none !important; }
+        .flow, .ants, .pulse { animation: none !important; }
+      }
+    ]]></style>
+  </defs>
+  <rect class="bg" x="1" y="1" width="1118" height="543" rx="18"/>
+  <g class="n d1"><text class="title" x="560" y="52" text-anchor="middle">One command installs the team</text>
+  <text class="sub" x="560" y="80" text-anchor="middle">ai-team init writes the agents, skills and project skeleton into any repository.</text></g>
+<g class="n d1"><rect class="panel" x="30" y="110" width="390" height="380" rx="14"/><text xml:space="preserve" class="ph" x="225.0" y="140" text-anchor="middle">This repository</text><text xml:space="preserve" class="s" x="225.0" y="159" text-anchor="middle">the framework</text></g>
+<g class="n d2">
+<rect class="card" x="50" y="180" width="350" height="60" rx="10" stroke="#A78BFA" fill="#20243C"/>
+<text xml:space="preserve" class="h" x="225.0" y="207.0" text-anchor="middle">Team definition</text>
+<text xml:space="preserve" class="t" x="225.0" y="224.0" text-anchor="middle">ai-process/ rules · agent + skill sources</text>
+</g>
+<g class="n d3">
+<rect class="card" x="50" y="254" width="350" height="60" rx="10" stroke="#60A5FA" fill="#19263C"/>
+<text xml:space="preserve" class="h" x="225.0" y="281.0" text-anchor="middle">Generators</text>
+<text xml:space="preserve" class="t" x="225.0" y="298.0" text-anchor="middle">agents, skills, layout, AGENTS.md, templates</text>
+</g>
+<g class="n d4">
+<rect class="card" x="50" y="328" width="350" height="60" rx="10" stroke="#22D3EE" fill="#132B3B"/>
+<text xml:space="preserve" class="h" x="225.0" y="355.0" text-anchor="middle">CLI</text>
+<text xml:space="preserve" class="t" x="225.0" y="372.0" text-anchor="middle">ai-team · install, create, validate, move</text>
+</g>
+<g class="n d5">
+<rect class="card" x="50" y="402" width="350" height="60" rx="10" stroke="#64748B" fill="#192131"/>
+<text xml:space="preserve" class="h" x="225.0" y="429.0" text-anchor="middle">End-user docs</text>
+<text xml:space="preserve" class="t" x="225.0" y="446.0" text-anchor="middle">cli/docs/ · guides/</text>
+</g>
+<g class="e d6"><path d="M421,300 H458" fill="none" stroke="#64748B" stroke-width="1.6" marker-end="url(#m-g)"/></g>
+<g class="n d6"><rect x="460" y="274" width="200" height="52" rx="26" fill="#163237" stroke="#34D399" stroke-width="1.8"/><text xml:space="preserve" class="h mono" x="560" y="306" text-anchor="middle" fill="#ECFDF5">$ ai-team init .</text></g>
+<g class="e d7"><path d="M661,300 H712" fill="none" stroke="#34D399" stroke-width="1.6" marker-end="url(#m-ok)" class="flow"/></g>
+<g class="n d7"><rect x="744" y="106" width="350" height="330" rx="14" fill="#0F172A" stroke="#334155" opacity="0.35"/></g>
+<g class="n d7"><rect x="732" y="118" width="350" height="330" rx="14" fill="#0F172A" stroke="#334155" opacity="0.6"/></g>
+<g class="n d8"><rect class="panel" x="720" y="130" width="350" height="330" rx="14"/><text xml:space="preserve" class="ph mono" x="895" y="160" text-anchor="middle">your project</text><text xml:space="preserve" class="s" x="895" y="179" text-anchor="middle">any repository, any stack</text></g>
+<g class="n d8"><rect x="740" y="198" width="4" height="22" rx="2" fill="#A78BFA"/><text xml:space="preserve" class="t mono" x="754" y="214" text-anchor="start" fill="#F8FAFC">.claude/agents/</text><text xml:space="preserve" class="s" x="1052" y="214" text-anchor="end">role agents</text></g>
+<g class="n d8"><rect x="740" y="238" width="4" height="22" rx="2" fill="#22D3EE"/><text xml:space="preserve" class="t mono" x="754" y="254" text-anchor="start" fill="#F8FAFC">.claude/skills/</text><text xml:space="preserve" class="s" x="1052" y="254" text-anchor="end">procedures (skills)</text></g>
+<g class="n d9"><rect x="740" y="278" width="4" height="22" rx="2" fill="#60A5FA"/><text xml:space="preserve" class="t mono" x="754" y="294" text-anchor="start" fill="#F8FAFC">ai-team/</text><text xml:space="preserve" class="s" x="1052" y="294" text-anchor="end">specs · decisions · docs</text></g>
+<g class="n d9"><rect x="740" y="318" width="4" height="22" rx="2" fill="#64748B"/><text xml:space="preserve" class="t mono" x="754" y="334" text-anchor="start" fill="#F8FAFC">.ai-team.toml</text><text xml:space="preserve" class="s" x="1052" y="334" text-anchor="end">framework config</text></g>
+<g class="n d10"><rect x="740" y="358" width="4" height="22" rx="2" fill="#FACC15"/><text xml:space="preserve" class="t mono" x="754" y="374" text-anchor="start" fill="#F8FAFC">AGENTS.md</text><text xml:space="preserve" class="s" x="1052" y="374" text-anchor="end">starter guidance (optional)</text></g>
+<g class="n d10"><rect x="740" y="398" width="4" height="22" rx="2" fill="#64748B"/><text xml:space="preserve" class="t mono" x="754" y="414" text-anchor="start" fill="#F8FAFC">.ai-team/tracker/</text><text xml:space="preserve" class="s" x="1052" y="414" text-anchor="end">tasks · bugs · CRs, git-ignored</text></g>
+<g class="n d12"><text xml:space="preserve" class="s" x="560" y="518" text-anchor="middle">ai-process/ stays here: it is the spec the exported agents and skills implement.</text></g>
+</svg>
