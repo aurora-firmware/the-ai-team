@@ -47,9 +47,9 @@ MARKERS = {"g": GRAY, "r": RED_L, "ok": GREEN, "o": ORANGE_L, "y": ORANGE, "b": 
 
 # text classes: (font key, size, letter-spacing)
 TEXT = {
-    "title": ("bruno", 26, 0), "role": ("bruno", 12, 0.3), "num": ("bruno", 20, 0),
-    "sub": ("jos400", 17, 0), "ph": ("jos600", 18, 0), "h": ("jos600", 15, 0),
-    "t": ("jos400", 13.5, 0), "s": ("jos400", 13, 0), "cap": ("jos400", 11, 1.5),
+    "title": ("bruno", 28, 0), "role": ("bruno", 13, 0.3), "num": ("bruno", 21, 0),
+    "sub": ("jos400", 18, 0), "ph": ("jos600", 19, 0), "h": ("jos600", 16, 0),
+    "t": ("jos400", 14.5, 0), "s": ("jos400", 14, 0), "cap": ("jos400", 11.5, 1.5),
 }
 FONT_FILE = {"bruno": (BRUNO, None), "jos400": (JOSEFIN, 400), "jos600": (JOSEFIN, 600)}
 FAMILY = {"bruno": ("AF Display", 400), "jos400": ("AF Sans", 400), "jos600": ("AF Sans", 600)}
@@ -171,15 +171,15 @@ def font_face(key):
 
 
 STYLE = f"""
-      .title {{ font-family: 'AF Display', sans-serif; font-size: 26px; fill: {WHITE}; }}
-      .role  {{ font-family: 'AF Display', sans-serif; font-size: 12px; letter-spacing: .3px; }}
-      .num   {{ font-family: 'AF Display', sans-serif; font-size: 20px; fill: {WHITE}; }}
-      .sub   {{ font-size: 17px; fill: {GRAY}; }}
-      .ph    {{ font-weight: 600; font-size: 18px; fill: {WHITE}; }}
-      .h     {{ font-weight: 600; font-size: 15px; fill: {WHITE}; }}
-      .t     {{ font-size: 13.5px; fill: {BODY}; }}
-      .s     {{ font-size: 13px; fill: {GRAY}; }}
-      .cap   {{ font-size: 11px; letter-spacing: 1.5px; }}
+      .title {{ font-family: 'AF Display', sans-serif; font-size: {TEXT['title'][1]}px; fill: {WHITE}; }}
+      .role  {{ font-family: 'AF Display', sans-serif; font-size: {TEXT['role'][1]}px; letter-spacing: .3px; }}
+      .num   {{ font-family: 'AF Display', sans-serif; font-size: {TEXT['num'][1]}px; fill: {WHITE}; }}
+      .sub   {{ font-size: {TEXT['sub'][1]}px; fill: {GRAY}; }}
+      .ph    {{ font-weight: 600; font-size: {TEXT['ph'][1]}px; fill: {WHITE}; }}
+      .h     {{ font-weight: 600; font-size: {TEXT['h'][1]}px; fill: {WHITE}; }}
+      .t     {{ font-size: {TEXT['t'][1]}px; fill: {BODY}; }}
+      .s     {{ font-size: {TEXT['s'][1]}px; fill: {GRAY}; }}
+      .cap   {{ font-size: {TEXT['cap'][1]}px; letter-spacing: 1.5px; }}
       .mono  {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0; }}
       .sys   {{ font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }}
 
@@ -247,14 +247,14 @@ def gate_circle(cx, cy, label, n, human, d, r=32):
 # ---------------------------------------------------------------- 00 two gates
 def two_gates():
     b, cy = [], 216
-    b.append(card(24, cy - 32, 146, 64, "po", "Product Owner", "feature request", "d2"))
-    for cx, n, cap, d in ((232, "1", "approve spec", "d3"), (921, "5", "approve merge", "d9")):
+    b.append(card(16, cy - 32, 146, 64, "po", "Product Owner", "feature request", "d2"))
+    for cx, n, cap, d in ((222, "1", "approve spec", "d3"), (931, "5", "approve merge", "d9")):
         b.append(gate_circle(cx, cy, "GATE", n, True, d))
         b.append(txt(cx, cy + 92, cap, "s", wrap=d))
-    b.append(band(290, cy - 82, 588, 152, "AUTONOMOUS  ·  agents stop and ask only when the rules say they must", 584, "d4"))
+    b.append(band(282, cy - 82, 608, 152, "AUTONOMOUS  ·  agents stop and ask only when the rules say they must", 586, "d4"))
     chips = [("Planner", "spec + tasks", GRAY), ("Architect", "design · Gate 2", BLUE), ("Developer", "builds · TDD", GRAY),
              ("Reviewer", "Gate 3", BLUE), ("Integration", "Gate 4", BLUE)]
-    x, cw, gap = 304, 104, 10
+    x, cw, gap = 295, 110, 8
     for i, (name, cap, capcol) in enumerate(chips):
         d = f"d{5 + i // 2}"
         b.append(card(x, cy - 28, cw, 56, "agent", name, None, d))
@@ -262,11 +262,11 @@ def two_gates():
         if i < 4:
             b.append(arrow(f"M{x + cw + 1},{cy} H{x + cw + gap - 1}", "g", "d6"))
         x += cw + gap
-    b.append(card(975, cy - 32, 121, 64, "pass", "main", "tested · reviewed", "d10", l1cls="h mono"))
-    b.append(arrow(f"M171,{cy} H197", "g", "d3"))
-    b.append(arrow(f"M272,{cy} H288", "g", "d4"))
-    b.append(arrow(f"M879,{cy} H887", "g", "d9"))
-    b.append(arrow(f"M961,{cy} H973", "ok", "d10"))
+    b.append(card(983, cy - 32, 121, 64, "pass", "main", "tested · reviewed", "d10", l1cls="h mono"))
+    b.append(arrow(f"M163,{cy} H187", "g", "d3"))
+    b.append(arrow(f"M262,{cy} H280", "g", "d4"))
+    b.append(arrow(f"M891,{cy} H897", "g", "d9"))
+    b.append(arrow(f"M971,{cy} H981", "ok", "d10"))
     b.append(txt(560, 346, "Blocked work escalates:  Developer / Reviewer / Integrator  →  Architect  →  Product Owner", "s", wrap="d11"))
     return svg(1120, 376, "You approve twice. The agents do the rest.",
                "Two product-owner gates. Everything between them runs on its own.", "\n".join(b))
@@ -290,8 +290,8 @@ def process_overview():
         if i < 5:
             b.append(arrow(f"M163,{y + 47} V{y + 72}", "g", f"d{3 + i}"))
         y += 74
-    b.append(card(290, 254, 108, 46, "ghost", "change-request", "skips Gate 1", "d3"))
-    b.append(arrow("M344,301 V425 H282", "g", "d5", dashed=True))
+    b.append(card(286, 254, 118, 46, "ghost", "change-request", "skips Gate 1", "d3"))
+    b.append(arrow("M345,301 V425 H282", "g", "d5", dashed=True))
     b.append(arrow("M279,573 H425 V203 H507", "g", "d8"))
 
     # panel B
@@ -344,13 +344,13 @@ def review_cycle():
     b.append(card(40, 170, 160, 90, "neutral", "Pending task", "local tracker", "d2"))
     b.append(card(240, 170, 200, 90, "agent", "Developer", "task branch · TDD", "d3"))
     b.append(card(480, 170, 200, 90, "agent", "Reviewer", "Gate 3 · two-stage review", "d4", l2fill=BLUE))
-    b.append(card(720, 170, 200, 90, "pass", "Integration", "Gate 4 · merge into dev-agent", "d5", l2fill=BLUE))
+    b.append(card(715, 170, 210, 90, "pass", "Integration", "Gate 4 · merge into dev-agent", "d5", l2fill=BLUE))
     b.append(card(960, 170, 120, 90, "pass", "completed", "tests pass", "d6", l1cls="h mono"))
     b.append(arrow("M201,215 H237", "g", "d3"))
     b.append(arrow("M441,215 H477", "g", "d4"))
-    b.append(arrow("M681,215 H717", "ok", "d5"))
-    b.append(txt(699, 206, "PASS", "s", fill=GREEN, wrap="d5"))
-    b.append(arrow("M921,215 H957", "ok", "d6"))
+    b.append(arrow("M681,215 H712", "ok", "d5"))
+    b.append(txt(697, 206, "PASS", "s", fill=GREEN, wrap="d5"))
+    b.append(arrow("M926,215 H957", "ok", "d6"))
     b.append(arrow("M580,169 C580,108 340,108 340,166", "r", "d7", flow=True, width_=2))
     b.append(txt(460, 112, "FAIL · the Developer answers every finding", "t", fill=RED_L, wrap="d7"))
     b.append(arrow("M580,261 V327", "o", "d8"))
@@ -403,7 +403,7 @@ def init_stamp():
              + txt(895, 162, "your project", "ph") + txt(895, 182, "any repository, any stack", "s") + "</g>")
     rows = [(".claude/agents/", "role agents", ORANGE), (".claude/skills/", "procedures (skills)", ORANGE),
             ("ai-team/", "specs · decisions · docs", BLUE), (".ai-team.toml", "framework config", GRAY),
-            ("AGENTS.md", "starter guidance (optional)", ORANGE_L), (".ai-team/tracker/", "tasks · bugs · CRs, local", GRAY)]
+            ("AGENTS.md", "starter guidance (optional)", ORANGE_L), (".ai-team/tracker/", "tasks · bugs · CRs", GRAY)]
     for i, (path, what, col) in enumerate(rows):
         y = 216 + i * 40
         fits(what, "s", 1052 - 754 - 10 - len(path) * 8.2, path)  # monospace path is about 8.2px a character
