@@ -1,72 +1,73 @@
 ---
 name: escalation-review
-description: Analyse blocked work after a role has exhausted self-recovery. Use when a Developer, Reviewer, Integrator, Development Loop, or Bug-Fix Loop sends a structured escalation request and the Architect must issue guidance or escalate to the product owner.
-allowed-tools: Read, Grep, Glob, Write, Edit, Skill(new-adr)
+description: Analyse blocked work after a role has exhausted self-recovery, and own the escalation request and product owner escalation report formats. Use when a Development Loop or Bug-Fix Loop routes a Developer, Reviewer or Integrator escalation request and the Architect must issue guidance or escalate to the product owner.
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(new-adr), Skill(git-conventions)
 effort: high
 ---
 
 # Escalation Consultation
 
+The Architect consultation gives one response per escalation: guidance, or the product owner.
+This skill owns the Escalation Request block and the Product Owner Escalation Report that every escalating skill uses.
+
 ## Input Requirements
 
-- **Structured request** — see [Escalation Request Block (FROZEN)](#escalation-request-block-frozen) below.
-- **Original work item** — task or bug file.
+- **Escalation request** — the block in [Escalation Request Block](#escalation-request-block).
+- **Work item** — the task or bug file path in the tracker.
 - **Relevant logs** — Work Log, Diagnosis Log, Review Verdicts, test output, or merge-conflict context.
-- **Approved specification and ADRs** when the issue may affect scope or architecture.
+- **Findings to rule on** — the IDs of every finding still `Open` in the latest Review Verdict, when the loop passes them.
+- **Approved spec and ADRs** — when the problem may affect scope or architecture.
 
-## Escalation Request Block (FROZEN)
+Return `BLOCKED` when the escalation request or the work item is missing.
 
-This is the single canonical source for the four-field escalation request format. Every skill or
-role that emits an escalation must use these exact field names in this exact order. The block is
-kept inline at each emission point for locality; this section freezes the field names so all
-copies stay consistent.
+## Escalation Request Block
+
+Every skill or role that escalates uses these four fields, with these names and in this order.
+Each emitter keeps a local copy whose placeholders fit its own trigger.
 
 ```text
-Problem: [the criterion that will not pass, or the boundary that was violated]
-Attempted: [implementations tried on retry, or why the boundary cannot be honoured as written]
-Failed because: [the specific reason — test output, scope mismatch, contradictory requirement]
-Question: [specific guidance needed to continue within the approved specification]
+Problem: [what went wrong: the criterion that will not pass, or the boundary that was hit]
+Attempted: [what was tried, including the number of retries]
+Failed because: [the specific reason: test output, scope mismatch, contradictory requirement]
+Question: [the specific question for the Architect, or the decision for the product owner]
 ```
 
 ## Procedure
 
-### Step 1: Read The Full Context
+### Step 1: Read the Full Context
 
-Read the escalation request, the work item, and all relevant logs.
-Read the approved specification and ADRs if the problem may affect scope, architecture, branch flow, task dependencies, or prior decisions.
+Read the request, the work item, every log it names, and the approved spec and ADRs when the problem may touch scope, architecture, task dependencies or prior decisions.
 
-### Step 2: Classify The Blocker
+### Step 2: Classify the Blocker
 
-Classify the blocker as one of:
+| Classification | Meaning |
+|---|---|
+| `execution` | Solvable within the current task or bug scope |
+| `work-item` | The task or bug file needs clearer requirements, without a spec change |
+| `architecture` | Needs structural guidance or an ADR, within the approved spec |
+| `specification` | Needs an approved spec, or an approved change-request's intent, to change |
+| `unresolved` | Cannot be resolved after full analysis |
 
-- **Execution issue** — can be solved within the current task or bug scope.
-- **Task or bug description issue** — needs clearer requirements but not a spec change.
-- **Architecture issue within spec bounds** — needs structural guidance or an ADR.
-- **Specification issue** — requires changing an approved spec.
-- **Unresolvable with current evidence** — needs product owner judgment.
+### Step 3: Rule on Open Findings
 
-### Step 3: Issue Guidance Or Escalate
+For each finding still `Open` in the latest Review Verdict, decide from its Basis, the Developer's latest answer and the Reviewer's latest note:
 
-If the issue can be resolved within the approved spec, provide a specific directive to the requesting role.
-The directive must include what to change, where to apply it, and how to verify it.
+- **upheld** — the finding holds. The Developer fixes it and the Reviewer confirms the fix. How to fix it stays the Developer's decision: never prescribe it.
+- **parked** — the work item meets its criteria without it.
 
-When the latest Review Verdict still has `Open` findings, rule on each one from the evidence: the finding's Basis, the Developer's latest answer, and the Reviewer's latest note. A finding is **upheld** when it holds; the Developer then fixes it, and the Reviewer confirms the fix in the next review. A finding is **parked** when the work item meets its criteria without it. Do not prescribe the fix for an upheld finding; how to resolve it stays the Developer's decision.
+### Step 4: Issue Guidance or Escalate
 
-If the task or bug file needs clarification within existing scope, recommend the exact amendment and the owner who should make it.
+For `execution`, `work-item` or `architecture`, give a directive the blocked role can follow without another clarification round: what to change, where, and how to verify it.
+The directive never covers an upheld finding; the ruling is the whole instruction for it. When the blocker is only the open findings, the Directive is `none beyond the rulings`.
 
-If the issue is architecture-affecting and within the approved spec, use `new-adr` or amend an existing ADR before implementation continues.
-When invoking `new-adr`, provide the full required input set:
-- `title`: concise decision title derived from the architectural guidance
-- `description`: the escalation request, work item path, approved spec or ADR context, and why the decision affects future work
-- `status`: `accepted` — the Architect is adopting the decision now as the authoritative resolution to the escalation
+- **`work-item`** — recommend the exact amendment to the task or bug file; the Planner owns task-plan edits, so the Architect never makes it.
+- **`architecture`** — record a durable decision with `new-adr`, status `accepted`, giving as `description` the request, the work item path and why the decision affects future work; `new-adr` commits it and runs its consistency review. Rely on the ADR only when that review returns `PASS`; otherwise the decision needs an approved spec to change, so escalate. To amend an existing ADR instead, edit it and commit it on the branch `git-conventions` names for the Architect.
 
-If the issue requires changing the approved spec, or cannot be resolved after full analysis, escalate to the product owner with a compact context package.
+For `specification` or `unresolved`, return `ESCALATE` with the [Product Owner Escalation Report](#product-owner-escalation-report).
 
 ## Output Format
 
-The Architect role envelope wraps this block. The escalation verdict goes in the envelope's `Result:` line: `Result: PASS` when the guidance resolves the blocker, or `Result: ESCALATE` when product owner escalation is required.
-
-Use this structure:
+The verdict goes in `Result:`: `PASS` when the guidance or the rulings resolve the blocker, `ESCALATE` when the product owner must decide, `BLOCKED` when an input is missing.
 
 ```text
 Classification: <execution | work-item | architecture | specification | unresolved>
@@ -75,61 +76,58 @@ Analysis:
 - <root cause of the blocker>
 
 Directive:
-- <specific action for the requesting role>
-
-Verification:
-- <command or check that proves the directive worked>
+- <what to change, where, and how to verify it — or "none beyond the rulings">
 
 Finding rulings:
-- <finding ID: upheld | parked, and the evidence that decides it, for every finding still Open in the latest Review Verdict — or "none">
+- <finding ID: upheld | parked — the evidence that decides it, for every finding still Open; or "none">
+
+ADR:
+- <ADR ID, its commit and its consistency-review verdict, or "none">
 
 Product owner escalation required because:
 - <only when Result is ESCALATE>
 ```
 
-### Phase 2 — Product Owner Escalation Report Template
+### Product Owner Escalation Report
 
-When `Result` is `ESCALATE`, also produce a Phase 2 Product Owner Escalation Report. This is the single canonical template that all callers (dev-loop, bug-loop, spec-breakdown, and any future orchestrator) use when handing off to the product owner. The report is plain markdown appended to the final output.
+The Architect writes this report whenever one of its skills returns `ESCALATE`: here after a consultation, and in `feature-architecture`, `spec-breakdown-review` and `architecture-consistency-review`, where the Architect is the role that is stuck and no consultation precedes it.
+The caller passes it to the product owner unchanged.
 
 ```text
 ## Product Owner Escalation Report
 
-Work item: <task or bug ID and path to its tracker file>
-Source skill / loop: <dev-loop | bug-loop | spec-breakdown | other>
+Subject: <task or bug ID and tracker path | spec or change-request ID and path | task plan of <spec or change-request ID>>
+Raised by: <dev-loop | bug-loop | feature-architecture | spec-breakdown-review (Gate 2) | architecture-consistency-review>
 Date: <YYYY-MM-DD>
 
 ### Original request
-<The blocked role's escalation request, verbatim — the four-field Problem / Attempted / Failed because / Question block.>
+<The Escalation Request block, verbatim.>
 
 ### Self-recovery attempts
-<What the blocked role tried before escalating, including retry counts, review cycles, or merge attempts.>
+<What was tried before escalating, with retry counts, review cycles or merge attempts; for an Architect skill, the options and checks it ran.>
 
 ### Architect analysis
-<Classification, root-cause analysis, and any directive the Architect issued (or "no resolution possible — see reason below").>
+<Classification, root cause, and any directive or rulings issued, or "no resolution possible".>
 
 ### Why product owner input is required
-<Precise reason the Architect cannot resolve: approved spec must change, contradictory constraints, etc.>
+<The approved spec or change-request intent must change, or the problem is unresolvable, and why.>
 
 ### Decision needed
-<Enumerated options for the product owner, each with its downstream effect:
-- Revise the spec — Planner edits spec and re-runs Gate 2.
-- Modify the task/bug — task or bug file is updated in place; work resumes.
-- Provide guidance — blocked role applies guidance and continues.
-- Defer — work item moves to blocked/deferred state.>
+<The options that apply to the subject, each with its effect:
+- Revise the spec — the Planner amends the spec on its open planning branch, or on an amendment planning branch once that branch has merged (git-conventions), and logs it in the Amendment Log; the Architect runs architecture-consistency-review on it; on PASS the Planner merges. The loop notes the amendment on each affected in-progress task, and the stopped item resumes.
+- Modify the task or bug — the product owner updates the work item file, or the Planner raises a change-request; the stopped item resumes and the Developer re-reads it.
+- Provide guidance — the guidance is recorded in the work item file; the stopped item resumes and the blocked role applies it.
+- Defer — the task or bug stays blocked with the reason noted; no loop resumes it until it is unblocked.>
 ```
+
+A stopped task or bug resumes once the product owner runs `ai-team task unblock <id>` or `ai-team bug unblock <id>`: the next loop run picks it up on its existing branch.
 
 ## Quality Criteria
 
-- The response addresses root cause, not symptoms.
-- Guidance is specific enough for the blocked role to continue without another clarification round.
-- The directive stays within the approved specification unless escalating to the product owner.
-- ADRs are created or amended only for durable architecture-affecting decisions.
-- The product owner escalation package includes the original work item, attempts, failure reason, Architect analysis, and precise decision needed.
+- The analysis names the root cause, not the symptom the role already reported.
+- Every finding still `Open` has a ruling.
+- The directive never changes approved scope; a needed scope change is escalated.
 
 ## Common Pitfalls
 
-- Repeating the failed role's troubleshooting without adding structural analysis.
 - Giving vague advice such as "refactor" or "simplify".
-- Silently changing approved scope.
-- Skipping product owner escalation when the spec must change.
-- Creating a loop of repeated Architect consultations instead of resolving or escalating.

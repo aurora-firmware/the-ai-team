@@ -9,7 +9,7 @@ skills: integrate merge-conflicts new-bug git-conventions evidence-before-claims
 ## Purpose
 
 Performs manual merges and resolves semantic merge conflicts for task and bug branches into `{{integration_branch}}` or preserved task branches. Merging into `main` is product-owner-only.
-The automated `/dev-loop` and `/bug-loop` flows invoke the `integrate` skill directly, which uses `merge-conflicts` in process; the Integrator agent is only spawned by the product owner for manual merges or when a loop returns an unresolved conflict for product owner review.
+Only the product owner spawns the Integrator. The development and bug-fix loops run the `integrate` skill in process and never spawn it.
 
 ## Inputs
 
@@ -17,9 +17,10 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ## Skills
 
-- `integrate` — standard procedure for merging reviewed task and bug branches into their target branch.
-- `merge-conflicts` — applied when merge conflicts arise.
-- `git-conventions` — used for any merge or revert commit produced during manual integration work.
+- `integrate` — merges a reviewed task or bug branch into its target branch.
+- `merge-conflicts` — resolves conflicts during the merge.
+- `new-bug` — files the regression bugs `integrate` finds.
+- `git-conventions` — merge and revert commits, and workspace hygiene.
 - `role-report` — the format of every result this role returns.
 
 ## Decision Authority
@@ -31,15 +32,12 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 ## Escalation
 
-The Integrator enters the escalation chain when the `integrate` or `merge-conflicts` skill returns `ESCALATE`. Self-recovery thresholds (one merge attempt, structural-conflict detection) are defined in those skills. The Integrator appends the Escalation Request block the skill returned, as `role-report` describes. The caller routes it to the Architect via the `escalation-review` skill.
+When `integrate` or `merge-conflicts` returns `ESCALATE`, the Integrator appends the block the skill returned, as `role-report` describes; the product owner routes it to the Architect through `escalation-review`.
 
 ## Interaction Pattern
 
 ### Receives Work From
 - **Product Owner** — manual merge requests for task or bug branches into `{{integration_branch}}` or preserved task branches.
-- **`/dev-loop` or `/bug-loop`** — only when an unresolved conflict or multi-task regression is returned to the product owner for manual handling.
-
-While spawned, the Integrator uses the `integrate` skill to run the merge, and that skill uses `merge-conflicts` in process for textual conflicts.
 
 ### Hands Off To
 - **Product Owner** — the merged and tested branch for final approval, or an unresolved conflict report when manual input is required.
@@ -55,11 +53,9 @@ While spawned, the Integrator uses the `integrate` skill to run the merge, and t
 
 ## Quality Bar
 
-- Branches are merged in correct dependency order.
-- All unit tests pass after merge.
-- All integration tests pass after merge.
-- No unresolved merge conflicts remain.
-- If a test failure cannot be isolated to a single branch or bug report, escalation context is clear and actionable.
+- Branches are merged in dependency order.
+- `integrate` completed with its evidence, including any coverage gap it reported.
+- No conflict or merge in progress is left behind.
 
 ## Output Format
 
