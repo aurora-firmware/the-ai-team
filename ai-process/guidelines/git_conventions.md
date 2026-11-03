@@ -25,7 +25,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 - Planning branches are created from `dev-agent` when a spec or change-request is created. Every planning artifact for that work is committed there, never directly on `dev-agent`.
   The Planner merges the planning branch into `dev-agent` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. There are two exceptions:
   - S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into dev-agent with `--no-ff` after Gate 1, once S-000 is `approved`.
-  - An [amendment planning branch](#amendment-planning-branch) that creates no tasks merges once the Architect's consistency review passes.
+  - An [amendment planning branch](#amendment-planning-branch) that creates no tasks merges once the Architect's consistency review passes, or once its row is committed when it carries only a reconciliation record.
   `dev-agent` therefore never carries a spec amendment without the task plan that implements it (cross-spec amendments follow the [Gate 1 rule](../processes/quality_gates.md#cross-spec-amendments)), except for those two exceptions. Abandoning a spec or change-request means the product owner deletes its planning branch.
 - Tasks, bugs, and change-requests live in the local tracker (`ai-team tracker path`), outside version control and outside every branch.
   Their lifecycle state is the frontmatter `status` field. Recording state, Work Logs, Diagnosis Logs, or Review Verdicts never creates a commit and never requires a branch switch.
@@ -45,12 +45,14 @@ When an approved spec already on `dev-agent` needs a breakdown and has no planni
 
 ### Amendment Planning Branch
 
-An approved spec amended after its planning branch merged gets a new planning branch. This covers completion-mode spec-truth reconciliation, the product owner's "Revise the spec" escalation decision, and spec drift found during development.
+An approved spec amended after its planning branch merged gets a new planning branch. This covers a spec that completion-mode spec-truth reconciliation finds stale, the product owner's "Revise the spec" escalation decision, and spec drift found during development. Follow-up tasks routed by reconciliation never need one: they go straight into the tracker as `pending`, exempt from Gate 2.
 
 1. The Planner opens `plan/S-NNN-<slug>` for the amended spec, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in [Opening a Planning Branch](#opening-a-planning-branch), skipping step 3.
-2. The Planner amends the spec, bumps its `version` (a spec-truth reconciliation row alone does not), records the change in its Amendment Log, and commits on the branch.
+2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, adds the `Reconciliation record:` row when reconciliation drives the amendment (that row bumps no `version`), and commits on the branch.
 3. The Architect runs the architecture consistency review on the amended spec. Any ADR it raises is committed on the same branch.
-4. On PASS, the Planner merges the branch into `dev-agent` with `--no-ff` and deletes it with `git branch -d`. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2, as for any planning branch. Follow-up tasks routed by spec-truth reconciliation are the exception: they are created `pending` and are exempt from Gate 2.
+4. On PASS, the Planner merges the branch into `dev-agent` with `--no-ff` and deletes it with `git branch -d`, never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2, as for any planning branch.
+
+A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
 
 ## Commit Message Format
 

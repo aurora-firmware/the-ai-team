@@ -71,11 +71,11 @@ These skills use a subset:
 | `change-request` | `PASS`, `FAIL`, `BLOCKED`, `ESCALATE` |
 
 **Next Owner** names who acts on this report next.
-A result that goes back to a running loop names that loop, which routes it on (to the Developer, the Reviewer, the Architect or integration); a role named outside a loop is spawned by the main session, and a loop named outside a loop run is one the product owner can start.
+A result that goes back to a running loop names that loop, which routes it on (to the Developer, the Reviewer, the Architect, the Planner or integration); a role named outside a loop is spawned by the main session, and a loop named outside a loop run is one the product owner can start.
 
 | Role | Allowed Next Owner values |
 |---|---|
-| Planner | `Product Owner`, `Architect`, `Development Loop`, `none` |
+| Planner | `Product Owner`, `Architect`, `Development Loop`, `Bug-Fix Loop`, `none` |
 | Architect | `Planner`, `Development Loop`, `Bug-Fix Loop`, `Product Owner`, `none` |
 | Developer | `Development Loop`, `Bug-Fix Loop`, `Architect`, `Product Owner`, `none` |
 | Reviewer | `Development Loop`, `Bug-Fix Loop`, `Architect`, `Product Owner`, `none` |

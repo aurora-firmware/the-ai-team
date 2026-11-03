@@ -37,12 +37,14 @@ An approved spec already on `{{integration_branch}}` that needs a breakdown and 
 
 ### Amendment Planning Branch
 
-An approved spec amended after its planning branch merged — by spec-truth reconciliation, the product owner's "Revise the spec" escalation decision, or drift found during development — gets a new planning branch:
+An approved spec amended after its planning branch merged — because spec-truth reconciliation found it stale, by the product owner's "Revise the spec" escalation decision, or for drift found during development — gets a new planning branch. Follow-up tasks routed by reconciliation never need one: they go straight into the tracker as `pending`, exempt from Gate 2.
 
 1. The Planner opens `plan/S-NNN-<slug>`, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in Opening a Planning Branch, skipping step 3.
-2. The Planner amends the spec, bumps its `version` (a spec-truth reconciliation row alone does not), records the change in its Amendment Log, and commits on the branch.
+2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, adds the `Reconciliation record:` row when reconciliation drives the amendment (that row bumps no `version`), and commits on the branch.
 3. The Architect runs the architecture consistency review on the amended spec and commits any ADR it raises on the same branch.
-4. On PASS, the Planner merges the branch (Merging a Planning Branch). If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2; follow-up tasks routed by spec-truth reconciliation are the exception, created `pending` with no Gate 2.
+4. On PASS, the Planner merges the branch (Merging a Planning Branch), never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2.
+
+A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
 
 ### Cross-Spec Amendments
 
@@ -56,7 +58,7 @@ The merge happens:
 
 - after Gate 2 passes, for a feature spec or change-request;
 - after Gate 1, once S-000 is `approved`, for S-000's own branch (only its bootstrap task plan waits for Gate 2);
-- after the Architect's consistency review passes, for an amendment planning branch that creates no tasks.
+- after the Architect's consistency review passes, for an amendment planning branch that creates no tasks, or once the row is committed, for one that carries only a `Reconciliation record:`.
 
 `{{integration_branch}}` never carries a spec amendment without the task plan that implements it, apart from those last two cases. Abandoning a spec or change-request means the product owner deletes its planning branch.
 

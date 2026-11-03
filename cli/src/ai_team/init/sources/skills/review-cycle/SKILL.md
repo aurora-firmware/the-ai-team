@@ -52,7 +52,7 @@ Each subagent starts cold, and the loop's context is the scarce resource:
 |---|---|---|
 | cheap | `haiku` | Mechanical, fully specified tasks: a rename, a config change, a transcription from the spec |
 | standard | `sonnet` | The default for the Developer and the Reviewer |
-| most capable | `opus` | The Architect, and the fresh Developer of the retry ladder |
+| most capable | `opus` | The Architect, the Planner, and the fresh Developer of the retry ladder |
 
 ### Reading a Role's Result
 
@@ -86,7 +86,7 @@ The loop resumes an `in-progress` item without asking the product owner.
 > "Implement the <task | bug> in the <task | bug> file `<path>` with the tdd skill. For a bug, the latest Diagnosis Log entry is the fix contract.
 > You are on branch `<branch>`; commit there.
 > The <task | bug> file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance, and any spec amendment, recorded in the file since that verdict.
+> If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance, and any spec or task amendment, recorded in the file since that verdict.
 > Return the Work Log handoff entry tdd Step 9 defines; the loop appends it to the file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
@@ -167,10 +167,17 @@ The escalation block is the one the Developer, the Reviewer or `integrate` retur
 
 **On `Result: PASS`** (Next Owner: the loop):
 
-1. Append the Architect's directive to the Work Log as `### Architect guidance — YYYY-MM-DD`, adding ` (re-review)` to the heading when step 4 continues at Step 3.
+1. Append the Architect's directive to the Work Log as `### Architect guidance — YYYY-MM-DD`, adding ` (re-review)` to the heading when step 5 continues at Step 3.
 2. Record each entry of its `Finding rulings` under the latest Review Verdict. An upheld finding stays `Open`.
 3. Make each **parked** finding durable before going on, never just a line in the chat: file it with the `new-bug` skill, naming this work item and the finding, or record it under `### Recorded deviation — YYYY-MM-DD` in the work item file with the Architect's rationale. Parked findings never count toward the cap.
-4. Continue:
+4. When the Classification is `work-item`, the Architect has blocked the item. **Spawn the Planner subagent** (tier: most capable) with this prompt:
+
+   > "The Architect blocked the <task | bug> in `<path>` with a `work-item` ruling: its latest `### Architect guidance` entry names the amendment. Amend the file as it requires, and anything else the item needs to continue, and note the change under `## Work Log` as `### Task amendment — YYYY-MM-DD`.
+   > If the item can continue, run `ai-team <task | bug> unblock <id>` and return Next Owner: <loop name>. Otherwise leave it blocked and return `Result: ESCALATE`, Next Owner: Product Owner, with the escalation block.
+   > Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+   When the Planner unblocked the item, go to Step 2. Otherwise return `ESCALATED` with the Planner's escalation block; the item stays `blocked`.
+5. Continue:
    - from a diagnosis escalation: return `DIAGNOSE`;
    - when a finding is upheld or the directive asks for changes on the branch: Step 2;
    - when the directive only settles an integration question: Step 6;
@@ -198,7 +205,7 @@ Delete the review package unless the outcome is `DIAGNOSE`, and hand the loop on
 | `DIAGNOSE` | Bug, `in-progress` | Runs its diagnosis step, then Step 2 |
 | `WAITING` | `in-progress`; bugs on its branch are unresolved | Skips the item this run |
 | `REGRESSION` | `in-progress`; merge reverted, branch preserved, regression bugs filed | Stops |
-| `ESCALATED` | `blocked` | Stops with the Phase 2 report |
+| `ESCALATED` | `blocked` | Stops with the Phase 2 report, or the Planner's escalation block |
 | `STOPPED` | Unchanged | Stops and reports the cause |
 
 Return `STOPPED` also when a git operation fails, other than a checkout refused on a dirty tree (Workspace Hygiene) or a merge conflict (`integrate`): report the git error before attempting anything else.

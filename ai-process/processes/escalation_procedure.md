@@ -38,7 +38,7 @@ Once the role exceeds its threshold, it stops retrying and enters Phase 2.
 
 - **Who:** The Architect.
 - **How:** The blocked role sends a structured request describing the problem, what was attempted, and why it failed.
-- **Scope:** The Architect analyses the problem, foresees impact on other tasks and the broader codebase, and — within the bounds of the approved spec — issues directives or correction requests. The Architect may recommend task-scope adjustments, clarifying tasks, or task-description amendments, but the Planner owns task-plan edits. The Architect does not modify implementation or test files.
+- **Scope:** The Architect analyses the problem, foresees impact on other tasks and the broader codebase, and — within the bounds of the approved spec — issues directives or correction requests. The Architect may recommend task-scope adjustments, clarifying tasks, or task-description amendments, but the Planner owns task-plan edits. When the Architect rules in a loop's review cycle that the task or bug file must change, it blocks the item with the reason, and the loop has the Planner amend the item in the same run. If the item can continue, the Planner unblocks it and the cycle continues; otherwise the loop stops for the product owner. The Architect does not modify implementation or test files.
 - **Rounds:** The Architect provides one consultation response per escalation.
 - **Escalation trigger:** The Architect escalates to the product owner only when: (a) the problem requires changing an approved specification, or (b) the Architect cannot resolve it after full analysis.
 
