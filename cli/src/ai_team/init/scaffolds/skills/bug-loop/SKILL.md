@@ -81,7 +81,7 @@ Read the result (`review-cycle`, Reading a Role's Result):
 | `DONE` | Step 2 |
 | `WAITING` | Note the bug and its unresolved regression bugs for the run summary; Step 2 |
 | `REGRESSION` | Step 7. The filed bugs are `open` and the next run works them first; the parent bug resumes once they are resolved |
-| `ESCALATED` | Step 7, with the Phase 2 Product Owner Escalation Report |
+| `ESCALATED` | Step 7, with the report or escalation block `review-cycle` returned |
 | `STOPPED` | Step 7, with the cause |
 
 ### Step 7: Loop Complete

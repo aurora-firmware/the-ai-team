@@ -10,7 +10,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 | Branch | Purpose | Who touches it |
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
-| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2 (amendment planning branches: after the Architect's consistency review passes); Architects commit ADRs raised outside planning here |
+| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; Architects commit ADRs raised outside planning here |
 | `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
 | `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
 | `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts |
@@ -80,7 +80,7 @@ chore(plan): merge S-004 billing export
 | Role | Commits when | Branch |
 |---|---|---|
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
-| **Planner** | One merge commit per planning branch after Gate 2 passes (S-000: after Gate 1, once S-000 is `approved`; an amendment planning branch that creates no tasks: after the Architect's consistency review passes) | `dev-agent` |
+| **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts | `task/T-NNN-…` or `bug/B-NNN-…` |
 | **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `dev-agent` |
 | **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |

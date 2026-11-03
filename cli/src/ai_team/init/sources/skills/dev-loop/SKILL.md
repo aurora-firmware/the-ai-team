@@ -65,7 +65,7 @@ Then go to Step 5.
 | `DONE` | Step 2 |
 | `WAITING` | Note the task and its unresolved bugs for the run summary; Step 2 |
 | `REGRESSION` | Step 6. Next action: `/bug-loop` for the filed bugs, then `/dev-loop`, which resumes the task and retries its integration |
-| `ESCALATED` | Step 6, with the Phase 2 Product Owner Escalation Report |
+| `ESCALATED` | Step 6, with the report or escalation block `review-cycle` returned |
 | `STOPPED` | Step 6, with the cause |
 
 With a single-task argument, go to Step 6 after any outcome.

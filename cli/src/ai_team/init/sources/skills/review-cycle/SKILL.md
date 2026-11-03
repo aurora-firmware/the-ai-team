@@ -176,7 +176,7 @@ The escalation block is the one the Developer, the Reviewer or `integrate` retur
    > If the item can continue, run `ai-team <task | bug> unblock <id>` and return Next Owner: <loop name>. Otherwise leave it blocked and return `Result: ESCALATE`, Next Owner: Product Owner, with the escalation block.
    > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-   When the Planner unblocked the item, go to Step 2. Otherwise return `ESCALATED` with the Planner's escalation block; the item stays `blocked`.
+   When the Planner unblocked the item, return `DIAGNOSE` from a diagnosis escalation, otherwise go to Step 2. When it did not, return `ESCALATED` with the Planner's escalation block; the item stays `blocked`.
 5. Continue:
    - from a diagnosis escalation: return `DIAGNOSE`;
    - when a finding is upheld or the directive asks for changes on the branch: Step 2;
