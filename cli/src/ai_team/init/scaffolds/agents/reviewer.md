@@ -3,7 +3,7 @@ name: reviewer
 description: Reviews completed task or bug-fix work after Developer handoff. Caller must provide the task or bug file, source branch, relevant diff or changed files, test evidence, and expected verdict location.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
-skills: code-review new-bug coding-standards evidence-before-claims role-report
+skills: code-review debug new-bug coding-standards evidence-before-claims role-report
 ---
 
 ## Purpose
@@ -19,6 +19,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 
 - `code-review` — the two-stage review (Stage 1 Spec Compliance, Stage 2 Code Quality) and the Review Verdict.
 - `coding-standards` — the framework standards Stage 2 checks, under the project's coding guidelines.
+- `debug` — only its fix contract, which a bug fix's Diagnosis Log must meet; the Reviewer never runs its procedure.
 - `new-bug` — filing a defect found outside the work item's scope.
 - `role-report` — the format of every result this role returns.
 

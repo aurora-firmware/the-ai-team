@@ -88,7 +88,7 @@ The `Base commit:` line the loop wrote there stays as it is; the loop reads it t
 
 ## Inspection and Demonstration Tasks
 
-These apply when the task's Verification section holds an `Inspection:` or `Demonstration:` line, detected as the `new-task` skill's Verification Methods describe.
+These apply when the task's Verification section holds an `Inspection:` or `Demonstration:` line, anywhere in the section (a template comment may precede it).
 Work through them in place of Steps 2-6, and write no test:
 
 1. Make the change within Files to Touch.

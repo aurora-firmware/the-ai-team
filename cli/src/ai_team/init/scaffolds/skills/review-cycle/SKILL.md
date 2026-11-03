@@ -71,11 +71,13 @@ The loop resumes an `in-progress` item without asking the product owner.
 
 1. Find the branch with `git branch --list '<kind>/<ID>-*'` and BASE in the Work Log. If either is missing, return `STOPPED`, naming what is missing.
 2. Check out the branch (Workspace Hygiene first).
-3. Choose where to re-enter, from the work item file:
+3. When an Amendment Log row of the item's approved spec names this item and the work item file does not cite it yet (a product owner's "Revise the spec" decision), add `### Spec amendment — YYYY-MM-DD` under `## Work Log`, citing the row, and re-enter at Step 2.
+4. Otherwise choose where to re-enter, from the work item file:
    - A bug with no `### Diagnosis` entry: return `DIAGNOSE`.
-   - More `### Session` entries under `## Work Log` than `### Review Verdict` entries: Step 3.
-   - The latest Review Verdict is PASS and none of its findings is `Open`: check for regression bugs, then Step 6. Run `ai-team list bugs --json`; when any bug whose `source_branch` is this branch is not `resolved`, return `WAITING` with their IDs.
-   - Otherwise: Step 2. The Developer answers the open findings and applies any guidance recorded since the latest verdict.
+   - More `### Session` and `### Architect guidance — … (re-review)` entries under `## Work Log` than `### Review Verdict` entries: Step 3.
+   - The latest Review Verdict is PASS with a `⚠️ Cannot verify from diff` item that has no resolution under it: Step 4.
+   - The latest Review Verdict is PASS and none of its findings is `Open`: Step 6.
+   - Otherwise: Step 2. The Developer answers the open findings and applies any guidance or amendment recorded since the latest verdict.
 
 ### Step 2: Implementation
 
@@ -84,7 +86,7 @@ The loop resumes an `in-progress` item without asking the product owner.
 > "Implement the <task | bug> in the <task | bug> file `<path>` with the tdd skill. For a bug, the latest Diagnosis Log entry is the fix contract.
 > You are on branch `<branch>`; commit there.
 > The <task | bug> file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
-> If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance recorded in the file since that verdict.
+> If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance, and any spec amendment, recorded in the file since that verdict.
 > Return the Work Log handoff entry tdd Step 9 defines; the loop appends it to the file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
@@ -136,6 +138,7 @@ Count each failed attempt (a FAIL verdict, or a PASS turned into a failure in St
 ### Step 6: Integration
 
 Confirm that the work item file holds the Developer's Work Log entry, the PASS verdict, and for a bug its Diagnosis Log entry.
+Run `ai-team list bugs --json`; when any bug whose `source_branch` is this branch is not `resolved`, return `WAITING` with their IDs.
 Invoke the `integrate` skill with `<branch> <target-branch>`.
 It resolves merge conflicts in process with `merge-conflicts`; a conflict reaches this cycle only as `ESCALATE`.
 Run the after-point Workspace Hygiene check, then act on its `Result`:
@@ -164,7 +167,7 @@ The escalation block is the one the Developer, the Reviewer or `integrate` retur
 
 **On `Result: PASS`** (Next Owner: the loop):
 
-1. Append the Architect's directive to the Work Log as `### Architect guidance — YYYY-MM-DD`.
+1. Append the Architect's directive to the Work Log as `### Architect guidance — YYYY-MM-DD`, adding ` (re-review)` to the heading when step 4 continues at Step 3.
 2. Record each entry of its `Finding rulings` under the latest Review Verdict. An upheld finding stays `Open`.
 3. Make each **parked** finding durable before going on, never just a line in the chat: file it with the `new-bug` skill, naming this work item and the finding, or record it under `### Recorded deviation — YYYY-MM-DD` in the work item file with the Architect's rationale. Parked findings never count toward the cap.
 4. Continue:

@@ -65,8 +65,8 @@ For a bug fix:
 - The Fix Verification steps were run, or the Work Log explains why they could not be.
 - No unrelated behavior was added.
 
-**Inspection and demonstration tasks** — a task whose Verification section holds an `Inspection:` or `Demonstration:` line, detected as the `new-task` skill's Verification Methods describe, has no tests of its own. Check also:
-- **The planning choice** — the method fits the change by the `new-task` rule for choosing the method. A change that adds or alters product behavior without a test is a finding.
+**Inspection and demonstration tasks** — a task whose Verification section holds an `Inspection:` or `Demonstration:` line, anywhere in the section (a template comment may precede it), has no tests of its own. Check also:
+- **The planning choice** — a change that adds or alters product behavior without a test is a finding.
 - **The record** — for an inspection, the Work Log names each criterion and reference checked, each conflict found and how it was fixed, and the result; re-check those claims against the changed artifact and every listed reference (read S-000 now, when listed). For a demonstration, it names the command or steps run and the observed outcome, which matches the expected observation. A missing record, or one that omits a listed criterion, reference or step, is a finding.
 
 ### Step 4: Stage 2 — Code Quality
