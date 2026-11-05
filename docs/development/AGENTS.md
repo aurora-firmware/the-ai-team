@@ -7,6 +7,7 @@ the root [`AGENTS.md`](../../AGENTS.md).
 
 | Document | Where |
 |---|---|
+| Entry point for developers: where rules live, writing style, pull request and issue formats | [`contributing.md`](contributing.md) |
 | Project rules and commands agents read first | [`AGENTS.md`](../../AGENTS.md) |
 | Framework rules, the single source of truth | [`ai-process/`](../../ai-process/) (processes, guidelines, architecture) |
 | Architecture of the solution components | [`architecture.md`](architecture.md) |

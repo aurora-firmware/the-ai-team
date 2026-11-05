@@ -2,7 +2,9 @@
 
 > Agent-development guide for this repository. For user-facing setup and usage,
 > see [README.md](README.md) and `guides/`. The index of internal documents is
-> [`docs/development/AGENTS.md`](docs/development/AGENTS.md).
+> [`docs/development/AGENTS.md`](docs/development/AGENTS.md). Before opening a pull
+> request or filing an issue, read
+> [`docs/development/contributing.md`](docs/development/contributing.md).
 
 This repository defines the AI-team framework itself: the rules in `ai-process/`,
 the authoring contracts in `guides/`, and the CLI/package implementation in

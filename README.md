@@ -238,16 +238,4 @@ See `guides/setup_guide.md` for the complete file list, AGENTS.md starter templa
 
 ## Contributing to This Project
 
-Changes to the framework follow the same workflow the framework defines, with the exceptions listed in [`AGENTS.md`](AGENTS.md) (review fixes on an open PR, and small housekeeping changes).
-`ai-process/` is the single source of truth: where anything else is unclear, it decides.
-
-- **Changing a rule** (workflow, standard, convention): update `ai-process/` first, then update any agents or skills that implement the changed rule.
-- **Changing an agent or skill**: verify that the change is consistent with — or explicitly revises — the relevant ai-process documents.
-- **Changing bundled init content**: update the package-owned source assets in `cli/src/ai_team/init/sources/` (`agents/`, `skills/`, `project/`, and `root/`), then, for `agents/`, `skills/` and `project/`, run `python scripts/sync_init_scaffolds.py` from `cli/` and commit the regenerated `cli/src/ai_team/init/scaffolds/` so `ai-team init` ships the updated content. `root/` and `cli/src/ai_team/templates/` are read at runtime and need no sync.
-- **Changing a CLI command or flag**: update the source, then run `bash cli/scripts/gen_docs.sh` and commit the updated `cli/docs/commands.md` so the reference stays current.
-- **Changing a rule a README diagram shows**: update `docs/images/readme/generate_diagrams.py` and rerun it; the command is in its docstring.
-- **Architecture-affecting decisions**: record an ADR in `docs/ai-team/decisions/` before implementing.
-
-The ai-process is the specification.
-Agents and skills are the implementation.
-Never let them contradict each other.
+Start with the [contributing guide](docs/development/contributing.md): how to set up, where each rule lives, and the pull request and issue formats.
