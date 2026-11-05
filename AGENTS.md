@@ -79,7 +79,8 @@ the format check.
 | `cli/src/ai_team/templates/` | Source of truth for CLI artifact templates |
 | `cli/docs/` | User and maintainer documentation for the CLI |
 | `docs/ai-team/` | Spec and ADR artifacts for this repo; tasks, bugs and change-requests live in the local tracker (`ai-team tracker path`) |
-| `docs/development/` | Internal developer docs: architecture, tech stack, and the index of internal documents |
+| `docs/development/` | Internal developer docs: architecture, tech stack, coding guidelines, and the index of internal documents |
+| `docs/images/readme/` | README diagrams. When a rule they show changes, update `generate_diagrams.py` and rerun it (the command is in its docstring) |
 
 `cli/src/ai_team/init/scaffolds/` is generated from `sources/project/`,
 `sources/agents/` and `sources/skills/`.
@@ -115,5 +116,5 @@ Do not edit generated scaffolds to change framework behavior.
   - `guides/setup_guide.md`
   - `ai-process/processes/workflow_overview.md`
 
-If a change would alter the framework contract, update the owning spec or guide
-before changing the implementation.
+If a change would alter the framework contract, update `ai-process/` and the
+owning spec or guide before changing the implementation.

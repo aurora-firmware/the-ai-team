@@ -2,8 +2,8 @@
 
 Internal documentation for the people and agents developing ai-team (S-000,
 Internal documentation). None of it is delivered to adopting projects. This file
-is the index of those documents; the rules agents follow are in the root
-[`AGENTS.md`](../../AGENTS.md).
+is the index of those documents; the commands and conventions agents follow are in
+the root [`AGENTS.md`](../../AGENTS.md).
 
 | Document | Where |
 |---|---|

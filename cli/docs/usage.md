@@ -530,8 +530,7 @@ Hand edits to generated files are overwritten by that refresh.
       archive/                ← superseded spec versions (not created by init;
                               │  spec IDs and validation also scan it)
     decisions/                ← Architecture Decision Records (ADR-NNN-*.md)
-    docs/                     ← project-specific docs: coding guidelines,
-                              │  commands, stack-specific notes
+    docs/reports/             ← on-demand status reports (git-ignored by default)
   .ai-team/tracker/           ← local work-item tracker ([tracker] dir; git-ignored)
     tasks/                    ← T-NNN-*.md; state is the status field
     bugs/                     ← B-NNN-*.md; state is the status field

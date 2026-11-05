@@ -61,7 +61,7 @@ overflows = []
 @cache
 def load(key):
     path, wght = FONT_FILE[key]
-    font = TTFont(path)
+    font = TTFont(path, recalcTimestamp=False)
     return instancer.instantiateVariableFont(font, {"wght": wght}) if wght else font
 
 
@@ -152,7 +152,7 @@ def band(x, y, w, h, label, lx, d=""):
 def font_face(key):
     path, wght = FONT_FILE[key]
     family, weight = FAMILY[key]
-    font = TTFont(path)
+    font = TTFont(path, recalcTimestamp=False)
     if wght:
         font = instancer.instantiateVariableFont(font, {"wght": wght})
     opts = subset.Options()
@@ -206,6 +206,8 @@ TOP = 24  # the title block is taller than the content coordinates assume
 
 
 def svg(w, h, title, sub, body):
+    fits(title, "title", w - 40, "title")
+    fits(sub, "sub", w - 40, "subtitle")
     head = ('<g class="n d1">' + txt(w // 2, 54, title, "title")
             + f'<rect x="{w // 2 - 70}" y="70" width="140" height="3" rx="1.5" fill="url(#brand)"/>'
             + txt(w // 2, 100, sub, "sub") + "</g>")
@@ -268,8 +270,7 @@ def two_gates():
     b.append(arrow(f"M891,{cy} H897", "g", "d9"))
     b.append(arrow(f"M971,{cy} H981", "ok", "d10"))
     b.append(txt(560, 346, "Blocked work escalates:  Developer / Reviewer / Integrator  →  Architect  →  Product Owner", "s", wrap="d11"))
-    return svg(1120, 376, "You approve twice. The agents do the rest.",
-               "Two product-owner gates. Everything between them runs on its own.", "\n".join(b))
+    return svg(1120, 376, "You decide what gets built and what ships.", "The agents do the rest.", "\n".join(b))
 
 
 # ------------------------------------------------------------ 01 process overview
@@ -290,8 +291,11 @@ def process_overview():
         if i < 5:
             b.append(arrow(f"M163,{y + 47} V{y + 72}", "g", f"d{3 + i}"))
         y += 74
-    b.append(card(286, 254, 118, 46, "ghost", "change-request", "skips Gate 1", "d3"))
-    b.append(arrow("M345,301 V425 H282", "g", "d5", dashed=True))
+    b.append('<g class="n d3"><rect x="286" y="236" width="118" height="70" rx="10" '
+             f'fill="{CARD}" stroke="{GRAY}" stroke-width="1.5" stroke-dasharray="5 4"/>'
+             + txt(345, 257, "change-request", "t", fill=BODY)
+             + txt(345, 276, "Product Owner", "s") + txt(345, 294, "approves it", "s") + "</g>")
+    b.append(arrow("M345,307 V425 H282", "g", "d5", dashed=True))
     b.append(arrow("M279,573 H425 V203 H507", "g", "d8"))
 
     # panel B
