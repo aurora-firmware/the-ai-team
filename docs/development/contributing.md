@@ -1,7 +1,7 @@
 # Contributing
 
 Start here to work on ai-team, whether you are a person or an agent.
-This guide routes you to the document that owns each rule, and holds the conventions that have no other home: writing style, pull requests and issues.
+This guide routes you to the document that owns each rule, and holds the conventions that have no other home: writing style, and how to use the pull request and issue templates.
 
 ## Get Set Up
 
@@ -25,7 +25,8 @@ This guide routes you to the document that owns each rule, and holds the convent
 ## Choose a Path
 
 Feature work follows the full process in [`workflow_overview.md`](../../ai-process/processes/workflow_overview.md).
-Review fixes and small housekeeping changes do not; [`AGENTS.md`](../../AGENTS.md) lists these exceptions and their branch rules.
+Review fixes and small housekeeping changes do not; [`AGENTS.md`](../../AGENTS.md) lists these exceptions.
+Name these branches as you like.
 
 ## Update What the Change Touches
 
@@ -48,84 +49,20 @@ Review fixes and small housekeeping changes do not; [`AGENTS.md`](../../AGENTS.m
 
 Write the title like a commit message: `docs(readme): enlarge the diagram text`.
 
-Use this body, and add a section when reviewers need more, such as upgrade impact:
-
-```markdown
-## Summary
-
-<what changed and why>
-
-## Verification
-
-- `<command you ran>`: <its result>
-```
+Fill in the [pull request template](../../.github/pull_request_template.md), and add a section when reviewers need more, such as upgrade impact.
 
 Lint and test must pass before merging.
 
 ## Issues
 
 The tasks, bugs and change-requests of the ai-team process live in the local tracker.
-These formats are for GitHub issues.
+These templates are for GitHub issues.
 
-Set the issue type, using a label if the repository has no matching type.
+| Type | Title | Template |
+|---|---|---|
+| Bug | `Bug: <short description>` | [`bug.md`](../../.github/ISSUE_TEMPLATE/bug.md) |
+| Feature | `Feature: <short description>` | [`feature.md`](../../.github/ISSUE_TEMPLATE/feature.md) |
+| Task | `Task: <short description>` | [`task.md`](../../.github/ISSUE_TEMPLATE/task.md) |
+
+Creating an issue from the command line? Use the same title, sections and issue type.
 Record priority in the Project's priority field, never in the body or as a label.
-
-### Bug
-
-Title: `Bug: <short description>`
-
-```markdown
-## Expected Behavior
-
-<what should happen>
-
-## Actual Behavior
-
-<what happens instead>
-
-## Steps to Reproduce
-
-1. ...
-
-## Logs
-
-<logs or stack trace in a fenced code block; omit this section if there are none>
-```
-
-### Feature
-
-Title: `Feature: <short description>`
-
-```markdown
-## Motivation
-
-<why this is needed>
-
-## Desired Change
-
-<what the feature or change should do>
-
-## Definition of Done
-
-- [ ] ...
-```
-
-### Task
-
-Title: `Task: <short description>`
-
-A task is self-contained work, such as a chore, migration step or refactor, that needs no product decisions.
-
-```markdown
-## Description
-
-<what needs to be done>
-
-## Context
-
-<optional: why this task exists, or what it is part of>
-
-## Checklist
-
-- [ ] ...
-```
