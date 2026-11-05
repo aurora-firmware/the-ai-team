@@ -12,8 +12,9 @@ The AI Team Definition is a reusable framework that lets a team of AI agents bui
 It defines the rules the agents follow (how work is planned, implemented, reviewed, integrated and approved) and installs those rules into any project in one step, together with the agent roles and procedures that carry them out and the tooling that supports them.
 With the framework in place, the product owner hands feature work and bug fixes to the agents and gets back changes that have been tested, reviewed and integrated, along with a clear record of what was decided and why.
 
-The product owner stays in control of two decisions: approving a specification before it is broken into tasks, and approving integrated work before it reaches the main line.
-Everything between those gates runs without the product owner, and the agents stop and ask only when the rules say they must.
+The product owner decides what gets built and what ships: they approve each specification or change-request before it is broken into tasks, and approve integrated work before it reaches the main line.
+They also start the development and bug-fix loops and decide escalations.
+The agents do the rest, and stop to ask only when the rules say they must.
 
 ai-team is made of four components (see [S-000](docs/ai-team/specs/S-000-system-overview.md)):
 
@@ -22,7 +23,8 @@ ai-team is made of four components (see [S-000](docs/ai-team/specs/S-000-system-
 - **CLI** (`cli/`): the `ai-team` command that people and agents use to install and update the framework, check a project's layout, and create, validate and move specs, tasks, bugs, ADRs and change-requests through their lifecycle, with tasks, bugs and change-requests kept in a local tracker outside the project's history.
 - **End-user documentation**: how to install, set up, customise and use ai-team (`cli/docs/`, `guides/`).
 
-When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills, `.ai-team.toml`, and optionally starter root guidance into that project's repository. The `.claude/` folder is **per-project local configuration**: it is not part of this framework's deliverable and, in this repository, is git-ignored and used only when running agents *inside this repo*.
+When a project runs `ai-team init`, the CLI writes the project skeleton, the exported agents and skills (under `.claude/`), `.ai-team.toml`, and optionally starter root guidance into that project's repository.
+This repository's own `.claude/` folder is git-ignored local configuration, used only when running agents here; `init` does not read or export it.
 
 <p align="center">
   <img src="docs/images/readme/04_init_stamp.svg" alt="This repository's four components (team definition, generators, CLI, end-user docs) feed the ai-team init command, which writes .claude/agents, .claude/skills, the ai-team artifact folders, .ai-team.toml, an optional AGENTS.md and the local tracker into any project" width="100%">
@@ -53,7 +55,7 @@ Work moves through three phases.
 The product owner shapes and approves the specification, the agents plan and build it, and the product owner signs off on the result.
 
 <p align="center">
-  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="100%">
+  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1 and is approved by the product owner instead. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="100%">
 </p>
 
 Inside both loops every task or bug goes through the same review cycle: it is integrated only after the Reviewer passes it.
@@ -182,14 +184,6 @@ ai-team report
 
 The action skills use those commands internally. For example, `/new-task` delegates file creation to `ai-team task new`, `/new-bug` delegates to `ai-team bug new`, `/change-request` delegates to `ai-team change-request new`, and `/status-report` delegates to `ai-team status` plus `ai-team report`.
 
-The most common loop is:
-
-1. Create or approve a spec.
-2. Break it into tasks; they live in the local tracker (`ai-team tracker path`), outside version control.
-3. Run `/dev-loop` to implement, review, integrate, and complete tasks.
-4. Run `/bug-loop` for open bugs.
-5. Run `ai-team status` and `ai-team report` for Gate 5 sign-off context.
-
 After initialization, still fill in your project's `AGENTS.md`, stack-specific commands, and coding guidelines (by default `docs/development/coding_guidelines.md`; name another location in the project guidance).
 Keep the framework files generic unless you intentionally fork the process.
 
@@ -197,15 +191,16 @@ Keep the framework files generic unless you intentionally fork the process.
   <img src="docs/images/readme/06_quality_gates.svg" alt="Five gates on a timeline from feature request to main: 1 spec approval by the Product Owner, 2 task plan preflight by the Architect, 3 code review by the Reviewer, 4 integration tests by the integration procedure, 5 final sign-off by the Product Owner; gates 2 to 4 are automated" width="100%">
 </p>
 
-The normal workflow is:
+The workflow is:
 
-1. The product owner and Planner shape a specification; the product owner approves it at Gate 1.
-2. Architect decides how the approved spec is built (feature architecture: technology and design, recorded in ADRs and the architecture documents).
-3. Planner decomposes the approved spec into tasks.
-4. Architect validates the task plan at Gate 2.
-5. The product owner starts `/dev-loop`; Gate 3 code review and Gate 4 integration run inside the loop.
-6. Bugs are filed in the local tracker and handled through `/bug-loop`.
-7. The product owner approves the final `dev-agent` → `main` merge at Gate 5.
+1. The product owner and Planner shape a specification, and the product owner approves it at Gate 1. A smaller change can use a change-request instead, which the product owner also approves.
+2. The Architect decides how it is built and records that in ADRs and the architecture documents.
+3. The Planner breaks it into tasks, kept in the local tracker (`ai-team tracker path`) outside version control.
+4. The Architect validates the task plan at Gate 2.
+5. The product owner starts `/dev-loop`, which implements, reviews and integrates each task. Gate 3 code review and Gate 4 integration run inside the loop.
+6. Bugs are filed in the local tracker, and the product owner starts `/bug-loop` to fix them.
+7. The Architect checks that each approved spec the work touched is still true.
+8. The product owner runs `/status-report` and approves the `dev-agent` → `main` merge at Gate 5.
 
 See `guides/setup_guide.md` for the complete file list, AGENTS.md starter template, and verification steps.
 
@@ -227,12 +222,12 @@ See `guides/setup_guide.md` for the complete file list, AGENTS.md starter templa
 │   ├── processes/       Workflow definitions, quality gates, escalation procedures
 │   ├── guidelines/      Coding standards, review checklists, markdown conventions
 │   └── architecture/    AI team structure: roles, components, boundaries
-├── docs/development/    Internal developer docs: architecture, tech stack, document index
+├── docs/development/    Internal developer docs: architecture, tech stack, coding guidelines, document index
+├── docs/images/readme/  README diagrams and the script that generates them
 ├── docs/ai-team/        This repo's own managed artifacts (see `[project] dir` in .ai-team.toml)
 │   ├── specs/           Feature specifications (with archive/ for superseded versions)
 │   ├── decisions/       Architecture Decision Records
-│   └── docs/            Project-specific commands, coding conventions, operations,
-│                        and generated reports under docs/reports/
+│   └── docs/reports/    On-demand status reports (git-ignored)
 ├── .ai-team/tracker/    Local, git-ignored work-item tracker: tasks, bugs, and change-requests
 │                        (state is each file's status field; see `ai-team tracker path`)
 ├── guides/              Adopter setup and customization guides, and the authoring contracts
@@ -250,6 +245,7 @@ Changes to the framework follow the same workflow the framework defines, with th
 - **Changing an agent or skill**: verify that the change is consistent with — or explicitly revises — the relevant ai-process documents.
 - **Changing bundled init content**: update the package-owned source assets in `cli/src/ai_team/init/sources/` (`agents/`, `skills/`, `project/`, and `root/`), then, for `agents/`, `skills/` and `project/`, run `python scripts/sync_init_scaffolds.py` from `cli/` and commit the regenerated `cli/src/ai_team/init/scaffolds/` so `ai-team init` ships the updated content. `root/` and `cli/src/ai_team/templates/` are read at runtime and need no sync.
 - **Changing a CLI command or flag**: update the source, then run `bash cli/scripts/gen_docs.sh` and commit the updated `cli/docs/commands.md` so the reference stays current.
+- **Changing a rule a README diagram shows**: update `docs/images/readme/generate_diagrams.py` and rerun it; the command is in its docstring.
 - **Architecture-affecting decisions**: record an ADR in `docs/ai-team/decisions/` before implementing.
 
 The ai-process is the specification.
