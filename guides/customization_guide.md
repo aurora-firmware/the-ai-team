@@ -20,7 +20,6 @@ Artifact templates (for example task, bug, spec, and ADR templates) are bundled 
 
 Exported skill files in `.claude/skills/` may be edited for your project, but they are overwritten only when an upgrade updates the agents and skills (you answer yes to that question, or pass `--update-skills` or `--force`), or on an adoption answered yes or run with `--force`.
 Keep `.claude/` under version control so `git diff` shows what `init --update-skills` replaced.
-The integration branch is a project setting with no per-run override.
 
 ### Must Customize
 

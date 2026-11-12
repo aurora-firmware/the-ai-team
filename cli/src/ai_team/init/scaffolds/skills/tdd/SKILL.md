@@ -57,6 +57,7 @@ Clean up without changing behavior, then run all tests again.
 ### Step 7: Commit the Cycle
 
 Commit the red → green → refactor cycle on the assigned `task/…` or `bug/…` branch with the `git-conventions` skill.
+When code came before its test, remove the code, commit the failing test on its own, then write the code against it in the next commit; a failing test in a branch's history is acceptable.
 
 ### Step 8: Repeat
 
@@ -120,7 +121,7 @@ Question: [the guidance needed to continue within the approved specification]
 
 ## Output Format
 
-- **Commits** — tests and implementation (or the inspected or demonstrated change) on the assigned branch, one per cycle.
+- **Commits** — tests and implementation (or the inspected or demonstrated change) on the assigned branch, one per cycle, plus the failing-test commit of a Step 7 recovery.
 - **Work Log handoff** — the Step 9 entry.
 
 ## Quality Criteria
@@ -139,7 +140,7 @@ These thoughts mean stop and return to the test-first cycle.
 | "It is too simple to need a test first." | Simple code breaks too. The test takes a minute and fixes the behavior in place. |
 | "I already wrote the code; deleting it is wasteful." | Rewriting from a failing test gives code you can trust; tests bolted on afterwards do not. |
 | "I will add the tests right after." | A test written after the code passes on its first run, so it proves nothing. |
-| "I will break the code afterwards to show the test fails." | Breaking code after the fact is not a red step: remove the code, commit the failing test, then restore the code. Failing tests in a branch's history are acceptable. |
+| "I will break the code afterwards to show the test fails." | Breaking code after the fact is not a red step; recover as Step 7 says. |
 | "I manually checked it, so it works." | A manual check is not repeatable or recorded. The next change breaks it unnoticed. |
 
 ## Common Pitfalls
