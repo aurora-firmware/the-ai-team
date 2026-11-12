@@ -15,6 +15,7 @@ Argument: `$ARGUMENTS`
 
 - **Optional:** one task ID or task branch (`T-012` or `task/T-012-my-feature`). The loop then processes only that task and stops after it.
 - Without an argument, the loop processes the whole queue.
+- Each single-task run repeats the baseline guard; one run over the whole queue pays for it once.
 
 Tasks live in the local tracker, outside version control; their state is the frontmatter `status`.
 The loop reads and changes it only through the `ai-team` CLI:
@@ -43,7 +44,7 @@ Anything else stops the loop with: "Task <task-id> is not a pending or in-progre
 **Without an argument:**
 
 1. **Resume first.** Take the first `in-progress` task (`ai-team list tasks --state in-progress`) that has not returned `WAITING` in this run, and go to Step 3.
-2. **Then pending work.** From `ai-team list tasks --state pending` (`planned` tasks are not in the queue), pick the task with the highest `priority` (critical → high → medium → low), then the oldest `created`, whose dependencies are all `completed`. The dependencies are the task IDs under `## Dependencies` in its file (``- `T-NNN` — reason``, or `- None`). Go to Step 4.
+2. **Then pending work.** From `ai-team list tasks --state pending` (`planned` tasks are not in the queue), pick the task with the highest `priority` (critical → high → medium → low), then the oldest `created`, then the lowest ID, whose dependencies are all `completed`. The dependencies are the task IDs under `## Dependencies` in its file (``- `T-NNN` — reason``, or `- None`). Go to Step 4.
 3. If nothing is left, go to Step 6. When pending tasks remain whose dependencies are not completed, list each with the tasks it waits for in the run summary.
 
 ### Step 3: Resume the Task

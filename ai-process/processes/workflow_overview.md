@@ -173,7 +173,7 @@ None of these steps creates a commit or needs a branch switch. Task-regression b
 
 Before claiming the first task, the loop discovers the project's documented baseline test command from project-specific guidance and runs it. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs such as the coding guidelines (located as `ai-process/guidelines/coding_standards.md` describes), README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or multiple plausible commands are documented without a clear baseline, the loop asks the product owner for the command or for explicit confirmation that no automated baseline test is available. If the command fails, the loop stops and reports the failure.
 
-1. Resumes any `in-progress` task first, without asking the product owner: it checks out the task's existing branch, takes the base commit from the Work Log, and re-enters review, or integration when the latest verdict is PASS. A task is `in-progress` at startup after an interrupted run, after `ai-team task unblock`, or while its integration waits for a regression fix. Otherwise it picks the next `pending` task (priority → dependency readiness → creation date), using `ai-team list tasks --state pending`.
+1. Resumes any `in-progress` task first, without asking the product owner: it checks out the task's existing branch, takes the base commit from the Work Log, and re-enters review, or integration when the latest verdict is PASS. A task is `in-progress` at startup after an interrupted run, after `ai-team task unblock`, or while its integration waits for a regression fix. Otherwise it picks the next `pending` task (priority → dependency readiness → creation date → lowest ID), using `ai-team list tasks --state pending`.
 2. Sets a picked task to `in-progress` with `ai-team task start` and creates the task branch from `dev-agent`.
 3. Assigns the task to the **Developer** for test-driven implementation and debugging — waits for completion and a Work Log handoff.
 4. Appends the Developer's Work Log entry to the task file in the tracker.
@@ -259,7 +259,7 @@ If the issue cannot be reproduced yet, the bug may still be filed, but the repor
 
 #### What the bug-fix loop does
 
-1. Resumes any `in-progress` bug first, without asking the product owner, the same way the development loop resumes a task: on its existing bug branch, re-entering diagnosis, review, or integration where the bug file shows it stopped. Otherwise it picks the highest-severity open bug (critical → high → medium → low, oldest first on ties). It never picks a `blocked` bug.
+1. Resumes any `in-progress` bug first, without asking the product owner, the same way the development loop resumes a task: on its existing bug branch, re-entering diagnosis, review, or integration where the bug file shows it stopped. Otherwise it picks the highest-severity open bug (critical → high → medium → low, oldest first, then lowest ID, on ties). It never picks a `blocked` bug.
 2. Sets a picked bug to `in-progress` with `ai-team bug start`, creates a bug branch, and chooses the branch base from the bug type:
    - Existing defect on `dev-agent`: create the bug branch from `dev-agent`.
    - Regression introduced by a task branch: create the bug branch from the bug report's non-empty `source_branch`.

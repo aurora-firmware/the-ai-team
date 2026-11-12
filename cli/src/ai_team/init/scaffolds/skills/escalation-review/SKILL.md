@@ -63,6 +63,7 @@ The directive never covers an upheld finding; the ruling is the whole instructio
 - **`work-item`** — recommend the exact amendment to the task or bug file; the Planner owns task-plan edits, so the Architect never makes it. When a loop routed the request, also block the item with `ai-team task block <id> --reason "<the amendment needed>"` (or `ai-team bug block`); the loop then has the Planner amend it.
 - **`architecture`** — record a durable decision with `new-adr`, status `accepted`, giving as `description` the request, the work item path and why the decision affects future work; `new-adr` commits it and runs its consistency review. Rely on the ADR only when that review returns `PASS`; otherwise the decision needs an approved spec to change, so escalate. To amend an existing ADR instead, edit it and commit it on the branch `git-conventions` names for the Architect.
 
+A hand-off forced by the review-cycle cap is classified `unresolved` only when the Architect's rulings and guidance cannot resolve it.
 For `specification` or `unresolved`, return `ESCALATE` with the [Product Owner Escalation Report](#product-owner-escalation-report).
 
 ## Output Format

@@ -108,13 +108,14 @@ For bug fixes, the Reviewer also verifies:
 - All unit tests pass on the source branch (pre-merge).
 - All unit and integration tests pass on the destination branch after the merge (regression check).
 - No unresolved merge conflicts remain.
+- The `integrate` diff check (gap check) finds every acceptance criterion or the bug's isolated fault addressed in the diff; it can turn a Reviewer PASS into a finding.
 
 **On failure:** The integration procedure reverts the merge commit, files a bug report in the tracker for each regression, and stops the active loop. The source branch is preserved for fixing.
 Regression bug reports must record the preserved source branch as `source_branch` so the bug-fix loop can branch from and merge back into that branch before integration is retried.
 
 ## Development Loop Baseline Guard
 
-Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the product owner for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
+Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the product owner for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output; it does not re-run a failing check, and a flaky test is the project's to fix as a bug. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
 
 ## Gate 5: Final Merge Sign-off
 
