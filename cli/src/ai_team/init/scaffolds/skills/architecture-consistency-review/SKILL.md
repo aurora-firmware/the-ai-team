@@ -12,7 +12,7 @@ effort: high
 ## When This Runs
 
 - **ADR created or accepted** — after `new-adr` records it.
-- **Spec created or amended** — once it has no product-owner-answerable `[TODO]` left: a new spec before Gate 1, an amended approved spec on its planning branch or amendment planning branch.
+- **Spec created or amended** — once it has no product-owner-answerable `[TODO]` left: a new spec before Gate 1, an amended approved spec on its planning branch or amendment planning branch, including a spec amended for an approved change-request.
 - **Change-request approved** — after the product owner approves the TODO-free change-request, before its spec amendments are applied. The approved change-request is the authoritative intent for every correction.
 - **Completion (spec-truth reconciliation)** — the main session runs it when the task queue drains, before Gate 5 sign-off; see [Completion Mode](#completion-mode).
 
@@ -21,10 +21,11 @@ effort: high
 - **Changed artifact** — the path of the ADR, spec or change-request and which kind it is; for an amendment or change-request, the decision, section or requirement that changed.
 - **Decision records** — all ADRs in `{{project_dir}}/decisions/`.
 - **Specifications** — all specs in `{{project_dir}}/specs/`.
+- **Approved change-request** — when the changed artifact is a spec amended for one, its tracker path.
 - **Branch** — the planning branch or amendment planning branch the change is on, when there is one.
 - **Completion mode only** — the paths of the approved specs the work touched (never S-000), and the tracker paths of the completed tasks and resolved bugs that implemented each. When the paths are not given, list them with `ai-team list tasks` and `ai-team list bugs`.
 
-Return `BLOCKED` when the changed artifact is missing, a changed spec still has a product-owner-answerable `[TODO]`, or a change-request is not yet approved.
+Return `BLOCKED` when the changed artifact is missing, a changed spec still has a product-owner-answerable `[TODO]`, a change-request is not yet approved, or a spec amended for a change-request comes without it.
 
 ## Procedure
 
