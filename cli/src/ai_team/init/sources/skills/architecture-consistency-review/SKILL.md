@@ -30,7 +30,7 @@ Return `BLOCKED` when the changed artifact is missing, a changed spec still has 
 
 ### Step 1: Isolate What Changed
 
-Identify the decision, requirement or contract the changed artifact now asserts. For an amendment or change-request, isolate the delta, not the whole document. Read an approved change-request as written; do not reinterpret it through downstream draft wording.
+Identify the decision, requirement or contract the changed artifact now asserts. For an amendment or change-request, isolate the delta, not the whole document. Read an approved change-request as written; do not reinterpret it through downstream draft wording. When the changed artifact is a spec amended for an approved change-request, also check each written amendment against that change-request: it adds no behaviour change the change-request does not state.
 
 ### Step 2: Read the Binding Set
 
