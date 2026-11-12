@@ -37,6 +37,7 @@ It is the owner of the review criteria; the `code-review` skill carries it out.
 - [ ] Names are descriptive and follow project conventions.
 - [ ] Functions are focused (one responsibility each).
 - [ ] Comments explain *why*, not *what* (no redundant comments).
+- [ ] Every commit subject on the branch is within the 72-character limit of `git-conventions`.
 - [ ] No dead code, commented-out blocks, or debugging artifacts.
 
 ### Performance

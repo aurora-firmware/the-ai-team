@@ -71,10 +71,10 @@ The loop resumes an `in-progress` item without asking the product owner.
 
 1. Find the branch with `git branch --list '<kind>/<ID>-*'` and BASE in the Work Log. If either is missing, return `STOPPED`, naming what is missing.
 2. Check out the branch (Workspace Hygiene first).
-3. When an Amendment Log row of the item's approved spec names this item and the work item file does not cite it yet (a product owner's "Revise the spec" decision), add `### Spec amendment — YYYY-MM-DD` under `## Work Log`, citing the row, and re-enter at Step 2.
-4. Otherwise choose where to re-enter, from the work item file:
-   - A bug with no `### Diagnosis` entry: return `DIAGNOSE`.
-   - More `### Session` and `### Architect guidance — … (re-review)` entries under `## Work Log` than `### Review Verdict` entries: Step 3.
+3. A bug with no `### Diagnosis` entry: return `DIAGNOSE`.
+4. When an Amendment Log row of the item's approved spec names this item and the work item file does not cite it yet (a product owner's "Revise the spec" decision), add `### Spec amendment — YYYY-MM-DD` under `## Work Log`, citing the row, and re-enter at Step 2.
+5. Otherwise choose where to re-enter, from the work item file:
+   - More `### Session` and `### Architect guidance — … (re-review)` entries under `## Work Log` than `### Review Verdict` entries: Step 3. Do not count a `### Session` entry whose body starts `Blocked:`; the CLI writes it when it blocks the item.
    - The latest Review Verdict is PASS with a `⚠️ Cannot verify from diff` item that has no resolution under it: Step 4.
    - The latest Review Verdict is PASS and none of its findings is `Open`: Step 6.
    - Otherwise: Step 2. The Developer answers the open findings and applies any guidance or amendment recorded since the latest verdict.
@@ -169,7 +169,7 @@ The escalation block is the one the Developer, the Reviewer or `integrate` retur
 
 1. Append the Architect's directive to the Work Log as `### Architect guidance — YYYY-MM-DD`, adding ` (re-review)` to the heading when step 5 continues at Step 3.
 2. Record each entry of its `Finding rulings` under the latest Review Verdict. An upheld finding stays `Open`.
-3. Make each **parked** finding durable before going on, never just a line in the chat: file it with the `new-bug` skill, naming this work item and the finding, or record it under `### Recorded deviation — YYYY-MM-DD` in the work item file with the Architect's rationale. Parked findings never count toward the cap.
+3. Make each **parked** finding durable before going on, never just a line in the chat: file it with the `new-bug` skill, naming this work item and the finding (pass `task` only when the work item is a task; for a bug, name the bug in the new bug's Summary and Related section and pass no `task`), or record it under `### Recorded deviation — YYYY-MM-DD` in the work item file with the Architect's rationale. Parked findings never count toward the cap.
 4. When the Classification is `work-item`, the Architect has blocked the item. **Spawn the Planner subagent** (tier: most capable) with this prompt:
 
    > "The Architect blocked the <task | bug> in `<path>` with a `work-item` ruling: its latest `### Architect guidance` entry names the amendment. Amend the file as it requires, and anything else the item needs to continue, and note the change under `## Work Log` as `### Task amendment — YYYY-MM-DD`.

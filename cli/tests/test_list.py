@@ -491,3 +491,24 @@ def test_list_specs_and_adrs_state_filter_keeps_matching_status(monkeypatch, tmp
     adrs = CliRunner().invoke(app, ["list", "adrs", "--state", "accepted", "--json"])
     assert adrs.exit_code == 0
     assert [row["id"] for row in json.loads(adrs.stdout)] == ["ADR-001"]
+
+
+def test_list_tasks_keeps_a_long_title_on_one_line_when_output_is_not_a_terminal(
+    monkeypatch, tmp_path
+):
+    """Piped output must not wrap table cells at 80 columns (B-052)."""
+    from ai_team.cli import app
+
+    title = "A very long task title that would not fit in an eighty column table"
+    _write(
+        tmp_path / ".ai-team" / "tracker" / "tasks" / "T-001.md",
+        _task("T-001", title, "pending"),
+    )
+
+    monkeypatch.delenv("COLUMNS", raising=False)
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["list", "tasks"])
+
+    assert result.exit_code == 0
+    row = next(line for line in result.stdout.splitlines() if "T-001" in line)
+    assert title in row
