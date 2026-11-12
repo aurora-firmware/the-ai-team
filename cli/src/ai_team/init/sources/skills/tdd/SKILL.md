@@ -78,7 +78,7 @@ Scenarios:
 - <AC scenario cited in Source Requirements> — <the test or check that verifies it>
 ```
 
-- **Verification** lists every command run as evidence this session: the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them.
+- **Verification** lists every command run as evidence this session: the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them. Every command is re-runnable from the branch: a script it runs is committed or quoted in full in the entry.
 - **Scenarios** appears only when Source Requirements cites AC scenarios.
 - Add the inspection or demonstration record, a `debug` fix contract, and the `#### Review answers` block from `receive-code-review` when they apply.
 - `N` increments across all sessions on the work item.
@@ -139,6 +139,7 @@ These thoughts mean stop and return to the test-first cycle.
 | "It is too simple to need a test first." | Simple code breaks too. The test takes a minute and fixes the behavior in place. |
 | "I already wrote the code; deleting it is wasteful." | Rewriting from a failing test gives code you can trust; tests bolted on afterwards do not. |
 | "I will add the tests right after." | A test written after the code passes on its first run, so it proves nothing. |
+| "I will break the code afterwards to show the test fails." | Breaking code after the fact is not a red step: remove the code, commit the failing test, then restore the code. Failing tests in a branch's history are acceptable. |
 | "I manually checked it, so it works." | A manual check is not repeatable or recorded. The next change breaks it unnoticed. |
 
 ## Common Pitfalls

@@ -39,6 +39,7 @@ When the product owner invokes it directly, ask only for the missing values.
 2. Run `ai-team task new "<title>" --priority <priority> --status <status> [--assigned-role <role>] [--spec <spec>] [--plan <plan>] --json`, and capture `id` and `path` from the JSON response.
    The task file is in the local tracker, outside version control: never commit it.
 3. Replace the template text of each section with its input: Description, Source Requirements, Acceptance Criteria, Dependencies, Interfaces, Files to Touch and Verification. For Verification, keep the template comment and replace the command block, as the method requires.
+   Delete the Source Requirements, Acceptance Criteria and Interfaces template comments once those sections are filled; keep the Verification, Work Log and Review comments.
 4. Check the filled task against the Task Quality Rules. Fix what fails, or, when an input is the cause, return it to the caller naming the rule.
 5. Confirm creation with the `id` and `path` from the CLI.
 
