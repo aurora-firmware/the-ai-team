@@ -43,7 +43,7 @@ In a brownfield project (one with existing code, specs or documents), plan only 
 If that branch exists, run the before-point Workspace Hygiene check from `git-conventions` and check it out.
 If it does not — the approved spec is already on `{{integration_branch}}`, as S-000 is after Gate 1 — open one as **Opening a Planning Branch** in `git-conventions` describes.
 
-**Change-request amendments.** For a change-request, apply each amendment its Possible Spec Amendments section proposes, on the planning branch: edit the spec, bump its minor `version`, add an Amendment Log row that names the change-request and the REQ/AC identifiers added, changed or retired, and commit (`docs(specs): amend <spec-id> for <cr-id>`). The product owner's approval of the change-request approved these amendments.
+**Change-request amendments.** For a change-request, apply each amendment its Possible Spec Amendments section proposes, on the planning branch: edit the spec, bump its minor `version`, add an Amendment Log row that names the change-request and the REQ/AC identifiers added, changed or retired, and commit (`docs(specs): amend <spec-id> for <cr-id>`). The product owner's approval covered the proposed amendments, not the wording you wrote. Then hand back for the Architect's `architecture-consistency-review` of each amended spec, with the approved change-request's path, and revise on its findings before Step 0a. This adds no product owner gate.
 
 ### Step 0a: Feature Architecture
 
