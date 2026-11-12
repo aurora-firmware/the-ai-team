@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import typer
-from rich.console import Console
-from rich.measure import Measurement
 from rich.table import Table
 
 from ai_team.commands._shared import hint_missing_overview, project_root
 from ai_team.core.validate import validate_project
-from ai_team.render import console, print_json
+from ai_team.render import print_json, print_table
 
-UNLIMITED_WIDTH = 100_000
 NAME = "validate"
 app = typer.Typer(
     help="Validate artifact metadata, cross-references, and feature-spec structure.",
@@ -45,15 +42,7 @@ def _render_findings_table(findings: list[dict[str, str]]) -> None:
             finding["code"],
             finding["message"],
         )
-    if console.is_terminal:
-        console.print(table)
-        return
-    # Piped output has no terminal width to fit; an 80-column default would cut
-    # values short, so the table gets the width its content needs.
-    natural_width = Measurement.get(
-        console, console.options.update(max_width=UNLIMITED_WIDTH), table
-    ).maximum
-    Console(file=console.file, width=natural_width).print(table)
+    print_table(table)
 
 
 @app.callback()
