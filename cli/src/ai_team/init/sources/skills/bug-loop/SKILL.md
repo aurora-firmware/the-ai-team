@@ -41,7 +41,7 @@ With an argument, each listed bug must be `open` or `in-progress`; otherwise sto
 Select only among the listed bugs.
 
 1. **Resume first.** Take the first `in-progress` bug that has not returned `WAITING` in this run, and go to Step 3.
-2. **Then open bugs.** Pick the `open` bug with the highest `severity` (critical → high → medium → low), then the oldest `created`, then the lowest ID, and go to Step 4.
+2. **Then open bugs.** Pick the `open` bug with the highest `severity` (critical → high → medium → low), then the oldest `created`, and go to Step 4.
 3. If nothing is left, go to Step 7.
 
 The loop never picks a `blocked` bug. A bug stopped by escalation stays `blocked`, also when the product owner defers it, until the product owner runs `ai-team bug unblock`; the next run then resumes it.
