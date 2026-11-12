@@ -17,7 +17,7 @@ from ai_team.core.models import (
 )
 from ai_team.core.tracker import iter_items
 from ai_team.core.validate import spec_reference_aliases
-from ai_team.render import console, print_json
+from ai_team.render import print_json, print_table
 
 NAME = "list"
 app = typer.Typer(help="List tasks, bugs, specs, ADRs, and change requests.")
@@ -82,7 +82,7 @@ def _emit(
         table.add_column(name)
     for obj in objects:
         table.add_row(*(str(obj.get(column.lower(), "")) for column in columns))
-    console.print(table)
+    print_table(table)
 
 
 @app.command()
