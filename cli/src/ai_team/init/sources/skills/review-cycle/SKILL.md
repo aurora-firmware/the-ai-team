@@ -71,9 +71,9 @@ The loop resumes an `in-progress` item without asking the product owner.
 
 1. Find the branch with `git branch --list '<kind>/<ID>-*'` and BASE in the Work Log. If either is missing, return `STOPPED`, naming what is missing.
 2. Check out the branch (Workspace Hygiene first).
-3. When an Amendment Log row of the item's approved spec names this item and the work item file does not cite it yet (a product owner's "Revise the spec" decision), add `### Spec amendment — YYYY-MM-DD` under `## Work Log`, citing the row, and re-enter at Step 2.
-4. Otherwise choose where to re-enter, from the work item file:
-   - A bug with no `### Diagnosis` entry: return `DIAGNOSE`.
+3. A bug with no `### Diagnosis` entry: return `DIAGNOSE`.
+4. When an Amendment Log row of the item's approved spec names this item and the work item file does not cite it yet (a product owner's "Revise the spec" decision), add `### Spec amendment — YYYY-MM-DD` under `## Work Log`, citing the row, and re-enter at Step 2.
+5. Otherwise choose where to re-enter, from the work item file:
    - More `### Session` and `### Architect guidance — … (re-review)` entries under `## Work Log` than `### Review Verdict` entries: Step 3. Do not count a `### Session` entry whose body starts `Blocked:`; the CLI writes it when it blocks the item.
    - The latest Review Verdict is PASS with a `⚠️ Cannot verify from diff` item that has no resolution under it: Step 4.
    - The latest Review Verdict is PASS and none of its findings is `Open`: Step 6.
