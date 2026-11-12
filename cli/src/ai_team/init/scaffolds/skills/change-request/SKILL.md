@@ -39,7 +39,7 @@ Use the argument as the title when it is the only input. When invoked directly a
 
 5. After approval, stop and return `Next Owner: Architect`, with the Architect's `architecture-consistency-review` of the approved change-request (its path and the change it makes) as `Next Action`.
    When resumed with the review's findings, treat the approved change-request as the authoritative intent:
-   - a finding that leaves that intent unchanged is a correction to make — update the change-request body;
+   - a finding that leaves that intent unchanged is a correction to make — update the change-request body, and list each correction in the report for the product owner's information, not as a gate;
    - a finding that would change the intent comes back as the review's `ESCALATE`: return `Result: ESCALATE` with `Next Owner: Product Owner`, appending the Architect's blocks as `role-report` describes.
    Once the review passes, the change-request is ready for `spec-breakdown`, which applies its spec amendments.
 
@@ -50,6 +50,7 @@ Return the report `role-report` defines, with these values:
 - **Result:** `PASS` | `FAIL` | `BLOCKED` | `ESCALATE`.
 - **Next Owner:** `Architect` after approval, for the consistency review; `Product Owner` when a decision or an answer is needed, or after a rejection; `none` once the review has passed and the change-request waits for `spec-breakdown`.
 - **Artifacts:** the change-request `id` and `path`, and the planning branch.
+- **Summary:** the corrections made to the approved change-request, when there are any.
 
 ## Quality Criteria
 

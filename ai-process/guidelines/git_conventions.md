@@ -81,7 +81,7 @@ chore(plan): merge S-004 billing export
 |---|---|---|
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
-| **Developer** | After each implementation cycle for source, tests, and project artifacts | `task/T-NNN-…` or `bug/B-NNN-…` |
+| **Developer** | After each implementation cycle for source, tests, and project artifacts, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
 | **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `dev-agent` |
 | **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
 

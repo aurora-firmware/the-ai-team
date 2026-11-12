@@ -15,6 +15,7 @@ Argument: `$ARGUMENTS`
 
 - **Optional:** one task ID or task branch (`T-012` or `task/T-012-my-feature`). The loop then processes only that task and stops after it.
 - Without an argument, the loop processes the whole queue.
+- Each single-task run repeats the baseline guard; one run over the whole queue pays for it once.
 
 Tasks live in the local tracker, outside version control; their state is the frontmatter `status`.
 The loop reads and changes it only through the `ai-team` CLI:
