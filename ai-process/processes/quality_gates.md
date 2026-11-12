@@ -110,7 +110,7 @@ For bug fixes, the Reviewer also verifies:
 - No unresolved merge conflicts remain.
 - The `integrate` diff check (gap check) finds every acceptance criterion or the bug's isolated fault addressed in the diff; it can turn a Reviewer PASS into a finding.
 
-**On failure:** A failing source-branch test or gap check merges nothing and returns the work item to the Developer as a review finding. A missing PASS verdict or an unresolvable merge conflict merges nothing and goes to the Architect as an escalation. A post-merge regression makes the integration procedure revert the merge commit, file a bug report in the tracker for each regression, and stop the active loop. The source branch is preserved for fixing.
+**On failure:** A failing source-branch test or gap check merges nothing and returns the work item to the Developer as a review finding. A missing PASS verdict or an unresolvable merge conflict merges nothing and goes to the Architect as an escalation. A post-merge failure makes the integration procedure revert the merge commit: a regression attributable to the source branch gets a bug report in the tracker and stops the active loop, and a failure not attributable to it goes to the Architect as an escalation. The source branch is preserved for fixing.
 Regression bug reports must record the preserved source branch as `source_branch` so the bug-fix loop can branch from and merge back into that branch before integration is retried.
 
 ## Development Loop Baseline Guard
