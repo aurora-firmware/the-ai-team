@@ -59,7 +59,7 @@ When several plausible baseline commands are documented, none is named the basel
 ### Step 4: Check the Diff
 
 1. `git checkout <source-branch>`, then read `git diff <destination>...<source-branch> --stat` and the full diff.
-2. An empty diff stops `BLOCKED`: "Branch '<source-branch>' has no changes relative to '<destination>'. Nothing to integrate."
+2. An empty diff, with a PASS verdict whose record shows the criteria are met on the destination (Gate 4), has nothing to merge: skip Steps 5 to 8 and go to Step 9. When the record does not show it, stop `FAIL` with a gap report.
 3. A diff that adds or changes a lifecycle file (a tracker file, or legacy `tasks/`, `bugs/` or `change-requests/` files in the project directory) stops `FAIL`: lifecycle state belongs in the tracker, never in a branch.
 4. A diff that does not address the work item stops `FAIL` with a gap report: an acceptance criterion with no trace in the diff, or a bug fix that leaves the isolated fault of the Diagnosis Log untouched.
 
@@ -110,7 +110,7 @@ When everything passes, go to Step 9; otherwise go to Step 8.
 ### Step 9: Finalize
 
 1. **Task:** run `ai-team task complete <task-id>`, then confirm that `ai-team show <task-id> --json` reports `status: completed`; if not, stop and report that the lifecycle update did not land. **Bug:** leave its status `in-progress`; the caller sets it `resolved` with `ai-team bug resolve`.
-2. Delete the source branch with `git branch -d <source-branch>`. Never use `-D`. If `-d` is refused, stop and report its error output and the merge commit, and ask the product owner to delete the branch by hand once satisfied it is safe.
+2. Delete the source branch with `git branch -d <source-branch>`; after an empty diff there is no merge, and `-d` still applies. Never use `-D`. If `-d` is refused, stop and report its error output and the merge commit, and ask the product owner to delete the branch by hand once satisfied it is safe.
 3. Run the after-point Workspace Hygiene check on the destination, then restore the changes parked in Step 1 on the branch where they were parked, or on the destination when that branch was the deleted source branch.
 4. Report `PASS`.
 
@@ -121,7 +121,7 @@ On every stop the work item's status is unchanged and the source branch is kept;
 
 | Condition | Result |
 |---|---|
-| Branch, destination, work item, PASS verdict or verification command missing; empty diff; ambiguous baseline | `BLOCKED` |
+| Branch, destination, work item, PASS verdict or verification command missing; ambiguous baseline | `BLOCKED` |
 | Lifecycle files in the diff; the diff does not address the work item; the source command fails | `FAIL`, nothing merged |
 | Attributable post-merge regression | `FAIL`, bugs filed and merge reverted |
 | A conflict `merge-conflicts` cannot resolve; a failure not attributable to the source branch | `ESCALATE` |

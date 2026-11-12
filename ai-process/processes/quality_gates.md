@@ -109,6 +109,7 @@ For bug fixes, the Reviewer also verifies:
 - All unit and integration tests pass on the destination branch after the merge (regression check).
 - No unresolved merge conflicts remain.
 - The `integrate` diff check (gap check) finds every acceptance criterion or the bug's isolated fault addressed in the diff; it can turn a Reviewer PASS into a finding.
+- An empty diff with a PASS verdict whose record shows the criteria are met on the destination (an inspection-only task, or a bug already fixed there) skips the merge and the tests: the task is completed or the bug resolved, and the branch is deleted with `git branch -d`.
 
 **On failure:** A failing source-branch test or gap check merges nothing and returns the work item to the Developer as a review finding. A missing PASS verdict or an unresolvable merge conflict merges nothing and goes to the Architect as an escalation. A post-merge failure makes the integration procedure revert the merge commit: a regression attributable to the source branch gets a bug report in the tracker and stops the active loop, and a failure not attributable to it goes to the Architect as an escalation. The source branch is preserved for fixing.
 Regression bug reports must record the preserved source branch as `source_branch` so the bug-fix loop can branch from and merge back into that branch before integration is retried.
