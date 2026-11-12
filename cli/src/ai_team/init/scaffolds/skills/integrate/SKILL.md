@@ -77,7 +77,7 @@ If a test fails, stop `FAIL` with the failing tests and their output: a pre-merg
    ```bash
    git merge --no-ff <source-branch> -m "chore(<kind>): merge <work-item-id> <short-description>"
    ```
-   `<kind>` is `tasks` or `bugs`; the description comes from the work item title or the branch slug. When the project's commit conventions require trailers, add them as a second `-m "<trailer lines>"`.
+   `<kind>` is `tasks` or `bugs`; the description comes from the work item title or the branch slug, shortened so the whole subject is at most 72 characters (`git-conventions`). When the project's commit conventions require trailers, add them as a second `-m "<trailer lines>"`.
 3. On a conflict, invoke the `merge-conflicts` skill with the source branch, the destination and the work item file. It either concludes the merge or aborts it and returns `ESCALATE`. On `ESCALATE`, confirm that no merge is in progress (`git merge --abort` if `.git/MERGE_HEAD` still exists) and stop `ESCALATE` with its escalation block.
 
 ### Step 7: Run the Destination Command
