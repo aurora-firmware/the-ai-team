@@ -18,7 +18,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 **Rules:**
 - No automated role ever commits to `main`.
 - `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
-- The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID: a merge that brings an ADR whose ID the target branch already holds is not completed until the Architect renumbers the ADR (file name, `id`, heading and references).
+- The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID. No procedure checks for this; the review of the merge catches it, and the Architect renumbers the later ADR.
 - Developer always works on a task branch, never on `dev-agent`.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
 - Bug branches are created when the bug-fix loop picks up a bug.

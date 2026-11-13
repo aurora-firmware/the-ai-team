@@ -22,7 +22,7 @@ Tasks, bugs and change-requests live in the local tracker (`ai-team tracker path
 Their state is the frontmatter `status` field.
 Recording state, Work Logs, Diagnosis Logs or Review Verdicts never creates a commit and never needs a branch switch.
 
-The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID: a merge that brings an ADR whose ID the target branch already holds is not completed until the Architect renumbers the ADR (file name, `id`, heading and references).
+The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID. No procedure checks for this; the review of the merge catches it, and the Architect renumbers the later ADR.
 
 ## Planning Branches
 
