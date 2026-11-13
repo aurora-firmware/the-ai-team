@@ -10,14 +10,15 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 | Branch | Purpose | Who touches it |
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
-| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below |
+| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; the Architect commits ADRs here |
 | `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, and the architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
-| `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
-| `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts |
+| `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
+| `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
 
 **Rules:**
 - No automated role ever commits to `main`.
-- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
+- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
+- The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID: a merge that brings an ADR whose ID the target branch already holds is not completed until the Architect renumbers the ADR (file name, `id`, heading and references).
 - Developer always works on a task branch, never on `dev-agent`.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
 - Bug branches are created when the bug-fix loop picks up a bug.
@@ -82,7 +83,7 @@ chore(plan): merge S-004 billing export
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
-| **Architect** | After producing or amending an ADR | The branch that is checked out |
+| **Architect** | After producing or amending an ADR | The branch that is checked out, never `main` |
 | **Architect** | After updating the architecture documents in feature architecture | `plan/…` |
 | **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
 

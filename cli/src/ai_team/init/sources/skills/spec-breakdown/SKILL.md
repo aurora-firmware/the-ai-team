@@ -108,7 +108,7 @@ Only after Gate 2 returns `PASS`:
 1. Run the before-point Workspace Hygiene check, then `git checkout {{integration_branch}}`.
 2. If the planning branch has commits (`git rev-list --count {{integration_branch}}..plan/<id>-<slug>` is not 0), run `git merge --no-ff plan/<id>-<slug> -m "chore(plan): merge <id> <short-description>"`.
    If the merge conflicts, abort it with `git merge --abort` and stop: report the conflicting planning files to the product owner. Do not resolve planning conflicts automatically.
-   A planning branch with no commits — S-000's bootstrap branch, or a change-request that amends no spec and changes no ADR or architecture document — is not merged.
+   A planning branch with no commits — S-000's bootstrap branch, or a change-request that amends no spec and changes no architecture document — is not merged.
 3. Run the after-point Workspace Hygiene check.
 4. Delete the planning branch with `git branch -d plan/<id>-<slug>`. If `-d` refuses, stop and report — never force deletion.
 5. Activate the plan: for every task in `ai-team list tasks --state planned --plan <id>`, run `ai-team task set-status <task-id> pending`.

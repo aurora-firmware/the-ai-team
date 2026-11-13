@@ -29,7 +29,7 @@ When the product owner invokes this skill directly, ask only for the missing fie
 2. Run `ai-team adr new "<title>" --status "<status>" --json`, adding `--supersedes "<id>"` only when `supersedes` is given. Parse `id` and `path` from the JSON.
 3. Fill the ADR's body sections from `description`, replacing the template placeholders. An ADR is one decision stated briefly: a few sentences per section, and no section that has nothing to say.
 4. When `supersedes` is given, set the old ADR's frontmatter `status:` to `superseded`.
-5. Commit the new ADR, and the superseded one, in one commit on the branch that is checked out, without switching branches. Message: `docs(architecture): record <id> <short title>`.
+5. Commit the new ADR, and the superseded one, in one commit on the branch that is checked out, without switching branches. When `main` is checked out, commit nothing and return `BLOCKED`; `git-conventions` owns the rule, including the renumbering of an ADR whose ID the merge target already holds. Message: `docs(architecture): record <id> <short title>`.
 6. Unless the caller is `architecture-consistency-review`, which checks the ADR within its own review, run `architecture-consistency-review` on the new ADR.
 
 ### Accepting a Proposed ADR
