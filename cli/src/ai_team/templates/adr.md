@@ -7,41 +7,20 @@ created: YYYY-MM-DD
 
 # ADR-000: [Decision Title]
 
+<!-- One decision, stated briefly. A few sentences per section is enough. Delete sections that have nothing to say. -->
+
 ## Context
 
-What is the situation that requires a decision?
-What forces are at play?
-What constraints exist?
+Why this decision is needed: the need and the constraints that matter.
 
 ## Decision
 
-What is the change being proposed or decided?
-State it clearly in one or two sentences, then elaborate as needed.
+The decision, in one or two sentences.
 
 ## Consequences
 
-### Positive
-
-- Benefit 1
-- Benefit 2
-
-### Negative
-
-- Trade-off 1
-- Trade-off 2
-
-### Neutral
-
-- Side effect that is neither positive nor negative
+- What follows from the decision, good or bad.
 
 ## Alternatives Considered
 
-### Alternative A: [Name]
-
-**Description:** What this alternative entails.
-**Rejected because:** Why it was not chosen.
-
-### Alternative B: [Name]
-
-**Description:** What this alternative entails.
-**Rejected because:** Why it was not chosen.
+- **[Option]:** why it was not chosen.

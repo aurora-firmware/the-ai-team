@@ -10,14 +10,15 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 | Branch | Purpose | Who touches it |
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
-| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; Architects commit ADRs raised outside planning here |
-| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, ADRs raised by its consistency review, and the ADRs and architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
-| `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts |
-| `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts |
+| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; the Architect commits ADRs here |
+| `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, and the architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
+| `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
+| `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
 
 **Rules:**
 - No automated role ever commits to `main`.
-- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, direct ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
+- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
+- The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID. No procedure checks for this; the review of the merge catches it, and the Architect renumbers the later ADR.
 - Developer always works on a task branch, never on `dev-agent`.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
 - Bug branches are created when the bug-fix loop picks up a bug.
@@ -35,9 +36,9 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 The skill that creates a spec or change-request opens its planning branch:
 
 1. Run the before-point Workspace Hygiene check, then `git checkout dev-agent`.
-2. Run `git branch --list 'plan/*'`. Spec and ADR IDs are allocated from the files on the current branch, so two open planning branches can allocate the same spec or ADR ID.
+2. Run `git branch --list 'plan/*'`. Spec IDs are allocated from the files on the current branch, so two open planning branches can allocate the same spec ID.
    Task and change-request IDs come from the shared tracker and never collide.
-   If another planning branch is open and this one will create a spec or an ADR, stop and ask the product owner whether to merge or abandon the other branch first, or to continue and renumber at merge time.
+   If another planning branch is open and this one will create a spec, stop and ask the product owner whether to merge or abandon the other branch first, or to continue and renumber at merge time.
 3. Run the CLI command that allocates the artifact ID.
 4. Run `git checkout -b plan/<id>-<slug>`. A new spec file is untracked and carries over; commit it there. A change-request is created in the tracker and is never committed.
 
@@ -49,7 +50,7 @@ An approved spec amended after its planning branch merged gets a new planning br
 
 1. The Planner opens `plan/S-NNN-<slug>` for the amended spec, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in [Opening a Planning Branch](#opening-a-planning-branch), skipping step 3.
 2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, adds the `Reconciliation record:` row when reconciliation drives the amendment (that row bumps no `version`), and commits on the branch.
-3. The Architect runs the architecture consistency review on the amended spec. Any ADR it raises is committed on the same branch.
+3. The Architect runs the architecture consistency review on the amended spec.
 4. On PASS, the Planner merges the branch into `dev-agent` with `--no-ff` and deletes it with `git branch -d`, never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2, as for any planning branch.
 
 A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
@@ -82,7 +83,8 @@ chore(plan): merge S-004 billing export
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
 | **Developer** | After each implementation cycle for source, tests, and project artifacts, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
-| **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `dev-agent` |
+| **Architect** | After producing or amending an ADR | The branch that is checked out, never `main` |
+| **Architect** | After updating the architecture documents in feature architecture | `plan/…` |
 | **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
 
 ## Workspace Hygiene
