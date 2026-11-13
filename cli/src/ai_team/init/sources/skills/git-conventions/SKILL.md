@@ -13,8 +13,8 @@ Project-specific commit scopes and any overrides are in the project's root `AGEN
 | Branch | Holds | Created / merged / deleted | Who commits |
 |---|---|---|---|
 | `main` | Production-ready releases | — | Product owner only. No automated role ever commits or merges here |
-| `{{integration_branch}}` | Integrated work | — | Merge commits only (reviewed task and bug branches, planning branches), plus direct ADR commits from the Architect for ADRs raised outside planning, and hygiene `.gitignore` commits. Never direct source code |
-| `plan/S-NNN-<slug>` or `plan/CR-NNN-<slug>` | One spec or change-request: the spec and its amendments, cross-spec amendments, and the ADRs and architecture-document updates from its feature architecture and consistency review. Never source code | See Planning Branches | Planner and Architect |
+| `{{integration_branch}}` | Integrated work | — | Merge commits only (reviewed task and bug branches, planning branches), plus hygiene `.gitignore` commits. Never direct source code |
+| `plan/S-NNN-<slug>` or `plan/CR-NNN-<slug>` | One spec or change-request: the spec and its amendments, cross-spec amendments, and the architecture-document updates from its feature architecture. Never source code | See Planning Branches | Planner and Architect |
 | `task/T-NNN-<slug>` | One task | Created when the development loop picks the task, from `{{integration_branch}}`. Deleted with `git branch -d` after it integrates | Developer only: source, tests, and project artifacts |
 | `bug/B-NNN-<slug>` | One bug's diagnosis and fix | Created when the bug-fix loop picks the bug: an existing defect from `{{integration_branch}}`, a task regression from the bug's `source_branch` (the preserved task branch, which it merges back into). Deleted with `git branch -d` after it integrates | Developer only: source, tests, and project artifacts |
 
@@ -29,7 +29,7 @@ Recording state, Work Logs, Diagnosis Logs or Review Verdicts never creates a co
 The skill that creates a spec or change-request opens its planning branch:
 
 1. Run the before-point Hygiene Check, then `git checkout {{integration_branch}}`.
-2. Run `git branch --list 'plan/*'`. Spec and ADR IDs are allocated from the files on the current branch, so two open planning branches can allocate the same spec or ADR ID; task and change-request IDs come from the shared tracker and never collide. If another planning branch is open and this one will create a spec or an ADR, stop and ask the product owner whether to merge or abandon the other branch first, or to continue and renumber at merge time.
+2. Run `git branch --list 'plan/*'`. Spec IDs are allocated from the files on the current branch, so two open planning branches can allocate the same spec ID; task and change-request IDs come from the shared tracker and never collide. If another planning branch is open and this one will create a spec, stop and ask the product owner whether to merge or abandon the other branch first, or to continue and renumber at merge time.
 3. Run the CLI command that allocates the artifact ID.
 4. Run `git checkout -b plan/<id>-<slug>`. A new spec file is untracked and carries over; commit it there. A change-request is created in the tracker and never committed.
 
@@ -41,7 +41,7 @@ An approved spec amended after its planning branch merged — because spec-truth
 
 1. The Planner opens `plan/S-NNN-<slug>`, or `plan/CR-NNN-<slug>` when an approved change-request drives the amendment, as in Opening a Planning Branch, skipping step 3.
 2. The Planner amends the spec, bumps its `version`, records the change in its Amendment Log, adds the `Reconciliation record:` row when reconciliation drives the amendment (that row bumps no `version`), and commits on the branch.
-3. The Architect runs the architecture consistency review on the amended spec and commits any ADR it raises on the same branch.
+3. The Architect runs the architecture consistency review on the amended spec.
 4. On PASS, the Planner merges the branch (Merging a Planning Branch), never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2.
 
 A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
@@ -89,7 +89,8 @@ chore(plan): merge S-004 billing export
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch, at the point Merging a Planning Branch names | `{{integration_branch}}` |
 | **Developer** | After each implementation cycle, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
-| **Architect** | After producing an ADR or amendment, and after updating the architecture documents in feature architecture | `plan/…` when raised during planning or for an amendment planning branch; otherwise `{{integration_branch}}` |
+| **Architect** | After producing or amending an ADR | The branch that is checked out |
+| **Architect** | After updating the architecture documents in feature architecture | `plan/…` |
 | **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | the target branch |
 
 ## Workspace Hygiene

@@ -55,7 +55,7 @@ A technology or format the spec fixes as an interface (Contract material that us
 
 For each gap, choose the option that meets the work's requirements and fits the existing architecture and coding guidelines. Prefer what the project already uses; a new framework for one feature needs a reason the existing one cannot meet.
 
-- A **durable decision** — hard to reverse, or relied on by more than this work — is recorded with `new-adr`, status `accepted`. Provide `title`, and as `description` the spec or change-request ID, the need, the options considered and the reason for the choice. `new-adr` commits the ADR on the planning branch and runs its consistency review; list each correction that review routes to the Planner under `Spec findings`.
+- A **durable decision** — hard to reverse, or relied on by more than this work — is recorded with `new-adr`, status `accepted`. Provide `title` and as `description` the spec or change-request ID and the facts `new-adr` asks for. `new-adr` commits the ADR and runs its consistency review; list each correction that review routes to the Planner under `Spec findings`.
 - A **local design choice** that only this work relies on is recorded in the architecture documents, without an ADR.
 
 For each conflict, decide whether the existing decision changes. If it does, record the new decision with `new-adr`, `supersedes` naming the old ADR. If no decision can meet the requirement, escalate.

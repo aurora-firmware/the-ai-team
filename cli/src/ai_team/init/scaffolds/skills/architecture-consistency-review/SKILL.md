@@ -61,7 +61,7 @@ Route each finding to the owner of the side that must change:
 | An ADR | The Architect amends it, or supersedes it with `new-adr` |
 | A change-request finding that keeps its approved intent | The Planner applies it, anchored to the approved change-request |
 
-When the Architect amends an ADR directly, commit it as `git-conventions` describes for the Architect: on the branch of the change under review, otherwise on `{{integration_branch}}`.
+When the Architect amends an ADR directly, commit it on the branch that is checked out.
 
 ### Step 6: Decide the Verdict
 
