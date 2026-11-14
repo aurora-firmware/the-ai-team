@@ -16,7 +16,9 @@ Argument: `$ARGUMENTS`
 
 - **Required:** the source branch (`task/T-012-settings-api`, `bug/B-003-login-crash`) or a work item ID (`T-012`, `B-003`).
 - **Optional:** the destination branch. Default: `{{integration_branch}}`.
-- **The work item file** in the local tracker, with a latest Review Verdict of PASS.
+- **The work item file** in the local tracker.
+- **A PASS verdict**, confirmed by the caller: the loop's `review-cycle` checks the latest Review Verdict before it invokes this skill, and the product owner who spawns an Integrator is responsible for it. This skill does not check it again.
+- **The caller**, when it is a development or bug-fix loop: it decides whether Step 4 runs its gap check.
 
 ## Procedure
 
@@ -26,11 +28,10 @@ Argument: `$ARGUMENTS`
 2. `git branch --list <destination>` must list the destination. Otherwise stop `BLOCKED`: "Destination branch '<destination>' not found."
 3. Run the before-point Workspace Hygiene check of the `git-conventions` skill, and note the branch if it parks anything.
 
-### Step 2: Read the Work Item and Its Verdict
+### Step 2: Read the Work Item
 
-1. Take the work item ID from the branch name (`task/T-012-…` → `T-012`, `bug/B-003-…` → `B-003`) and run `ai-team show <id> --json` for the file `path`. Read the file there, never a copy in a branch. Without a work item file, stop `BLOCKED`: integration needs the recorded PASS verdict.
+1. Take the work item ID from the branch name (`task/T-012-…` → `T-012`, `bug/B-003-…` → `B-003`) and run `ai-team show <id> --json` for the file `path`. Read the file there, never a copy in a branch. Without a work item file, stop `BLOCKED`: integration needs its verification commands and criteria.
 2. Read the file: for a task its Description, Acceptance Criteria, Verification, Work Log and Review; for a bug its Summary, Diagnosis Log, Fix Verification, Work Log and Review.
-3. The most recent `### Review Verdict` must be PASS. Otherwise stop `BLOCKED`: "<id>: the latest Review Verdict is <verdict | not recorded>; the branch must pass review before integration."
 
 ### Step 3: Determine the Verification Commands
 
@@ -44,7 +45,7 @@ Argument: `$ARGUMENTS`
 
 1. A separate destination or baseline check that the work item or the project guidance names.
 2. Otherwise the baseline command found with the Discovery Order.
-3. When it differs from the source command, Step 7 runs both.
+3. When it differs from the source command, Step 7 runs both, except on the identical tree Step 7 describes.
 4. When no baseline command is discoverable, Step 7 runs only the source command, or nothing when there is none. Record this as a **coverage gap**. A coverage gap is reported with the result and never presented as full coverage; it never blocks integration by itself.
 
 #### Discovery Order
@@ -58,10 +59,11 @@ When several plausible baseline commands are documented, none is named the basel
 
 ### Step 4: Check the Diff
 
-1. `git checkout <source-branch>`, then read `git diff <destination>...<source-branch> --stat` and the full diff.
-2. An empty diff, with a PASS verdict whose record shows the criteria are met on the destination (Gate 4), has nothing to merge: skip Steps 5 to 8 and go to Step 9. When the record does not show it, stop `FAIL` with a gap report.
-3. A diff that adds or changes a lifecycle file (a tracker file, or legacy `tasks/`, `bugs/` or `change-requests/` files in the project directory) stops `FAIL`: lifecycle state belongs in the tracker, never in a branch.
-4. A diff that does not address the work item stops `FAIL` with a gap report: an acceptance criterion with no trace in the diff, or a bug fix that leaves the isolated fault of the Diagnosis Log untouched.
+1. `git checkout <source-branch>`, then read `git diff <destination>...<source-branch> --stat`.
+2. Note whether the destination is an ancestor of the source branch: `git merge-base --is-ancestor <destination> <source-branch>` exits 0. Then the merge produces the source branch's tree, and Step 7 runs only what Step 5 did not.
+3. An empty diff, with a PASS verdict whose record shows the criteria are met on the destination (Gate 4), has nothing to merge: skip Steps 5 to 8 and go to Step 9. When the record does not show it, stop `FAIL` with a gap report.
+4. A diff that adds or changes a lifecycle file (a tracker file, or legacy `tasks/`, `bugs/` or `change-requests/` files in the project directory) stops `FAIL`: lifecycle state belongs in the tracker, never in a branch.
+5. **Gap check.** Skip it when the caller is a development or bug-fix loop and the latest Review Verdict's `Reviewed through:` commit is the source branch's HEAD (`git rev-parse <source-branch>`): the Reviewer already checked every criterion against this diff. Otherwise read the full diff; a diff that does not address the work item stops `FAIL` with a gap report: an acceptance criterion with no trace in the diff, or a bug fix that leaves the isolated fault of the Diagnosis Log untouched.
 
 ### Step 5: Run the Source Command
 
@@ -83,6 +85,7 @@ If a test fails, stop `FAIL` with the failing tests and their output: a pre-merg
 ### Step 7: Run the Destination Command
 
 On the destination branch, run the destination command set the same way as Step 5, and report any coverage gap with the result.
+When Step 4 found the destination to be an ancestor of the source branch, the merged tree is the tree Step 5 verified: run only the destination command lines Step 5 did not run, and report the others as verified pre-merge on the identical tree. When Step 5 ran them all, nothing runs here.
 When everything passes, go to Step 9; otherwise go to Step 8.
 
 ### Step 8: Regression Path
@@ -93,8 +96,8 @@ When everything passes, go to Step 9; otherwise go to Step 8.
    git revert -m 1 --no-commit HEAD
    git commit -m "chore(<kind>): revert merge of <source-branch> — regression in <test-names>"
    ```
-3. Attribute each failing test: re-run the failing commands on the reverted destination. A test that fails there too is not attributable to the source branch.
-4. File one bug with the `new-bug` skill for each attributable test. Bug reports live in the tracker: no branch switch and no commit. Classify each for evidence only: a **true regression** passed in Step 5; a **previously-uncovered failure** ran only in the baseline command. Give the full input set:
+3. Attribute every failing test to the source branch, without re-running anything on the reverted destination: every merge into the destination passed this skill, so it was green before this merge.
+4. File one bug with the `new-bug` skill for each failing test. Bug reports live in the tracker: no branch switch and no commit. Classify each for evidence only: a **true regression** passed in Step 5; a **previously-uncovered failure** ran only in the baseline command. Give the full input set:
    - `title`: a concise regression title
    - `severity`: from user impact, data risk, security risk and how much of the system is blocked
    - `summary`: the merge commit, the destination, the source branch, and the classification
@@ -105,7 +108,7 @@ When everything passes, go to Step 9; otherwise go to Step 8.
    - `fix_verification`: the destination command that must pass after the fix
    - `details`: Reproduction Status `confirmed`; Reproduction Steps: the destination command that fails; Environment: the runtime details known from the run; Suspected Area: the changed files implicated, or `unknown`
 5. Run the after-point Workspace Hygiene check on the destination, then `git checkout <source-branch>`.
-6. Stop. When any failing test is not attributable, stop `ESCALATE`, naming those tests and the bugs filed for the others. Otherwise stop `FAIL`: the regressions found, the bug IDs, the reverted merge and the kept source branch. Integration is retried once those bugs are resolved on the source branch.
+6. Stop `FAIL`: the regressions found, the bug IDs, the reverted merge and the kept source branch. Integration is retried once those bugs are resolved on the source branch.
 
 ### Step 9: Finalize
 
@@ -121,20 +124,20 @@ On every stop the work item's status is unchanged and the source branch is kept;
 
 | Condition | Result |
 |---|---|
-| Branch, destination, work item, PASS verdict or verification command missing; ambiguous baseline | `BLOCKED` |
+| Branch, destination, work item or verification command missing; ambiguous baseline | `BLOCKED` |
 | Lifecycle files in the diff; the diff does not address the work item; the source command fails | `FAIL`, nothing merged |
-| Attributable post-merge regression | `FAIL`, bugs filed and merge reverted |
-| A conflict `merge-conflicts` cannot resolve; a failure not attributable to the source branch | `ESCALATE` |
+| Post-merge regression | `FAIL`, bugs filed and merge reverted |
+| A conflict `merge-conflicts` cannot resolve | `ESCALATE` |
 
 ## Escalation
 
 The self-recovery threshold is one merge attempt.
-Return `ESCALATE` with the four-field request in the format `escalation-review` owns when Step 6 hits a conflict `merge-conflicts` cannot resolve (pass on its block), or Step 8 finds a failure that is not attributable to the source branch:
+Return `ESCALATE` with the four-field request in the format `escalation-review` owns when Step 6 hits a conflict `merge-conflicts` cannot resolve (pass on its block):
 
 ```text
-Problem: [the unresolved conflict, or the tests failing with and without the merge]
-Attempted: [the merge attempt, the merge-conflicts run, the commands run before and after the revert]
-Failed because: [why the conflict or the failure cannot be resolved or attributed]
+Problem: [the unresolved conflict]
+Attempted: [the merge attempt and the merge-conflicts run]
+Failed because: [why the conflict cannot be resolved]
 Question: [which work item owns the behavior, which spec applies, or how to resolve]
 ```
 
@@ -150,7 +153,7 @@ Do not force-resolve a conflict or pick a side.
 ## Quality Criteria
 
 - The work item file in the tracker gave the acceptance or fix-verification context.
-- The source branch was verified before the merge and the destination after it.
+- The source branch was verified before the merge, and the destination after it unless the merge produced the tree verified before it.
 - Regression bugs carry enough evidence for the bug-fix loop to reproduce and fix them on the preserved source branch.
 - The destination branch is clean: `git status --porcelain --untracked-files=all` is empty.
 

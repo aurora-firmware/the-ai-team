@@ -1,7 +1,7 @@
 ---
 name: dev-loop
 description: Fully autonomous implementation loop that drives tasks through Developer and Reviewer cycles to integration, one task at a time, resuming in-progress tasks before pending ones. Use when Gate 2 has passed and pending or resumable tasks are ready for development. Use only when the product owner asks to run the development loop.
-argument-hint: "[task-id | task-branch] — optional single task to process (e.g., T-012 or task/T-012-my-feature). If omitted, processes the full queue."
+argument-hint: "[green] [task-id | task-branch] — optional `green` when the integration branch is known green, and an optional single task to process (e.g., green T-012 or task/T-012-my-feature). If no task is given, processes the full queue."
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill(review-cycle), Skill(integrate), Skill(new-bug), Skill(git-conventions)
 ---
 
@@ -14,8 +14,9 @@ Processes the task queue without product owner intervention: it resumes `in-prog
 Argument: `$ARGUMENTS`
 
 - **Optional:** one task ID or task branch (`T-012` or `task/T-012-my-feature`). The loop then processes only that task and stops after it.
-- Without an argument, the loop processes the whole queue.
-- Each single-task run repeats the baseline guard; one run over the whole queue pays for it once.
+- Without a task, the loop processes the whole queue.
+- **Optional:** the word `green`, or a statement in the request that `{{integration_branch}}` is green. The caller vouches that the suite passes on it, and the loop skips the baseline run (Step 1). Use it when nothing has changed `{{integration_branch}}` since a run that verified it, such as the previous loop run.
+- Without that statement, each single-task run repeats the baseline guard; one run over the whole queue pays for it once.
 
 Tasks live in the local tracker, outside version control; their state is the frontmatter `status`.
 The loop reads and changes it only through the `ai-team` CLI:
@@ -28,8 +29,8 @@ The loop reads and changes it only through the `ai-team` CLI:
 
 ### Step 1: Start
 
-1. Invoke the `review-cycle` skill. Its Workspace Hygiene, Dispatch Discipline and Reading a Role's Result rules apply to the whole run. Run the startup hygiene check.
-2. **Baseline test guard**, once per run. Find the project's baseline test command with the Discovery Order of the `integrate` skill, and run it from the repository root:
+1. Invoke the `review-cycle` skill. Its Workspace Hygiene, Green Base, Dispatch Discipline and Reading a Role's Result rules apply to the whole run. Run the startup hygiene check.
+2. **Baseline test guard**, once per run. When the caller stated that `{{integration_branch}}` is green, skip the guard, note in the run summary that the caller vouched for it, and continue: the base is known green (`review-cycle`, Green Base). Otherwise find the project's baseline test command with the Discovery Order of the `integrate` skill, and run it from the repository root:
    - **None documented**, or the documentation says no automated tests exist: stop with `BLOCKED: no automated baseline test command is documented. Provide the command to run, or confirm that this project has no automated baseline test.` If the product owner confirms there is none, record that in the run summary and continue without a baseline run.
    - **Several plausible commands**, none named the baseline: stop with `BLOCKED: multiple plausible baseline test commands are documented. Confirm which command the loop should run before claiming tasks.`
    - **Fails:** stop with `BLOCKED: baseline test command failed before any task was claimed. Failing command: <command>. Output summary: <last 20 lines of combined stdout/stderr>.`
@@ -37,11 +38,11 @@ The loop reads and changes it only through the `ai-team` CLI:
 
 ### Step 2: Select the Next Task
 
-**With an argument:** extract the task ID from it and run `ai-team show <task-id> --json`.
+**With a task argument:** extract the task ID from it and run `ai-team show <task-id> --json`.
 An `in-progress` task goes to Step 3, a `pending` task to Step 4.
 Anything else stops the loop with: "Task <task-id> is not a pending or in-progress task. Check the task ID and its current status."
 
-**Without an argument:**
+**Without a task argument:**
 
 1. **Resume first.** Take the first `in-progress` task (`ai-team list tasks --state in-progress`) that has not returned `WAITING` in this run, and go to Step 3.
 2. **Then pending work.** From `ai-team list tasks --state pending` (`planned` tasks are not in the queue), pick the task with the highest `priority` (critical → high → medium → low), then the oldest `created`, whose dependencies are all `completed`. The dependencies are the task IDs under `## Dependencies` in its file (``- `T-NNN` — reason``, or `- None`). Go to Step 4.
@@ -69,7 +70,7 @@ Then go to Step 5.
 | `ESCALATED` | Step 6, with the report or escalation block `review-cycle` returned |
 | `STOPPED` | Step 6, with the cause |
 
-With a single-task argument, go to Step 6 after any outcome.
+With a task argument, go to Step 6 after any outcome.
 
 ### Step 6: Loop Complete
 

@@ -26,6 +26,15 @@ For a bug fix, also read the Diagnosis Log. It must hold a complete fix contract
 If it has none, or the latest one is incomplete, return `BLOCKED` naming what is missing: diagnosis is a separate, recorded cycle and never runs inline here.
 The fix contract is the implementation target.
 
+**Base state.** Before the first change on the work item, know whether the full suite is green on the base, so a later failure is clearly yours or clearly pre-existing:
+
+- The active loop states the base is green: trust it and do not run the suite before starting. Cite the statement under Verification (Step 9).
+- Otherwise (the loop states the base is not known green, or says nothing about it): run the full suite before your first change and list the run under Verification.
+- A bug fix: the Diagnosis Log records the base state; cite it.
+
+A test that fails on the base is pre-existing: name it in the Work Log and leave it alone unless the work item covers it.
+On a later session of the same work item (after a review), the base state is already recorded: do not establish it again.
+
 ### Step 1: Read the Acceptance Criteria or Fix Verification
 
 For each task criterion or Fix Verification step, identify the testable behavior: its input, expected output, and edge cases (boundaries, empty input, error conditions).
@@ -52,7 +61,7 @@ If a test fails in a way the cycle does not explain, or code misbehaves, apply t
 
 ### Step 6: Refactor
 
-Clean up without changing behavior, then run all tests again.
+Clean up without changing behavior, then run the tests of the code you changed again. The full suite runs once per session, after its last change (Step 9).
 
 ### Step 7: Commit the Cycle
 
@@ -79,7 +88,7 @@ Scenarios:
 - <AC scenario cited in Source Requirements> — <the test or check that verifies it>
 ```
 
-- **Verification** lists every command run as evidence this session: the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them. Every command is re-runnable from the branch: a script it runs is committed or quoted in full in the entry.
+- **Verification** lists every command run as evidence this session: the base state (Step 0), the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one, run once after the session's last change. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them. Every command is re-runnable from the branch: a script it runs is committed or quoted in full in the entry.
 - **Scenarios** appears only when Source Requirements cites AC scenarios.
 - Add the inspection or demonstration record, a `debug` fix contract, and the `#### Review answers` block from `receive-code-review` when they apply.
 - `N` increments across all sessions on the work item.
