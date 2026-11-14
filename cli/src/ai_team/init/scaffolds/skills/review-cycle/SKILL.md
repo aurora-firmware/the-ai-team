@@ -33,9 +33,10 @@ These rules hold for the whole loop run, from its startup to its run summary.
 Apply the Workspace Hygiene check of the `git-conventions` skill:
 
 - **At startup**, on the branch the loop starts from.
-- **Before every branch switch.** A checkout refused because of a dirty tree is not a stop: run the check, then retry the checkout once.
-- **After every `integrate` invocation**, whether it succeeded or stopped.
+- **Before every branch switch.** Checking out the branch that is already checked out is not a switch. A checkout refused because of a dirty tree is not a stop: run the check, then retry the checkout once.
 - **Before the loop ends**, including before reporting any stop.
+
+`integrate` runs its own after-point check before it returns, whether it succeeded or stopped; the loop does not repeat it.
 
 Changes parked by this run are restored when the loop ends, on the branch where they were parked.
 A run never ends with untracked files or uncommitted changes that the run itself created.
@@ -53,6 +54,19 @@ Each subagent starts cold, and the loop's context is the scarce resource:
 | cheap | `haiku` | Mechanical, fully specified tasks: a rename, a config change, a transcription from the spec |
 | standard | `sonnet` | The default for the Developer and the Reviewer |
 | most capable | `opus` | The Architect, the Planner, and the fresh Developer of the retry ladder |
+
+### Green Base
+
+A Developer must know that the full suite is green on its base before its first change, so it can tell a failure it introduced from one already there.
+Agents run one at a time, so the loop usually knows it and tells the Developer, who then does not run the suite before starting.
+The integration branch is **known green** in this run when:
+
+- whoever started the loop stated that it is green;
+- the `dev-loop` baseline guard passed on it in this run; or
+- `integrate` returned `PASS` into it in this run.
+
+A preserved task branch is known green only when `integrate` returned `PASS` into it in this run. The integration attempt that preserved it failed, so a preserved branch is otherwise not known green.
+Otherwise the base is **not known green**.
 
 ### Reading a Role's Result
 
@@ -87,8 +101,16 @@ The loop resumes an `in-progress` item without asking the product owner.
 > You are on branch `<branch>`; commit there.
 > The <task | bug> file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
 > If its latest Review Verdict lists Open findings, first answer every one with the receive-code-review skill. Apply any Architect or product owner guidance, and any spec or task amendment, recorded in the file since that verdict.
+> <base line>
 > Return the Work Log handoff entry tdd Step 9 defines; the loop appends it to the file.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+The `<base line>` (Green Base), only for a task whose Work Log has no `### Session` entry yet; omit it otherwise:
+
+- known green: "The base `<BASE>` is green: <the caller's statement | the baseline run | the integration of <ID>>. Do not run the full suite before your first change."
+- not known green: "The base `<BASE>` is not known green: run the full suite before your first change."
+
+A bug's fix session gets no base line: its Diagnosis Log records the base state.
 
 Read the result (Reading a Role's Result).
 If it has no Work Log handoff entry, return `STOPPED` and report the missing handoff.
@@ -137,11 +159,11 @@ Count each failed attempt (a FAIL verdict, or a PASS turned into a failure in St
 
 ### Step 6: Integration
 
-Confirm that the work item file holds the Developer's Work Log entry, the PASS verdict, and for a bug its Diagnosis Log entry.
+Confirm that the work item file holds the Developer's Work Log entry, a latest `### Review Verdict` of PASS, and for a bug its Diagnosis Log entry.
 Run `ai-team list bugs --json`; when any bug whose `source_branch` is this branch is not `resolved`, return `WAITING` with their IDs.
-Invoke the `integrate` skill with `<branch> <target-branch>`.
+Invoke the `integrate` skill with `<branch> <target-branch>`, naming this loop as the caller; it does not re-check the verdict, so this confirmation is the only one.
 It resolves merge conflicts in process with `merge-conflicts`; a conflict reaches this cycle only as `ESCALATE`.
-Run the after-point Workspace Hygiene check, then act on its `Result`:
+Act on its `Result`:
 
 | Result | Action |
 |---|---|

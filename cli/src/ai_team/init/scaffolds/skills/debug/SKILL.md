@@ -36,6 +36,8 @@ Identify the observable symptom, expected and actual behavior, reproduction stat
 Run the failing test or trigger the error, and confirm it fails consistently.
 Record the exact command, error message, stack trace, logs, failing assertion or other observable evidence.
 
+In a bug's diagnosis cycle, also record the base state, so the fix session knows which failures are pre-existing: when the active loop states that the base is green, cite that statement; otherwise run the project's full suite on the base before any diagnostic edit and record every failing test. The fix session relies on this record and does not run the suite again before its first change.
+
 If the failure is intermittent, run enough attempts to establish a pattern and record the frequency.
 If it cannot be reproduced, record what was tried, what evidence still exists, and the next diagnostic step.
 If no evidence-backed fault hypothesis can be formed either, apply the Escalation section; never guess at a fix.
@@ -67,7 +69,7 @@ Then write the fix contract — this skill owns its heading, fields and values:
 ```markdown
 ### Diagnosis N — YYYY-MM-DD
 Reproduction status: confirmed | intermittent | not yet reproduced — <rationale>
-Evidence captured: <exact commands, outputs and artifacts; temporary instrumentation used>
+Evidence captured: <exact commands, outputs and artifacts; the base state from Step 1; temporary instrumentation used>
 Isolated fault: <the function, module or line responsible>
 Root cause or fault hypothesis: <the cause from Step 4, or the labelled hypothesis>
 Planned verification: <the test command or manual step that will confirm the fix>

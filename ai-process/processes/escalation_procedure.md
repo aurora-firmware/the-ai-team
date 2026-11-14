@@ -28,7 +28,7 @@ These retries happen **before** entering the escalation chain.
 |-------|------------------------|
 | Developer | Three consecutive failed attempts to make tests pass |
 | Reviewer | One review cycle for ESCALATE-worthy issues — if the code has fundamental design problems that no amount of Developer fixes can address, issue ESCALATE immediately rather than FAIL. For ordinary quality issues, issue FAIL; the Development Loop allows up to three total review cycles before forcing escalation |
-| Integrator | One merge attempt — if a post-merge regression cannot be attributed to the source branch just merged, escalate immediately. A failing test is attributable when it passes on the destination after the merge is reverted. A failure before the merge (the source branch's own check) goes back to the Developer as a review finding through the loop's review cycle, not into the escalation chain |
+| Integrator | One merge attempt — if `merge-conflicts` cannot resolve a conflict, escalate immediately. A post-merge failure is attributed to the source branch just merged and filed as a regression bug, because the destination is trusted green (see Gate 4 in `quality_gates.md`); a cause outside that branch surfaces in the bug's diagnosis. A failure before the merge (the source branch's own check) goes back to the Developer as a review finding through the loop's review cycle, not into the escalation chain |
 
 Once the role exceeds its threshold, it stops retrying and enters Phase 2.
 
@@ -72,7 +72,7 @@ A role enters the escalation chain when it **cannot complete its assigned task**
 
 - **Developer:** Tests fail repeatedly (3 attempts). Requirements are ambiguous or untestable. Conflicting constraints make the task impossible as specified.
 - **Reviewer:** Code has fundamental design issues that cannot be fixed without changing the specification.
-- **Integrator:** Merge conflicts that cannot be resolved without understanding both sides' intent. Integration tests fail and the regression cannot be attributed to the source branch just merged, that is, the failing test also fails on the destination after the merge is reverted.
+- **Integrator:** Merge conflicts that cannot be resolved without understanding both sides' intent.
 
 ## Rules
 
