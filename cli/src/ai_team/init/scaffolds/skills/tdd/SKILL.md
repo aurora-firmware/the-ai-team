@@ -28,9 +28,9 @@ The fix contract is the implementation target.
 
 **Base state.** Before the first change on the work item, know whether the full suite is green on the base, so a later failure is clearly yours or clearly pre-existing:
 
-- The active loop states the base is green: trust it and do not run the suite before starting. Cite the statement under Verification (Step 9).
-- Otherwise (the loop states the base is not known green, or says nothing about it): run the full suite before your first change and list the run under Verification.
-- A bug fix: the Diagnosis Log records the base state; cite it.
+- A bug fix: the Diagnosis Log records the base state; cite it and do not run the suite before starting. This takes precedence over the bullets below.
+- A task whose active loop states the base is green: trust it and do not run the suite before starting. Cite the statement under Verification (Step 9).
+- Any other task (the loop states the base is not known green, or says nothing about it): run the full suite before your first change and list the run under Verification.
 
 A test that fails on the base is pre-existing: name it in the Work Log and leave it alone unless the work item covers it.
 On a later session of the same work item (after a review), the base state is already recorded: do not establish it again.

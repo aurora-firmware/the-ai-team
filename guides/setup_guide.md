@@ -117,7 +117,7 @@ The typical feature workflow is then:
 4. **Decide the architecture** — the architect decides how the spec is built (technology and design) and records it in ADRs and the architecture documents.
 5. **Break into tasks** — the planner decomposes the spec into atomic tasks.
 6. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
-7. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop. When nothing has changed the integration branch since a run that verified it, start the loop with `/dev-loop green` (or `/bug-loop green`) to skip its baseline test run; the Developers then trust that the base is green instead of running the suite before they start.
+7. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop. When nothing has changed the integration branch since a run that verified it, start the loop with `/dev-loop green` to skip its baseline test run; the Developers then trust that the base is green instead of running the suite before they start. `/bug-loop green` has no baseline run to skip: it tells each bug diagnosis that its base is green, so the diagnosis does not run the full suite to establish it.
 8. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
 9. **Final approval** — the product owner approves the merge from `dev-agent` to `main` (Gate 5).
 

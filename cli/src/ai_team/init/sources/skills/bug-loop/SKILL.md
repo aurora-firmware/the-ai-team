@@ -72,7 +72,7 @@ A `DIAGNOSE` outcome goes to Step 5; every other outcome goes to Step 6.
 
 The `<base line>` follows the `review-cycle` Green Base rule for the bug's base branch:
 
-- known green: "The base `<BASE>` is green: <the caller's statement | the baseline run | the integration of <ID> | the pre-merge run recorded in this bug's evidence>. Do not run the full suite to establish the base state."
+- known green: "The base `<BASE>` is green: <the caller's statement | the integration of <ID>>. Do not run the full suite to establish the base state."
 - not known green: "The base `<BASE>` is not known green: run the full suite on it before any diagnostic edit and record the result."
 
 Read the result (`review-cycle`, Reading a Role's Result):

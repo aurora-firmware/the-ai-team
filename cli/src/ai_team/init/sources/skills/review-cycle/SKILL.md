@@ -65,7 +65,7 @@ The integration branch is **known green** in this run when:
 - the `dev-loop` baseline guard passed on it in this run; or
 - `integrate` returned `PASS` into it in this run.
 
-A preserved task branch is known green when `integrate` returned `PASS` into it in this run, or when the integration attempt that preserved it passed its pre-merge source command (recorded in the regression bug's evidence).
+A preserved task branch is known green only when `integrate` returned `PASS` into it in this run. The integration attempt that preserved it failed, so a preserved branch is otherwise not known green.
 Otherwise the base is **not known green**.
 
 ### Reading a Role's Result

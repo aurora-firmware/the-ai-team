@@ -96,7 +96,7 @@ When everything passes, go to Step 9; otherwise go to Step 8.
    git revert -m 1 --no-commit HEAD
    git commit -m "chore(<kind>): revert merge of <source-branch> — regression in <test-names>"
    ```
-3. Attribute every failing test to the source branch, without re-running anything on the reverted destination: every merge into the destination passed this skill, so it was green before this merge.
+3. Attribute every failing test to the source branch, without re-running anything on the reverted destination: the process trusts the destination to be green before the merge (Gate 4). When the cause lies elsewhere, the regression bug's diagnosis finds it.
 4. File one bug with the `new-bug` skill for each failing test. Bug reports live in the tracker: no branch switch and no commit. Classify each for evidence only: a **true regression** passed in Step 5; a **previously-uncovered failure** ran only in the baseline command. Give the full input set:
    - `title`: a concise regression title
    - `severity`: from user impact, data risk, security risk and how much of the system is blocked
