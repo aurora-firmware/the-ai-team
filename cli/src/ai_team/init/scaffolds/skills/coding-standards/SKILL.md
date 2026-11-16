@@ -1,34 +1,47 @@
 ---
 name: coding-standards
-description: Defines the framework coding standards that implementation code and tests must meet, and where a project's own coding guidelines override them. Use when a Developer writes or changes code or tests, or when a Reviewer checks code against the project's rules.
+description: Defines the framework coding standards, the starting point for a project's own coding guidelines, that implementation code and tests must meet. Use when a Developer writes or changes code or tests, or when a Reviewer checks code against the project's rules.
 allowed-tools: Read
 user-invocable: false
 ---
 
 # Coding Standards
 
-These standards are language-agnostic.
-The project's own coding guidelines extend and override them: read the document the project guidance (`AGENTS.md` or the project's other rules) names, by default `docs/development/coding_guidelines.md`.
+These standards are language-agnostic and are the starting point for the project's own coding guidelines, which the project edits freely.
+Follow both: read the document the project guidance (`AGENTS.md` or the project's other rules) names, by default `docs/development/coding_guidelines.md`.
 Where the two disagree, the project's guidelines win.
 When the project has no such document, these standards apply alone.
 
-## General
+## Principles
 
-- **Clarity over cleverness.** No tricks, obscure idioms or compact expressions for their own sake.
-- **Minimal scope.** Implement exactly what the task or fix specifies: no added features, unrelated refactors or unrequested "improvements".
-- **Self-documenting code.** Descriptive names; comments explain *why*, not *what*.
-- **Fail explicitly.** Surface a clear error rather than continue with bad state.
+1. **One program, one responsibility.** A function, a file and a module each do one clear thing and do it well. Build larger behavior by composing small parts, not by growing big ones.
+2. **Simpler is better.** Choose the simplest solution that meets the requirement. Add no abstraction, option, layer or configuration until something needs it.
+3. **Removing beats adding.** When a change or fix can be made by deleting or reducing code, do that instead of patching on top. Delete the dead code, unused options and duplicated logic your change makes obsolete.
+4. **Minimal scope.** Implement exactly what the task or fix specifies: no added features, unrelated refactors or unrequested "improvements".
+5. **Clarity over cleverness.** No tricks or obscure idioms.
+6. **Self-documenting code.** Descriptive names; comments explain *why*, not *what*.
+7. **Fail explicitly.** Surface a clear error rather than continue with bad state.
+
+## Project Structure
+
+- `src/` holds the product code, `test/` the tests, `docs/` the project documentation, and `README.md` at the root says what the project is and how to build, test and run it.
+- `test/` mirrors the layout of `src/`, so a file's tests are easy to find.
+- Every directory has one clear purpose and groups related files. No catch-all `utils`, `misc` or `common`.
+- Where the language or framework requires a different layout, follow it.
 
 ## Naming
 
-- Follow the naming convention of the project's language (for example `camelCase` in JavaScript, `snake_case` in Python).
+- Files and directories use `snake_case` and are named for the one thing the file does: `parse_config`, not `helpers`. Hand-written documents follow the same rule; `README.md` is the conventional exception.
+- Variables and functions use `snake_case`, constants use `UPPER_SNAKE_CASE`, and types and classes use `PascalCase`.
 - Names describe purpose, not implementation: `get_active_users()`, not `query_db_filter_active()`.
-- Booleans start with `is`, `has`, `can` or `should`. Constants use `UPPER_SNAKE_CASE`.
+- Booleans start with `is`, `has`, `can` or `should`.
 
-## Functions
+## Functions and Files
 
-- One function does one thing; split one that does several.
-- Aim for under 30 lines, at most 3–4 parameters (use a configuration object or data class beyond that), and early returns over nesting.
+- A function does one thing; a file has one clear responsibility. If you cannot name it in a few words, split it.
+- Keep functions and files short. When one grows long, look for the part that can be separated or removed.
+- Keep parameter lists short; group related values into one object.
+- Return early instead of nesting.
 
 ## Error Handling
 
@@ -38,7 +51,7 @@ When the project has no such document, these standards apply alone.
 
 ## Testing
 
-- Work that adds or changes product behavior has tests, written test-first. The task's Verification section names its method (test, inspection or demonstration).
+- Work that adds or changes product behavior has tests, written test-first: the test fails before the implementation and passes after. The task's Verification section names its method (test, inspection or demonstration).
 - Never write a test that asserts the wording of skills, process documents, guides or specs, or one that only proves something was removed; those changes are verified by inspection.
 - Test behavior, not implementation details.
 - Tests are independent (no shared mutable state) and named for the behavior: `test_returns_empty_list_when_no_users_match_filter`.
@@ -52,12 +65,5 @@ When the project has no such document, these standards apply alone.
 
 ## Dependencies
 
-- Minimize external dependencies; prefer the standard library when it meets the need.
-- Pin dependency versions in lock files.
-- Justify a new dependency in the Work Log or a decision record.
-
-## File Organization
-
-- One module per file, unless the language convention differs.
-- Keep files under 300 lines; split a larger one when it has separable parts.
-- Group related files in directories with a clear purpose.
+- Prefer the standard library; add an external dependency only when it clearly earns its place, and justify it in the Work Log or a decision record.
+- Record exact dependency versions in the project's lock file.
