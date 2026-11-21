@@ -1,6 +1,6 @@
 ---
 title: "ai-team CLI Documentation"
-version: "0.5"
+version: "0.6"
 status: approved
 created: 2026-05-14
 author: planner
@@ -150,8 +150,7 @@ artifacts.
   names exists in `commands.md`
 
 **Verification:** Inspection: each sequence has a section, and each command it names
-appears in `commands.md`. Test: `test_usage_md_example_commands_exist_in_commands_md`
-in `cli/tests/test_usage_guide.py` checks every command in a `usage.md` example.
+appears in `commands.md`.
 
 ### REQ-004 — Folder structure
 
@@ -219,10 +218,8 @@ argument and flag, including the global flags.
   `--help`
 - **Then:** each is found
 
-**Verification:** Test: `test_committed_commands_md_matches_generated_output` in
-`cli/tests/test_gen_docs.py`, since the generated reference covers every command. Smoke
-tests: `test_commands_md_contains_key_command`, `test_commands_md_contains_global_flags`
-and `test_generated_commands_md_contains_check_layout_command`.
+**Verification:** Inspection of `cli/docs/commands.md` for each top-level command,
+`--version` and `--help`.
 
 ### REQ-008 — Generated-file header
 
@@ -236,8 +233,8 @@ generated, must not be edited by hand, and is regenerated with
 - **When:** its first lines are read
 - **Then:** they are the header from Interfaces
 
-**Verification:** Tests: `test_commands_md_has_generated_header_note` and
-`test_commands_md_header_names_regeneration_command` in `cli/tests/test_gen_docs.py`.
+**Verification:** Inspection of the first lines of `cli/docs/commands.md` against the
+header in Interfaces.
 
 ### REQ-009 — Regeneration command
 
@@ -350,11 +347,12 @@ data, and no generation-time target was agreed.
 
 1. Every pull request whose committed `commands.md` differs from a fresh generation
    fails CI (REQ-007, REQ-012).
-2. `cli/tests/test_gen_docs.py` passes, covering the reference, its header and the
-   generator (REQ-007–REQ-009, REQ-012), and inspection finds each required `usage.md`
-   topic (REQ-001–REQ-006).
-3. `test_usage_md_example_commands_exist_in_commands_md` passes, and inspection finds
-   every flag `usage.md` names in `commands.md` (REQ-002, REQ-003).
+2. `cli/tests/test_gen_docs.py` passes, covering the committed reference and the
+   generator (REQ-007, REQ-009, REQ-012), and inspection finds the reference's commands,
+   global flags and header (REQ-007, REQ-008) and each required `usage.md` topic
+   (REQ-001–REQ-006).
+3. Inspection finds every command and flag `usage.md` names in `commands.md` (REQ-002,
+   REQ-003).
 4. Each action skill that invokes a CLI command has a row in `component_map.md`
    (REQ-010).
 
@@ -382,3 +380,4 @@ drift check is wired in (S-010).
 | 2026-10-26 | REQ-001–REQ-006: `usage.md` content is verified by inspection; the keyword smoke tests in `cli/tests/test_usage_guide.py` were removed, and AC-003.1 keeps the test that checks example commands against `commands.md`. Success Criteria 2 and 3 follow. | Tests that assert the wording of skills, process documents, guides or user docs were removed; under the spec authoring guide's Verification methods such criteria are verified by inspection. | None |
 | 2026-10-27 | Paths to the renamed hand-written documents follow the snake_case naming rule in `ai-process/guidelines/markdown_conventions.md` (for example `guides/setup_guide.md`, `ai-process/architecture/component_map.md`). Wording only. | Product owner decision: hand-written documents are named in snake_case. | None |
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its two entries (a custom generator, the console-script invocation) were implementation approaches and move to `docs/development/tech_stack.md`, and the section states None; the two-file design moves to `docs/development/architecture.md`; Open Questions points to `tech_stack.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
+| 2026-11-21 | AC-003.1 keeps only its Inspection clause; `test_usage_md_example_commands_exist_in_commands_md` and `cli/tests/test_usage_guide.py` are removed. AC-007.2 is verified by inspection of `cli/docs/commands.md` for each top-level command, `--version` and `--help`, and AC-008.1 by inspection of its first lines against the header in Interfaces; their content tests in `cli/tests/test_gen_docs.py` are removed. AC-007.1 and AC-012.1 keep their tests. Success Criteria 2 and 3 follow. Version bumped to 0.6. Driven by CR-009 item 2 and its Architecture Consistency Review. | Documentation content is verified by inspection, never by a code test; a test may check that a committed generated file equals its generator's fresh output (spec authoring guide, Verification methods). | CR-009 task plan |
