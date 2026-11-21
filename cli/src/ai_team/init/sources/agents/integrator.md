@@ -41,7 +41,7 @@ When `integrate` or `merge-conflicts` returns `ESCALATE`, the Integrator appends
 
 ### Hands Off To
 - **Product Owner** — the merged and tested branch for final approval, or an unresolved conflict report when manual input is required.
-- **Architect** (via escalation) — when conflicts or failures require structural guidance beyond a textual resolution.
+- **Architect** (via escalation) — when a merge conflict requires structural guidance beyond a textual resolution. Post-merge failures are not escalated: they become regression bugs.
 
 ## Folder Scope
 

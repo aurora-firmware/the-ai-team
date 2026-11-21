@@ -1,6 +1,6 @@
 ---
 title: System Overview Spec (S-000)
-version: '0.5'
+version: '0.6'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-19'
 author: planner
@@ -226,10 +226,8 @@ feature-spec sections.
   infrastructure, the examples show every component field and the infrastructure one
   has Decisions needed, and no feature-spec heading appears
 
-**Verification:** Tests: `test_system_overview_template_has_the_s000_sections_in_order`,
-`test_system_overview_template_omits_feature_spec_heading` and
-`test_system_overview_template_shows_one_component_example_with_all_fields` in
-`cli/tests/test_templates.py`.
+**Verification:** Inspection of `cli/src/ai_team/templates/system-overview.md` against
+the template contract in Interfaces and the shape REQ-005 states.
 
 ### REQ-006 — Content contract in the guide
 
@@ -303,8 +301,8 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
 3. A task created with `--spec S-000` passes `ai-team validate` (REQ-003).
 4. Without S-000, every listed command prints the hint on stderr with unchanged stdout
    and exit code; with S-000, none does (REQ-004).
-5. The system-overview template tests in `cli/tests/test_templates.py` pass (REQ-005), and
-   inspection finds the guide, the spec template and the skill as REQ-006–REQ-008 state.
+5. Inspection finds the system-overview template, the guide, the spec template and the
+   skill as REQ-005–REQ-008 state.
 
 ## Implementation Order
 
@@ -334,3 +332,4 @@ None.
 | 2026-10-30 | Exclusions: the answers to S-000's technology questions belong in the project's architecture documents and ADRs, no longer in "later specs". No change to S-000's own scope. Driven by issue #64. | Specs describe what the product does; the architecture documents and ADRs describe how it is built, and no spec makes a technology choice. | None |
 | 2026-11-01 | Interfaces: `spec new --overview --json` prints the spec's JSON object, deferring to S-006 REQ-017, instead of only the `id` and `path`; AC-001.1's "Then" names that object (`id` `S-000`, `status`, absolute `path`) and its test is renamed `test_spec_new_overview_json_emits_the_spec_object`. Version bumped to 0.5. Driven by B-040 (product owner decision, 2026-11-01) and its Architecture Consistency Review finding C1. | S-006 REQ-017 gives every `new`, `list` and `show` command one flat JSON object; S-007 still described the old `id`-and-`path` output. | B-040 implements it |
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the owner of each S-000 rule, formerly under Responsibility Separation, is listed in `docs/development/architecture.md`, and Exclusions, Workflow and Assumptions point there. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
+| 2026-11-21 | AC-005.1 is verified by inspection of `cli/src/ai_team/templates/system-overview.md` against the template contract in Interfaces; its three template content tests in `cli/tests/test_templates.py` are removed. Success Criterion 5 follows. Version bumped to 0.6. Driven by CR-009 item 2 and its Architecture Consistency Review. | Documentation content, including a template's headings and sections, is verified by inspection, never by a code test (spec authoring guide, Verification methods). | CR-009 task plan |

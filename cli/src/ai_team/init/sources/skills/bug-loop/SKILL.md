@@ -1,7 +1,7 @@
 ---
 name: bug-loop
 description: Fully autonomous bug-fix loop. Resumes in-progress bugs, then picks open bugs one at a time, creates a dedicated branch from the correct base, and drives each through diagnosis-first Developer → Reviewer cycles to integration. Stops when the queue is empty or a bug needs the product owner. Use only when the product owner asks to run the bug-fix loop.
-argument-hint: "[bug-id ...] — optional space-separated bug IDs (e.g., B-001 B-003). If omitted, processes the full queue."
+argument-hint: "[green] [bug-id ...] — optional `green` when the integration branch is known green, and optional space-separated bug IDs (e.g., green B-001 B-003). If no bug is given, processes the full queue."
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill(review-cycle), Skill(integrate), Skill(new-bug), Skill(git-conventions)
 ---
 
@@ -16,7 +16,8 @@ The fix, review and integration run through the `review-cycle` skill.
 Argument: `$ARGUMENTS`
 
 - **Optional:** one or more bug IDs (`B-001 B-003`). The loop then processes only those bugs.
-- Without an argument, the loop processes the whole queue.
+- Without bug IDs, the loop processes the whole queue.
+- **Optional:** the word `green`, or a statement in the request that `{{integration_branch}}` is green. The caller vouches that the suite passes on it; the loop passes that on to each diagnosis (Step 5) as the `review-cycle` Green Base rule describes.
 
 Bugs live in the local tracker, outside version control; their state is the frontmatter `status`.
 The loop reads and changes it only through the `ai-team` CLI:
@@ -32,12 +33,12 @@ Every role reads the bug file from the same tracker path, also on a bug branch b
 ### Step 1: Start
 
 Invoke the `review-cycle` skill.
-Its Workspace Hygiene, Dispatch Discipline and Reading a Role's Result rules apply to the whole run.
+Its Workspace Hygiene, Green Base, Dispatch Discipline and Reading a Role's Result rules apply to the whole run.
 Run the startup hygiene check.
 
 ### Step 2: Select the Next Bug
 
-With an argument, each listed bug must be `open` or `in-progress`; otherwise stop with "Bug <id> is not an open or in-progress bug. Verify the ID and status."
+With bug IDs, each listed bug must be `open` or `in-progress`; otherwise stop with "Bug <id> is not an open or in-progress bug. Verify the ID and status."
 Select only among the listed bugs.
 
 1. **Resume first.** Take the first `in-progress` bug that has not returned `WAITING` in this run, and go to Step 3.
@@ -66,7 +67,13 @@ A `DIAGNOSE` outcome goes to Step 5; every other outcome goes to Step 6.
 > The bug file is in the local tracker, outside version control: do not edit it, and never add it to a commit.
 > Return the fix contract (debug) as your Diagnosis Log handoff entry; the loop appends it to the bug file.
 > If the bug cannot be reproduced and no evidence-backed fault hypothesis can be formed, return ESCALATE: do not guess.
+> <base line>
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+The `<base line>` follows the `review-cycle` Green Base rule for the bug's base branch:
+
+- known green: "The base `<BASE>` is green: <the caller's statement | the integration of <ID>>. Do not run the full suite to establish the base state."
+- not known green: "The base `<BASE>` is not known green: run the full suite on it before any diagnostic edit and record the result."
 
 Read the result (`review-cycle`, Reading a Role's Result):
 

@@ -28,7 +28,7 @@ Find the claim in the table and get the proof it requires:
 | Regression test works | Red then green: it failed without the fix and passes with it | It passes once |
 | Agent or loop step completed | The diff or tracker state showing the change | The agent reporting success |
 | Requirements met | A line-by-line check of each acceptance criterion | Tests passing |
-| Branch merged | The merge commit on the destination, and a green post-merge run when the project defines a test command | The merge command exiting 0 |
+| Branch merged | The merge commit on the destination, and a green post-merge run when the project defines a test command, or, when the destination was an ancestor of the source, the pre-merge run on the identical tree | The merge command exiting 0 |
 | Document, plan or inspection result is consistent, approved, or complete | The artifact read: its path plus the decisive line, section, or verdict; for approval, the product owner's confirmation quoted | "Looks consistent", an unread file |
 | Review passed | The verdict recorded in the work item file | A chat message saying PASS |
 
@@ -48,6 +48,7 @@ If you skip any of this, do not make the claim.
 
 A claim that rests on another role's recorded run (for example a Developer's Work Log test result that a Reviewer is told not to repeat) is cited, not re-run.
 Cite the recorded command and output, and never present it as your own run.
+The same holds for a base the active loop states is green: cite the loop's statement and its source, never as a run of your own.
 
 ### Step 4: Record It
 
