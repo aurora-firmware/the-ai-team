@@ -53,8 +53,8 @@ Those checks are structural only: the author and reviewer still evaluate complet
 
 This section owns the verification vocabulary. Specs, tasks, skills, and process documents use these three methods and no others. The `new-task` skill implements them for tasks, and the other skills refer to it.
 
-- **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. Use it for behavior the product exhibits. A test may check structure the product depends on, such as frontmatter that must parse. A test never asserts the wording of prose: skills, process documents, guides, user documentation, or specs.
-- **Inspection** — someone reads the changed artifact, checks the observation each criterion states, and records what was checked and the pass or fail result. For a task, the Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references: the source spec, each accepted ADR, and S-000 when it exists. Use it for prose, configuration, and changes that only remove something.
+- **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. Use it for behavior the product exhibits. A test is never written for the content of documentation (user docs, guides, READMEs, specs, skills, process documents): documentation is verified by inspection. A test may check structure the product's code reads or writes (frontmatter that must parse, a placeholder the CLI substitutes), that a committed generated file equals its generator's fresh output, and a generator's behavior on fixture input. It never checks what a document says: its headings, sections, commands or text.
+- **Inspection** — someone reads the changed artifact, checks the observation each criterion states, and records what was checked and the pass or fail result. For a task, the Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references: the source spec, each accepted ADR, and S-000 when it exists. Use it for documentation, other prose, configuration, and changes that only remove something. The documentation rule does not require documentation to be part of a task, nor fix when it is inspected; that is the project's decision (for example, contrasting the text after each release).
 - **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. The record names the command or steps and the observed result. Use it when the behavior depends on an environment the test suite cannot reproduce, such as a CI run. A task's demonstration must be observable from the task branch, for example a CI run on the pushed branch, because its record is checked before the branch is integrated.
 
 A task takes the method its source criteria name, and has one method. When the criteria a piece of work covers name different methods, split it into one task per method. When the source is a change-request or S-000, which have no acceptance criteria, the Planner applies the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
@@ -141,12 +141,13 @@ Use `### REQ-001 — Short title` headings for one observable behavior each.
 State the triggering event or state and the required outcome, using EARS when helpful.
 Under each requirement, add concrete `#### AC-001.1 — Scenario title` cases and a `**Verification:**` line for each case that names its method (see Verification methods).
 Include the applicable success, rejection, boundary, and recovery cases rather than restating the requirement as its only example.
+Write each requirement and scenario so it is measurable; see [How to write measurable requirements](#how-to-write-measurable-requirements).
 Every approved discovery decision about behavior must appear in a requirement; task decomposition must not invent missing product decisions.
 
 ### Quality Requirements
 
 Use the same REQ and AC conventions for applicable security, privacy, accessibility, performance, reliability, compatibility, and recovery guarantees.
-Specify measurement conditions and thresholds when agreed; never invent targets or copy arbitrary example numbers.
+Write each one as a measurable requirement (see [How to write measurable requirements](#how-to-write-measurable-requirements)); never invent targets or copy arbitrary example numbers.
 Review each category and document meaningful non-applicability briefly; do not manufacture requirements to fill a template.
 If none apply, state that conclusion and its reason instead of leaving placeholder requirements.
 
@@ -174,7 +175,7 @@ State `None` with a reason when there are none; do not silently omit this review
 
 ### Success Criteria
 
-**Recipe:** a numbered list of measurable overall outcomes linked to the requirements that deliver them. These outcomes complement, rather than replace, per-requirement acceptance scenarios. Each one is measurable; see [How to write measurable success criteria](#how-to-write-measurable-success-criteria).
+**Recipe:** a numbered list of measurable overall outcomes linked to the requirements that deliver them. These outcomes complement, rather than replace, per-requirement acceptance scenarios. Each one is measurable; see [How to write measurable requirements](#how-to-write-measurable-requirements).
 
 ### Implementation Order
 
@@ -229,20 +230,27 @@ S-000 contains no technology choices, interface definitions, configuration, impl
 
 **Boundary rule:** S-000 owns the decomposition — which components exist and what each is for. A spec owns the contract of one component or feature. A spec's Purpose names the S-000 component it covers when an S-000 exists.
 
-## How to write measurable success criteria
+## How to write measurable requirements
 
-A criterion is **measurable** when an outside party can run a check (a command, an observation, a metric query) and get an unambiguous pass or fail. The Reviewer must be able to run this check.
+An acceptance criterion or a success criterion is **measurable** when an outside party can run a check (a command, an observation, a metric query) and get an unambiguous pass or fail. The Reviewer must be able to run this check. If you cannot describe how to check whether a criterion is met, it is not yet measurable.
+
+A time bound ("within N seconds", a timeout) is the worked case. When you write one:
+
+- **State the bound, the conditions it holds under, and its tolerance.** A bound means little until it says measured from what event to what event, on which runner or load, and how far over still passes.
+- **Separate the mechanism from the measured duration.** The mechanism is "the configured bound is applied, and reaching it triggers the specified handling". The measured duration is how long the real thing takes. Each can be verified on its own.
+- **Avoid wording with no threshold.** "Promptly", "quickly" and "fast" cannot pass or fail.
+- **Avoid an observation that depends on ordering, load or an external system the test does not control.** Such a check passes or fails for reasons unrelated to the requirement.
+
+You may weigh, as a choice and not a rule, a Test of the mechanism with time under the test's control (a clock or bound the test sets) and a Demonstration of the real duration, since the real duration depends on an environment the test suite cannot reproduce. A customer's real time constraint stands: when the customer requires it, the requirement keeps it and may be verified.
 
 **Good:**
-- "Every PR targeting `main` shows a `ci/tests` check that has either passed or failed within five minutes of the PR being opened."
+- "Every PR targeting `main` shows a `ci/tests` check that has either passed or failed within five minutes of the PR being opened, measured from the PR's opening event to the check's final status on the project's standard runner, with no other queued jobs and a tolerance of 30 seconds."
 - "Merging a PR with a failing `ci/tests` check is rejected by branch protection (verified by attempting the merge and observing the API response)."
 
 **Vague (avoid):**
 - "The CI is fast."
 - "The CI works well."
 - "Coverage is high."
-
-If you cannot describe how to check whether a criterion is met, the criterion is not yet measurable.
 
 ## Worked example (compact)
 
@@ -278,7 +286,7 @@ Before declaring the spec ready for Gate 1, the author confirms each of these:
 - [ ] **No technology choices or implementation design.** No languages, frameworks, libraries, storage engines, internal protocols or formats, internal components, or rejected implementation approaches. A technology appears only as Contract material, when users or external systems see it.
 - [ ] **Alternatives Considered lists the rejected solution alternatives**, each with its reason (at least one when the design had real choices), or `None` with the reason.
 - [ ] **No implementation artefacts.** No full config files, no CI manifests, no function-by-function decompositions. Where a literal value is the contract, it is labelled **Contract**.
-- [ ] **Every requirement is measurable.** Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
+- [ ] **Every requirement is measurable**, as [How to write measurable requirements](#how-to-write-measurable-requirements) describes. Each has a stable REQ identifier, one obligation, concrete acceptance scenarios, and a verification method.
 - [ ] **Discovery decisions are preserved.** Actors, journeys, applicable failure cases, and quality constraints are recorded and linked to requirements.
 - [ ] **Assumptions and dependencies are explicit.** Behavior-affecting premises are confirmed; deferred internal investigations have an owner and resolution condition.
 - [ ] **No unresolved behavioral questions remain**, regardless of who can answer them.
