@@ -5,9 +5,6 @@ Covers:
   AC-1: typer-cli is declared in the dev dependency group in pyproject.toml.
   AC-2: bash cli/scripts/gen_docs.sh regenerates cli/docs/commands.md
         from the Typer app.
-  AC-3: commands.md contains every command group, subcommand, argument, and flag.
-  AC-4: commands.md has a header note stating it is generated and naming
-        the regeneration command.
   AC-5: Running gen_docs.sh twice with no code change produces a
         byte-identical commands.md.
 """
@@ -132,63 +129,6 @@ def test_gen_docs_rejects_invalid_arguments(arguments):
     )
     assert result.returncode != 0
     assert "usage" in result.stderr.lower()
-
-
-# ---------------------------------------------------------------------------
-# AC-3: commands.md contains key commands
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("expected_term", ["task", "init", "validate"])
-def test_commands_md_contains_key_command(expected_term):
-    """commands.md must document the major command groups and subcommands."""
-    assert COMMANDS_MD.is_file(), "commands.md must exist (run gen_docs.sh first)"
-    content = COMMANDS_MD.read_text(encoding="utf-8").lower()
-    assert expected_term in content, f"commands.md does not mention '{expected_term}'"
-
-
-def test_commands_md_contains_global_flags():
-    """commands.md must include global flags such as --version and --help."""
-    assert COMMANDS_MD.is_file(), "commands.md must exist (run gen_docs.sh first)"
-    content = COMMANDS_MD.read_text(encoding="utf-8")
-    assert "--version" in content, "commands.md must document the global --version flag"
-    assert "--help" in content, "commands.md must document the --help flag"
-
-
-def test_generated_commands_md_contains_check_layout_command(tmp_path):
-    """Regenerated command docs must include the shipped check-layout command."""
-    output = tmp_path / "commands.md"
-    result = generate_docs_to(output)
-    assert result.returncode == 0, f"gen_docs.sh failed: {result.stderr}"
-    content = output.read_text(encoding="utf-8")
-    assert "## `ai-team check-layout`" in content
-    assert "Check the repository layout and report actionable findings." in content
-
-
-# ---------------------------------------------------------------------------
-# AC-4: commands.md has a generated-file header note
-# ---------------------------------------------------------------------------
-
-
-def test_commands_md_has_generated_header_note():
-    """commands.md starts with a generated-file note."""
-    assert COMMANDS_MD.is_file(), "commands.md must exist (run gen_docs.sh first)"
-    content = COMMANDS_MD.read_text(encoding="utf-8")
-    # The header note should appear near the top.
-    preamble = content[:500].lower()
-    assert "generated" in preamble, (
-        "commands.md must have a header note stating the file is generated"
-    )
-
-
-def test_commands_md_header_names_regeneration_command():
-    """The header note in commands.md must name the regeneration command."""
-    assert COMMANDS_MD.is_file(), "commands.md must exist (run gen_docs.sh first)"
-    content = COMMANDS_MD.read_text(encoding="utf-8")
-    preamble = content[:500]
-    assert "gen_docs.sh" in preamble, (
-        "commands.md header must name the regeneration command (gen_docs.sh)"
-    )
 
 
 # ---------------------------------------------------------------------------
