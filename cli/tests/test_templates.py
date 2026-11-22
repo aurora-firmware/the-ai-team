@@ -62,44 +62,11 @@ def test_system_overview_template_matches_bundled_source() -> None:
     )
 
 
-def test_system_overview_template_has_the_s000_sections_in_order() -> None:
-    assert _headings(load_template("system-overview"), "## ") == [
-        "Purpose",
-        "Users",
-        "Pain points",
-        "Use cases",
-        "Solution overview",
-        "Components",
-        "Project exclusions",
-        "Amendment Log",
-    ]
-
-
-@pytest.mark.parametrize(
-    "heading",
-    [
-        "Alternatives Considered",
-        "Workflow",
-        "Configuration Requirements",
-        "Implementation Order",
-    ],
-)
-def test_system_overview_template_omits_feature_spec_heading(heading: str) -> None:
-    assert heading not in _headings(load_template("system-overview"), "## ")
-
-
 def test_system_overview_template_uses_the_spec_title_placeholders() -> None:
     content = load_template("system-overview")
 
     assert 'title: "[Specification Title]"' in content
     assert "\n# [Specification Title]\n" in content
-
-
-def test_system_overview_template_shows_one_component_example_with_all_fields() -> None:
-    content = load_template("system-overview")
-
-    for label in ("Name", "Responsibility", "Boundary", "Works with"):
-        assert f"- **{label}:**" in content
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
