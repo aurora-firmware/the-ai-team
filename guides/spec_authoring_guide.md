@@ -141,6 +141,7 @@ Use `### REQ-001 — Short title` headings for one observable behavior each.
 State the triggering event or state and the required outcome, using EARS when helpful.
 Under each requirement, add concrete `#### AC-001.1 — Scenario title` cases and a `**Verification:**` line for each case that names its method (see Verification methods).
 Include the applicable success, rejection, boundary, and recovery cases rather than restating the requirement as its only example.
+Write each requirement and scenario so it is measurable; see [How to write measurable requirements](#how-to-write-measurable-requirements).
 Every approved discovery decision about behavior must appear in a requirement; task decomposition must not invent missing product decisions.
 
 ### Quality Requirements
