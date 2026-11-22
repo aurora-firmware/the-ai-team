@@ -48,7 +48,7 @@ An approved spec that a planning branch amends other than the one the branch car
 - File conflict risks are identified and resolved through dependencies or task changes.
 - Interfaces are consistent across tasks: every type, function, or file a task consumes is produced by a task it depends on (or already exists), under the same name and signature.
 - Task plan is architecturally consistent with the architecture documents and existing decisions, and Feature Architecture recorded every technology or design decision the plan relies on.
-- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec_authoring_guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test that asserts the wording of prose or only proves a removal.
+- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec_authoring_guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test the Verification methods of `guides/spec_authoring_guide.md` rule out.
 - No task contains placeholder text (`TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or a reference to something no task defines).
 
 **On failure:** Architect returns a correction request to the Planner. The Planner revises the task plan and resubmits it to Gate 2. For an architecture gap, the Planner first runs Feature Architecture again, then revises the task to follow its decision. The one exception: the Architect may fix an obvious missing dependency, file ordering, or naming mismatch directly in the planned task files, as the `spec-breakdown-review` skill allows.
@@ -80,7 +80,7 @@ The Reviewer checks the work against what the Developer claims it achieves (the 
 ### Stage 2: Code Quality
 **Pass criteria:**
 - Code follows the coding standards: `ai-process/guidelines/coding_standards.md` (general) and the project's coding guidelines, as `ai-process/guidelines/coding_standards.md` locates them (project-specific tech-stack rules, if present).
-- Relevant tests exist for the changed product behavior, and no test asserts the wording of skills, process documents, guides, or specs.
+- Relevant tests exist for the changed product behavior, and every test is one the Verification methods of `guides/spec_authoring_guide.md` allow.
 - The Developer's Work Log records local test evidence or explains why a local test run was not possible.
 - For an inspection or demonstration task, the Work Log records the inspection (criteria and references checked, each conflict found and fixed, and the result) or the demonstration (steps run and the observed outcome), and the Reviewer checks the planning choice.
 - No security vulnerabilities introduced.
