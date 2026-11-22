@@ -64,7 +64,7 @@ Flag a task that:
 - exceeds the one-shottable limits in `new-task`'s Task Quality Rules;
 - has no Verification in a form `new-task`'s Verification Methods define (a test command, an `Inspection:` list, or a `Demonstration:` with steps and expected observation), or omits the project's full-suite command when the project documents one;
 - records more than one method, or a method other than the one its source acceptance criteria name (for a change-request or S-000, the one `new-task`'s rule for choosing the method gives);
-- plans a test that asserts the wording of a skill, guide or process document, or only proves a removal: that needs an inspection;
+- plans a test `new-task`'s Verification Methods rule out: that needs an inspection;
 - is an inspection of prose whose reference list is empty or omits the source spec;
 - contains placeholder text: `TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or an undefined reference.
 
@@ -72,7 +72,7 @@ Flag a task that:
 
 Fix these directly in the planned task files and list each under `Corrections made`: an obvious missing dependency, a file-ordering dependency, an obvious naming mismatch. Every other finding is a correction request to the Planner, naming the task IDs and what must change; never rewrite a task's intent.
 
-A product-scope concern that does not block technical readiness is noted as non-blocking feedback, not a finding.
+A product-scope concern, or a time-bound criterion whose verification departs from `new-spec`'s Measurable requirements recipe, is noted as non-blocking feedback, not a finding.
 
 | Result | When | Next Owner |
 |---|---|---|

@@ -116,15 +116,29 @@ End-to-end flow from trigger to completion. Each step is a sentence or short phr
 Use `### REQ-NNN — Short title`, starting at REQ-001, for one observable obligation per requirement with SHALL or MUST wording.
 Keep rationale separate, and use EARS where useful to name the trigger or state and expected outcome.
 Each requirement has one or more `#### AC-NNN.M — Scenario title` headings; NNN matches the owning REQ and M is a positive scenario number.
-Each scenario gives concrete acceptance conditions and outcomes, normally Given/When/Then, and a `**Verification:**` method with a pass/fail observation: a test, an inspection, or a demonstration, as the `new-task` skill's Verification Methods define them.
+Each scenario gives concrete acceptance conditions and outcomes, normally Given/When/Then, and a `**Verification:**` method with a pass/fail observation: a test, an inspection, or a demonstration, as the `new-task` skill's Verification Methods define them. Write each one as Measurable requirements describes.
 Cover applicable success, rejection, boundary, and recovery cases; examples must exercise the requirement rather than merely rephrase it.
 Keep REQ and AC identifiers stable across amendments; never renumber or reuse retired identifiers.
 
 ### Quality Requirements
 
 Use the same REQ/AC structure and identifier space for applicable security, privacy, accessibility, performance, reliability, compatibility, and recovery guarantees.
-Record agreed measurement conditions and thresholds; do not invent targets.
+Write each as Measurable requirements describes; do not invent targets.
 Review applicability rather than manufacturing requirements to fill sections; if none apply, write None with the reason.
+
+### Measurable requirements
+
+A criterion is **measurable** when an outside party, such as the Reviewer, can run a check (command, observation, metric query) and get an unambiguous pass or fail. If you cannot say how to verify it, rewrite it.
+
+A time bound ("within N seconds", a timeout) is the worked case. Write it so that it:
+- states the bound, the conditions it holds under (from which event to which, on which runner or load) and its tolerance;
+- separates the mechanism (the configured bound is applied, and reaching it triggers the specified handling) from the measured duration (how long the real thing takes), each verifiable on its own;
+- avoids wording with no threshold, such as "promptly", "quickly" or "fast";
+- avoids an observation that depends on ordering, load or an external system the check does not control.
+
+You may weigh, as a choice and not a rule, a Test of the mechanism with time under the test's control (a clock or bound the test sets) and a Demonstration of the real duration, which depends on an environment a test suite cannot reproduce. A real time constraint of the customer stands: keep it in the requirement.
+
+"Every PR targeting `main` shows a `ci/tests` check that has passed or failed within five minutes of opening, measured from the PR's opening event to the check's final status on the standard runner, with a tolerance of 30 seconds" is measurable; "The CI is fast" is not.
 
 ### Configuration Requirements
 
@@ -143,7 +157,7 @@ If none apply, write None with a reason.
 ### Success Criteria
 
 A numbered list of overall outcomes linked to the REQ identifiers that deliver them. These complement, rather than replace, per-requirement acceptance scenarios.
-Each one is measurable: an outside party, such as the Reviewer, can run a check (command, observation, metric query) and get an unambiguous pass or fail. "Every PR targeting `main` shows a `ci/tests` check that has passed or failed within five minutes of opening" is measurable; "The CI is fast" is not. If you cannot say how to verify a criterion, rewrite it.
+Each one is measurable, as Measurable requirements describes.
 
 ### Implementation Order
 
@@ -170,7 +184,7 @@ Confirm every item:
 - [ ] **At least one exclusion.** Or a product-owner-confirmed "no exclusions apply" statement.
 - [ ] **The Content-boundary rule holds.** No technology choice, implementation design, or implementation artefact; every code, schema, or config block is labelled **Contract** and defines an external contract.
 - [ ] **Alternatives Considered lists the rejected solution alternatives**, each with its reason (at least one when the design had real choices), or `None` with the reason.
-- [ ] **Every requirement is measurable.** It has one obligation, a stable REQ identifier, concrete AC scenarios, and a verification method.
+- [ ] **Every requirement is measurable**, as Measurable requirements describes. It has one obligation, a stable REQ identifier, concrete AC scenarios, and a verification method.
 - [ ] **Discovery decisions are preserved.** Every decision in `description` appears in the spec; actors, journeys, applicable failure cases, and quality constraints are explicitly linked to requirements.
 - [ ] **Assumptions and dependencies are explicit**, with behavior-affecting premises confirmed.
 - [ ] **No unresolved behavioral questions remain**; deferred internal investigations have an owner and resolution condition.
