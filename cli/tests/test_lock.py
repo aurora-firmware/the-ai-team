@@ -32,7 +32,9 @@ from ai_team.core.models import Task
 # ---------------------------------------------------------------------------
 
 
-def test_allocation_lock_serializes_two_threads_racing_for_the_same_lock(tmp_path):
+def test_allocation_lock_serializes_two_threads_racing_for_the_same_lock(
+    tmp_path, lock_contended
+):
     """A second thread's critical section never overlaps the first's."""
     project_dir = tmp_path / "ai-team"
     project_dir.mkdir()
@@ -65,10 +67,10 @@ def test_allocation_lock_serializes_two_threads_racing_for_the_same_lock(tmp_pat
     assert first_holder_entered.wait(timeout=5)
     t2.start()
 
-    # Bounded, deterministic grace period for the second thread to attempt
-    # (and block on) acquisition while the first thread still holds the lock.
-    t2.join(timeout=1)
-    assert t2.is_alive(), "second thread should still be blocked on the held lock"
+    # Wait until the second thread has been refused the lock the first still
+    # holds; the timeout only guards against a hang.
+    assert lock_contended.wait(timeout=5), "second thread never reached the held lock"
+    assert "second-enter" not in order, "second thread entered while the lock was held"
 
     release_first_holder.set()
     t1.join(timeout=5)
@@ -168,7 +170,7 @@ def _build_task(dest_dir: Path, title: str):
 
 
 def test_create_artifact_with_lock_prevents_interleaved_scans_across_two_threads(
-    tmp_path,
+    tmp_path, lock_contended
 ):
     """The lock serializes 'scan for next id' + 'write' so two callers never collide.
 
@@ -224,10 +226,9 @@ def test_create_artifact_with_lock_prevents_interleaved_scans_across_two_threads
     t2 = threading.Thread(target=worker, args=("second",))
     t2.start()
 
-    # Bounded, deterministic grace period for the second caller to attempt
-    # entry while the first still holds the lock mid-scan.
-    t2.join(timeout=1)
-    assert t2.is_alive(), "second caller should still be blocked by the lock"
+    # Wait until the second caller has been refused the lock the first still
+    # holds mid-scan; the timeout only guards against a hang.
+    assert lock_contended.wait(timeout=5), "second caller never reached the held lock"
     assert calls["count"] == 1, "second caller must not start its scan yet"
 
     release_scan.set()
