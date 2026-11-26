@@ -38,6 +38,13 @@ sources/root, templates/ ──(read at runtime)──┐                      �
 - **Read at runtime.** The root guidance starter (`sources/root/AGENTS.md`) and the
   artifact templates (`cli/src/ai_team/templates/`) are not synced: `init` and the
   `new` commands read them from the installed package.
+- **Self-contained delivery.** What `init` delivers (the artifact templates and
+  everything under `cli/src/ai_team/init/sources/` and `scaffolds/`) never refers
+  to `guides/` or `ai-process/`, which are not delivered. A rule a guide owns that
+  delivered skills need is copied into one delivered owner, which the other
+  delivered files point to: the verification rules in
+  `guides/spec_authoring_guide.md` are carried by the `new-task` skill's
+  Verification Methods. Review enforces this; no test checks it (CR-009).
 - **One export target.** Claude is the only agent tool the CLI exports to (ADR-003).
 - **CLI layering.** `cli.py` wires the Typer app; `commands/` holds one module per
   command group; `core/` holds the shared logic; the module map is in
