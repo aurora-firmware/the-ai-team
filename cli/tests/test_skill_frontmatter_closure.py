@@ -1,4 +1,4 @@
-"""Exported skills and agents declare the tools and skills their text uses.
+"""Skill and agent frontmatter declares consistent skills and tools.
 
 Agents get no `Skill` or `Agent` tool: a subagent runs only the skills
 preloaded through its `skills:` field and cannot spawn other subagents.
@@ -10,15 +10,12 @@ import re
 
 import pytest
 
-from tests.source_paths import SKILL_SOURCES, skill_frontmatter, skill_source_text
+from tests.source_paths import SKILL_SOURCES, skill_frontmatter
 
 AGENT_SOURCES = SKILL_SOURCES.parent / "agents"
 
 SKILLS = sorted(path.name for path in SKILL_SOURCES.iterdir() if path.is_dir())
 AGENTS = sorted(path.stem for path in AGENT_SOURCES.glob("*.md"))
-
-# A backticked shell command, inline or on a line of its own in a fenced block.
-_COMMAND = re.compile(r"`(?:ai-team|git) [^`\n]+`|^\s*(?:ai-team|git) \S", re.MULTILINE)
 
 
 def _field(frontmatter: str, key: str) -> str:
@@ -51,10 +48,6 @@ def _preloaded_skills(agent: str) -> set[str]:
     return set(_field(_agent_frontmatter(agent), "skills").split())
 
 
-def _skill_body(skill: str) -> str:
-    return skill_source_text(skill)[len(skill_frontmatter(skill)) :]
-
-
 def test_sources_are_found():
     assert SKILLS
     assert AGENTS
@@ -78,14 +71,6 @@ def test_agent_preloads_existing_skills_closed_under_their_dependencies(agent: s
     for skill in sorted(preloaded):
         missing = _skill_dependencies(skill) - preloaded
         assert not missing, f"{agent} preloads {skill} but not {sorted(missing)}"
-
-
-@pytest.mark.parametrize("skill", SKILLS)
-def test_skill_running_ai_team_or_git_commands_declares_bash(skill: str):
-    commands = _COMMAND.findall(_skill_body(skill))
-
-    if commands:
-        assert "Bash" in _allowed_tools(skill), f"{skill} runs {commands[0]}"
 
 
 @pytest.mark.parametrize("agent", AGENTS)

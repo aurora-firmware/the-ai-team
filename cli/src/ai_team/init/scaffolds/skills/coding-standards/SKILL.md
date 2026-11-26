@@ -52,7 +52,7 @@ When the project has no such document, these standards apply alone.
 ## Testing
 
 - Work that adds or changes product behavior has tests, written test-first: the test fails before the implementation and passes after. The task's Verification section names its method (test, inspection or demonstration).
-- Never write a test that asserts the wording of skills, process documents, guides or specs, or one that only proves something was removed; those changes are verified by inspection.
+- What a test may and may not check: `new-task`'s Verification Methods.
 - Test behavior, not implementation details.
 - Tests are independent (no shared mutable state) and named for the behavior: `test_returns_empty_list_when_no_users_match_filter`.
 

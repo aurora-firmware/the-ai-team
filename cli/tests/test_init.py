@@ -421,8 +421,9 @@ def test_root_guidance_file_existing_agents_md_is_not_overwritten(tmp_path):
 
 
 def test_root_guidance_file_created_from_stable_template(tmp_path):
-    """Root AGENTS.md must be created from the stable template with command documentation guidance."""
+    """The created root AGENTS.md equals the root source rendered with the defaults."""
     from ai_team.cli import app
+    from ai_team.core.config import render_placeholders
 
     target = tmp_path / "repo"
     result = CliRunner().invoke(
@@ -436,9 +437,13 @@ def test_root_guidance_file_created_from_stable_template(tmp_path):
     )
 
     assert result.exit_code == 0
+    source = (
+        Path(__file__).resolve().parents[1] / "src/ai_team/init/sources/root/AGENTS.md"
+    ).read_text(encoding="utf-8")
     content = (target / "AGENTS.md").read_text(encoding="utf-8")
-    # Template must invite projects to record test/run commands
-    assert "test" in content.lower() or "command" in content.lower()
+    assert content == render_placeholders(
+        source, project_dir="ai-team", integration_branch="dev-agent"
+    )
 
 
 def test_force_flag_overwrites_existing_root_guidance_files(tmp_path):

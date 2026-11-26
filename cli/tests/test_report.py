@@ -51,6 +51,17 @@ author: planner
 Body.
 """
 
+ADR_TEMPLATE = """\
+---
+id: "{id}"
+title: "{title}"
+status: accepted
+created: 2026-05-10
+---
+
+Body.
+"""
+
 
 def _write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -223,4 +234,24 @@ def test_report_cites_work_log_as_integration_result_source(
         "- Source: latest Work Log session of completed tasks and resolved bugs"
         in content
     )
-    assert "git log" not in content
+
+
+def test_progress_report_decision_sample_uses_accepted(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """The report replaces the sample decision row with one row per ADR."""
+    from ai_team.cli import app
+
+    _write(
+        tmp_path / "ai-team" / "decisions" / "ADR-001-fixture.md",
+        ADR_TEMPLATE.format(id="ADR-001", title="Fixture decision"),
+    )
+
+    out_path = tmp_path / "status.md"
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["report", "--out", str(out_path)])
+
+    assert result.exit_code == 0
+    content = out_path.read_text(encoding="utf-8")
+    assert "| ADR-001 | Fixture decision | accepted |" in content
+    assert "| 001 | Decision title | accepted |" not in content

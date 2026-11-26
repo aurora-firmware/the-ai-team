@@ -11,7 +11,7 @@ effort: high
 
 - **Task or bug file** — the acceptance criteria, or the bug report with its Diagnosis Log and Fix Verification. On a re-review it also holds the earlier Review Verdicts and, in the latest Work Log entry, the Developer's answer to each open finding. Its location is the `path` of `ai-team show <id> --json`.
 - **Code changes** — the review package the loop wrote (`git log`, `git diff --stat` and `git diff -U10` for `BASE..HEAD`, plus `git diff -U10` for `LAST..HEAD` on a re-review, where `LAST` is the `Reviewed through:` commit of the previous verdict), or a range to diff yourself. A first review covers the whole `BASE..HEAD` range, never `HEAD~1` alone.
-- **Test evidence** — the `Verification:` lines of the Developer's Work Log entry (written by `tdd` Step 9). Do not re-run a command the Work Log shows passing; run one only to check something the Work Log does not cover.
+- **Test evidence** — the `Verification:` lines of the Developer's Work Log entry (written by `tdd` Step 9). Do not re-run a command the Work Log shows passing; run one only to check something the Work Log does not cover. The Developer does not run the project's full suite and lists it as `not verified` for integration: that is not a finding, and you do not run it either. `integrate` runs it before the merge (Gate 4).
 
 The review checks the work against two things:
 
@@ -74,7 +74,7 @@ For a bug fix:
 Check the change against the project's rules, as the project defines them (its coding guidelines override the `coding-standards` skill). Each check that fails is a finding with a `rule` Basis; a preference no rule backs is not a finding.
 
 - **Correctness** — logic is correct for expected inputs and edge cases; no off-by-one, null-reference or unhandled state; error handling covers the failure modes the spec describes.
-- **Tests** — tests exist for new or changed product behavior and cover success and failure paths; they are independent; none asserts the wording of skills, process documents, guides or specs, or only proves a removal; none depends on an environment CI does not provide (git history beyond the checkout depth, network access, locally installed tool versions — compare with the CI configuration when there is one). The Work Log records the test run, or explains why one was not possible. For an inspection or demonstration task, the record from Step 3 replaces the tests.
+- **Tests** — tests exist for new or changed product behavior and cover success and failure paths; they are independent; each is a test `new-task`'s Verification Methods allows; none depends on an environment CI does not provide (git history beyond the checkout depth, network access, locally installed tool versions — compare with the CI configuration when there is one). The Work Log records the test run, or explains why one was not possible. For an inspection or demonstration task, the record from Step 3 replaces the tests.
 - **Security** — no hardcoded secrets; external input is validated; database queries are parameterized; no new permission or access beyond what is needed.
 - **Readability** — names are descriptive and follow project conventions; functions are focused; comments explain *why*, not *what*; no dead code, commented-out blocks or debugging artifacts.
 - **Performance** — no unnecessary loops over large data, unjustified blocking calls in hot paths, or memory or resource leaks.

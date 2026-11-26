@@ -41,6 +41,8 @@ Argument: `$ARGUMENTS`
 2. Otherwise the project's verification command, found with the Discovery Order below.
 3. Otherwise stop `BLOCKED` and ask the product owner for the project's verification command.
 
+When the baseline command found with the Discovery Order is not already in the set, add it, so the full suite runs before the merge for every work item, including a bug whose Fix Verification does not list it. The Developer does not run the full suite (`tdd`), so this is its only run before the merge.
+
 **Destination command**, which Step 7 runs after the merge to catch regressions outside the work item's scope. Never default it to the source command:
 
 1. A separate destination or baseline check that the work item or the project guidance names.

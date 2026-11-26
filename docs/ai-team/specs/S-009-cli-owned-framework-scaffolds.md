@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.10'
+version: '0.12'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -601,6 +601,14 @@ existing root `AGENTS.md` SHALL be replaced only with `--force` and a yes, or wi
 and `test_interactive_force_keeps_and_does_not_report_root_guidance_on_no` in
 `cli/tests/test_init.py`.
 
+#### AC-017.3 — Template invites the project's commands
+
+- **Given:** the root template `cli/src/ai_team/init/sources/root/AGENTS.md`
+- **When:** it is read
+- **Then:** it asks the project to document its commands, including the test command
+
+**Verification:** Inspection of `cli/src/ai_team/init/sources/root/AGENTS.md`.
+
 ### REQ-018 — No `ai-process/` export
 
 `init` SHALL never write `ai-process/`, SHALL reject `--include-ai-process` as an
@@ -753,3 +761,5 @@ None.
 | 2026-11-01 | Coding guidelines are no longer part of the project skeleton: REQ-005 and AC-005.1 drop the `docs/coding_guidelines.md` placeholder and its sync test; AC-012.3 drops the missing-guidelines upgrade case and its test; REQ-013 and AC-013.2 exclude only root guidance from the adoption question (test renamed `test_does_not_ask_about_root_guidance`); REQ-015 drops the guidelines exclusion from the kept-file list; REQ-016 is retitled "Coding guidelines left to the project": `init` writes no coding guidelines file and never overwrites, reports or asks about one the project keeps, with AC-016.1 rewritten and AC-016.2 added; the Interfaces source tree and Success Criterion 4 follow. The location rule (the document the project guidance names, default `docs/development/coding_guidelines.md`) is referenced, not restated; `ai-process/guidelines/coding_standards.md` owns it. Version bumped to 0.10. Driven by B-039 (product owner decision, 2026-11-01). | The scaffolded `{{project_dir}}/docs/coding_guidelines.md` placeholder disagreed with the S-000 bootstrap, which writes project documents to `docs/development/`, so projects kept an empty placeholder and agents read the wrong file. | B-039 implements it |
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its four entries were implementation approaches for the generator and move to `docs/development/architecture.md`, and the section states None. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
 | 2026-11-12 | spec-truth reconciliation — PASS | B-049–B-055 and T-188 changed skill sources only; committed scaffolds equal a fresh sync (REQ-007) | none |
+| 2026-11-26 | AC-017.1 Verification adds an inspection that the root template invites the project's commands, including the test command (REQ-017); the test names stay. Version bumped to 0.11. Driven by CR-009 items 5 and 6. | Tests no longer check what a document says, so the template's wording is reviewed by inspection. | Tasks from the CR-009 items 5–7 plan |
+| 2026-11-26 | The inspection moves out of AC-017.1 into a new AC-017.3, "Template invites the project's commands", so each criterion names one method; AC-017.1 keeps its tests. Version bumped to 0.12. Driven by the PR #82 review. | A criterion names one verification method (`guides/spec_authoring_guide.md`, Verification methods), and the template obligation of REQ-017 had no scenario of its own. | None |
