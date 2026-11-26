@@ -61,7 +61,8 @@ If a test fails in a way the cycle does not explain, or code misbehaves, apply t
 
 ### Step 6: Refactor
 
-Clean up without changing behavior, then run the tests of the code you changed again. The full suite runs once per session, after its last change (Step 9).
+Clean up without changing behavior, then run the tests of the code you changed again.
+Do not run the project's full suite after a change: `integrate` runs it once per work item, before the merge (Gate 4), and a failure there returns to you as a review finding.
 
 ### Step 7: Commit the Cycle
 
@@ -88,7 +89,7 @@ Scenarios:
 - <AC scenario cited in Source Requirements> — <the test or check that verifies it>
 ```
 
-- **Verification** lists every command run as evidence this session: the base state (Step 0), the task's Verification commands or the bug's Fix Verification, and the full suite when the project documents one, run once after the session's last change. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The Reviewer cites these lines instead of re-running them. Every command is re-runnable from the branch: a script it runs is committed or quoted in full in the entry.
+- **Verification** lists every command run as evidence this session: the base state (Step 0), and the task's Verification commands or the bug's Fix Verification. Record the output you saw; a command not run is listed as `not verified: <command> — <reason>`. The project's full-suite command, wherever it is listed, is not run here: list it as `not verified: <command> — runs at integration (Gate 4)`. The Reviewer cites these lines instead of re-running them. Every command is re-runnable from the branch: a script it runs is committed or quoted in full in the entry.
 - **Scenarios** appears only when Source Requirements cites AC scenarios.
 - Add the inspection or demonstration record, a `debug` fix contract, and the `#### Review answers` block from `receive-code-review` when they apply.
 - `N` increments across all sessions on the work item.
@@ -104,9 +105,8 @@ Work through them in place of Steps 2-6, and write no test:
 1. Make the change within Files to Touch.
 2. **Inspection:** check each listed acceptance criterion against the changed artifact. For prose, read every listed reference (the source spec, the accepted ADRs, and S-000 when listed, read now rather than at session start) and fix every conflict in the changed text.
    **Demonstration:** run the listed command or steps and compare the outcome with the expected observation.
-3. Run the full test suite as the regression check, when the project documents one.
-4. Commit as in Step 7. The Step 9 entry holds the record: for an inspection, each criterion and reference checked, each conflict found and how it was fixed, and the result; for a demonstration, the command or steps run and the observed outcome.
-5. If the change alters product behavior a test should cover, or a conflict can be resolved only by changing a reference document, apply the Escalation section instead of adding an undeclared test.
+3. Commit as in Step 7. The Step 9 entry holds the record: for an inspection, each criterion and reference checked, each conflict found and how it was fixed, and the result; for a demonstration, the command or steps run and the observed outcome. The full-suite regression check runs at integration, as for any task.
+4. If the change alters product behavior a test should cover, or a conflict can be resolved only by changing a reference document, apply the Escalation section instead of adding an undeclared test.
 
 Steps 0, 7 and 9 still apply.
 

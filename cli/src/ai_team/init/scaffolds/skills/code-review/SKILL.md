@@ -11,7 +11,7 @@ effort: high
 
 - **Task or bug file** — the acceptance criteria, or the bug report with its Diagnosis Log and Fix Verification. On a re-review it also holds the earlier Review Verdicts and, in the latest Work Log entry, the Developer's answer to each open finding. Its location is the `path` of `ai-team show <id> --json`.
 - **Code changes** — the review package the loop wrote (`git log`, `git diff --stat` and `git diff -U10` for `BASE..HEAD`, plus `git diff -U10` for `LAST..HEAD` on a re-review, where `LAST` is the `Reviewed through:` commit of the previous verdict), or a range to diff yourself. A first review covers the whole `BASE..HEAD` range, never `HEAD~1` alone.
-- **Test evidence** — the `Verification:` lines of the Developer's Work Log entry (written by `tdd` Step 9). Do not re-run a command the Work Log shows passing; run one only to check something the Work Log does not cover.
+- **Test evidence** — the `Verification:` lines of the Developer's Work Log entry (written by `tdd` Step 9). Do not re-run a command the Work Log shows passing; run one only to check something the Work Log does not cover. The Developer does not run the project's full suite and lists it as `not verified` for integration: that is not a finding, and you do not run it either. `integrate` runs it before the merge (Gate 4).
 
 The review checks the work against two things:
 
