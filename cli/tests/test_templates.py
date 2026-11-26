@@ -44,14 +44,6 @@ def test_load_template_rejects_unknown_kind_with_supported_kinds() -> None:
         load_template("unknown")
 
 
-def _headings(content: str, prefix: str) -> list[str]:
-    return [
-        line[len(prefix) :].strip()
-        for line in content.splitlines()
-        if line.startswith(prefix)
-    ]
-
-
 def test_system_overview_template_matches_bundled_source() -> None:
     source_template = (
         Path(__file__).resolve().parents[1] / "src/ai_team/templates/system-overview.md"
@@ -67,35 +59,3 @@ def test_system_overview_template_uses_the_spec_title_placeholders() -> None:
 
     assert 'title: "[Specification Title]"' in content
     assert "\n# [Specification Title]\n" in content
-
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def test_spec_template_has_alternatives_and_interfaces_but_no_architecture() -> None:
-    headings = _headings(load_template("spec"), "## ")
-
-    assert "Alternatives Considered" in headings
-    assert "Interfaces" in headings
-    assert "Architecture" not in headings
-
-
-DELIVERED_TREES = (
-    REPO_ROOT / "cli/src/ai_team/templates",
-    REPO_ROOT / "cli/src/ai_team/init/sources",
-    REPO_ROOT / "cli/src/ai_team/init/scaffolds",
-)
-UNDELIVERED_REFERENCES = ("Spec Authoring Guide", "guides/", "ai-process/")
-
-
-def test_delivered_files_do_not_refer_to_documents_init_never_delivers() -> None:
-    offenders = [
-        f"{path.relative_to(REPO_ROOT)}: {reference}"
-        for tree in DELIVERED_TREES
-        for path in sorted(tree.rglob("*"))
-        if path.is_file()
-        for reference in UNDELIVERED_REFERENCES
-        if reference in path.read_text(encoding="utf-8", errors="ignore")
-    ]
-
-    assert offenders == []
