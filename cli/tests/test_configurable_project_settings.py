@@ -17,19 +17,45 @@ from ai_team.core.config import (
 from ai_team.core.layout import check_level_2, resolve_layout
 from ai_team.core.locator import find_project_root
 
+SCAFFOLDS = Path(__file__).resolve().parents[1] / "src/ai_team/init/scaffolds"
+ROOT_GUIDANCE_SOURCE = SCAFFOLDS.parent / "sources/root/AGENTS.md"
+
 
 def _init(target: Path, *extra: str):
     return CliRunner().invoke(app, ["init", str(target), "--no-interactive", *extra])
 
 
-def _generated_text(target: Path) -> str:
-    files = [
-        path
-        for folder in (".claude", "docs")
-        for path in (target / folder).rglob("*")
-        if path.is_file()
-    ]
-    return "\n".join(path.read_text(encoding="utf-8") for path in files)
+def _scaffold_destinations(target: Path, project_dir: str) -> dict[Path, Path]:
+    """Map each file of the packaged scaffold subtrees to where init writes it."""
+    written_roots = {
+        "agents": target / ".claude" / "agents",
+        "skills": target / ".claude" / "skills",
+        "project": target / project_dir,
+    }
+    destinations = {}
+    for subtree, written_root in written_roots.items():
+        root = SCAFFOLDS / subtree
+        sources = [path for path in root.rglob("*") if path.is_file()]
+        assert sources, f"no scaffold sources under {root}"
+        for source in sources:
+            destinations[source] = written_root / source.relative_to(root)
+    return destinations
+
+
+def _assert_written_as_rendered(
+    destinations: dict[Path, Path], *, project_dir: str, branch: str
+) -> None:
+    for source, written in destinations.items():
+        try:
+            template = source.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue  # AC-009.2 covers files that are not UTF-8 text.
+        text = written.read_text(encoding="utf-8")
+        expected = render_placeholders(
+            template, project_dir=project_dir, integration_branch=branch
+        )
+        assert text == expected, written
+        assert "{{" not in text, written
 
 
 def test_project_dir_validation_accepts_any_depth_and_rejects_escapes():
@@ -127,27 +153,22 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
     )
 
     assert result.exit_code == 0, result.output
-    text = _generated_text(target) + (target / "AGENTS.md").read_text(encoding="utf-8")
-    assert "{{" not in text
-    assert "docs/ai-team/specs/" in text
-    assert "develop" in text
-    assert "dev-agent" not in text
-    # No path that still names the default folder without its parent.
-    for line in text.splitlines():
-        stripped = line.replace("docs/ai-team/", "").replace(".ai-team/", "")
-        assert "ai-team/specs" not in stripped, line
-        assert "ai-team/decisions" not in stripped, line
-        assert "ai-team/docs/" not in stripped, line
+    destinations = _scaffold_destinations(target, "docs/ai-team")
+    destinations[ROOT_GUIDANCE_SOURCE] = target / "AGENTS.md"
+    _assert_written_as_rendered(
+        destinations, project_dir="docs/ai-team", branch="develop"
+    )
 
 
 def test_default_init_renders_default_folder_and_branch(tmp_path):
     target = tmp_path / "repo"
     assert _init(target).exit_code == 0
 
-    text = _generated_text(target)
-    assert "{{" not in text
-    assert "ai-team/specs/" in text
-    assert "dev-agent" in text
+    _assert_written_as_rendered(
+        _scaffold_destinations(target, "ai-team"),
+        project_dir="ai-team",
+        branch="dev-agent",
+    )
     assert integration_branch(target) == "dev-agent"
 
 
