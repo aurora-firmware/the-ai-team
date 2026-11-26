@@ -589,9 +589,7 @@ existing root `AGENTS.md` SHALL be replaced only with `--force` and a yes, or wi
 `test_declining_root_guidance_prints_followup_message`,
 `test_non_interactive_init_skips_root_guidance_by_default`,
 `test_non_interactive_init_creates_root_guidance_with_flag` and
-`test_root_guidance_file_created_from_stable_template` in `cli/tests/test_init.py`;
-inspection that `cli/src/ai_team/init/sources/root/AGENTS.md` invites the project's
-commands, including the test command.
+`test_root_guidance_file_created_from_stable_template` in `cli/tests/test_init.py`.
 
 #### AC-017.2 — Existing root guidance
 
@@ -602,6 +600,14 @@ commands, including the test command.
 **Verification:** Tests: `test_root_guidance_file_existing_agents_md_is_not_overwritten`
 and `test_interactive_force_keeps_and_does_not_report_root_guidance_on_no` in
 `cli/tests/test_init.py`.
+
+#### AC-017.3 — Template invites the project's commands
+
+- **Given:** the root template `cli/src/ai_team/init/sources/root/AGENTS.md`
+- **When:** it is read
+- **Then:** it asks the project to document its commands, including the test command
+
+**Verification:** Inspection of `cli/src/ai_team/init/sources/root/AGENTS.md`.
 
 ### REQ-018 — No `ai-process/` export
 
@@ -756,3 +762,4 @@ None.
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its four entries were implementation approaches for the generator and move to `docs/development/architecture.md`, and the section states None. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
 | 2026-11-12 | spec-truth reconciliation — PASS | B-049–B-055 and T-188 changed skill sources only; committed scaffolds equal a fresh sync (REQ-007) | none |
 | 2026-11-26 | AC-017.1 Verification adds an inspection that the root template invites the project's commands, including the test command (REQ-017); the test names stay. Version bumped to 0.11. Driven by CR-009 items 5 and 6. | Tests no longer check what a document says, so the template's wording is reviewed by inspection. | Tasks from the CR-009 items 5–7 plan |
+| 2026-11-26 | The inspection moves out of AC-017.1 into a new AC-017.3, "Template invites the project's commands", so each criterion names one method; AC-017.1 keeps its tests. Driven by the PR #82 review. | A criterion names one verification method (`guides/spec_authoring_guide.md`, Verification methods), and the template obligation of REQ-017 had no scenario of its own. | None |
