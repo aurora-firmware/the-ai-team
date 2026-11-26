@@ -8,6 +8,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from ai_team.core.models import parse_spec
+from ai_team.core.templates import load_template
 
 
 def _mkdir(path: Path) -> None:
@@ -271,9 +272,10 @@ def test_spec_new_overview_creates_s_000_from_system_overview_template(
     assert result.stdout.strip() == str(expected)
     content = expected.read_text(encoding="utf-8")
     assert "id: S-000" in content
-    assert "# Acme Overview" in content
-    assert "# [Specification Title]" not in content
-    assert "system overview spec (S-000)" in content
+    template_body = load_template("system-overview").split("\n---\n", 1)[1]
+    assert content.split("\n---\n", 1)[1] == template_body.replace(
+        "# [Specification Title]", "# Acme Overview", 1
+    )
 
 
 def test_spec_new_overview_json_emits_the_spec_object(monkeypatch, tmp_path):
