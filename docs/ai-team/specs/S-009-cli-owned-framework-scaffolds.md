@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.11'
+version: '0.12'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -762,4 +762,4 @@ None.
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered is now a top-level section: its four entries were implementation approaches for the generator and move to `docs/development/architecture.md`, and the section states None. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
 | 2026-11-12 | spec-truth reconciliation — PASS | B-049–B-055 and T-188 changed skill sources only; committed scaffolds equal a fresh sync (REQ-007) | none |
 | 2026-11-26 | AC-017.1 Verification adds an inspection that the root template invites the project's commands, including the test command (REQ-017); the test names stay. Version bumped to 0.11. Driven by CR-009 items 5 and 6. | Tests no longer check what a document says, so the template's wording is reviewed by inspection. | Tasks from the CR-009 items 5–7 plan |
-| 2026-11-26 | The inspection moves out of AC-017.1 into a new AC-017.3, "Template invites the project's commands", so each criterion names one method; AC-017.1 keeps its tests. Driven by the PR #82 review. | A criterion names one verification method (`guides/spec_authoring_guide.md`, Verification methods), and the template obligation of REQ-017 had no scenario of its own. | None |
+| 2026-11-26 | The inspection moves out of AC-017.1 into a new AC-017.3, "Template invites the project's commands", so each criterion names one method; AC-017.1 keeps its tests. Version bumped to 0.12. Driven by the PR #82 review. | A criterion names one verification method (`guides/spec_authoring_guide.md`, Verification methods), and the template obligation of REQ-017 had no scenario of its own. | None |
