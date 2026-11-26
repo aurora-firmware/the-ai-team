@@ -178,7 +178,7 @@ author: planner
 
 
 def test_spec_new_allocates_distinct_ids_for_two_concurrent_callers(
-    monkeypatch, tmp_path
+    monkeypatch, tmp_path, lock_contended
 ):
     """B-014: two racing `new_spec` calls must never write the same S-NNN id.
 
@@ -188,7 +188,8 @@ def test_spec_new_allocates_distinct_ids_for_two_concurrent_callers(
     ``slugify`` call (the step between "id computed" and "file written") with
     a ``threading.Event`` -- never ``time.sleep`` -- so the second caller's
     directory scan is forced to attempt to run while the first is still
-    mid-critical-section.
+    mid-critical-section. The first caller is released only after
+    ``lock_contended`` shows that the second was refused the held lock.
     """
     import ai_team.commands.spec as spec_cmd
 
@@ -235,8 +236,9 @@ def test_spec_new_allocates_distinct_ids_for_two_concurrent_callers(
 
     t2 = threading.Thread(target=worker, args=("Parallel Beta",))
     t2.start()
-    t2.join(timeout=1)
-    assert t2.is_alive(), "second caller should still be blocked by the lock"
+    # The timeout only guards against a hang.
+    assert lock_contended.wait(timeout=5), "second caller never reached the held lock"
+    assert call_count["value"] == 1, "second caller entered while the lock was held"
 
     release_first_call.set()
     t1.join(timeout=5)
