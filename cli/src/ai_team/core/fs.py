@@ -254,6 +254,9 @@ def update_status(
 ) -> None:
     """Rewrite the ``status`` frontmatter field in *path*, preserving everything else.
 
+    For a task or bug, moving to ``blocked`` also records the previous status in
+    ``blocked_from``, and moving to any other status removes that field.
+
     Reads the artifact using the appropriate ``parse_*`` function (which
     captures the round-trip ``_source_map``), updates ``model.status``, then
     writes back via ``dump_frontmatter`` so that YAML comments and key order
@@ -283,6 +286,10 @@ def update_status(
     if kind is None:
         kind = _infer_kind(path)
     model, body = read_artifact(path, kind)
+    if hasattr(model, "blocked_from"):
+        # Remember the status a task or bug held before it was blocked so that
+        # `unblock` can restore it; any other transition clears the record.
+        model.blocked_from = model.status if new_status == "blocked" else None
     model.status = new_status
     content = dump_frontmatter(model, body)
     _write_atomically(path, content)

@@ -99,6 +99,12 @@ def _require(data: CommentedMap, key: str, path: Path) -> Any:
     return data[key]
 
 
+def _optional(data: dict, key: str) -> str | None:
+    """Return ``data[key]`` as a string, or None when it is absent or null."""
+    value = data.get(key)
+    return str(value) if value is not None else None
+
+
 # ---------------------------------------------------------------------------
 # Dataclasses
 # ---------------------------------------------------------------------------
@@ -116,6 +122,7 @@ class Task:
     created: str
     spec: str | None = None  # Optional reference to a spec slug
     plan: str | None = None  # Optional spec or change-request whose plan introduced it
+    blocked_from: str | None = None  # Status before `block`; `unblock` restores it
     # Holds the original CommentedMap from parsing so comments survive dump.
     # Excluded from equality and repr so it does not affect model comparisons.
     _source_map: CommentedMap | None = field(default=None, compare=False, repr=False)
@@ -132,7 +139,7 @@ class Bug:
     # Optional because legacy resolved artifacts pre-date this field requirement.
     created: str | None = None
     task: str | None = None  # Optional reference to a related task ID
-    source_branch: str | None = None  # Branch a task-regression bug came from
+    blocked_from: str | None = None  # Status before `block`; `unblock` restores it
     # Holds the original CommentedMap from parsing so comments survive dump.
     _source_map: CommentedMap | None = field(default=None, compare=False, repr=False)
 
@@ -212,6 +219,7 @@ def parse_task(path: Path) -> Task:
         created=str(_require(data, "created", path)),
         spec=str(data["spec"]) if data.get("spec") is not None else None,
         plan=str(data["plan"]) if data.get("plan") is not None else None,
+        blocked_from=_optional(data, "blocked_from"),
         _source_map=data,
     )
 
@@ -234,9 +242,7 @@ def parse_bug(path: Path) -> Bug:
         status=str(_require(data, "status", path)),
         created=str(raw_created) if raw_created is not None else None,
         task=str(data["task"]) if data.get("task") is not None else None,
-        source_branch=str(data["source_branch"])
-        if data.get("source_branch") is not None
-        else None,
+        blocked_from=_optional(data, "blocked_from"),
         _source_map=data,
     )
 
@@ -322,6 +328,7 @@ _TASK_FIELDS: list[tuple[str, str]] = [
     ("created", "created"),
     ("spec", "spec"),  # optional — omitted when None
     ("plan", "plan"),  # optional — omitted when None
+    ("blocked_from", "blocked_from"),  # optional — omitted when None
 ]
 
 _BUG_FIELDS: list[tuple[str, str]] = [
@@ -331,7 +338,7 @@ _BUG_FIELDS: list[tuple[str, str]] = [
     ("status", "status"),
     ("created", "created"),
     ("task", "task"),  # optional — omitted when None
-    ("source_branch", "source_branch"),  # optional — omitted when None
+    ("blocked_from", "blocked_from"),  # optional — omitted when None
 ]
 
 _SPEC_FIELDS: list[tuple[str, str]] = [

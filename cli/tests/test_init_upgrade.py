@@ -201,6 +201,16 @@ def test_upgrade_rewrites_the_marker_when_an_explicit_setting_changes(tmp_path):
     assert data["git"]["integration_branch"] == "develop"
 
 
+def test_upgrade_records_an_explicit_release_branch(tmp_path):
+    target = _new_project(tmp_path)
+
+    result = _run(target, "--no-interactive", "--release-branch", "stable")
+
+    assert result.exit_code == 0, result.output
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+    assert data["git"]["release_branch"] == "stable"
+
+
 def test_upgrade_keeps_the_marker_bytes_when_no_setting_changes(tmp_path):
     target = _new_project(tmp_path)
     marker = target / ".ai-team.toml"

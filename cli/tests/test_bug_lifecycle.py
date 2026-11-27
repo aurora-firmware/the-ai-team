@@ -133,7 +133,6 @@ def test_bug_lifecycle_command_is_idempotent_when_already_in_destination_status(
         ("start", "blocked"),
         ("resolve", "open"),
         ("resolve", "blocked"),
-        ("unblock", "open"),
     ],
 )
 def test_bug_lifecycle_command_rejects_unexpected_source_status(
@@ -254,3 +253,40 @@ def test_update_status_rewrites_wrapped_frontmatter_title_on_one_line(tmp_path):
     )
     assert parse_bug(path).status == "in-progress"
     assert all(line == line.rstrip() for line in rewritten.split("\n")[:8])
+
+
+@pytest.mark.parametrize("before", ["open", "in-progress"])
+def test_bug_unblock_restores_the_status_held_before_block(
+    monkeypatch, tmp_path, before
+):
+    """A bug deferred while open comes back open, not in-progress."""
+    from ai_team.cli import app
+
+    path = _write_bug(tmp_path, "B-020", before)
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(app, ["bug", "block", "B-020", "--reason", "defer"])
+    assert result.exit_code == 0, result.output
+    assert parse_bug(path).blocked_from == before
+
+    result = CliRunner().invoke(app, ["bug", "unblock", "B-020"])
+    assert result.exit_code == 0, result.output
+    bug = parse_bug(path)
+    assert bug.status == before
+    assert bug.blocked_from is None
+    assert "blocked_from" not in path.read_text(encoding="utf-8")
+
+
+def test_bug_unblock_leaves_a_bug_that_is_not_blocked_unchanged(monkeypatch, tmp_path):
+    """`bug unblock` on a bug that is not blocked changes nothing."""
+    from ai_team.cli import app
+
+    path = _write_bug(tmp_path, "B-021", "open")
+    before_bytes = path.read_bytes()
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(app, ["bug", "unblock", "B-021"])
+
+    assert result.exit_code == 0
+    assert "not blocked" in result.output
+    assert path.read_bytes() == before_bytes
