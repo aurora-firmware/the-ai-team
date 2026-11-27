@@ -17,7 +17,7 @@ name table, which keeps clear of Josefin Sans's Reserved Font Name.
 
 Colour carries meaning, not identity: every agent card looks the same (Dark Blue card,
 Orange role name); Orange and the gradient mark the Product Owner's decisions, Info Blue
-marks automated gates, Red marks FAIL and regressions, Orange Light marks escalation,
+marks automated gates, Red marks FAIL, Orange Light marks escalation,
 and Success Green marks PASS and integrated work.
 """
 
@@ -335,7 +335,7 @@ def process_overview():
             b.append(arrow(f"M955,{y + 35} V{y + 48}", "g", f"d{10 + i}"))
     b.append(arrow("M852,537 H838 V487 H850", "r", "d12", flow=True))
     b.append(f'<g class="n d12"><text class="s" x="831" y="512" text-anchor="middle" fill="{RED_L}" transform="rotate(-90 831 512)">FAIL</text></g>')
-    b.append(txt(955, 630, "resolved bugs join the Gate 5 summary", "s", wrap="d12"))
+    b.append(txt(955, 630, "resolved bugs join the status report", "s", wrap="d12"))
     return svg(1120, 680, "From feature request to main",
                "Three phases and five gates. The Product Owner owns Gate 1 and Gate 5; agents run the rest.", "\n".join(b))
 

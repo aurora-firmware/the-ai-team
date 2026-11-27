@@ -290,7 +290,7 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
   and REQ-002 rely on them treating `S-000` by ID alone.
 - **The owners listed in `docs/development/architecture.md`** keep the S-000 process rules. When
   one changes, the owner changes; this spec changes only if the CLI, template or
-  guide contract changes.
+  ai-process contract changes.
 
 ## Success Criteria
 
@@ -301,14 +301,14 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
 3. A task created with `--spec S-000` passes `ai-team validate` (REQ-003).
 4. Without S-000, every listed command prints the hint on stderr with unchanged stdout
    and exit code; with S-000, none does (REQ-004).
-5. Inspection finds the system-overview template, the guide, the spec template and the
+5. Inspection finds the system-overview template, `ai-process/guidelines/system_overview_spec.md`, the spec template and the
    skill as REQ-005–REQ-008 state.
 
 ## Implementation Order
 
 | Phase | What | Depends On |
 |---|---|---|
-| 1 | Authoring guide: S-000 content contract and S-000 versus spec boundary | Nothing |
+| 1 | ai-process: S-000 content contract and S-000 versus spec boundary | Nothing |
 | 2 | S-000 template, `ai-team spec new` creation path, ID and duplicate protection | Phase 1 |
 | 3 | `new-system-overview` skill, including the brownfield path; CLI acceptance of tasks from S-000; missing-S-000 hints | Phase 2 |
 | 4 | Feature spec template and the process owners' S-000 rules | Phases 1–3 |

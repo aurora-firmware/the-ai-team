@@ -50,8 +50,8 @@ If the command cannot run, collect the same data and present it in the CLI's for
 ### Blocked
 [blocked tasks and bugs: ID — title: blocking reason, or "none"]
 
-### Critical/High Bugs
-[unresolved bugs: ID — title (severity, status), or "none"]
+### Unresolved Critical/High Bugs
+[unresolved bugs: ID — title (severity), or "none"]
 ```
 
 ### Step 2: Run the Integration Tests
@@ -84,7 +84,7 @@ Tell the product owner the path, and commit the file only if they ask.
 
 ## Quality Criteria
 
-- Critical and high open bugs are listed, and every blocked task and bug has its reason when one is recorded.
+- Critical and high unresolved bugs are listed, and every blocked task and bug has its reason when one is recorded.
 - The sign-off integration test run is stated, or marked as not documented.
 - When the queue is drained, the reconciliation state is stated.
 - The report gives the product owner enough context for Gate 5 sign-off, a status sign-off rather than a code review.

@@ -284,7 +284,7 @@ In the task and bug tables, a state in backticks is a `status` value in the trac
 | State | Owner | Entry condition | Exit condition |
 |---|---|---|---|
 | `planned` | Planner | Task is created during spec breakdown, on behalf of a planning branch | The planning branch merges after Gate 2 (`pending`) or its spec or change-request is abandoned (`cancelled`) |
-| `pending` | Planner, or whoever created the task | The planning branch merged after Gate 2; or the task was created outside a breakdown, or is a follow-up routed by spec-truth reconciliation, both exempt from Gate 2 (ADR-002) | Development loop selects it |
+| `pending` | Planner, or whoever created the task | The planning branch merged after Gate 2; or the task was created outside a breakdown, or is a follow-up routed by spec-truth reconciliation (ADR-002); both are exempt from Gate 2 | Development loop selects it |
 | `in-progress` | Development loop | Task is claimed and a task branch is created, or a `blocked` task is unblocked | Reviewer passes, task is blocked, or task is abandoned. A loop that starts with the task `in-progress` resumes it on its existing branch |
 | task branch | Developer | Developer receives assignment | Developer submits for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
@@ -319,8 +319,8 @@ The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that f
 | State | Owner | Entry condition | Exit condition |
 |---|---|---|---|
 | `pending` | Product Owner, with the Planner writing it | The product owner starts a change-request (`ai-team change-request new`) | The product owner approves the TODO-free request (`approved`) or rejects it (`rejected`) |
-| `approved` | Planner | The product owner approved it (`ai-team change-request set-status <id> approved`) | — the change-request is done when every task its planning branch created is `completed` or `cancelled` |
-| `rejected` | Product Owner | The product owner rejected it, before or after approval; its `planned` tasks are `cancelled` | — |
+| `approved` | Planner | The product owner approved it (`ai-team change-request set-status <id> approved`) | The product owner rejects it later (`rejected`). Otherwise it stays `approved`, and is done when every task its planning branch created is `completed` or `cancelled` |
+| `rejected` | Product Owner | The product owner rejected it, before or after approval. Its `planned` tasks are `cancelled`; for tasks already `pending`, started or completed, the product owner decides (cancel, keep, or revert by a new task) | — |
 
 ### Spec Lifecycle
 

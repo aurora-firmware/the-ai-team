@@ -120,7 +120,7 @@ the change-request's JSON object, REQ-017), and refuses to overwrite an existing
 5. `/dev-loop` lists `pending` tasks, sets the chosen one to `in-progress`, and creates the task branch. No commit (REQ-008, REQ-013).
 6. The loop appends the Developer's Work Log and the Reviewer appends the Review Verdict to the task file, from whatever branch is checked out. No commit, no switch (REQ-013).
 7. `integrate` reads the verdict from the task file, merges, and on success sets the task to `completed`. The merge commit is the only commit on `dev-agent` (REQ-013).
-8. The bug loop follows the same pattern. Task-regression bug branches no longer need bug content relayed, because the bug file is outside every branch.
+8. The bug loop follows the same pattern: the bug file is outside every branch, so no bug content is relayed between branches.
 9. ★ The product owner runs `/status-report` on demand; it reads state from the tracker (REQ-007).
 
 Failure and boundary paths: an unknown status or an unexpected source status is

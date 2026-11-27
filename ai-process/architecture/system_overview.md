@@ -44,7 +44,7 @@ This document describes the architecture of an AI team — how roles are organiz
 **Processes:** Development Loop and Bug-Fix Loop.
 **Purpose:** Drive the full Developer → Reviewer loop autonomously across pending tasks and open bugs.
 **Key principle:** The product owner starts the appropriate loop when its queue is ready: the development loop after Gate 2 passes, or the bug-fix loop when open bugs need resolution.
-The loop runs until the queue is empty or a hard stop is hit (blocked task, unresolved bug, escalation).
+The loop runs until the queue is empty or a hard stop is hit (a blocked work item or an escalation).
 No product owner input is required between work items.
 
 ### Execution Layer

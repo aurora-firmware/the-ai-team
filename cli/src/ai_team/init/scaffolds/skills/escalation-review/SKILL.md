@@ -8,7 +8,7 @@ effort: high
 # Escalation Consultation
 
 The Architect consultation gives one response per escalation: guidance, or the product owner.
-This skill owns the Escalation Request block and the Product Owner Escalation Report that every escalating skill uses.
+This skill owns the Product Owner Escalation Report; the Escalation Request block every escalating skill uses is defined in `role-report`.
 
 ## Input Requirements
 

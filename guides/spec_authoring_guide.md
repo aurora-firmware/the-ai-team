@@ -281,7 +281,6 @@ The recipes above are embedded into the CLI sources that fire when `/new-spec` i
 | Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/SKILL.md` |
 | Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/planner.md` |
 | Structural validation of review-ready feature specs | `cli/src/ai_team/core/spec_content.py` |
-| System overview (S-000) document shape | `cli/src/ai_team/templates/system-overview.md` |
-| Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/SKILL.md` |
 
+The S-000 contract and the verification methods are owned by `ai-process/guidelines/` and implemented by the system-overview template, the `new-system-overview` skill and the `new-task` skill.
 After changing this guide, mirror the relevant content into the files above and regenerate scaffolds with `cli/scripts/sync_init_scaffolds.py`.

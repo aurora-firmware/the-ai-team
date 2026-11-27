@@ -1,7 +1,7 @@
 # Component Map
 
 This document maps the ai-process roles, procedures, processes, and gates to their implementation files where applicable.
-Implementation paths are the sources in this repository: `cli/src/ai_team/init/sources/agents/` and `cli/src/ai_team/init/sources/skills/`, which `ai-team init` installs in a project under `agents/` and `skills/`.
+Implementation paths below are relative to `cli/src/ai_team/init/sources/` in this repository (`agents/…`, `skills/…`); `ai-team init` installs those files in a project under `.claude/agents/` and `.claude/skills/`.
 Project artifact paths start at the project directory, `[project] dir` in `.ai-team.toml` (default `ai-team/`).
 
 ## Roles

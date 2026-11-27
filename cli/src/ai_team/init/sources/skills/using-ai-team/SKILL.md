@@ -52,7 +52,7 @@ A suggestion the product owner declines is not repeated in the same session; con
 The skill chain is gated.
 Before starting a stage, confirm the artifact it needs exists:
 
-1. Implementing a task needs a task that passed Gate 2, or a follow-up task routed by spec-truth reconciliation, which is exempt. Either one is `pending` or `in-progress` in the tracker and needs an approved spec or an approved change-request.
+1. Implementing a task needs a task that is `pending` or `in-progress` in the tracker: one that passed Gate 2 with its approved spec or change-request, or one exempt from Gate 2 (created outside a breakdown, or a follow-up routed by spec-truth reconciliation).
 2. Fixing a bug needs a bug file with a Diagnosis Log, produced by `debug`.
 3. Task breakdown needs a spec that is approved and free of product-owner-answerable `[TODO]` markers.
 4. Integration needs a Reviewer PASS recorded in the task or bug file.

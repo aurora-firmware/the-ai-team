@@ -67,7 +67,7 @@ Only create `assets/`, `references/`, or `scripts/` when the skill needs them. D
 
 A source skill is one `SKILL.md` (frontmatter plus body) under `cli/src/ai_team/init/sources/skills/<name>/`, with optional `assets/`, `references/` and `scripts/` folders. Only those are exported. Any other file in that directory stays in the source tree.
 
-The supporting folders reach the export next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}` and `{{integration_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
+The supporting folders reach the export next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
 
 ## Canonical Section Order
 

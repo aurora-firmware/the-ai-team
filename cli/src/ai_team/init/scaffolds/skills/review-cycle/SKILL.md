@@ -127,7 +127,7 @@ git diff -U10 {{integration_branch}}...HEAD
 
 The branch contains `{{integration_branch}}` after the Developer's sync, so this is the work item's own change, including any conflict resolution.
 
-From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict.
+From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict. When the Developer merged `{{integration_branch}}` again since `LAST`, that diff also carries the merged-in changes; the Reviewer reviews only the work item's own change and the conflict resolutions (`code-review`).
 Rewrite the package before every review so it covers the whole range. It lives in the tracker and is never committed.
 
 **First review of the work item in this run: spawn the Reviewer subagent** (tier: standard) with this prompt:

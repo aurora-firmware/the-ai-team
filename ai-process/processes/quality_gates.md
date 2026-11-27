@@ -5,7 +5,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 | Gate | Controls transition | Evaluator | Output |
 |---|---|---|---|
 | Gate 1: Specification Approval | Feature request → TODO-free approved spec | Product Owner | Approved specification |
-| Gate 2: Task Plan Preflight | Task plan draft (from approved spec **or** approved change-request) → implementation-ready task queue; tasks created outside a breakdown and follow-up tasks from spec-truth reconciliation are exempt (ADR-002) | Architect | Approved task queue or correction request |
+| Gate 2: Task Plan Preflight | Task plan draft (from approved spec **or** approved change-request) → implementation-ready task queue; tasks created outside a breakdown, and follow-up tasks from spec-truth reconciliation (ADR-002), are exempt | Architect | Approved task queue or correction request |
 | Gate 3: Code Review | Developer-complete task → integration-ready branch | Reviewer | PASS, FAIL, or ESCALATE |
 | Gate 4: Integration Tests | Reviewed branch → completed task or bug | Integration procedure | Merged and completed, or a finding back to the Developer |
 | Gate 5: Final Merge Sign-off | Completed queue → production merge | Product Owner | Approval to merge `dev-agent` to `main` |

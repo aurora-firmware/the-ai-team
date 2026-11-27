@@ -143,11 +143,12 @@ Warning: these skills or agents are not shipped by this version of ai-team; they
 | Flag | Description |
 |---|---|
 | `--dry-run` | Print what the real run with the same flags would do, without touching the filesystem. Lines are `WOULD WRITE` (new file), `WOULD OVERWRITE` (every approved overwrite, including `--update-docs` and `--update-skills` on an upgrade), `WOULD CREATE` (a missing tracker folder), `WOULD UPDATE` (a `.gitignore` missing the tracker rule) and `WOULD PROMPT` (a root `AGENTS.md`, or a file covered by an upgrade or adoption question, that the interactive run would ask about; a dry run never prompts). The first line reports the detected case: `CASE: upgrade`, `CASE: new project` or `CASE: adoption`. Root guidance files the real run would skip are not listed. |
-| `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch` and any other tables are kept on an upgrade. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
+| `--force` | Answer yes to every overwrite question: on an upgrade both the docs and the agents-and-skills questions, on an adoption the single overwrite question, and the root guidance prompts per the table under [Root guidance files](#root-guidance-files). Configured `[project] dir`, `[tracker] dir`, `[git] integration_branch`, `[git] release_branch` and any other tables are kept on an upgrade. Every existing file that is replaced is reported as `OVERWROTE: <path>`. |
 | `--update-docs` | On an upgrade, update the ai-team docs without asking. |
 | `--update-skills` | On an upgrade, update the agents and skills without asking. |
 | `--project-dir TEXT` | Artifact folder, at any depth (e.g. `docs/ai-team`). Defaults to the configured `[project] dir`, else `ai-team`. Must be relative and contain no `..`. |
 | `--integration-branch TEXT` | Branch that task, bug, and planning work integrates into. Defaults to the configured `[git] integration_branch`, else `dev-agent`. |
+| `--release-branch TEXT` | Branch the integration branch merges into after Gate 5 sign-off. Defaults to the configured `[git] release_branch`, else `main`. |
 | `--no-interactive` | Skip all prompts. |
 | `--create-root-guidance` | Create root `AGENTS.md` from a starter template without prompting, in interactive and non-interactive mode. An existing file is replaced only together with `--force`. Defaults to false. |
 
@@ -524,7 +525,7 @@ The generated agents and skills name these settings through the
 `{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}`
 placeholders. `ai-team init`
 fills them in from `.ai-team.toml` when it writes the files, so after changing
-either setting, run `ai-team init . --update-skills --update-docs` to refresh them.
+any of these settings, run `ai-team init . --update-skills --update-docs` to refresh them.
 Hand edits to generated files are overwritten by that refresh.
 
 ### Expected layout

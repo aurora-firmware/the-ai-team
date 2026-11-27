@@ -55,7 +55,7 @@ Work moves through three phases.
 The product owner shapes and approves the specification, the agents plan and build it, and the product owner signs off on the result.
 
 <p align="center">
-  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1 and is approved by the product owner instead. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="100%">
+  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1 and is approved by the product owner instead. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Open bugs go to the bug loop, which diagnoses, fixes, reviews and integrates them" width="100%">
 </p>
 
 Inside both loops every task or bug goes through the same review cycle: it is integrated only after the Reviewer passes it.
@@ -111,7 +111,7 @@ Every skill except `role-report`, `coding-standards` and `review-cycle`, which o
 | **bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
 | **change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
 | **new-spec** | Creates a specification by invoking `ai-team spec new`, then fills spec content |
-| **new-task** | Creates a planned task by invoking `ai-team task new` |
+| **new-task** | Creates a task by invoking `ai-team task new`: `planned` during spec breakdown, `pending` otherwise |
 | **new-bug** | Creates an evidence-backed bug report by invoking `ai-team bug new`, then fills bug content |
 | **new-adr** | Creates an Architecture Decision Record by invoking `ai-team adr new`, then fills ADR content |
 | **new-system-overview** | Creates the S-000 system overview by invoking `ai-team spec new --overview`, then fills it in |
