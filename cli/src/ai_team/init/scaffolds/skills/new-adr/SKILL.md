@@ -17,7 +17,7 @@ Argument: `$ARGUMENTS`
 - `description` — required: why the decision is needed, the decision, the options rejected and why. Callers pass these facts only; this skill owns how they are written up.
 - `status` — required:
   - `accepted` for a decision the Architect makes itself, the normal case;
-  - `proposed` only when the decision needs the product owner, meaning an escalation condition of `feature-architecture`; an ADR records only a decision the work needs.
+  - `proposed` only when the decision needs the product owner (in feature architecture, a consistency review or an escalation); the product owner's decision sets it to `accepted`. An ADR records only a decision the work needs.
 - `supersedes` — optional: the ID of the ADR the new one replaces, for example `ADR-002`.
 
 A calling skill provides every required field; use them without follow-up questions.

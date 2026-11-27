@@ -21,6 +21,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `coding-standards` — the framework standards Stage 2 checks, under the project's coding guidelines.
 - `debug` — only its fix contract, which a bug fix's Diagnosis Log must meet; the Reviewer never runs its procedure.
 - `new-bug` — filing a defect found outside the work item's scope.
+- `evidence-before-claims` — proof behind every verdict and every confirmed fix.
 - `role-report` — the format of every result this role returns.
 
 ## Decision Authority

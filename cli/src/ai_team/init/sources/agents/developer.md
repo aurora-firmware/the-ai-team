@@ -24,6 +24,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `new-bug` — filing a defect found outside the work item's scope.
 - `merge-conflicts` — a conflict when syncing the branch with `{{integration_branch}}`.
 - `git-conventions` — every commit on the assigned branch, and syncing it with `{{integration_branch}}` before handoff.
+- `evidence-before-claims` — proof before the Work Log handoff claims anything passes or is done.
 - `role-report` — the format of every result this role returns.
 
 ## Decision Authority

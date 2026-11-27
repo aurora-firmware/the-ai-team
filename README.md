@@ -85,7 +85,7 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 
 Skills are reusable procedures agents invoke for common activities.
 Each skill implements a workflow or action defined in the ai-process.
-Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
+Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`), and the model or any agent can start any of them.
 
 | Skill | What it implements |
 |---|---|
@@ -212,7 +212,7 @@ See `guides/setup_guide.md` for the complete file list, AGENTS.md starter templa
 | [`guides/agent_template.md`](guides/agent_template.md) | Canonical template and rules for writing new agent definitions |
 | [`guides/skill_template.md`](guides/skill_template.md) | Canonical template and rules for writing new skill definitions |
 | [`guides/skill_testing_guide.md`](guides/skill_testing_guide.md) | Method for showing that a new or changed skill works |
-| [`guides/spec_authoring_guide.md`](guides/spec_authoring_guide.md) | Authoring contract for specifications and the S-000 system overview |
+| [`guides/spec_authoring_guide.md`](guides/spec_authoring_guide.md) | Authoring contract for feature specifications |
 
 ## Repository Structure
 

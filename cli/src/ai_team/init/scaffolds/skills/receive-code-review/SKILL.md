@@ -19,7 +19,7 @@ Stop and return `BLOCKED` if the latest verdict has no open finding, or the bran
 ## Procedure
 
 ### Step 1: Collect the Open Findings
-Read the latest Review Verdict. Collect every finding whose status is `Open`, including one the Reviewer reopened or rebutted. A finding marked `Fixed (confirmed)` or `Acknowledged` is closed; leave it.
+Read the latest Review Verdict. Collect every finding whose status is `Open`, including one the Reviewer reopened or rebutted. A finding marked `Fixed (confirmed)` or `Accepted` is closed; leave it.
 For a reopened finding, read the Reviewer's latest note: it is the point to answer.
 
 ### Step 2: Verify Before Deciding
@@ -55,12 +55,7 @@ A `Fixed` answer cites a commit that is on the branch; the Reviewer reopens a fi
 
 This skill does not return `ESCALATE` for a disagreement: a dispute is answered with evidence, and a stalemate reaches the Architect through the loop's review-cycle cap. Return `ESCALATE` only when a fix would cross one of `tdd`'s boundary violations. The active loop routes the request through `escalation-review`.
 
-```text
-Problem: [the finding and the boundary its fix would cross]
-Attempted: [what was checked, and why neither a fix within scope nor a justification answers it]
-Failed because: [the specific boundary]
-Question: [specific guidance needed to continue within the approved specification]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the finding and the boundary its fix would cross; **Attempted** — what was checked, and why neither a fix within scope nor a justification answers it; **Failed because** — the specific boundary; **Question** — specific guidance needed to continue within the approved specification.
 
 ## Output Format
 

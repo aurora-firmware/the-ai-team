@@ -122,12 +122,7 @@ Return `ESCALATE` on any of these, and do not resume until the Architect respond
   - The criteria cannot be met without changing the approved specification.
   - The requirements are contradictory, ambiguous or untestable.
 
-```text
-Problem: [the criterion that will not pass, or the boundary hit]
-Attempted: [implementations tried and the retry count, or why the boundary cannot be honoured]
-Failed because: [test output, scope mismatch, or the contradictory or ambiguous requirement]
-Question: [the guidance needed to continue within the approved specification]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the criterion that will not pass, or the boundary hit; **Attempted** — implementations tried and the retry count, or why the boundary cannot be honoured; **Failed because** — test output, scope mismatch, or the contradictory or ambiguous requirement; **Question** — the guidance needed to continue within the approved specification.
 
 ## Output Format
 

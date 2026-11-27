@@ -44,14 +44,9 @@ Return `ESCALATE` (see Escalation).
 
 ## Escalation
 
-Return `ESCALATE` from Step 5 with the four-field request in the format `escalation-review` owns; the Developer returns it, and the loop routes it to the Architect.
+Return `ESCALATE` from Step 5 with the escalation request `role-report` defines; the Developer returns it, and the loop routes it to the Architect.
 
-```text
-Problem: [the conflict that cannot be resolved: file, lines, incompatibility]
-Attempted: [the resolutions considered, and the work items read on both sides]
-Failed because: [why neither side's intent can be kept without guessing]
-Question: [the decision or guidance needed]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the conflict that cannot be resolved: file, lines, incompatibility; **Attempted** — the resolutions considered, and the work items read on both sides; **Failed because** — why neither side's intent can be kept without guessing; **Question** — the decision or guidance needed.
 
 ## Output Format
 

@@ -93,14 +93,9 @@ The Architect is the escalation target, so this escalation goes to the product o
 - a finding would change an approved change-request's intent: the product owner revises, rejects or reaffirms it before any downstream artifact is amended;
 - in completion mode, it is unclear whether the spec or the work is authoritative, both need to change, or a re-run still finds a drift whose follow-up tasks are completed.
 
-Append the Escalation Request block and the Product Owner Escalation Report, both in the formats `escalation-review` owns:
+Append the Escalation Request block (`role-report`) and the Product Owner Escalation Report in the format `escalation-review` owns.
 
-```text
-Problem: [the contradiction or drift, with the conflicting statements]
-Attempted: [the routing considered and why it does not apply]
-Failed because: [why an approved spec or change-request intent must change, or why the authoritative side is unclear]
-Question: [the decision the product owner must make]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the contradiction or drift, with the conflicting statements; **Attempted** — the routing considered and why it does not apply; **Failed because** — why an approved spec or change-request intent must change, or why the authoritative side is unclear; **Question** — the decision the product owner must make.
 
 ## Output Format
 

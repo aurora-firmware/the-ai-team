@@ -105,7 +105,14 @@ A cited run is labelled as cited and never presented as this role's own.
 When `Result` is `ESCALATE`, append after the report the blocks the skill returned, unchanged: the four-field Escalation Request, the Product Owner Escalation Report, or both, as the skill produced them.
 Do not rewrite the fields or merge blocks from several skills.
 
-When the escalation arose outside a skill, fill the four fields `Problem`, `Attempted` (including the number of retries), `Failed because` and `Question` in the format `escalation-review` defines.
+The Escalation Request has these four fields, with these names and in this order; the skill that escalates says what each holds for its trigger, and a role whose escalation arose outside a skill fills them itself:
+
+```text
+Problem: [what went wrong: the criterion that will not pass, or the boundary that was hit]
+Attempted: [what was tried, including the number of retries]
+Failed because: [the specific reason: test output, scope mismatch, contradictory requirement]
+Question: [the specific question for the Architect, or the decision for the product owner]
+```
 
 The role never forwards the escalation itself: the caller routes it to the Architect through `escalation-review`, or to the product owner when the Architect escalated.
 

@@ -114,7 +114,7 @@ Three document types in the AI team framework each have a distinct authority dom
 Authoritative for **structure**: which roles, processes, procedures, and gates exist; their purpose; lifecycle ownership; and the high-level data flow between them.
 When a component is added, removed, or reassigned, the component map is updated first.
 
-### Role implementation files (`.claude/agents/`)
+### Role implementation files (`cli/src/ai_team/init/sources/agents/`, installed as `.claude/agents/`)
 
 Authoritative for **identity and constraints**: who the role is, which procedures it has access to, what it can decide alone, when it must stop and escalate, and what "done" looks like for its output.
 
@@ -122,7 +122,7 @@ Authoritative for **identity and constraints**: who the role is, which procedure
 
 A role implementation file may include an "Interaction Pattern" section describing its upstream and downstream neighbours; this should stay consistent with the component map and the procedure implementation files that define the actual routing logic.
 
-### Procedure implementation files (`.claude/skills/*/SKILL.md`)
+### Procedure implementation files (`cli/src/ai_team/init/sources/skills/*/SKILL.md`, installed as `.claude/skills/`)
 
 Authoritative for **procedures**: the exact steps of repeatable work, the input/output contract at each step, which role is assigned when, and what happens on `PASS`/`FAIL`/`ESCALATE` verdicts.
 

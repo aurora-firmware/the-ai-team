@@ -43,8 +43,8 @@ sources/root, templates/ ──(read at runtime)──┐                      �
   to `guides/` or `ai-process/`, which are not delivered. A rule a guide owns that
   delivered skills need is copied into one delivered owner, which the other
   delivered files point to: the verification rules in
-  `guides/spec_authoring_guide.md` are carried by the `new-task` skill's
-  Verification Methods. Review enforces this; no test checks it (CR-009).
+  `ai-process/guidelines/verification_methods.md` are carried by the `new-task`
+  skill's Verification Methods. Review enforces this; no test checks it (CR-009).
 - **One export target.** Claude is the only agent tool the CLI exports to (ADR-003).
 - **CLI layering.** `cli.py` wires the Typer app; `commands/` holds one module per
   command group; `core/` holds the shared logic; the module map is in
@@ -95,7 +95,7 @@ Where each S-000 rule lives:
 | Rule | Owner |
 |---|---|
 | Fixed section structure of the overview | `cli/src/ai_team/templates/system-overview.md` |
-| S-000 content contract: sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `guides/spec_authoring_guide.md` |
+| S-000 content contract: sections, component definition and checks, groups, Decisions needed, Users scope, S-000 versus spec boundary | `ai-process/guidelines/system_overview_spec.md` |
 | Writing S-000 with the product owner, greenfield or brownfield; completion after Gate 1; brownfield change request; hand-over to the bootstrap | `new-system-overview` skill |
 | Feature spec Purpose names the S-000 component; system-wide structure stays in S-000 | `cli/src/ai_team/templates/spec.md` and the `new-spec` skill |
 | Creating S-000, protecting its ID, accepting bootstrap tasks from S-000, the missing-S-000 hint | `ai-team spec new`, `task new`, `validate` and the hint |

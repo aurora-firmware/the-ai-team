@@ -42,11 +42,11 @@ Take every `Open` finding of the latest Review Verdict and the Developer's answe
   - *Out of scope* — the issue is real but outside the work item (pre-existing code the work did not change, or behavior outside its Files to Touch and criteria), and the answer names the bug filed with `new-bug`.
   - *Sanctioned* — the task, the approved spec or an accepted ADR requires the behavior, cited.
 
-  Settled by the evidence → `Acknowledged`, with a note on what settled it. Otherwise → `Open`, with a note on what the answer does not address. Engage with the argument; do not repeat the finding.
-- **Needs Clarification** — answer the question in a note. If the answer shows the finding was wrong → `Acknowledged`; otherwise → `Open`.
+  Settled by the evidence → `Accepted`, with a note on what settled it. Otherwise → `Open`, with a note on what the answer does not address. Engage with the argument; do not repeat the finding.
+- **Needs Clarification** — answer the question in a note. If the answer shows the finding was wrong → `Accepted`; otherwise → `Open`.
 - **No answer** → `Open`, noted `Not answered.`
 
-A finding already `Fixed (confirmed)` or `Acknowledged` is carried into the new verdict unchanged. A finding the Architect parked (a filed bug, or a `### Recorded deviation` in the work item file) is `Acknowledged`, citing the ruling; one the Architect upheld stays open until its fix is confirmed.
+A finding already `Fixed (confirmed)` or `Accepted` is carried into the new verdict unchanged. A finding the Architect parked (a filed bug, or a `### Recorded deviation` in the work item file) is `Accepted`, citing the ruling; one the Architect upheld stays open until its fix is confirmed.
 
 On a re-review, Steps 3 and 4 raise new findings only against `LAST..HEAD`: code already reviewed gains none.
 
@@ -101,7 +101,7 @@ Some claims cannot be confirmed from the diff and the work item, such as that a 
 
 ### Step 6: Decide and Record the Verdict
 
-- Every finding `Fixed (confirmed)` or `Acknowledged`, and no new one → **PASS**.
+- Every finding `Fixed (confirmed)` or `Accepted`, and no new one → **PASS**.
 - Any finding `Open` → **FAIL**. The work item stays `in-progress`, and the active loop returns it to the Developer; the loop's review-cycle cap decides when a stalemate goes to the Architect.
 - A fundamental design issue that no Developer fix can resolve within the approved specification → **ESCALATE**, at once, without a FAIL first (see Escalation).
 
@@ -124,12 +124,7 @@ Commit nothing: the verdict and any bug filed with `new-bug` live in the tracker
 Return `ESCALATE` when the code has a fundamental design issue that Developer fixes cannot resolve within the approved specification: the spec is internally contradictory, the criteria cannot be met without a spec change, or the diagnosis points at a root cause outside the bug's scope.
 Record the verdict and findings as on FAIL, and add the request; the active loop routes it to the Architect through `escalation-review`.
 
-```text
-Problem: [the fundamental design issue observed in the code]
-Attempted: [the review cycles and Developer fixes that preceded this verdict]
-Failed because: [why Developer fixes cannot resolve it within the approved specification]
-Question: [the decision or guidance needed from the Architect]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the fundamental design issue observed in the code; **Attempted** — the review cycles and Developer fixes that preceded this verdict; **Failed because** — why Developer fixes cannot resolve it within the approved specification; **Question** — the decision or guidance needed from the Architect.
 
 ## Output Format
 

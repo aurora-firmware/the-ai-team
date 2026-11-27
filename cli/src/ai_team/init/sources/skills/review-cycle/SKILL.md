@@ -194,7 +194,7 @@ When it already had one, the Architect is spawned only to hand the item to the p
 > Rule on every finding still Open in the latest Review Verdict: <finding IDs, or none>.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-The escalation block is the one the Developer or the Reviewer returned, or the one the loop wrote, in the format `escalation-review` owns.
+The escalation block is the one the Developer or the Reviewer returned, or the one the loop wrote, in the format `role-report` defines.
 
 **On `Result: PASS`** (Next Owner: the loop):
 

@@ -20,7 +20,7 @@ It is the owner of the review criteria; the `code-review` skill carries it out.
 
 ### Tests
 - [ ] Tests exist for the new or modified product behavior.
-- [ ] Every test is one the Verification methods of `guides/spec_authoring_guide.md` allow.
+- [ ] Every test is one the Verification methods (`ai-process/guidelines/verification_methods.md`) allow.
 - [ ] Tests cover both success and failure paths.
 - [ ] Tests are independent (no shared mutable state).
 - [ ] New tests do not depend on an environment CI does not provide (local git history beyond the checkout depth, network access, locally installed tool versions).

@@ -113,12 +113,15 @@ The typical feature workflow is then:
 
 1. **Describe a feature** — write what you want built.
 2. **Brainstorm** — the planner agent explores approaches and produces a specification (`/new-spec`).
-3. **Approve the spec** — the product owner reviews and approves (Gate 1).
-4. **Decide the architecture** — the architect decides how the spec is built (technology and design) and records it in ADRs and the architecture documents.
-5. **Break into tasks** — the planner decomposes the spec into atomic tasks.
-6. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
-7. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop. When nothing has changed the integration branch since a run that verified it, start the loop with `/dev-loop green` to skip its baseline test run; the Developers then trust that the base is green instead of running the suite before they start. `/bug-loop green` has no baseline run to skip: it tells each bug diagnosis that its base is green, so the diagnosis does not run the full suite to establish it.
-8. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
-9. **Final approval** — the product owner approves the merge from `dev-agent` to `main` (Gate 5).
+3. **Check consistency** — the architect checks the spec against the approved specs and accepted ADRs.
+4. **Approve the spec** — the product owner reviews and approves (Gate 1).
+5. **Decide the architecture** — the architect decides how the spec is built (technology and design) and records it in ADRs and the architecture documents.
+6. **Break into tasks** — the planner decomposes the spec into atomic tasks.
+7. **Run Gate 2 preflight** — the architect validates the task plan before development starts.
+8. **Run `/dev-loop`** — autonomously implements, reviews, and integrates each task. Gate 3 code review and Gate 4 integration verification happen inside the loop. When nothing has changed the integration branch since a run that verified it, start the loop with `/dev-loop green` to skip its baseline test run; the Developers then trust that the base is green instead of running the suite before they start. `/bug-loop green` has no baseline run to skip: it tells each bug diagnosis that its base is green, so the diagnosis does not run the full suite to establish it.
+9. **Fix bugs with `/bug-loop`** — when open bugs exist, the loop diagnoses first, then fixes, reviews, and integrates.
+10. **Reconcile the specs** — when the queue is drained, the architect checks that each approved spec the work touched is still true of what was built.
+11. **Final approval** — the product owner runs `/status-report` and approves the merge from `dev-agent` to `main` (Gate 5).
 
-For the full workflow details, see `ai-process/processes/workflow_overview.md`.
+Tasks you create by hand with `ai-team task new` skip steps 1 to 7: they are `pending` straight away and the loop picks them up.
+For the full workflow, see the process diagrams in the [README](https://github.com/aurora-firmware/the-ai-team#readme).
