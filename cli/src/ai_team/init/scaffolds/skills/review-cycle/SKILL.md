@@ -43,9 +43,10 @@ A run never ends with untracked files or uncommitted changes that the run itself
 
 ### Dispatch Discipline
 
-Each subagent starts cold, and the loop's context is the scarce resource:
+Each spawned subagent starts cold, and the loop's context is the scarce resource:
 
 - **Name the model tier at every spawn**, from the table below; it overrides the agent definition's default for that dispatch.
+- **Keep the work item's subagents across rounds.** A later round of the same work item continues the Developer or Reviewer that ran the earlier one, which keeps its session, instead of spawning a new one: the Reviewer from the second review on (Step 3), the Developer on the first retry (Step 5).
 - **Never paste history into a dispatch.** Pass the work item file path; the subagent reads what it needs from the file.
 - **Pass the diff as a review package**, never through the loop's context (Step 3).
 
@@ -129,7 +130,7 @@ git diff -U10 BASE..HEAD
 From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict.
 Rewrite the package before every review so it covers the whole range. It lives in the tracker and is never committed.
 
-**Spawn the Reviewer subagent** (tier: standard) with this prompt:
+**First review of the work item in this run: spawn the Reviewer subagent** (tier: standard) with this prompt:
 
 > "Review the <task | bug> in the <task | bug> file `<path>` with the code-review skill.
 > The Developer's work is on branch `<branch>`. The review range and its diff are in the review package `<package-path>`; read that file instead of deriving the diff.
@@ -137,7 +138,16 @@ Rewrite the package before every review so it covers the whole range. It lives i
 > Verdict: PASS, FAIL, or ESCALATE.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-Keep the prompt neutral: it names the work item, the branch, the package and the skill, nothing about what to conclude.
+**Every later review of the work item in this run**, whether after a Developer's answers, a fresh Developer or Architect guidance: continue the same Reviewer subagent, which keeps its session and its earlier findings, with this prompt:
+
+> "Review the <task | bug> in `<path>` again with the code-review skill: branch `<branch>` or the file's guidance changed since your last verdict.
+> The review package `<package-path>` now covers the whole range and the diff since your last verdict.
+> Append a new verdict under `### Review Verdict — YYYY-MM-DD`.
+> Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+When that Reviewer's session is no longer available, for example after the loop was restarted, spawn a fresh Reviewer with the first-review prompt; it reads the earlier verdicts from the work item file.
+
+Keep both prompts neutral: they name the work item, the branch, the package and the skill, nothing about what to conclude.
 If it contains "do not flag", "don't treat X as a defect", "at most Minor" or "the plan chose", you are pre-judging the review: delete it, and put the context the Reviewer needs in the work item file.
 
 ### Step 4: Read the Verdict
@@ -155,6 +165,8 @@ Count each failed attempt (a FAIL verdict, or a PASS turned into a failure in St
 
 - **First failure:** Step 2 with the same Developer subagent, which keeps its session.
 - **Second failure:** Step 2 with a fresh Developer subagent on the most capable tier and the Step 2 prompt unchanged. It reads the work item file and inherits nothing from the failed session.
+
+The Reviewer is the same on every rung (Step 3).
 - **Third failure:** the cap is reached. Go to Step 7 with an escalation block written by the loop (Attempted: three review attempts and what each Developer changed).
 
 ### Step 6: Integration
@@ -234,5 +246,5 @@ Return `STOPPED` also when a git operation fails, other than a checkout refused 
 
 ## Cycle Counter Reset
 
-The failure count of Step 5 and the Architect consultation of Step 7 belong to one work item in one loop run.
-Both start at zero when the loop claims or resumes the item, and never carry over to the next item.
+The failure count of Step 5, the Architect consultation of Step 7, and the Developer and Reviewer sessions belong to one work item in one loop run.
+They start afresh when the loop claims or resumes the item, and never carry over to the next item.
