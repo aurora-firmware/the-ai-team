@@ -14,10 +14,12 @@ import typer
 
 from ai_team.core.config import (
     DEFAULT_INTEGRATION_BRANCH,
+    DEFAULT_RELEASE_BRANCH,
     is_valid_branch_name,
     is_valid_project_dir,
     marker_integration_branch,
     marker_project_dir,
+    marker_release_branch,
     read_marker,
     render_placeholders,
 )
@@ -78,6 +80,7 @@ def _upgraded_marker(
     existing: dict,
     project_dir: str,
     integration_branch: str,
+    release_branch: str,
     is_skills_updated: bool,
 ) -> dict:
     """Return *existing* with only the settings that differ from it changed.
@@ -98,6 +101,12 @@ def _upgraded_marker(
             "integration_branch",
             integration_branch,
             marker_integration_branch(existing) or DEFAULT_INTEGRATION_BRANCH,
+        ),
+        (
+            "git",
+            "release_branch",
+            release_branch,
+            marker_release_branch(existing) or DEFAULT_RELEASE_BRANCH,
         ),
     ]
     if is_skills_updated:
@@ -169,14 +178,13 @@ def _write_all(plan: list[tuple[Path, Path]], settings: dict[str, str]) -> None:
         _write_rendered(source, destination, settings)
 
 
-def _upgrade_marker(
-    request: _UpgradeRequest, integration_branch: str, is_skills_updated: bool
-) -> None:
+def _upgrade_marker(request: _UpgradeRequest, is_skills_updated: bool) -> None:
     marker = request.target_root / ".ai-team.toml"
     data = _upgraded_marker(
         request.existing_marker,
         request.project_dir,
-        integration_branch,
+        request.settings["integration_branch"],
+        request.settings["release_branch"],
         is_skills_updated,
     )
     if data == request.existing_marker:
@@ -289,7 +297,7 @@ def _run_upgrade(request: _UpgradeRequest) -> None:
     is_skills_updated = answers[1]
     if is_skills_updated:
         _warn_about_stale_definitions(_stale_definitions(request))
-    _upgrade_marker(request, request.settings["integration_branch"], is_skills_updated)
+    _upgrade_marker(request, is_skills_updated)
 
 
 _ADOPTION_QUESTION = "Overwrite these existing files?"
@@ -523,12 +531,18 @@ def init_command(
         "--integration-branch",
         help="Branch work integrates into (default: the configured one, else 'dev-agent').",
     ),
+    release_branch: str | None = typer.Option(
+        None,
+        "--release-branch",
+        help="Branch the integration branch merges into after Gate 5 sign-off "
+        "(default: the configured one, else 'main').",
+    ),
 ) -> None:
     """Initialize scaffold files in *path*.
 
     On a repository that already has ``.ai-team.toml``, the configured
-    ``[project] dir``, ``[tracker] dir``, and ``[git] integration_branch`` are
-    kept, so ``--force`` refreshes generated agents and skills without
+    ``[project] dir``, ``[tracker] dir``, ``[git] integration_branch`` and
+    ``[git] release_branch`` are kept, so ``--force`` refreshes generated agents and skills without
     rewriting user configuration.
     """
     target_root = path.resolve()
@@ -546,6 +560,11 @@ def init_command(
         or marker_integration_branch(existing_marker)
         or DEFAULT_INTEGRATION_BRANCH
     )
+    release_branch = (
+        release_branch
+        or marker_release_branch(existing_marker)
+        or DEFAULT_RELEASE_BRANCH
+    )
     if not is_valid_project_dir(project_dir):
         typer.echo(
             f"Invalid project dir '{project_dir}': use a relative folder path "
@@ -556,7 +575,14 @@ def init_command(
     if not is_valid_branch_name(integration_branch):
         typer.echo(f"Invalid integration branch '{integration_branch}'.", err=True)
         raise typer.Exit(code=1)
-    settings = {"project_dir": project_dir, "integration_branch": integration_branch}
+    if not is_valid_branch_name(release_branch):
+        typer.echo(f"Invalid release branch '{release_branch}'.", err=True)
+        raise typer.Exit(code=1)
+    settings = {
+        "project_dir": project_dir,
+        "integration_branch": integration_branch,
+        "release_branch": release_branch,
+    }
     tracker_dir = existing_marker.get("tracker", {}).get("dir") or DEFAULT_TRACKER_DIR
 
     scaffolds = resources.files("ai_team.init") / "scaffolds"
@@ -656,6 +682,7 @@ def init_command(
         marker_data["git"] = {
             **existing_marker.get("git", {}),
             "integration_branch": integration_branch,
+            "release_branch": release_branch,
         }
         marker_data["init"] = {
             **existing_marker.get("init", {}),

@@ -4,7 +4,6 @@ title: "[Bug Title]"
 severity: medium  # critical | high | medium | low
 status: open  # open | in-progress | blocked | resolved
 created: YYYY-MM-DD
-source_branch: ""  # required for task-regression bugs; blank for existing defects on the integration branch
 ---
 
 # [Bug Title]

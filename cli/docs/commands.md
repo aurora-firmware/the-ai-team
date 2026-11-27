@@ -66,7 +66,7 @@ $ ai-team adr new [OPTIONS] TITLE
 
 **Options**:
 
-* `--status [proposed|accepted|superseded]`: [default: proposed]
+* `--status [proposed|accepted|superseded]`: Initial status; pass &#x27;proposed&#x27; when the decision awaits the product owner.  [default: accepted]
 * `--supersedes TEXT`
 * `--json`: Emit JSON output.
 * `--help`: Show this message and exit.
@@ -90,7 +90,7 @@ $ ai-team bug [OPTIONS] COMMAND [ARGS]...
 * `new`: Create a new open bug in the tracker from...
 * `start`: Set an open bug to in-progress.
 * `resolve`: Set an in-progress bug to resolved.
-* `unblock`: Set a blocked bug back to in-progress.
+* `unblock`: Set a blocked bug back to the status it...
 * `block`: Set a bug to blocked and record the...
 * `set-status`: Set a bug to any allowed status.
 
@@ -112,7 +112,6 @@ $ ai-team bug new [OPTIONS] TITLE
 
 * `--severity [critical|high|medium|low]`: [default: medium]
 * `--task TEXT`
-* `--source-branch TEXT`: Branch that introduced a task regression; omit for existing defects.
 * `--json`: Emit JSON output.
 * `--help`: Show this message and exit.
 
@@ -154,7 +153,7 @@ $ ai-team bug resolve [OPTIONS] BUG_ID
 
 ### `ai-team bug unblock`
 
-Set a blocked bug back to in-progress.
+Set a blocked bug back to the status it had before it was blocked.
 
 **Usage**:
 
@@ -304,6 +303,7 @@ $ ai-team init [OPTIONS] [PATH] COMMAND [ARGS]...
 * `--update-skills`: On an upgrade, update the agents and skills without asking.
 * `--project-dir TEXT`: Artifact folder, at any depth (default: the configured one, else &#x27;ai-team&#x27;).
 * `--integration-branch TEXT`: Branch work integrates into (default: the configured one, else &#x27;dev-agent&#x27;).
+* `--release-branch TEXT`: Branch the integration branch merges into after Gate 5 sign-off (default: the configured one, else &#x27;main&#x27;).
 * `--help`: Show this message and exit.
 
 ## `ai-team list`
@@ -518,7 +518,7 @@ $ ai-team task [OPTIONS] COMMAND [ARGS]...
 * `new`: Create a new task in the tracker from the...
 * `start`: Set a pending task to in-progress.
 * `complete`: Set an in-progress task to completed.
-* `unblock`: Set a blocked task back to in-progress.
+* `unblock`: Set a blocked task back to the status it...
 * `block`: Set a task to blocked and record the...
 * `set-status`: Set a task to any allowed status.
 
@@ -584,7 +584,7 @@ $ ai-team task complete [OPTIONS] TASK_ID
 
 ### `ai-team task unblock`
 
-Set a blocked task back to in-progress.
+Set a blocked task back to the status it had before it was blocked.
 
 **Usage**:
 

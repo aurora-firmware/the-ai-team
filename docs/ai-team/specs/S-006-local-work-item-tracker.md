@@ -1,6 +1,6 @@
 ---
 title: Local Work-Item Tracker
-version: '0.10'
+version: '0.11'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-15'
 author: planner
@@ -80,9 +80,11 @@ creates.
   `ai-team change-request set-status <id> <status>` set any allowed status; for tasks
   and bugs, `--reason` records why. The named transitions are `task start`, `block`,
   `unblock`, `complete` and `bug start`, `block`, `unblock`, `resolve`. For tasks and
-  bugs alike, `block <id> --reason <text>` sets `blocked` from any status and records
-  the reason in the Work Log, and `unblock <id>` sets a `blocked` item back to
-  `in-progress`.
+  bugs alike, `block <id> --reason <text>` sets `blocked` from any status, records
+  the reason in the Work Log and records the previous status in a `blocked_from`
+  frontmatter field; `unblock <id>` sets a `blocked` item back to that status (to
+  `in-progress` when none is recorded) and removes the field, and succeeds without
+  change on an item that is not `blocked`.
 - `ai-team list tasks|bugs|change-requests --state <s>` filters on the `status` field.
   `list tasks` also filters by `--spec <id>` (REQ-014) and by `--plan <id>`
   (REQ-016), and the two filters combine.
@@ -210,6 +212,8 @@ The CLI SHALL let any allowed status from Interfaces be set through the kind's
 `set-status` command, recording a given `--reason` for tasks and bugs, and SHALL reject a status outside
 the allowed values. A named transition command SHALL reject an unexpected source status
 and SHALL succeed without change when the item is already in the destination status.
+`unblock` SHALL restore the status the item had before it was blocked, and SHALL
+succeed without change on an item that is not blocked.
 Bugs SHALL have `block` and `unblock` transitions that behave as the task ones do.
 
 #### AC-004.1 — Allowed and unknown statuses
@@ -255,15 +259,17 @@ Bugs SHALL have `block` and `unblock` transitions that behave as the task ones d
 
 #### AC-004.5 — Blocking and unblocking a bug
 
-- **Given:** an `in-progress` bug, and an `open` bug
-- **When:** `bug block` runs on the first with `--reason "deferred by the product
-  owner"`, then `bug unblock` runs on it, and `bug unblock` runs on the second
-- **Then:** the first becomes `blocked` with the reason in a new Work Log entry, then
-  `in-progress`; the second is rejected and unchanged
+- **Given:** an `open` bug, an `in-progress` bug, and an `open` bug that was never
+  blocked
+- **When:** `bug block` runs on the first two with `--reason "deferred by the product
+  owner"`, then `bug unblock` runs on them, and `bug unblock` runs on the third
+- **Then:** the first two become `blocked` with the reason in a new Work Log entry,
+  then return to `open` and `in-progress` respectively with no `blocked_from` field
+  left; the third is unchanged
 
 **Verification:** Tests: `test_bug_block_sets_blocked_and_appends_reason`,
-`test_bug_transition_updates_status_in_place` and
-`test_bug_lifecycle_command_rejects_unexpected_source_status` in
+`test_bug_unblock_restores_the_status_held_before_block` and
+`test_bug_unblock_leaves_a_bug_that_is_not_blocked_unchanged` in
 `cli/tests/test_bug_lifecycle.py`.
 
 ### REQ-005 — Planned tasks
@@ -665,3 +671,4 @@ None.
 - **2026-11-02 (T-187, 0.19.0 template):** Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the tracker store and path resolution are described in `docs/development/architecture.md`. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64).
 - **2026-11-03 (product owner decision D8):** bugs gain the `blocked` status. The tracker layout table allows `blocked` for bugs; the Interfaces commands list adds `bug block <id> --reason <text>` (any status to `blocked`, reason recorded in the Work Log) and `bug unblock <id>` (`blocked` to `in-progress`), mirroring the task transitions; REQ-004 requires the bug `block` and `unblock` transitions and AC-004.5 covers them. REQ-007 requires `status` and `report` to count and list blocked bugs beside blocked tasks, and AC-007.4 covers them. Version bumped to 0.10. Driven by the product owner's decision that a deferred escalation blocks the stopped item whether it is a task or a bug: a bug had no `blocked` state, so a deferred bug stayed `in-progress` and the bug-fix loop resumed it on its next run. Affected work: the CLI `bug` commands, `status` and `report`, and the bug-fix loop's escalation handling.
 - **2026-11-12 (spec-truth reconciliation — PASS):** B-049–B-055 and T-188: list table sizing (B-052) and the integrate empty-diff route (B-050) keep REQ-007, REQ-013 and REQ-017 true; no drift. No correction.
+- **2026-11-27 (product owner decision, lean CLI):** `block` records the item's previous status in a `blocked_from` frontmatter field and `unblock` restores it (to `in-progress` when none is recorded), removing the field; `unblock` on an item that is not blocked succeeds without change instead of being rejected. The Interfaces commands list, REQ-004 and AC-004.5 say so; AC-004.5 now blocks and unblocks an `open` bug as well as an `in-progress` one, and its Verification names `test_bug_unblock_restores_the_status_held_before_block` and `test_bug_unblock_leaves_a_bug_that_is_not_blocked_unchanged`. Version bumped to 0.11. Driven by a bug deferred while `open` coming back `in-progress` with no branch, which the bug-fix loop could not resume. Affected work: the CLI `task` and `bug` `block`/`unblock` commands (branch `chore/lean-cli`).

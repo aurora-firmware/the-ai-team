@@ -25,5 +25,5 @@ Note affected areas, risks, and migration considerations.
   changes, or retires, following the new-spec Amendment Log rules. Cite
   sections for S-000. -->
 
-List candidate specification updates if this change alters framework contracts.
+List candidate specification updates if this change alters approved specs.
 Use `none` when no spec amendment is expected.

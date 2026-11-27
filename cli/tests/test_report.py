@@ -218,10 +218,10 @@ Body.
     assert "B-001" in content
 
 
-def test_report_cites_work_log_as_integration_result_source(
+def test_report_leaves_the_sign_off_test_run_to_be_filled(
     monkeypatch, tmp_path: Path
 ) -> None:
-    """The report's integration source names the Work Log, not git history."""
+    """The report carries an unfilled sign-off test-run line, not a Work Log citation."""
     from ai_team.cli import app
 
     out_path = tmp_path / "status.md"
@@ -231,9 +231,10 @@ def test_report_cites_work_log_as_integration_result_source(
     assert result.exit_code == 0
     content = out_path.read_text(encoding="utf-8")
     assert (
-        "- Source: latest Work Log session of completed tasks and resolved bugs"
+        "- Sign-off test run on the integration branch (command and result):\n"
         in content
     )
+    assert "Latest integration" not in content
 
 
 def test_progress_report_decision_sample_uses_accepted(

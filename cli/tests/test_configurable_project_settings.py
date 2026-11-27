@@ -1,4 +1,4 @@
-"""Issues #33, #34, #35: nested project dir, rendered paths, integration branch."""
+"""Issues #33, #34, #35: nested project dir, rendered paths, git branches."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from ai_team.core.config import (
     integration_branch,
     is_valid_branch_name,
     is_valid_project_dir,
+    release_branch,
     render_placeholders,
 )
 from ai_team.core.layout import check_level_2, resolve_layout
@@ -43,7 +44,11 @@ def _scaffold_destinations(target: Path, project_dir: str) -> dict[Path, Path]:
 
 
 def _assert_written_as_rendered(
-    destinations: dict[Path, Path], *, project_dir: str, branch: str
+    destinations: dict[Path, Path],
+    *,
+    project_dir: str,
+    branch: str,
+    release: str = "main",
 ) -> None:
     for source, written in destinations.items():
         try:
@@ -52,7 +57,10 @@ def _assert_written_as_rendered(
             continue  # AC-009.2 covers files that are not UTF-8 text.
         text = written.read_text(encoding="utf-8")
         expected = render_placeholders(
-            template, project_dir=project_dir, integration_branch=branch
+            template,
+            project_dir=project_dir,
+            integration_branch=branch,
+            release_branch=release,
         )
         assert text == expected, written
         assert "{{" not in text, written
@@ -74,10 +82,18 @@ def test_branch_validation():
 
 
 def test_render_placeholders_replaces_every_occurrence():
-    text = "{{project_dir}}/a {{project_dir}}/b -> {{integration_branch}}"
+    text = (
+        "{{project_dir}}/a {{project_dir}}/b -> {{integration_branch}}"
+        " -> {{release_branch}} {{release_branch}}"
+    )
     assert (
-        render_placeholders(text, project_dir="docs/x", integration_branch="next")
-        == "docs/x/a docs/x/b -> next"
+        render_placeholders(
+            text,
+            project_dir="docs/x",
+            integration_branch="next",
+            release_branch="stable",
+        )
+        == "docs/x/a docs/x/b -> next -> stable stable"
     )
 
 
@@ -96,9 +112,11 @@ def test_init_scaffolds_into_nested_project_dir_and_records_it(tmp_path):
 def test_init_rejects_invalid_project_dir_and_branch(tmp_path):
     bad_dir = _init(tmp_path / "a", "--project-dir", "../outside")
     bad_branch = _init(tmp_path / "b", "--integration-branch", "no good")
+    bad_release = _init(tmp_path / "c", "--release-branch", "no good")
 
     assert bad_dir.exit_code == 1
     assert bad_branch.exit_code == 1
+    assert bad_release.exit_code == 1
     assert not (tmp_path / "outside").exists()
 
 
@@ -108,7 +126,7 @@ def test_force_reinit_keeps_configured_settings_and_unrelated_tables(tmp_path):
     (target / ".ai-team.toml").write_text(
         '[project]\ndir = "docs/ai-team"\n\n'
         '[tracker]\ndir = ".trk"\n\n'
-        '[git]\nintegration_branch = "develop"\n\n'
+        '[git]\nintegration_branch = "develop"\nrelease_branch = "stable"\n\n'
         '[custom]\nkeep = "me"\n',
         encoding="utf-8",
     )
@@ -120,6 +138,7 @@ def test_force_reinit_keeps_configured_settings_and_unrelated_tables(tmp_path):
     assert data["project"]["dir"] == "docs/ai-team"
     assert data["tracker"]["dir"] == ".trk"
     assert data["git"]["integration_branch"] == "develop"
+    assert data["git"]["release_branch"] == "stable"
     assert data["custom"] == {"keep": "me"}
     assert (target / "docs" / "ai-team" / "specs").is_dir()
     assert not (target / "ai-team").exists()
@@ -149,6 +168,8 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
         "docs/ai-team",
         "--integration-branch",
         "develop",
+        "--release-branch",
+        "stable",
         "--create-root-guidance",
     )
 
@@ -156,8 +177,11 @@ def test_generated_output_uses_configured_folder_and_branch(tmp_path):
     destinations = _scaffold_destinations(target, "docs/ai-team")
     destinations[ROOT_GUIDANCE_SOURCE] = target / "AGENTS.md"
     _assert_written_as_rendered(
-        destinations, project_dir="docs/ai-team", branch="develop"
+        destinations, project_dir="docs/ai-team", branch="develop", release="stable"
     )
+    data = tomllib.loads((target / ".ai-team.toml").read_text(encoding="utf-8"))
+    assert data["git"]["release_branch"] == "stable"
+    assert release_branch(target) == "stable"
 
 
 def test_default_init_renders_default_folder_and_branch(tmp_path):
@@ -170,6 +194,7 @@ def test_default_init_renders_default_folder_and_branch(tmp_path):
         branch="dev-agent",
     )
     assert integration_branch(target) == "dev-agent"
+    assert release_branch(target) == "main"
 
 
 def test_integration_branch_reads_marker_and_ignores_invalid_values(tmp_path):
@@ -182,6 +207,20 @@ def test_integration_branch_reads_marker_and_ignores_invalid_values(tmp_path):
         '[git]\nintegration_branch = "bad name"\n', encoding="utf-8"
     )
     assert integration_branch(tmp_path) == "dev-agent"
+
+
+def test_release_branch_reads_marker_and_ignores_invalid_values(tmp_path):
+    assert release_branch(tmp_path) == "main"
+
+    (tmp_path / ".ai-team.toml").write_text(
+        '[git]\nrelease_branch = "stable"\n', encoding="utf-8"
+    )
+    assert release_branch(tmp_path) == "stable"
+
+    (tmp_path / ".ai-team.toml").write_text(
+        '[git]\nrelease_branch = "bad name"\n', encoding="utf-8"
+    )
+    assert release_branch(tmp_path) == "main"
 
 
 def test_check_layout_validates_nested_project_dir_levels_1_and_2(tmp_path):

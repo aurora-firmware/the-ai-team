@@ -50,8 +50,7 @@ def _summary_line(payload: dict[str, object]) -> str:
         f"Bugs in progress: {bugs['in_progress']}. "
         f"Blocked bugs: {bugs['blocked']}. "
         f"Resolved bugs: {bugs['resolved']}. "
-        f"ADRs: {counts['adrs']}. "
-        f"Latest integration result: {payload['latest_integration_result']}."
+        f"ADRs: {counts['adrs']}."
     )
 
 
@@ -151,7 +150,7 @@ def _decision_rows(root) -> str:
 
 def _next_actions(payload: dict[str, object]) -> str:
     blocked = _blocked_items(payload)
-    critical_high = payload["critical_high_open_bugs"]
+    critical_high = payload["critical_high_unresolved_bugs"]
     assert isinstance(critical_high, list)
     in_progress = payload["in_progress_tasks"]
     assert isinstance(in_progress, list)
@@ -178,7 +177,7 @@ def _risks_and_concerns(payload: dict[str, object]) -> str:
     assert isinstance(blocked_tasks, list)
     blocked_bugs = payload["blocked_bugs"]
     assert isinstance(blocked_bugs, list)
-    critical_high = payload["critical_high_open_bugs"]
+    critical_high = payload["critical_high_unresolved_bugs"]
     assert isinstance(critical_high, list)
 
     risks: list[str] = []
@@ -187,7 +186,7 @@ def _risks_and_concerns(payload: dict[str, object]) -> str:
     if blocked_bugs:
         risks.append("Blocked bugs stay unfixed until they are unblocked.")
     if critical_high:
-        risks.append("Critical/high bugs may impact release quality.")
+        risks.append("Unresolved critical/high bugs may impact release quality.")
     if not risks:
         risks.append("No immediate risks identified.")
     return "\n".join(f"- {risk}" for risk in risks)
@@ -213,15 +212,6 @@ def _render_report(
             "| specification-name.md | approved | Current Gate 5 target |",
             _spec_rows(root),
         ),
-        (
-            "- Latest integration-test result:",
-            f"- Latest integration-test result: {payload['latest_integration_result']}",
-        ),
-        (
-            "- Source:",
-            "- Source: latest Work Log session of completed tasks and resolved bugs",
-        ),
-        ("- Date:", f"- Date: {report_date}"),
         (
             "| T-001 | Task title | Role |\n| T-002 | Task title | Role |",
             _completed_rows(root),

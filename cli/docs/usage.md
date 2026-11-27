@@ -278,9 +278,13 @@ If a task gets stuck:
 # Block with a reason
 ai-team task block T-001 --reason "Waiting for API contract from backend team"
 
-# Unblock when the blocker is resolved
+# Unblock when the blocker is resolved (restores the status it had before block)
 ai-team task unblock T-001
 ```
+
+`block` records the status the item had in a `blocked_from` frontmatter field,
+and `unblock` restores that status and removes the field. An item blocked
+without that record (for example by a hand edit) unblocks to `in-progress`.
 
 List all tasks (all states) or filter by state:
 
@@ -301,10 +305,6 @@ ai-team show T-001
 # 1. File a new bug
 ai-team bug new "Login crashes on empty token" --severity high
 
-# A regression from a task branch records that branch as source_branch;
-# the bug-fix loop bases the bug branch on it
-ai-team bug new "Login regressed" --source-branch task/T-021-login
-
 # 2. Start investigation (sets status: in-progress)
 ai-team bug start B-001
 
@@ -319,7 +319,8 @@ it until it is unblocked:
 # Block with a reason (sets status: blocked)
 ai-team bug block B-001 --reason "Deferred until the payment provider fixes its API"
 
-# Unblock when the blocker is resolved (sets status: in-progress)
+# Unblock when the blocker is resolved (restores the status it had before block,
+# so a bug deferred while open comes back open)
 ai-team bug unblock B-001
 ```
 
@@ -336,8 +337,11 @@ ai-team list bugs --state open
 # New specification (lands in ai-team/specs/ as S-NNN-<slug>.md)
 ai-team spec new "Billing reconciliation" --author "planner" --status draft
 
-# New Architecture Decision Record (lands in ai-team/decisions/)
-ai-team adr new "Use PostgreSQL for ledger storage" --status proposed
+# New Architecture Decision Record (lands in ai-team/decisions/), created accepted
+ai-team adr new "Use PostgreSQL for ledger storage"
+
+# An ADR that awaits the product owner's decision is created proposed
+ai-team adr new "Move ledger to event sourcing" --status proposed
 ```
 
 `spec new` writes a draft scaffold of a feature spec. The spec-writing agent
@@ -398,8 +402,10 @@ ai-team list adrs
 
 ### Generate a Gate 5 status report
 
-Gate 5 is the product owner sign-off before merging `dev-agent` to `main`. These two
-commands give the context needed:
+Gate 5 is the product owner sign-off before merging the integration branch
+(`[git] integration_branch`, default `dev-agent`) into the release branch
+(`[git] release_branch`, default `main`). These two commands give the context
+needed:
 
 ```bash
 # Inline summary in the terminal
@@ -414,16 +420,13 @@ ai-team report --out /tmp/custom-report.md
 
 `ai-team status` shows counts of active specs (not superseded, excluding the
 S-000 overview), tasks in every state, bugs by state,
-in-progress tasks, blocked tasks and bugs, critical/high bugs, and the latest
-integration result. The integration result cites the newest Work Log session
-of a completed task or resolved bug (ID, session, date, and first line), or
-`not found` when no such session exists. The integration result is read only
-from Work Log headings of the exact form `### Session N — YYYY-MM-DD` (an em
-dash, with `N` a session number); a completed task or resolved bug whose
-sessions use any other heading form reports `not found`.
+in-progress tasks, blocked tasks and bugs, and the unresolved (open,
+in-progress or blocked) critical/high bugs.
 
 `ai-team report` renders the same data into a markdown file using the bundled
-report template.
+report template. Its sign-off test-run line is left for whoever produces the
+report to fill in with the project's test command, run on the integration
+branch at sign-off, and its result.
 
 ### Validate artifacts
 
@@ -497,6 +500,7 @@ dir = ".ai-team/tracker"
 
 [git]
 integration_branch = "dev-agent"
+release_branch = "main"
 
 [init]
 framework_version = "0.1.0"
@@ -512,10 +516,13 @@ To preset settings before the first `ai-team init`, write only the `[project]`,
 and a marker that already records `[init] framework_version` is treated as an upgrade.
 
 The `[git] integration_branch` key names the branch that task, bug, and
-planning work integrates into (default `dev-agent`).
+planning work integrates into (default `dev-agent`). The `[git] release_branch`
+key names the branch the integration branch merges into after Gate 5 sign-off
+(default `main`).
 
-The generated agents and skills name these two settings through the
-`{{project_dir}}` and `{{integration_branch}}` placeholders. `ai-team init`
+The generated agents and skills name these settings through the
+`{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}`
+placeholders. `ai-team init`
 fills them in from `.ai-team.toml` when it writes the files, so after changing
 either setting, run `ai-team init . --update-skills --update-docs` to refresh them.
 Hand edits to generated files are overwritten by that refresh.
@@ -582,7 +589,7 @@ The `ai_team` package lives in `cli/src/ai_team/` and is structured as:
 | `ai_team.commands._shared` | Helpers shared by several command modules (not mounted as a command). |
 | `ai_team.core/` | Pure-Python helpers with no Typer dependency. |
 | `ai_team.core.locator` | Project root resolution (four-strategy locator). |
-| `ai_team.core.config` | Reads `.ai-team.toml` settings and fills the `{{project_dir}}` and `{{integration_branch}}` placeholders. |
+| `ai_team.core.config` | Reads `.ai-team.toml` settings and fills the `{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}` placeholders. |
 | `ai_team.core.layout` | Layout contract and the `check-layout` levels. |
 | `ai_team.core.tracker` | Local tracker: folder resolution and work-item lookup. |
 | `ai_team.core.lock` | The `.ai-team.lock` sentinel for concurrent ID allocation. |

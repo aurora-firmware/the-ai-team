@@ -175,7 +175,6 @@ def test_bug_new_allocates_distinct_ids_for_two_concurrent_callers(
                 title=title,
                 severity="medium",
                 task=None,
-                source_branch=None,
                 as_json=False,
             )
         except BaseException as exc:  # noqa: BLE001 - surfaced via `errors`
@@ -203,29 +202,3 @@ def test_bug_new_allocates_distinct_ids_for_two_concurrent_callers(
     assert len(files) == 2
     ids = {parse_bug(path).id for path in files}
     assert len(ids) == 2, f"expected two distinct bug ids, got files: {files}"
-
-
-def test_bug_new_writes_source_branch_when_given(monkeypatch, tmp_path):
-    """`bug new --source-branch` records the regression branch in frontmatter."""
-    from ai_team.cli import app
-
-    monkeypatch.chdir(tmp_path)
-    result = CliRunner().invoke(
-        app, ["bug", "new", "Regression", "--source-branch", "task/T-021-login"]
-    )
-
-    assert result.exit_code == 0
-    text = Path(result.stdout.strip()).read_text(encoding="utf-8")
-    assert "source_branch: task/T-021-login" in text
-
-
-def test_bug_new_omits_source_branch_by_default(monkeypatch, tmp_path):
-    """Without `--source-branch` the bug is an existing defect with no branch key."""
-    from ai_team.cli import app
-
-    monkeypatch.chdir(tmp_path)
-    result = CliRunner().invoke(app, ["bug", "new", "Existing defect"])
-
-    assert result.exit_code == 0
-    text = Path(result.stdout.strip()).read_text(encoding="utf-8")
-    assert "source_branch" not in text
