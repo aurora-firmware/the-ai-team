@@ -10,27 +10,22 @@ This document describes the architecture of an AI team — how roles are organiz
 ┌─────────────────────────────────────────────────────────────┐
 │                           AI TEAM                           │
 │                                                             │
-│  ┌──────────┐  ┌──────────────┐  ┌────────────────────┐     │
-│  │ PLANNER  │  │  ARCHITECT   │  │    INTEGRATOR      │     │
-│  │          │  │              │  │                    │     │
-│  │ creative │  │ structural   │  │ merge + test       │     │
-│  │ + struct │  │ + gate eval  │  │ + conflict resolve │     │
-│  └────┬─────┘  └──────┬───────┘  └──────────┬─────────┘     │
-│       │               │                     │               │
-│       ↓               ↓ (on demand)         ↑               │
-│  ┌──────────────────────────────────────────┤               │
-│  │         EXECUTION POOL                   │               │
-│  │                                          │               │
-│  │  ┌─────────────┐  ┌─────────────┐        │               │
-│  │  │  DEVELOPER  │  │  DEVELOPER  │  ...   │               │
-│  │  │   (TDD)     │  │   (TDD)     │        │               │
-│  │  └──────┬──────┘  └──────┬──────┘        │               │
-│  │         ↓                ↓               │               │
-│  │  ┌─────────────┐  ┌─────────────┐        │               │
-│  │  │  REVIEWER   │  │  REVIEWER   │        │               │
-│  │  └──────┬──────┘  └──────┬──────┘        │               │
-│  │         └────────────────┴───────────────┘               │
-│  └──────────────────────────────────────────────────────────┘
+│  ┌──────────┐  ┌──────────────┐                             │
+│  │ PLANNER  │  │  ARCHITECT   │                             │
+│  │ creative │  │ structural   │                             │
+│  │ + struct │  │ + gate eval  │                             │
+│  └────┬─────┘  └──────┬───────┘                             │
+│       │               │ (on demand)                         │
+│       ↓               ↓                                     │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  LOOP: one work item at a time                       │   │
+│  │                                                      │   │
+│  │  DEVELOPER (TDD, merges dev-agent into its branch)   │   │
+│  │      ↓              ↑ FAIL                           │   │
+│  │  REVIEWER ──────────┘                                │   │
+│  │      ↓ PASS                                          │   │
+│  │  INTEGRATE (test the branch, merge into dev-agent)   │   │
+│  └──────────────────────────────────────────────────────┘   │
 │                                                             │
 │  ★ GATES: spec, task plan, review, integration, final       │
 └─────────────────────────────────────────────────────────────┘
@@ -61,10 +56,9 @@ For bug fixes, the Developer follows a diagnosis-first debugging procedure befor
 
 ### Integration Layer
 
-**Procedure:** Integrate.
-**Role:** Integrator (conflict resolution and manual merges into `dev-agent` or preserved task branches).
-**Purpose:** Merge completed work, run integration tests, and resolve conflicts.
-**Key principle:** Merge in dependency order. Test the source branch before the merge and the destination branch after it. Revert and file bugs on failure.
+**Procedure:** Integrate, run by the loop itself.
+**Purpose:** Merge completed work into `dev-agent` once its tests pass.
+**Key principle:** The Developer brings `dev-agent` into its branch and resolves conflicts before review, so the merge reproduces a tree that was reviewed and tested. A failure merges nothing and goes back to the Developer.
 
 ### Oversight Layer
 

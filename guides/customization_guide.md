@@ -103,7 +103,7 @@ test runner changed), update `AGENTS.md` in the same commit.
 
 ### Changing the Process
 
-The agent roles, quality gates and escalation thresholds are defined by the framework's `ai-process/` documents, which are not exported, and carried out by the exported agents and skills. The workflow expects all five agents (Planner, Architect, Developer, Reviewer, Integrator): the procedures hand work to each of them by name (the loops spawn the Developer, Reviewer and Architect, integration hands merge conflicts to the Integrator, and Gate 2 runs between the Planner and the Architect).
+The agent roles, quality gates and escalation thresholds are defined by the framework's `ai-process/` documents, which are not exported, and carried out by the exported agents and skills. The workflow expects all four agents (Planner, Architect, Developer, Reviewer): the procedures hand work to each of them by name (the loops spawn the Developer, Reviewer and Architect, and Gate 2 runs between the Planner and the Architect).
 
 To change the gate model, the escalation thresholds or the set of roles, change the framework itself: update `ai-process/` first, then the agents and skills that implement it, as described in the framework's README ("Contributing to This Project"). Editing the exported files in `.claude/` instead is possible, but an upgrade that updates the agents and skills overwrites those edits.
 

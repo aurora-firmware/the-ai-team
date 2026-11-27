@@ -111,7 +111,7 @@
 <g class="n d11">
 <rect x="510" y="450" width="210" height="46" rx="10" fill="#1A1E4A" stroke="#22C55E" stroke-width="1.5"/>
 <text xml:space="preserve" class="h" x="615.0" y="470.0" text-anchor="middle" fill="#FFFFFF">Integration</text>
-<text xml:space="preserve" class="s" x="615.0" y="488.0" text-anchor="middle" fill="#3B82F6">Gate 4 · merge + full test suite</text>
+<text xml:space="preserve" class="s" x="615.0" y="488.0" text-anchor="middle" fill="#3B82F6">Gate 4 · full test suite + merge</text>
 </g>
 <g class="n d11"><text xml:space="preserve" class="s" x="628" y="437" text-anchor="start" fill="#22C55E">PASS</text></g>
 <g class="e d11"><path d="M509,383 H486 V293 H507" fill="none" stroke="#F4695A" stroke-width="1.6" marker-end="url(#m-r)" class="flow"/></g>
@@ -122,8 +122,6 @@
 <g class="n d12"><text xml:space="preserve" class="s" x="615" y="568" text-anchor="middle">Up to 3 review cycles, then the Architect is consulted</text></g>
 <g class="e d12"><path d="M721,190 H850" fill="none" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#m-g)"/></g>
 <g class="n d12"><text xml:space="preserve" class="s" x="727" y="182" text-anchor="start">queue empty</text></g>
-<g class="e d12"><path d="M721,485 H800 V437 H850" fill="none" stroke="#F4695A" stroke-width="1.6" marker-end="url(#m-r)"/></g>
-<g class="n d12"><text xml:space="preserve" class="s" x="727" y="503" text-anchor="start" fill="#F4695A">regression</text></g>
 <g class="n d10">
 <rect x="853" y="176" width="204" height="36" rx="10" fill="#1A1E4A" stroke="#2E3372" stroke-width="1.5"/>
 <rect x="867" y="176" width="176" height="2.5" rx="1" fill="#F7941D"/>

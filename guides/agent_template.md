@@ -160,7 +160,7 @@ Start with the narrowest viable tool set. Broader access is harder to reason abo
 | Reads only (research, git or test inspection) | `Read, Glob, Grep, Bash` |
 | Writes files (verdicts, planning documents, ADRs, source and test code) | `Read, Glob, Grep, Write, Edit, Bash` |
 
-All five canonical agents write files (the Reviewer appends Review Verdicts and files bugs, the Architect writes ADRs and edits planned tasks), so all of them use the second row.
+All four canonical agents write files (the Reviewer appends Review Verdicts and files bugs, the Architect writes ADRs and edits planned tasks), so all of them use the second row.
 
 Every role that uses tracker skills requires `Bash` to invoke the `ai-team` CLI. `Folder Scope` defines its permitted writes.
 
@@ -187,9 +187,8 @@ Rationale: thresholds change as the procedure changes. Keeping them in one place
 |---|---|---|---|
 | Planner | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `brainstorm`, `spec-breakdown`, `new-spec`, `new-task`, `change-request`, `new-system-overview`, `git-conventions`, `evidence-before-claims`, `role-report` |
 | Architect | Opus | `Read, Write, Edit, Glob, Grep, Bash` | `feature-architecture`, `spec-breakdown-review`, `architecture-consistency-review`, `escalation-review`, `new-adr`, `git-conventions`, `evidence-before-claims`, `role-report` |
-| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `receive-code-review`, `new-bug`, `coding-standards`, `git-conventions`, `evidence-before-claims`, `role-report` |
+| Developer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `tdd`, `debug`, `receive-code-review`, `merge-conflicts`, `new-bug`, `coding-standards`, `git-conventions`, `evidence-before-claims`, `role-report` |
 | Reviewer | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `code-review`, `new-bug`, `coding-standards`, `evidence-before-claims`, `role-report` |
-| Integrator | Sonnet | `Read, Write, Edit, Glob, Grep, Bash` | `integrate`, `merge-conflicts`, `new-bug`, `git-conventions`, `evidence-before-claims`, `role-report` |
 
 Keep agents stable and small. When behavior becomes a repeatable sequence, create or update a skill rather than expanding the agent file.
 
@@ -198,7 +197,7 @@ Keep agents stable and small. When behavior becomes a repeatable sequence, creat
 - Embedding numbered procedures in the agent (belongs in a skill).
 - Duplicating `Must Escalate` and `Escalation Triggers` as two sections (collapse into one `## Escalation` pointer).
 - Generic-expertise descriptions ("expert X"). Describe the role, not the expertise.
-- Cross-referencing other agents operationally (*"spawned by the Integrator agent"* when in fact a skill is doing the work).
+- Cross-referencing other agents operationally (*"spawned by the Reviewer agent"* when in fact a skill is doing the work).
 - Broad tool access without Folder Scope restrictions.
 - Restating the `role-report` fields, evidence forms or escalation block in the agent.
 - Referencing `ai-process/` paths. Agents must be self-contained within `.claude/`.

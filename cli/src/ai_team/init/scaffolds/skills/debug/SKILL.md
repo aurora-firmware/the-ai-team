@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Diagnostic debugging procedure for bugs and unexpected failures. Use before fixing any bug, when tests fail unexpectedly, when code misbehaves, or when an integration failure has been traced to a source branch.
+description: Diagnostic debugging procedure for bugs and unexpected failures. Use before fixing any bug, when tests fail unexpectedly, or when code misbehaves.
 allowed-tools: Read, Grep, Glob, Edit, Bash
 ---
 

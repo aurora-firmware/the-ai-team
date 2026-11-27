@@ -61,7 +61,7 @@ The product owner shapes and approves the specification, the agents plan and bui
 Inside both loops every task or bug goes through the same review cycle: it is integrated only after the Reviewer passes it.
 
 <p align="center">
-  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect; a regression found at integration opens a bug for the bug loop" width="100%">
+  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect" width="100%">
 </p>
 
 Blocked work does not spin: a role first retries within its own threshold, then consults the Architect once, then hands the decision to the product owner.
@@ -78,9 +78,8 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 |---|---|
 | **Planner** | Creates specifications with the product owner, then decomposes approved specifications into executable tasks |
 | **Architect** | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
-| **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code |
+| **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code; merges `dev-agent` into its branch and resolves conflicts before review |
 | **Reviewer** | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality |
-| **Integrator** | Resolves merge conflicts; supports task and bug integration into target branches |
 
 ## Skills
 

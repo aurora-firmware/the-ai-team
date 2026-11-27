@@ -1,6 +1,6 @@
 ---
 name: role-report
-description: Defines the result report every AI-team role returns — its fields, the evidence entry forms, the allowed Result and Next Owner values, and how an escalation block is passed on. Use when a Planner, Architect, Developer, Reviewer or Integrator writes its final result, or when a caller reads one.
+description: Defines the result report every AI-team role returns — its fields, the evidence entry forms, the allowed Result and Next Owner values, and how an escalation block is passed on. Use when a Planner, Architect, Developer or Reviewer writes its final result, or when a caller reads one.
 allowed-tools: Read
 user-invocable: false
 ---
@@ -79,7 +79,6 @@ A result that goes back to a running loop names that loop, which routes it on (t
 | Architect | `Planner`, `Development Loop`, `Bug-Fix Loop`, `Product Owner`, `none` |
 | Developer | `Development Loop`, `Bug-Fix Loop`, `Architect`, `Product Owner`, `none` |
 | Reviewer | `Development Loop`, `Bug-Fix Loop`, `Architect`, `Product Owner`, `none` |
-| Integrator | `Architect`, `Product Owner`, `none` |
 
 A role that stops mid-procedure to hand back for another role's step (the Planner in `spec-breakdown`) returns `Result: PASS` with that role as `Next Owner` and a `Next Action` naming the step to resume at.
 

@@ -1,6 +1,6 @@
 ---
 name: escalation-review
-description: Analyse blocked work after a role has exhausted self-recovery, and own the escalation request and product owner escalation report formats. Use when a Development Loop or Bug-Fix Loop routes, via `review-cycle`, a Developer, Reviewer or Integrator escalation request, or the product owner routes a manually spawned Integrator's, and the Architect must issue guidance or escalate to the product owner.
+description: Analyse blocked work after a role has exhausted self-recovery, and own the escalation request and product owner escalation report formats. Use when a Development Loop or Bug-Fix Loop routes, via `review-cycle`, a Developer or Reviewer escalation request, and the Architect must issue guidance or escalate to the product owner.
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(new-adr), Skill(git-conventions)
 effort: high
 ---
@@ -97,7 +97,7 @@ The caller passes it to the product owner unchanged.
 ## Product Owner Escalation Report
 
 Subject: <task or bug ID and tracker path | spec or change-request ID and path | task plan of <spec or change-request ID>>
-Raised by: <dev-loop | bug-loop | integrator | feature-architecture | spec-breakdown-review (Gate 2) | architecture-consistency-review>
+Raised by: <dev-loop | bug-loop | feature-architecture | spec-breakdown-review (Gate 2) | architecture-consistency-review>
 Date: <YYYY-MM-DD>
 
 ### Original request

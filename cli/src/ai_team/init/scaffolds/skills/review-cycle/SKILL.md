@@ -16,7 +16,6 @@ The calling loop provides:
 
 - **Work item:** its ID, its kind (task or bug), and its file `path` from `ai-team show <id> --json`.
 - **Branch:** the work item branch (`task/T-NNN-<slug>` or `bug/B-NNN-<slug>`).
-- **Target branch:** where `integrate` merges the branch: `{{integration_branch}}` for a task, the base `bug-loop` chose for a bug.
 - **BASE:** the last `Base commit: <sha>` line under `## Work Log` in the work item file.
 - **Entry point:** Step 1 (resume), Step 2 (after a claim or a diagnosis), or Step 7 (a diagnosis escalation from `bug-loop`).
 - **Loop name:** `Development Loop` or `Bug-Fix Loop`, the Next Owner value the roles return to.
@@ -66,7 +65,6 @@ The integration branch is **known green** in this run when:
 - the `dev-loop` baseline guard passed on it in this run; or
 - `integrate` returned `PASS` into it in this run.
 
-A preserved task branch is known green only when `integrate` returned `PASS` into it in this run. The integration attempt that preserved it failed, so a preserved branch is otherwise not known green.
 Otherwise the base is **not known green**.
 
 ### Reading a Role's Result
@@ -122,10 +120,12 @@ Append the entry under `## Work Log` in the work item file, then go to Step 3.
 **Write the review package**: `<tracker-path>/review-packages/<id>.md` (find `<tracker-path>` with `ai-team tracker path`), holding the output of:
 
 ```bash
-git log --oneline BASE..HEAD
-git diff --stat BASE..HEAD
-git diff -U10 BASE..HEAD
+git log --oneline {{integration_branch}}..HEAD
+git diff --stat {{integration_branch}}...HEAD
+git diff -U10 {{integration_branch}}...HEAD
 ```
+
+The branch contains `{{integration_branch}}` after the Developer's sync, so this is the work item's own change, including any conflict resolution.
 
 From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict.
 Rewrite the package before every review so it covers the whole range. It lives in the tracker and is never committed.
@@ -172,17 +172,14 @@ The Reviewer is the same on every rung (Step 3).
 ### Step 6: Integration
 
 Confirm that the work item file holds the Developer's Work Log entry, a latest `### Review Verdict` of PASS, and for a bug its Diagnosis Log entry.
-Run `ai-team list bugs --json`; when any bug whose `source_branch` is this branch is not `resolved`, return `WAITING` with their IDs.
-Invoke the `integrate` skill with `<branch> <target-branch>`, naming this loop as the caller; it does not re-check the verdict, so this confirmation is the only one.
-It resolves merge conflicts in process with `merge-conflicts`; a conflict reaches this cycle only as `ESCALATE`.
+Invoke the `integrate` skill with `<branch> {{integration_branch}}`, naming this loop as the caller; it does not re-check the verdict, so this confirmation is the only one.
 Act on its `Result`:
 
 | Result | Action |
 |---|---|
 | `PASS` | A task is already `completed`. For a bug, run `ai-team bug resolve <id>`. Return `DONE` |
-| `FAIL`, nothing merged (a gap in the diff, lifecycle files in the diff, or a failing source-branch command) | Add integrate's failure under the latest verdict as a new `Open` finding, as in Step 4, and go to Step 5 |
-| `FAIL`, merge reverted on a regression | The item stays `in-progress` with its branch preserved. Return `REGRESSION` with the filed bug IDs |
-| `BLOCKED` or `ESCALATE` | Go to Step 7 with integrate's escalation block, or, for `BLOCKED` without one, four fields naming what is missing |
+| `FAIL` (the branch no longer contains `{{integration_branch}}`, a gap in the diff, lifecycle files in the diff, or a failing test) | Nothing was merged. Add integrate's failure under the latest verdict as a new `Open` finding, as in Step 4, and go to Step 5 |
+| `BLOCKED` | Go to Step 7 with four fields naming what is missing |
 
 ### Step 7: Architect Consultation
 
@@ -197,7 +194,7 @@ When it already had one, the Architect is spawned only to hand the item to the p
 > Rule on every finding still Open in the latest Review Verdict: <finding IDs, or none>.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-The escalation block is the one the Developer, the Reviewer or `integrate` returned, or the one the loop wrote, in the format `escalation-review` owns.
+The escalation block is the one the Developer or the Reviewer returned, or the one the loop wrote, in the format `escalation-review` owns.
 
 **On `Result: PASS`** (Next Owner: the loop):
 
@@ -237,12 +234,10 @@ Delete the review package unless the outcome is `DIAGNOSE`, and hand the loop on
 |---|---|---|
 | `DONE` | Merged; task `completed` or bug `resolved`; branch deleted | Picks the next item |
 | `DIAGNOSE` | Bug, `in-progress` | Runs its diagnosis step, then Step 2 |
-| `WAITING` | `in-progress`; bugs on its branch are unresolved | Skips the item this run |
-| `REGRESSION` | `in-progress`; merge reverted, branch preserved, regression bugs filed | Stops |
 | `ESCALATED` | `blocked` | Stops with the Phase 2 report, or the Planner's escalation block |
 | `STOPPED` | Unchanged | Stops and reports the cause |
 
-Return `STOPPED` also when a git operation fails, other than a checkout refused on a dirty tree (Workspace Hygiene) or a merge conflict (`integrate`): report the git error before attempting anything else.
+Return `STOPPED` also when a git operation fails, other than a checkout refused on a dirty tree (Workspace Hygiene): report the git error before attempting anything else.
 
 ## Cycle Counter Reset
 

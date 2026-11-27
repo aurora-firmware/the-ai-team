@@ -24,7 +24,7 @@ It is the owner of the review criteria; the `code-review` skill carries it out.
 - [ ] Tests cover both success and failure paths.
 - [ ] Tests are independent (no shared mutable state).
 - [ ] New tests do not depend on an environment CI does not provide (local git history beyond the checkout depth, network access, locally installed tool versions).
-- [ ] The Work Log records local test evidence or explains why a local test run was not possible. Gate 4 owns authoritative pre-merge and post-merge test execution.
+- [ ] The Work Log records local test evidence or explains why a local test run was not possible. Gate 4 owns the authoritative full test run.
 - [ ] For an inspection or demonstration task, the Work Log record is present and covers every listed criterion and reference, or the listed steps and observed outcome.
 
 ### Security
