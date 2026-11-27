@@ -85,6 +85,6 @@ Tell the product owner the path, and commit the file only if they ask.
 ## Quality Criteria
 
 - Critical and high open bugs are listed, and every blocked task and bug has its reason when one is recorded.
-- The latest integration evidence is stated, or marked as not found.
+- The sign-off integration test run is stated, or marked as not documented.
 - When the queue is drained, the reconciliation state is stated.
 - The report gives the product owner enough context for Gate 5 sign-off, a status sign-off rather than a code review.

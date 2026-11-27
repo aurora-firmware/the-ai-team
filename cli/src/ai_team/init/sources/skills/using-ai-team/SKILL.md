@@ -56,7 +56,7 @@ Before starting a stage, confirm the artifact it needs exists:
 2. Fixing a bug needs a bug file with a Diagnosis Log, produced by `debug`.
 3. Task breakdown needs a spec that is approved and free of product-owner-answerable `[TODO]` markers.
 4. Integration needs a Reviewer PASS recorded in the task or bug file.
-5. Merging the integration branch into `main` needs the product owner's Gate 5 sign-off.
+5. Merging the integration branch into `{{release_branch}}` needs the product owner's Gate 5 sign-off.
 
 If a precondition is missing, stop and report which artifact is missing and which skill produces it.
 Do not do the earlier stage's work inline to get around it.

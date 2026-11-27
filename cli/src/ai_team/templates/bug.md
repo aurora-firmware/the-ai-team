@@ -98,7 +98,7 @@ Reviewed through: <HEAD sha>
 
 - Every finding of the work item, numbered F1, F2, ... across cycles: location,
   the claim or rule it is measured against, what is wrong and why (never a fix),
-  and its status: Open, Fixed (confirmed), or Acknowledged.
+  and its status: Open, Fixed (confirmed), or Accepted.
 - For PASS: brief confirmation that diagnosis, fix, verification, and code quality passed; every finding is closed.
 - For ESCALATE: design issue and why normal Developer fixes cannot resolve it.
 -->

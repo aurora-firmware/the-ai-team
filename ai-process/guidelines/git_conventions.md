@@ -5,7 +5,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 
 ## Branch Model
 
-`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`.
+`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`. Likewise `main` is the default release branch, the target of the Gate 5 merge; `[git] release_branch` (or `ai-team init --release-branch`) names another.
 
 | Branch | Purpose | Who touches it |
 |---|---|---|

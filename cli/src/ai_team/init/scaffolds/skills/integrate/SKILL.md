@@ -112,7 +112,7 @@ On every stop the work item's status is unchanged and the source branch is kept;
 ## What This Skill Does NOT Do
 
 - Does not resolve merge conflicts or fix failing tests: the Developer does, on the source branch.
-- Does not touch `main`, which is product-owner-only.
+- Does not touch `{{release_branch}}`, which is product-owner-only.
 - Does not modify specifications or ADRs.
 - Does not skip tests or bypass hooks (`--no-verify` is forbidden).
 - Does not merge more than one branch per invocation.
