@@ -1,13 +1,13 @@
 ---
-title: System Overview Spec (S-000)
-version: '0.6'
+title: System overview (S-000) support
+version: '0.7'
 status: approved  # draft | review | approved | superseded
 created: '2026-10-19'
 author: planner
 id: S-007
 ---
 
-# System Overview Spec (S-000)
+# System overview (S-000) support
 
 ## Purpose
 
@@ -64,8 +64,8 @@ archive.
 
 **Exposed — the S-000 template (REQ-005).** **Contract:** the seven top-level sections
 in this order: Purpose, Users, Pain points, Use cases, Solution overview, Components,
-Project exclusions; then the Amendment Log. Their content rules are owned by the spec
-authoring guide (REQ-006).
+Project exclusions; then the Amendment Log. Their content rules are owned by
+`ai-process/guidelines/system_overview_spec.md` (REQ-006).
 
 **Exposed — missing-S-000 hint (REQ-004).** **Contract:** one line on stderr:
 ``Hint: this project has no system overview (S-000). Create one with `ai-team spec new --overview`, or ask your agent to use the new-system-overview skill.``
@@ -229,20 +229,20 @@ feature-spec sections.
 **Verification:** Inspection of `cli/src/ai_team/templates/system-overview.md` against
 the template contract in Interfaces and the shape REQ-005 states.
 
-### REQ-006 — Content contract in the guide
+### REQ-006 — Content contract in ai-process
 
-The spec authoring guide SHALL own the S-000 content contract: the seven sections, the
+`ai-process/guidelines/system_overview_spec.md` SHALL own the S-000 content contract: the seven sections, the
 component entry fields, the definition of a component and its three checks, the
 Solution and Development infrastructure groups, the Decisions needed field, the Users
 scope, the content S-000 excludes, and the S-000 versus spec boundary.
 
-#### AC-006.1 — Guide states the contract
+#### AC-006.1 — ai-process states the contract
 
-- **Given:** `guides/spec_authoring_guide.md`
-- **When:** its S-000 section is read
+- **Given:** `ai-process/guidelines/system_overview_spec.md`
+- **When:** it is read
 - **Then:** it states each element above
 
-**Verification:** Inspection of the guide's S-000 section.
+**Verification:** Inspection of `ai-process/guidelines/system_overview_spec.md`.
 
 ### REQ-007 — Feature specs name their component
 
@@ -290,7 +290,7 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
   and REQ-002 rely on them treating `S-000` by ID alone.
 - **The owners listed in `docs/development/architecture.md`** keep the S-000 process rules. When
   one changes, the owner changes; this spec changes only if the CLI, template or
-  guide contract changes.
+  ai-process contract changes.
 
 ## Success Criteria
 
@@ -301,14 +301,14 @@ None. The hint is always on and S-000 is found by its ID; no setting is involved
 3. A task created with `--spec S-000` passes `ai-team validate` (REQ-003).
 4. Without S-000, every listed command prints the hint on stderr with unchanged stdout
    and exit code; with S-000, none does (REQ-004).
-5. Inspection finds the system-overview template, the guide, the spec template and the
+5. Inspection finds the system-overview template, `ai-process/guidelines/system_overview_spec.md`, the spec template and the
    skill as REQ-005–REQ-008 state.
 
 ## Implementation Order
 
 | Phase | What | Depends On |
 |---|---|---|
-| 1 | Authoring guide: S-000 content contract and S-000 versus spec boundary | Nothing |
+| 1 | ai-process: S-000 content contract and S-000 versus spec boundary | Nothing |
 | 2 | S-000 template, `ai-team spec new` creation path, ID and duplicate protection | Phase 1 |
 | 3 | `new-system-overview` skill, including the brownfield path; CLI acceptance of tasks from S-000; missing-S-000 hints | Phase 2 |
 | 4 | Feature spec template and the process owners' S-000 rules | Phases 1–3 |
@@ -333,3 +333,4 @@ None.
 | 2026-11-01 | Interfaces: `spec new --overview --json` prints the spec's JSON object, deferring to S-006 REQ-017, instead of only the `id` and `path`; AC-001.1's "Then" names that object (`id` `S-000`, `status`, absolute `path`) and its test is renamed `test_spec_new_overview_json_emits_the_spec_object`. Version bumped to 0.5. Driven by B-040 (product owner decision, 2026-11-01) and its Architecture Consistency Review finding C1. | S-006 REQ-017 gives every `new`, `list` and `show` command one flat JSON object; S-007 still described the old `id`-and-`path` output. | B-040 implements it |
 | 2026-11-02 | Migrated to the 0.19.0 spec template. Alternatives Considered moves to a top-level section unchanged; the owner of each S-000 rule, formerly under Responsibility Separation, is listed in `docs/development/architecture.md`, and Exclusions, Workflow and Assumptions point there. Architecture (Design Principles, System Diagram, Responsibility Separation) is removed. Each Design Principle was already a requirement or its rationale, so no requirement changes and the version is unchanged. Driven by T-187. | The 0.19.0 spec template has no Architecture section and requires a top-level Alternatives Considered: a spec describes what the product does, and the architecture documents and ADRs describe how it is built (#64). | T-187 |
 | 2026-11-21 | AC-005.1 is verified by inspection of `cli/src/ai_team/templates/system-overview.md` against the template contract in Interfaces; its three template content tests in `cli/tests/test_templates.py` are removed. Success Criterion 5 follows. Version bumped to 0.6. Driven by CR-009 item 2 and its Architecture Consistency Review. | Documentation content, including a template's headings and sections, is verified by inspection, never by a code test (spec authoring guide, Verification methods). | CR-009 task plan |
+| 2026-11-27 | Retitled from "System Overview Spec (S-000)" to "System overview (S-000) support". The S-000 content contract moved from `guides/spec_authoring_guide.md` to `ai-process/guidelines/system_overview_spec.md`; REQ-006 and AC-006.1 now name that file. | The old title read as S-000 itself; the contract belongs in ai-process, the single source of truth. | None in flight |

@@ -51,14 +51,7 @@ Those checks are structural only: the author and reviewer still evaluate complet
 
 ## Verification methods
 
-This section owns the verification vocabulary. Specs, tasks, skills, and process documents use these three methods and no others. The `new-task` skill implements them for tasks, and the other skills refer to it.
-
-- **Test** — an automated check in the project's test suite that runs the product and passes or fails by assertion. Use it for behavior the product exhibits. A test is never written for the content of documentation (user docs, guides, READMEs, specs, skills, process documents, templates): documentation is verified by inspection. A test may check only structure the product's code reads or writes (frontmatter that must parse, a heading it parses, a placeholder or row it replaces), that a committed generated file equals its generator's fresh output, and a generator's behavior on fixture input; never other headings, sections, commands or text. No test only proves that something was removed.
-- **Inspection** — someone reads the changed artifact, checks the observation each criterion states, and records what was checked and the pass or fail result. For a task, the Developer carries out and records the inspection, and the Reviewer re-checks it. For prose, the inspection also checks that the text agrees with its references: the source spec, each accepted ADR, and S-000 when it exists. Use it for documentation, other prose, configuration, and changes that only remove something. The documentation rule does not require documentation to be part of a task, nor fix when it is inspected; that is the project's decision (for example, contrasting the text after each release).
-- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. The record names the command or steps and the observed result. Use it when the behavior depends on an environment the test suite cannot reproduce, such as a CI run. A task's demonstration must be observable from the task branch, for example a CI run on the pushed branch, because its record is checked before the branch is integrated.
-
-A task takes the method its source criteria name, and has one method. When the criteria a piece of work covers name different methods, split it into one task per method. When the source is a change-request or S-000, which have no acceptance criteria, the Planner applies the same rule: a test for product behavior that is added or changed, an inspection for prose, configuration, or a change that only removes something, and a demonstration for behavior that depends on the environment.
-Whatever the method, the project's full test suite, when the project documents one, still runs as a regression check.
+Specs, tasks and process documents use three verification methods: test, inspection and demonstration. Their rules are owned by `ai-process/guidelines/verification_methods.md`, and delivered to projects through the `new-task` skill's Verification Methods.
 
 ## How to write each section
 
@@ -207,28 +200,7 @@ An amendment made after the spec's planning branch merged goes on an [amendment 
 
 ## The system overview spec (S-000)
 
-S-000 is the canonical project-overview spec: one document that says what the project is, who it serves, and which components make it up. It is written in plain language for a reader who has never seen the project. It has seven sections, in this order:
-
-1. **Purpose** — one short paragraph: what the project is and the outcome it exists to deliver.
-2. **Users** — the users of the solution and in what situations, one line per kind of user, naming what each needs from it.
-3. **Pain points** — the concrete problems those users have today that the project removes.
-4. **Use cases** — the main things a user does with the system, each as one short scenario from the user's point of view and each tied to the pain point it removes.
-5. **Solution overview** — how the system addresses the pain points, in a few paragraphs, without naming technologies.
-6. **Components** — the parts the system is divided into. Each component entry gives its name, its owned responsibility (what it is for), its boundary (what it is not responsible for), and the other components it works with. Components are split into the Solution and Development infrastructure groups (below).
-7. **Project exclusions** — what the project deliberately does not do, each with a one-line reason.
-
-S-000 contains no technology choices, interface definitions, configuration, implementation order, or per-component status. Interface definitions, configuration, and implementation order belong in feature specs; technology choices in the architecture documents and ADRs; per-component status in the tracker.
-
-**What a component is.** A component is a part of the software solution, or something that affects the solution's use, delivery or deployment. A component can be software, documentation (internal or for end users), delivery and deployment (pipelines, scripts), or tooling (development environment, debugging interfaces, test harnesses). Each component passes three checks: it serves at least one use case, or, in the infrastructure group, affects the solution's use, delivery or deployment; one spec could own its contract; and its boundary would hold if the implementation were reorganised.
-
-**Component groups.** Components fall into two groups, written as `### Solution` and `### Development infrastructure` subsections of Components; the seven top-level sections and their order do not change.
-
-- **Solution** — the software delivered to the end user that removes the pain points.
-- **Development infrastructure** — everything the project needs to build, check, document and deliver the solution; it is not delivered to the end user. Each infrastructure component also has a **Decisions needed** field: the questions that must be answered before development starts, such as the language and version, how the environment is reproduced, the test harness, the continuous-integration service, and where decisions are recorded. S-000 asks technology questions and never answers them; the answers belong in the project's architecture documents and ADRs, which the project bootstrap writes.
-
-**Users scope.** Users names the users of the solution. The people and agents who develop the project are served by the development infrastructure and are not listed unless they also use the solution.
-
-**Boundary rule:** S-000 owns the decomposition — which components exist and what each is for. A spec owns the contract of one component or feature. A spec's Purpose names the S-000 component it covers when an S-000 exists.
+The S-000 content contract (its seven sections, what a component is, the component groups, the Users scope and the boundary between S-000 and feature specs) is owned by `ai-process/guidelines/system_overview_spec.md`, and delivered to projects through the `new-system-overview` skill and the system-overview template.
 
 ## How to write measurable requirements
 
@@ -309,7 +281,6 @@ The recipes above are embedded into the CLI sources that fire when `/new-spec` i
 | Spec-writing handoff in interactive brainstorm | `cli/src/ai_team/init/sources/skills/brainstorm/SKILL.md` |
 | Planner role's spec quality bar | `cli/src/ai_team/init/sources/agents/planner.md` |
 | Structural validation of review-ready feature specs | `cli/src/ai_team/core/spec_content.py` |
-| System overview (S-000) document shape | `cli/src/ai_team/templates/system-overview.md` |
-| Authoring instructions used by `new-system-overview` | `cli/src/ai_team/init/sources/skills/new-system-overview/SKILL.md` |
 
+The S-000 contract and the verification methods are owned by `ai-process/guidelines/` and implemented by the system-overview template, the `new-system-overview` skill and the `new-task` skill.
 After changing this guide, mirror the relevant content into the files above and regenerate scaffolds with `cli/scripts/sync_init_scaffolds.py`.

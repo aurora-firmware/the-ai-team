@@ -9,7 +9,11 @@ import pytest
 
 from ai_team.commands.init import _write_rendered
 
-SETTINGS = {"project_dir": "custom-dir", "integration_branch": "develop"}
+SETTINGS = {
+    "project_dir": "custom-dir",
+    "integration_branch": "develop",
+    "release_branch": "stable",
+}
 PNG_LIKE_BYTES = b"\x89PNG\r\n\x1a\n\x00\xff\xfe{{project_dir}}\x80\x81"
 
 
@@ -33,10 +37,12 @@ def test_does_not_raise_unicode_error_for_invalid_utf8(tmp_path: Path) -> None:
     assert destination.exists()
 
 
-def test_replaces_both_placeholders_in_utf8_file(tmp_path: Path) -> None:
+def test_replaces_every_placeholder_in_utf8_file(tmp_path: Path) -> None:
     source = tmp_path / "doc.md"
     source.write_text(
-        "dir={{project_dir}} branch={{integration_branch}} café\n", encoding="utf-8"
+        "dir={{project_dir}} branch={{integration_branch}} "
+        "release={{release_branch}} café\n",
+        encoding="utf-8",
     )
     destination = tmp_path / "doc-copy.md"
 
@@ -44,7 +50,7 @@ def test_replaces_both_placeholders_in_utf8_file(tmp_path: Path) -> None:
 
     assert (
         destination.read_text(encoding="utf-8")
-        == "dir=custom-dir branch=develop café\n"
+        == "dir=custom-dir branch=develop release=stable café\n"
     )
 
 

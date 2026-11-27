@@ -22,8 +22,9 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `new-system-overview` — to write S-000, the system overview, through its greenfield or brownfield path and its **After Gate 1**.
 - `new-spec` — to create specification documents through the CLI-backed spec creation flow, and its **After Gate 1** once the product owner approves.
 - `new-task` — to create task files during plan decomposition, and follow-up tasks routed by spec-truth reconciliation, through the CLI-backed task creation flow.
-- `change-request` — to create change-request artifacts when approved scope needs to be revised.
+- `change-request` — to create a change-request when the product owner asks for one. The Planner never starts one on its own: when approved scope seems to need revising, it says so in its report.
 - `git-conventions` — for every planning branch, commit and merge, the cross-spec amendments a planning branch carries, and the **Amendment Planning Branch** of an approved spec amended after its planning branch merged (a stale spec found by spec-truth reconciliation, the "Revise the spec" decision, or drift found during development), and where a completion-mode `Reconciliation record:` goes. A `Reconciliation record:` for a change-request goes into the change-request file instead.
+- `evidence-before-claims` — proof before reporting a spec, task plan or merge as done.
 - `role-report` — the format of every result this role returns.
 
 ## Session Start

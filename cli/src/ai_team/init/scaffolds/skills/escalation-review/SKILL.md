@@ -1,6 +1,6 @@
 ---
 name: escalation-review
-description: Analyse blocked work after a role has exhausted self-recovery, and own the escalation request and product owner escalation report formats. Use when a Development Loop or Bug-Fix Loop routes, via `review-cycle`, a Developer, Reviewer or Integrator escalation request, or the product owner routes a manually spawned Integrator's, and the Architect must issue guidance or escalate to the product owner.
+description: Analyse blocked work after a role has exhausted self-recovery, and own the product owner escalation report format. Use when a Development Loop or Bug-Fix Loop routes, via `review-cycle`, a Developer or Reviewer escalation request, and the Architect must issue guidance or escalate to the product owner.
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Skill(new-adr), Skill(git-conventions)
 effort: high
 ---
@@ -8,7 +8,7 @@ effort: high
 # Escalation Consultation
 
 The Architect consultation gives one response per escalation: guidance, or the product owner.
-This skill owns the Escalation Request block and the Product Owner Escalation Report that every escalating skill uses.
+This skill owns the Product Owner Escalation Report; the Escalation Request block every escalating skill uses is defined in `role-report`.
 
 ## Input Requirements
 
@@ -22,15 +22,7 @@ Return `BLOCKED` when the escalation request or the work item is missing.
 
 ## Escalation Request Block
 
-Every skill or role that escalates uses these four fields, with these names and in this order.
-Each emitter keeps a local copy whose placeholders fit its own trigger.
-
-```text
-Problem: [what went wrong: the criterion that will not pass, or the boundary that was hit]
-Attempted: [what was tried, including the number of retries]
-Failed because: [the specific reason: test output, scope mismatch, contradictory requirement]
-Question: [the specific question for the Architect, or the decision for the product owner]
-```
+The four-field request every role and skill escalates with (`Problem`, `Attempted`, `Failed because`, `Question`) is defined in `role-report`, which every role preloads. This skill owns the Product Owner Escalation Report below.
 
 ## Procedure
 
@@ -97,7 +89,7 @@ The caller passes it to the product owner unchanged.
 ## Product Owner Escalation Report
 
 Subject: <task or bug ID and tracker path | spec or change-request ID and path | task plan of <spec or change-request ID>>
-Raised by: <dev-loop | bug-loop | integrator | feature-architecture | spec-breakdown-review (Gate 2) | architecture-consistency-review>
+Raised by: <dev-loop | bug-loop | feature-architecture | spec-breakdown-review (Gate 2) | architecture-consistency-review>
 Date: <YYYY-MM-DD>
 
 ### Original request
@@ -115,7 +107,7 @@ Date: <YYYY-MM-DD>
 ### Decision needed
 <The options that apply to the subject, each with its effect:
 - Revise the spec — the Planner amends the spec on its open planning branch, or on an amendment planning branch once that branch has merged (git-conventions), and logs it in the Amendment Log; the Architect runs architecture-consistency-review on it; on PASS the Planner merges. The loop notes the amendment on each affected in-progress task, and the stopped item resumes.
-- Modify the task or bug — the product owner updates the work item file, or the Planner raises a change-request; the stopped item resumes and the Developer re-reads it.
+- Modify the task or bug — the product owner updates the work item file, or starts a change-request; the stopped item resumes and the Developer re-reads it.
 - Provide guidance — the guidance is recorded in the work item file; the stopped item resumes and the blocked role applies it.
 - Defer — the task or bug stays blocked with the reason noted; no loop resumes it until it is unblocked.>
 ```

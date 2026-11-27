@@ -81,14 +81,9 @@ Return `ESCALATE` on first detection, without retrying, only when the decision r
 
 Every other decision is the Architect's, including one that brings a cost or an external service; record that consequence in the ADR.
 
-Append the Escalation Request block and the Product Owner Escalation Report, both in the formats `escalation-review` owns:
+Append the Escalation Request block (`role-report`) and the Product Owner Escalation Report in the format `escalation-review` owns.
 
-```text
-Problem: [the need that cannot be met]
-Attempted: [the options considered and why each fails]
-Failed because: [why no option meets the approved work]
-Question: [the specific decision the product owner must make]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the need that cannot be met; **Attempted** — the options considered and why each fails; **Failed because** — why no option meets the approved work; **Question** — the specific decision the product owner must make.
 
 ## Output Format
 

@@ -16,7 +16,6 @@ The calling loop provides:
 
 - **Work item:** its ID, its kind (task or bug), and its file `path` from `ai-team show <id> --json`.
 - **Branch:** the work item branch (`task/T-NNN-<slug>` or `bug/B-NNN-<slug>`).
-- **Target branch:** where `integrate` merges the branch: `{{integration_branch}}` for a task, the base `bug-loop` chose for a bug.
 - **BASE:** the last `Base commit: <sha>` line under `## Work Log` in the work item file.
 - **Entry point:** Step 1 (resume), Step 2 (after a claim or a diagnosis), or Step 7 (a diagnosis escalation from `bug-loop`).
 - **Loop name:** `Development Loop` or `Bug-Fix Loop`, the Next Owner value the roles return to.
@@ -43,9 +42,10 @@ A run never ends with untracked files or uncommitted changes that the run itself
 
 ### Dispatch Discipline
 
-Each subagent starts cold, and the loop's context is the scarce resource:
+Each spawned subagent starts cold, and the loop's context is the scarce resource:
 
 - **Name the model tier at every spawn**, from the table below; it overrides the agent definition's default for that dispatch.
+- **Keep the work item's subagents across rounds.** A later round of the same work item continues the Developer or Reviewer that ran the earlier one, which keeps its session, instead of spawning a new one: the Reviewer from the second review on (Step 3), the Developer on the first retry (Step 5).
 - **Never paste history into a dispatch.** Pass the work item file path; the subagent reads what it needs from the file.
 - **Pass the diff as a review package**, never through the loop's context (Step 3).
 
@@ -65,7 +65,6 @@ The integration branch is **known green** in this run when:
 - the `dev-loop` baseline guard passed on it in this run; or
 - `integrate` returned `PASS` into it in this run.
 
-A preserved task branch is known green only when `integrate` returned `PASS` into it in this run. The integration attempt that preserved it failed, so a preserved branch is otherwise not known green.
 Otherwise the base is **not known green**.
 
 ### Reading a Role's Result
@@ -121,15 +120,17 @@ Append the entry under `## Work Log` in the work item file, then go to Step 3.
 **Write the review package**: `<tracker-path>/review-packages/<id>.md` (find `<tracker-path>` with `ai-team tracker path`), holding the output of:
 
 ```bash
-git log --oneline BASE..HEAD
-git diff --stat BASE..HEAD
-git diff -U10 BASE..HEAD
+git log --oneline {{integration_branch}}..HEAD
+git diff --stat {{integration_branch}}...HEAD
+git diff -U10 {{integration_branch}}...HEAD
 ```
 
-From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict.
+The branch contains `{{integration_branch}}` after the Developer's sync, so this is the work item's own change, including any conflict resolution.
+
+From the second review on, also add `git diff -U10 LAST..HEAD`, where `LAST` is the `Reviewed through:` commit of the latest Review Verdict. When the Developer merged `{{integration_branch}}` again since `LAST`, that diff also carries the merged-in changes; the Reviewer reviews only the work item's own change and the conflict resolutions (`code-review`).
 Rewrite the package before every review so it covers the whole range. It lives in the tracker and is never committed.
 
-**Spawn the Reviewer subagent** (tier: standard) with this prompt:
+**First review of the work item in this run: spawn the Reviewer subagent** (tier: standard) with this prompt:
 
 > "Review the <task | bug> in the <task | bug> file `<path>` with the code-review skill.
 > The Developer's work is on branch `<branch>`. The review range and its diff are in the review package `<package-path>`; read that file instead of deriving the diff.
@@ -137,7 +138,16 @@ Rewrite the package before every review so it covers the whole range. It lives i
 > Verdict: PASS, FAIL, or ESCALATE.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-Keep the prompt neutral: it names the work item, the branch, the package and the skill, nothing about what to conclude.
+**Every later review of the work item in this run**, whether after a Developer's answers, a fresh Developer or Architect guidance: continue the same Reviewer subagent, which keeps its session and its earlier findings, with this prompt:
+
+> "Review the <task | bug> in `<path>` again with the code-review skill: branch `<branch>` or the file's guidance changed since your last verdict.
+> The review package `<package-path>` now covers the whole range and the diff since your last verdict.
+> Append a new verdict under `### Review Verdict — YYYY-MM-DD`.
+> Populate every field of the Output Format block, including `Obstacles Encountered`."
+
+When that Reviewer's session is no longer available, for example after the loop was restarted, spawn a fresh Reviewer with the first-review prompt; it reads the earlier verdicts from the work item file.
+
+Keep both prompts neutral: they name the work item, the branch, the package and the skill, nothing about what to conclude.
 If it contains "do not flag", "don't treat X as a defect", "at most Minor" or "the plan chose", you are pre-judging the review: delete it, and put the context the Reviewer needs in the work item file.
 
 ### Step 4: Read the Verdict
@@ -155,22 +165,21 @@ Count each failed attempt (a FAIL verdict, or a PASS turned into a failure in St
 
 - **First failure:** Step 2 with the same Developer subagent, which keeps its session.
 - **Second failure:** Step 2 with a fresh Developer subagent on the most capable tier and the Step 2 prompt unchanged. It reads the work item file and inherits nothing from the failed session.
+
+The Reviewer is the same on every rung (Step 3).
 - **Third failure:** the cap is reached. Go to Step 7 with an escalation block written by the loop (Attempted: three review attempts and what each Developer changed).
 
 ### Step 6: Integration
 
 Confirm that the work item file holds the Developer's Work Log entry, a latest `### Review Verdict` of PASS, and for a bug its Diagnosis Log entry.
-Run `ai-team list bugs --json`; when any bug whose `source_branch` is this branch is not `resolved`, return `WAITING` with their IDs.
-Invoke the `integrate` skill with `<branch> <target-branch>`, naming this loop as the caller; it does not re-check the verdict, so this confirmation is the only one.
-It resolves merge conflicts in process with `merge-conflicts`; a conflict reaches this cycle only as `ESCALATE`.
+Invoke the `integrate` skill with `<branch> {{integration_branch}}`, naming this loop as the caller; it does not re-check the verdict, so this confirmation is the only one.
 Act on its `Result`:
 
 | Result | Action |
 |---|---|
 | `PASS` | A task is already `completed`. For a bug, run `ai-team bug resolve <id>`. Return `DONE` |
-| `FAIL`, nothing merged (a gap in the diff, lifecycle files in the diff, or a failing source-branch command) | Add integrate's failure under the latest verdict as a new `Open` finding, as in Step 4, and go to Step 5 |
-| `FAIL`, merge reverted on a regression | The item stays `in-progress` with its branch preserved. Return `REGRESSION` with the filed bug IDs |
-| `BLOCKED` or `ESCALATE` | Go to Step 7 with integrate's escalation block, or, for `BLOCKED` without one, four fields naming what is missing |
+| `FAIL` (the branch no longer contains `{{integration_branch}}`, a gap in the diff, lifecycle files in the diff, or a failing test) | Nothing was merged. Add integrate's failure under the latest verdict as a new `Open` finding, as in Step 4, and go to Step 5 |
+| `BLOCKED` | Go to Step 7 with four fields naming what is missing |
 
 ### Step 7: Architect Consultation
 
@@ -185,7 +194,7 @@ When it already had one, the Architect is spawned only to hand the item to the p
 > Rule on every finding still Open in the latest Review Verdict: <finding IDs, or none>.
 > Populate every field of the Output Format block, including `Obstacles Encountered`."
 
-The escalation block is the one the Developer, the Reviewer or `integrate` returned, or the one the loop wrote, in the format `escalation-review` owns.
+The escalation block is the one the Developer or the Reviewer returned, or the one the loop wrote, in the format `role-report` defines.
 
 **On `Result: PASS`** (Next Owner: the loop):
 
@@ -225,14 +234,12 @@ Delete the review package unless the outcome is `DIAGNOSE`, and hand the loop on
 |---|---|---|
 | `DONE` | Merged; task `completed` or bug `resolved`; branch deleted | Picks the next item |
 | `DIAGNOSE` | Bug, `in-progress` | Runs its diagnosis step, then Step 2 |
-| `WAITING` | `in-progress`; bugs on its branch are unresolved | Skips the item this run |
-| `REGRESSION` | `in-progress`; merge reverted, branch preserved, regression bugs filed | Stops |
 | `ESCALATED` | `blocked` | Stops with the Phase 2 report, or the Planner's escalation block |
 | `STOPPED` | Unchanged | Stops and reports the cause |
 
-Return `STOPPED` also when a git operation fails, other than a checkout refused on a dirty tree (Workspace Hygiene) or a merge conflict (`integrate`): report the git error before attempting anything else.
+Return `STOPPED` also when a git operation fails, other than a checkout refused on a dirty tree (Workspace Hygiene): report the git error before attempting anything else.
 
 ## Cycle Counter Reset
 
-The failure count of Step 5 and the Architect consultation of Step 7 belong to one work item in one loop run.
-Both start at zero when the loop claims or resumes the item, and never carry over to the next item.
+The failure count of Step 5, the Architect consultation of Step 7, and the Developer and Reviewer sessions belong to one work item in one loop run.
+They start afresh when the loop claims or resumes the item, and never carry over to the next item.

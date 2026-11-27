@@ -2,6 +2,14 @@
 
 Gates are checkpoints where work must meet defined criteria before proceeding. They prevent defects from propagating downstream where they become more expensive to fix.
 
+| Gate | Controls transition | Evaluator | Output |
+|---|---|---|---|
+| Gate 1: Specification Approval | Feature request → TODO-free approved spec | Product Owner | Approved specification |
+| Gate 2: Task Plan Preflight | Task plan draft (from approved spec **or** approved change-request) → implementation-ready task queue; tasks created outside a breakdown, and follow-up tasks from spec-truth reconciliation (ADR-002), are exempt | Architect | Approved task queue or correction request |
+| Gate 3: Code Review | Developer-complete task → integration-ready branch | Reviewer | PASS, FAIL, or ESCALATE |
+| Gate 4: Integration Tests | Reviewed branch → completed task or bug | Integration procedure | Merged and completed, or a finding back to the Developer |
+| Gate 5: Final Merge Sign-off | Completed queue → production merge | Product Owner | Approval to merge `dev-agent` to `main` |
+
 ## Gate 1: Specification Approval
 
 **When:** After the Planner produces a spec — a feature spec from interactive brainstorming (`new-spec`), or S-000 from `new-system-overview` — resolves every product-owner-answerable `[TODO]` marker (S-000 keeps none at all), and the Architect's [Architecture Consistency Review](#architecture-consistency-review) of it passes.
@@ -18,7 +26,7 @@ Gates are checkpoints where work must meet defined criteria before proceeding. T
 
 **Feature-spec pass criteria:** a feature spec also passes the `new-spec` skill's pre-submission checklist, which implements `guides/spec_authoring_guide.md`.
 
-**S-000 pass criteria:** for S-000 (the system overview), these replace the criterion that behaviour and interfaces are detailed enough to design the architecture and derive tasks:
+**S-000 pass criteria:** S-000 (the system overview) follows the content contract in `ai-process/guidelines/system_overview_spec.md`, and these replace the criterion that behaviour and interfaces are detailed enough to design the architecture and derive tasks:
 - The content is in plain language.
 - There is no technology or interfaces.
 - Every use case is tied to a pain point.
@@ -39,16 +47,16 @@ An approved spec that a planning branch amends other than the one the branch car
 
 ## Gate 2: Task Plan Preflight
 
-**When:** After the Planner writes the task plan from either an approved specification or an approved change-request, before the development loop starts. Follow-up tasks routed by spec-truth reconciliation are exempt: they are created `pending`, and the reconciliation re-run checks them (ADR-002).
+**When:** After the Planner writes the task plan from either an approved specification or an approved change-request, before the development loop starts. Follow-up tasks routed by spec-truth reconciliation are exempt: they are created `pending`, and the reconciliation re-run checks them (ADR-002). Tasks created outside a task breakdown are exempt too: the product owner or any role may create one at any time with `ai-team task new` (a chore, a test issue found while developing, an idea to do later). It is created `pending`, Gate 3 reviews it like any task, and the product owner may later split it or turn it into a change-request.
 **Evaluator:** Architect.
-**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with the architecture documents and existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by product owner approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs, or a task that relies on a technology or design no architecture document or ADR decides, causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
+**Scope:** Gate 2 focuses on **technical task-plan readiness**. The Architect evaluates dependencies, file conflicts, architectural consistency with the architecture documents and existing decisions, atomicity, and verifiability. Gate 2 does not reopen product or spec approval questions that were already settled at Gate 1 or by product owner approval of a TODO-free change-request. If the Architect finds a product-scope concern that does not block technical readiness, it is noted as follow-up feedback rather than a Gate 2 failure. So is a time-bound criterion (a duration, a timeout, a rate) whose verification departs from the spec's measurable-requirements recipe: the Planner may still plan it, and the feedback reaches the product owner. Only a contradiction against the approved spec, the approved change-request intent, or existing ADRs, or a task that relies on a technology or design no architecture document or ADR decides, causes a Gate 2 failure or escalation. The same consistency principle applies whenever a spec, ADR, or change-request itself changes — see [Architecture Consistency Review](#architecture-consistency-review) below.
 **Pass criteria:**
 - Task plan covers every requirement in the approved specification (spec-coverage verification). For S-000, coverage means the bootstrap scope only: every development-infrastructure component and every Decisions needed question has a task, or the product owner recorded it as skipped (brownfield). S-000's solution components never need tasks.
 - Task dependencies are correct and complete.
 - File conflict risks are identified and resolved through dependencies or task changes.
 - Interfaces are consistent across tasks: every type, function, or file a task consumes is produced by a task it depends on (or already exists), under the same name and signature.
 - Task plan is architecturally consistent with the architecture documents and existing decisions, and Feature Architecture recorded every technology or design decision the plan relies on.
-- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `guides/spec_authoring_guide.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test the Verification methods of `guides/spec_authoring_guide.md` rule out.
+- Tasks are atomic, independently verifiable, and ready for implementation. Each task's Verification records one method (test, inspection, or demonstration, as defined in `ai-process/guidelines/verification_methods.md`), the method matches the task's source criteria (work whose criteria name different methods is split into one task per method), and the full test suite, when the project documents one, runs as a regression check. No task plans a test the Verification methods (`ai-process/guidelines/verification_methods.md`) rule out.
 - No task contains placeholder text (`TBD`, `TODO`, "implement later", "add appropriate error handling", "similar to Task N", or a reference to something no task defines).
 
 **On failure:** Architect returns a correction request to the Planner. The Planner revises the task plan and resubmits it to Gate 2. For an architecture gap, the Planner first runs Feature Architecture again, then revises the task to follow its decision. The one exception: the Architect may fix an obvious missing dependency, file ordering, or naming mismatch directly in the planned task files, as the `spec-breakdown-review` skill allows.
@@ -80,7 +88,7 @@ The Reviewer checks the work against what the Developer claims it achieves (the 
 ### Stage 2: Code Quality
 **Pass criteria:**
 - Code follows the coding standards: `ai-process/guidelines/coding_standards.md` (general) and the project's coding guidelines, as `ai-process/guidelines/coding_standards.md` locates them (project-specific tech-stack rules, if present).
-- Relevant tests exist for the changed product behavior, and every test is one the Verification methods of `guides/spec_authoring_guide.md` allow.
+- Relevant tests exist for the changed product behavior, and every test is one the Verification methods (`ai-process/guidelines/verification_methods.md`) allow.
 - The Developer's Work Log records local test evidence or explains why a local test run was not possible.
 - For an inspection or demonstration task, the Work Log records the inspection (criteria and references checked, each conflict found and fixed, and the result) or the demonstration (steps run and the observed outcome), and the Reviewer checks the planning choice.
 - No security vulnerabilities introduced.
@@ -95,7 +103,7 @@ For bug fixes, the Reviewer also verifies:
 - A regression test exists when the defect can be tested automatically, or the Work Log explains why only manual verification is possible.
 - The Fix Verification steps from the bug report were run or a clear reason is recorded.
 
-**Review loop:** Gate 3 is an agreement between Reviewer and Developer, not a one-way verdict. The verdict is FAIL while any finding is open. The Developer answers every finding on the task or bug branch: it changes the code, docs, or claim when the Reviewer is right, or it shows with evidence that the finding does not hold (a misinterpretation, out of the work item's scope, or required by the task, spec, or an ADR). The next review checks each answer, and confirms a fix, accepts a justification, or keeps the finding open with what the answer does not address. The verdict is PASS only when every finding is confirmed fixed or accepted and the review raised no new one. No finding is carried past the work item: there are no non-blocking findings and no later roll-up.
+**Review loop:** Gate 3 is an agreement between Reviewer and Developer, not a one-way verdict. The verdict is FAIL while any finding is open. The Developer answers every finding on the task or bug branch: it changes the code, docs, or claim when the Reviewer is right, or it shows with evidence that the finding does not hold (a misinterpretation, out of the work item's scope, or required by the task, spec, or an ADR). The next review checks each answer, and confirms a fix (status `Fixed (confirmed)`), accepts a justification (status `Accepted`), or keeps the finding open with what the answer does not address. The verdict is PASS only when every finding is confirmed fixed or accepted and the review raised no new one. No finding is carried past the work item: there are no non-blocking findings and no later roll-up.
 
 **On failure:** The active loop returns the work item to the Developer, who answers the open findings. After the third failed review or any `ESCALATE` verdict, the active loop consults the Architect, who settles findings still in dispute, before stopping for product owner action.
 
@@ -103,37 +111,33 @@ For bug fixes, the Reviewer also verifies:
 
 **When:** After each task or bug fix passes code review (Gate 3), during integration by the active loop.
 **Evaluator:** The integration procedure: its pre-merge checks and the automated test suite.
-**Entry condition:** The branch passed Gate 3. The active loop confirms the latest PASS verdict before it starts integration; for a manual integration, the product owner who requests it is responsible for that verdict. The integration procedure does not check it again.
+**Entry condition:** The branch passed Gate 3, and it contains the destination's tip: before handing off for review the Developer merges the destination into the work item branch and resolves any conflict there, so the Reviewer reviews the merged result. The active loop confirms the latest PASS verdict before it starts integration; the integration procedure does not check it again.
 **Pass criteria:**
-- All unit tests pass on the source branch (pre-merge).
-- All unit and integration tests pass on the destination branch after the merge (regression check). When the destination is an ancestor of the source branch, the merge produces the tree the pre-merge run already verified, so only the destination commands the pre-merge run did not include are run.
-- No unresolved merge conflicts remain.
+- The destination is an ancestor of the source branch, so the merge reproduces the source branch's tree.
+- All unit and integration tests pass on the source branch, including the project's full baseline command. Because the merge reproduces that tree, nothing runs after the merge.
 - The `integrate` diff check (gap check) finds every acceptance criterion or the bug's isolated fault addressed in the diff; it can turn a Reviewer PASS into a finding. It is skipped when the active loop integrates a branch whose latest Review Verdict was recorded through the branch's HEAD: Gate 3 Stage 1 already checked the same diff.
 - An empty diff with a PASS verdict whose record shows the criteria are met on the destination (an inspection-only task, or a bug already fixed there) skips the merge and the tests: the task is completed or the bug resolved, and the branch is deleted with `git branch -d`.
 
-**On failure:** A failing source-branch test or gap check merges nothing and returns the work item to the Developer as a review finding. An unresolvable merge conflict merges nothing and goes to the Architect as an escalation. A post-merge failure makes the integration procedure revert the merge commit and file a regression bug report in the tracker, and stops the active loop. The failure is attributed to the source branch without re-running the tests on the reverted destination: the destination is trusted green before the merge. That trust rests on the process, not on a recorded run. Work item merges pass this gate, but a planning-branch merge does not, an integration with a coverage gap runs no destination suite, and a loop started as green runs no baseline. A failure one of those brought in is still filed against the source branch; the regression bug's diagnosis then isolates a root cause outside that branch, and the review escalates it (Gate 3). The source branch is preserved for fixing.
-Regression bug reports must record the preserved source branch as `source_branch` so the bug-fix loop can branch from and merge back into that branch before integration is retried.
-
-Because agents run one at a time, a work item branch normally starts from the destination's tip and nothing else lands on the destination before it is integrated. A full-suite failure then surfaces in the pre-merge run and returns to the Developer as a review finding. The revert and the regression bug report happen only on a real merge, when the destination moved after the branch was created (for example a planning branch merged while a task was in progress), or when the destination command checks something the source command does not.
+**On failure:** Nothing is merged, and the work item goes back to the Developer as a review finding: a failing test, a gap, or a destination that moved since the Developer last merged it. The destination therefore only ever receives trees that already passed, and integration has no revert path.
 
 ## Development Loop Baseline Guard
 
-Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the product owner for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output; it does not re-run a failing check, and a flaky test is the project's to fix as a bug. When whoever starts the loop states that the integration branch is green, the loop trusts that statement and skips the baseline run. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs after each task merge.
+Before the development loop claims its first task it discovers the documented baseline test command from project-specific guidance. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs, README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or the available guidance is ambiguous, the loop asks the product owner for the intended command or for explicit confirmation that no automated baseline test is available. If a command is present but fails, the loop stops and reports the output; it does not re-run a failing check, and a flaky test is the project's to fix as a bug. When whoever starts the loop states that the integration branch is green, the loop trusts that statement and skips the baseline run. This is an operational startup check, not a numbered quality gate — it is distinct from Gate 4 (integration test suite), which runs before each work item merge.
 
 ## Gate 5: Final Merge Sign-off
 
 **When:** After the task queue is empty and all tasks are `completed`.
 **Evaluator:** Product Owner.
-**Input:** The status summary the product owner requests on demand with `/status-report`. The loops do not produce it automatically.
+**Input:** The status report the product owner requests on demand with `/status-report`. The loops do not produce it automatically.
 **Pass criteria:**
-- Integration tests are green.
-- No open bugs with severity `critical` or `high`.
-- The status summary matches the approved specification.
+- Integration tests are green: the status report runs the project's baseline command on `dev-agent` as it stands at sign-off.
+- No unresolved bugs (any status but `resolved`) with severity `critical` or `high`.
+- The status report matches the approved specification.
 - The latest spec-truth reconciliation returned `PASS`, or every correction it routed is done: each spec amendment applied, and each follow-up task completed with a re-run that returns `PASS` (see [Architecture Consistency Review](#architecture-consistency-review)).
-- The status summary lists completed tasks, unresolved bugs by severity, and latest integration-test result.
+- The status report lists completed tasks, unresolved bugs by severity, and the sign-off integration-test run.
 
 **Before sign-off:** The Architect runs spec-truth reconciliation (ADR-002) — `architecture-consistency-review` in completion mode — for every approved spec the completed work touched. This completion review does not include S-000: its bootstrap tasks answer questions S-000 only asks, so S-000 makes no assertion for that work to drift from (see [Architecture Consistency Review](#architecture-consistency-review)). The Architect returns each completion-mode verdict as a dated Amendment Log row, which the Planner records in the reconciled spec's Amendment Log (or in the change-request file for change-request work), as defined in the `architecture-consistency-review` skill. A stale spec is amended on an [amendment planning branch](../guidelines/git_conventions.md#amendment-planning-branch) that also carries the row and merges into `dev-agent` as soon as the Architect's review of the amendment passes. A row with no spec change goes on an amendment planning branch of its own that merges as soon as the row is committed. Follow-up tasks need no planning branch, and no branch waits for them or for the re-run.
 
 **On failure:** The product owner provides feedback. New tasks are created to address issues.
 
-> This is a sign-off, not a code review. The product owner reviews the status summary and confirms the outcome matches the spec intent — not individual diffs. Detailed code quality was already verified at Gates 3 and 4.
+> This is a sign-off, not a code review. The product owner reviews the status report and confirms the outcome matches the spec intent — not individual diffs. Detailed code quality was already verified at Gates 3 and 4.

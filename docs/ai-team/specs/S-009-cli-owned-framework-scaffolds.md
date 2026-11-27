@@ -1,6 +1,6 @@
 ---
 title: CLI-owned framework scaffolds
-version: '0.12'
+version: '0.13'
 status: approved  # draft | review | approved | superseded
 created: '2026-05-14'
 author: planner
@@ -70,7 +70,7 @@ the generator; `docs/development/architecture.md` records them.
 `assets/`, `references/` and `scripts/` folders; `agents/*.md`; `project/` (the project
 `AGENTS.md` and `.gitignore`); and `root/` (the
 root `AGENTS.md` template). Source text names project settings only through the
-`{{project_dir}}` and `{{integration_branch}}` placeholders.
+`{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}` placeholders.
 
 **Exposed — generator (REQ-002–REQ-007).** `python scripts/sync_init_scaffolds.py`,
 run from `cli/`, rewrites `cli/src/ai_team/init/scaffolds/` (`project/`, `agents/`,
@@ -78,12 +78,13 @@ run from `cli/`, rewrites `cli/src/ai_team/init/scaffolds/` (`project/`, `agents
 neither touches the scaffolds.
 
 **Exposed — `ai-team init [PATH]` (REQ-008–REQ-019).** Options: `--project-dir`,
-`--integration-branch`, `--create-root-guidance`, `--update-docs`, `--update-skills`,
+`--integration-branch`, `--release-branch`, `--create-root-guidance`, `--update-docs`, `--update-skills`,
 `--no-interactive`, `--dry-run`, `--force`. The full list and help text are in
 `cli/docs/commands.md`. `--tools` and `--include-ai-process` are unknown options.
 
 **Exposed — `.ai-team.toml` (REQ-010).** `init` records `[project] dir`,
-`[tracker] dir`, `[git] integration_branch` and `[init] framework_version`.
+`[tracker] dir`, `[git] integration_branch`, `[git] release_branch` and
+`[init] framework_version`.
 
 **Exposed — report lines (REQ-011, REQ-014, REQ-015).** **Contract:** on stdout,
 `WROTE: <path>`, `OVERWROTE: <path>`, `CREATED: <path>` and `UPDATED: <path>` for the
@@ -302,19 +303,19 @@ and `test_init_never_adds_tools_to_the_marker` in `cli/tests/test_init.py`, and
 
 ### REQ-009 — Placeholders and binary files
 
-`init` SHALL replace `{{project_dir}}` and `{{integration_branch}}` in every UTF-8
-scaffold file it writes — skills, supporting files, agents and project guidance — with
-the values from the `init` flags or `.ai-team.toml`, defaulting to `ai-team` and
-`dev-agent`. A scaffold file that does not decode as UTF-8 SHALL be copied byte for
+`init` SHALL replace `{{project_dir}}`, `{{integration_branch}}` and
+`{{release_branch}}` in every UTF-8 scaffold file it writes — skills, supporting
+files, agents and project guidance — with the values from the `init` flags or
+`.ai-team.toml`, defaulting to `ai-team`, `dev-agent` and `main`. A scaffold file that does not decode as UTF-8 SHALL be copied byte for
 byte without replacement.
 
 #### AC-009.1 — Configured and default values
 
-- **Given:** `init --project-dir docs/ai-team --integration-branch develop`, and a
-  plain `init`
+- **Given:** `init --project-dir docs/ai-team --integration-branch develop
+  --release-branch stable`, and a plain `init`
 - **When:** the generated files are read
-- **Then:** the first uses `docs/ai-team` and `develop`, the second `ai-team` and
-  `dev-agent`, and no placeholder remains
+- **Then:** the first uses `docs/ai-team`, `develop` and `stable`, the second
+  `ai-team`, `dev-agent` and `main`, and no placeholder remains
 
 **Verification:** Tests: `test_generated_output_uses_configured_folder_and_branch` and
 `test_default_init_renders_default_folder_and_branch` in
@@ -332,18 +333,20 @@ byte without replacement.
 
 ### REQ-010 — Project settings
 
-`init` SHALL record `[project] dir`, `[tracker] dir`, `[git] integration_branch` and
-`[init] framework_version` in `.ai-team.toml`, and SHALL write the project skeleton to
+`init` SHALL record `[project] dir`, `[tracker] dir`, `[git] integration_branch`,
+`[git] release_branch` and `[init] framework_version` in `.ai-team.toml`, and SHALL write the project skeleton to
 the project directory taken from `--project-dir`, else `[project] dir`, else
 `ai-team`. On a repository with a marker, it SHALL
-keep the configured project directory and integration branch unless the matching flag
-is given, SHALL always keep `[tracker] dir`, and SHALL keep every other setting the
+keep the configured project directory, integration branch and release branch unless
+the matching flag is given, SHALL always keep `[tracker] dir`, and SHALL keep every other setting the
 user added.
 
 #### AC-010.1 — Settings kept
 
-- **Given:** a marker with a custom project directory, branch and an unrelated table
-- **When:** `init --force` runs without `--project-dir` or `--integration-branch`
+- **Given:** a marker with a custom project directory, integration branch, release
+  branch and an unrelated table
+- **When:** `init --force` runs without `--project-dir`, `--integration-branch` or
+  `--release-branch`
 - **Then:** all of them are unchanged
 
 **Verification:** Tests: `test_force_reinit_keeps_configured_settings_and_unrelated_tables`
@@ -677,14 +680,15 @@ accessibility or performance target agreed; reproducibility is REQ-007.
 ## Configuration Requirements
 
 **Scaffold placeholders** (REQ-009)
-- **What must exist:** the `{{project_dir}}` and `{{integration_branch}}` placeholders
-  are the only way a source asset names the project's settings.
+- **What must exist:** the `{{project_dir}}`, `{{integration_branch}}` and
+  `{{release_branch}}` placeholders are the only way a source asset names the
+  project's settings.
 - **Where it lives:** in the package-owned source files; values come from the `init`
   flags or `.ai-team.toml`.
 - **Constraints:** the generator leaves them unchanged; `init` fills them in every UTF-8
   scaffold file it writes.
 - **Missing-value behaviour:** with no flag and no configured value, `init` uses
-  `ai-team` and `dev-agent`.
+  `ai-team`, `dev-agent` and `main`.
 
 **Skill source file** (REQ-002)
 - **What must exist:** a `SKILL.md` per source skill, with its frontmatter and body.
@@ -763,3 +767,4 @@ None.
 | 2026-11-12 | spec-truth reconciliation — PASS | B-049–B-055 and T-188 changed skill sources only; committed scaffolds equal a fresh sync (REQ-007) | none |
 | 2026-11-26 | AC-017.1 Verification adds an inspection that the root template invites the project's commands, including the test command (REQ-017); the test names stay. Version bumped to 0.11. Driven by CR-009 items 5 and 6. | Tests no longer check what a document says, so the template's wording is reviewed by inspection. | Tasks from the CR-009 items 5–7 plan |
 | 2026-11-26 | The inspection moves out of AC-017.1 into a new AC-017.3, "Template invites the project's commands", so each criterion names one method; AC-017.1 keeps its tests. Version bumped to 0.12. Driven by the PR #82 review. | A criterion names one verification method (`guides/spec_authoring_guide.md`, Verification methods), and the template obligation of REQ-017 had no scenario of its own. | None |
+| 2026-11-27 | Added the `[git] release_branch` setting (default `main`): the branch the integration branch merges into after Gate 5 sign-off. `init` gains `--release-branch`, records the key and keeps a configured value; the `{{release_branch}}` placeholder is filled like `{{integration_branch}}`. Interfaces, REQ-009, AC-009.1, REQ-010, AC-010.1 and the Scaffold placeholders configuration say so. Version bumped to 0.13. Product owner decision. | The release target was hard-coded as `main` in the skill and agent texts; a project whose release branch has another name had to edit generated files. | The skill and agent sources name the release branch through `{{release_branch}}`. |

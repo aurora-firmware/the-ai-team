@@ -61,7 +61,7 @@ When the product owner explicitly approves S-000 at Gate 1:
 
 1. Set S-000 to `approved` (the `status` field in its frontmatter) and commit it on the planning branch: `docs(specs): approve S-000`.
 2. Merge the planning branch into `{{integration_branch}}` as **Merging a Planning Branch** in `git-conventions` describes for S-000's own branch.
-3. Brownfield only: for the findings where S-000 won, propose a change request with the `change-request` skill for those against approved specs, one finding per entry, each with the side the product owner chose; it goes through its own approval. List the findings against accepted ADRs for the Architect (Next Owner: Architect), who amends or supersedes those ADRs.
+3. Brownfield only: list the findings where S-000 won against approved specs, one finding per entry, each with the side the product owner chose, as candidate entries of a change request, and ask the product owner whether to start it with the `change-request` skill; it goes through its own approval. List the findings against accepted ADRs for the Architect (Next Owner: Architect), who amends or supersedes those ADRs.
 4. Suggest the project bootstrap, as the bootstrap row of the `using-ai-team` routing table says; the product owner decides. If they accept, run `spec-breakdown` on S-000, which plans only the bootstrap tasks.
 
 ## Section contract

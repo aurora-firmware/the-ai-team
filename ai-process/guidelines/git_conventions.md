@@ -5,24 +5,24 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 
 ## Branch Model
 
-`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`.
+`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`. Likewise `main` is the default release branch, the target of the Gate 5 merge; `[git] release_branch` (or `ai-team init --release-branch`) names another.
 
 | Branch | Purpose | Who touches it |
 |---|---|---|
 | `main` | Production-ready releases | Product owner only — never automated roles |
-| `dev-agent` | Integration target | The integration procedure merges task branches here; the Integrator handles manual merges and conflicts; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; the Architect commits ADRs here |
+| `dev-agent` | Integration target | The integration procedure merges task and bug branches here; the Planner merges planning branches here after Gate 2, or at the exceptions listed below; the Architect commits ADRs here |
 | `plan/S-NNN-short-description` or `plan/CR-NNN-short-description` | Planning branch for one spec or change-request: the spec, spec amendments, and the architecture-document updates from its feature architecture. Also the [amendment planning branch](#amendment-planning-branch) for an approved spec amended after Gate 2 | Planner and Architect only — no source code |
 | `task/T-NNN-short-description` | Single task implementation branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
 | `bug/B-NNN-short-description` | Single bug diagnosis and fix branch | Developer only for source, tests, and project artifacts; the Architect also commits ADRs here |
 
 **Rules:**
 - No automated role ever commits to `main`.
-- `dev-agent` receives merge commits from the integration procedure, the Integrator role, and planning-branch merges, ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
+- `dev-agent` receives merge commits from the integration procedure and planning-branch merges, ADR commits from the Architect, and `chore(gitignore)` commits from the workspace hygiene check (no direct source code).
 - The Architect commits an ADR on the branch that is checked out, never on `main`: when `main` is checked out it commits nothing and returns `BLOCKED`. ADR IDs are allocated from the files on the current branch, so ADRs created on two open branches can share an ID. No procedure checks for this; the review of the merge catches it, and the Architect renumbers the later ADR.
-- Developer always works on a task branch, never on `dev-agent`.
+- Developer always works on a task or bug branch, never on `dev-agent`.
+- Before handing a branch off for review, the Developer merges `dev-agent` into it when `dev-agent` is not already an ancestor (`git merge --no-ff dev-agent`, never a rebase) and resolves any conflict on the branch. The Reviewer then reviews the merged result, and the integration merge reproduces that tree.
 - Task branches are created when the development loop picks up a task and deleted after successful integration into `dev-agent`.
-- Bug branches are created when the bug-fix loop picks up a bug.
-  Existing-defect bug branches are based on `dev-agent`; task-regression bug branches are based on the bug report's `source_branch`.
+- Bug branches are created from `dev-agent` when the bug-fix loop picks up a bug, and deleted after successful integration.
 - Planning branches are created from `dev-agent` when a spec or change-request is created. Every planning artifact for that work is committed there, never directly on `dev-agent`.
   The Planner merges the planning branch into `dev-agent` with `--no-ff` only after Gate 2 passes, then deletes it with `git branch -d`. There are two exceptions:
   - S-000, whose own planning branch does not wait for Gate 2 (only its bootstrap task plan does): its planning branch merges into dev-agent with `--no-ff` after Gate 1, once S-000 is `approved`.
@@ -55,6 +55,14 @@ An approved spec amended after its planning branch merged gets a new planning br
 
 A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
 
+### Cross-Spec Amendments on a Planning Branch
+
+When a planning branch amends an approved spec other than its own, the Planner bumps that spec's `version`, adds its Amendment Log entry on the branch, and lists the amendment (spec, changed requirements, new `version`) for the product owner to approve with the branch's own spec at Gate 1 ([Cross-spec amendments](../processes/quality_gates.md#cross-spec-amendments)). The amendment reaches `dev-agent` only with the branch's merge.
+
+### Merging a Planning Branch
+
+The Planner merges with `git checkout dev-agent`, `git merge --no-ff plan/<id>-<slug>` (message `chore(plan): merge <id> <short description>`), then `git branch -d plan/<id>-<slug>`, at the points the [Branch Model](#branch-model) rules name.
+
 ## Commit Message Format
 
 ```
@@ -82,10 +90,10 @@ chore(plan): merge S-004 billing export
 |---|---|---|
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch after Gate 2 passes (or at the exceptions in [Branch Model](#branch-model): S-000 and amendment planning branches that create no tasks) | `dev-agent` |
-| **Developer** | After each implementation cycle for source, tests, and project artifacts, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
+| **Developer** | After each implementation cycle for source, tests, and project artifacts, for the failing test alone in a `tdd` Step 7 recovery, and one merge commit when it merges `dev-agent` into its branch | `task/T-NNN-…` or `bug/B-NNN-…` |
 | **Architect** | After producing or amending an ADR | The branch that is checked out, never `main` |
 | **Architect** | After updating the architecture documents in feature architecture | `plan/…` |
-| **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | target branch |
+| **The loop running `integrate`** | One merge commit per task or bug branch merged into `dev-agent` | `dev-agent` |
 
 ## Workspace Hygiene
 

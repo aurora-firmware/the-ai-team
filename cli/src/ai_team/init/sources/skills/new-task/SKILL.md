@@ -27,7 +27,7 @@ Argument: `$ARGUMENTS`
 - `assigned-role` — optional; defaults to `unassigned`
 - `spec` — optional; the ID of the spec or change-request whose requirements the task implements
 - `plan` — optional; the ID of the spec or change-request whose breakdown introduces the task, which can differ from `spec` when the task implements an amendment to another spec
-- `status` — `planned` (the default): the task stays out of `/dev-loop` until its plan merges after Gate 2. `pending` only when the caller states the task is exempt from Gate 2, such as a follow-up task routed by spec-truth reconciliation
+- `status` — `planned` for a task created during spec breakdown (the caller passes its `plan`): the task stays out of `/dev-loop` until its plan merges after Gate 2. `pending` for every other task, which is exempt from Gate 2: a task created outside a breakdown, or a follow-up task routed by spec-truth reconciliation
 
 Every input except `assigned-role`, `spec`, `plan` and `status` is needed before the task can leave this skill.
 A calling skill provides them all in the invocation text, and this skill uses them without follow-up questions.
@@ -51,7 +51,7 @@ A task is verified by one method. `spec-breakdown` chooses it; this skill record
   The Verification section holds the command(s); the test files are listed in Files to Touch.
 - **Inspection** — someone reads the changed artifact, checks the observation each acceptance criterion states, and records what was checked and the result; for prose, also that the text agrees with its references. The Developer carries it out and records it, and the Reviewer re-checks it. It is used for documentation, other prose, configuration, and changes that only remove something. The documentation rule does not require documentation to be part of a task, nor fix when it is inspected; that is the project's decision.
   The Verification section holds the line `Inspection:`, one bullet per acceptance criterion to check, and one bullet per reference: the source spec, each accepted ADR the text must agree with, and S-000 when it exists.
-- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. It is used when the behavior depends on an environment the test suite cannot reproduce, such as a CI run, and must be observable from the task branch, because its record is checked before integration.
+- **Demonstration** — someone runs the product or a pipeline once, outside the test suite, and observes the outcome. It is used when the behavior depends on an environment the test suite cannot reproduce, such as a CI run, and must be observable from the task branch, because its record is checked before integration. Prefer a demonstration an agent can run, for example in a container that simulates the remote environment, over a manual step for the product owner, and state in the record what the simulation does not cover.
   The Verification section holds the line `Demonstration:`, the command or steps to run, and the expected observation.
 
 A task is an inspection or demonstration task when its Verification section holds an `Inspection:` or `Demonstration:` line. The template's comment may precede that line, so detect the line, not the first line of the section.

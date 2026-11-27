@@ -42,7 +42,11 @@ def _template_body(template: str) -> str:
 @app.command("new")
 def new_adr(
     title: str,
-    status: AdrStatus = typer.Option("proposed", "--status"),
+    status: AdrStatus = typer.Option(
+        "accepted",
+        "--status",
+        help="Initial status; pass 'proposed' when the decision awaits the product owner.",
+    ),
     supersedes: str | None = typer.Option(None, "--supersedes"),
     as_json: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:

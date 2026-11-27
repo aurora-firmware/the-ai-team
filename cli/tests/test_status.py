@@ -235,7 +235,7 @@ def test_status_json_emits_structured_payload_without_rich_table(monkeypatch, tm
     }
     assert payload["blocked_bugs"] == []
     assert payload["counts"]["adrs"] == 0
-    assert payload["latest_integration_result"] == "not found"
+    assert "latest_integration_result" not in payload
     assert "┏" not in result.stdout
 
 
@@ -316,171 +316,12 @@ def test_status_counts_and_lists_blocked_bugs(monkeypatch, tmp_path):
         }
     ]
     assert [row["id"] for row in payload["blocked_tasks"]] == ["T-300"]
-    assert payload["critical_high_open_bugs"] == []
+    assert [row["id"] for row in payload["critical_high_unresolved_bugs"]] == ["B-300"]
 
     rich = CliRunner().invoke(app, ["status"])
     assert "Blocked bugs: 1" in rich.stdout
     assert "B-300" in rich.stdout
     assert "deferred by the product owner" in rich.stdout
-
-
-def _git(tmp_path: Path, cmd: str) -> None:
-    import subprocess
-
-    subprocess.run(
-        cmd,
-        shell=True,
-        check=True,
-        cwd=tmp_path,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-
-def _init_repo(tmp_path: Path) -> None:
-    _git(tmp_path, "git init -b main")
-    _git(tmp_path, "git config user.name 'Test User'")
-    _git(tmp_path, "git config user.email 'test@example.com'")
-    _git(tmp_path, "git add .")
-    _git(tmp_path, "git commit -m 'chore(repo): initial fixture'")
-
-
-def _integration_result(monkeypatch, tmp_path: Path) -> str:
-    from ai_team.cli import app
-
-    monkeypatch.chdir(tmp_path)
-    result = CliRunner().invoke(app, ["status", "--json"])
-    assert result.exit_code == 0
-    return json.loads(result.stdout)["latest_integration_result"]
-
-
-def _work_log(*sessions: tuple[int, str, str]) -> str:
-    entries = "\n\n".join(
-        f"### Session {number} — {date}\n{text}" for number, date, text in sessions
-    )
-    return f"## Work Log\n\n{entries}\n\n## Review\n"
-
-
-def test_status_ignores_matching_commit_on_unmerged_branch(monkeypatch, tmp_path):
-    _write(
-        tmp_path / ".ai-team" / "tracker" / "tasks" / "T-001.md",
-        _task("T-001", "Pending task", "pending"),
-    )
-    _init_repo(tmp_path)
-    _git(tmp_path, "git checkout -b feature/x")
-    _git(tmp_path, "git commit --allow-empty -m 'wip: add test scaffolding'")
-    _git(tmp_path, "git checkout main")
-
-    assert _integration_result(monkeypatch, tmp_path) == "not found"
-
-
-def test_status_ignores_spec_merge_commit_on_integration_branch(monkeypatch, tmp_path):
-    _write(
-        tmp_path / ".ai-team" / "tracker" / "tasks" / "T-001.md",
-        _task("T-001", "Pending task", "pending"),
-    )
-    _init_repo(tmp_path)
-    _git(
-        tmp_path,
-        "git commit --allow-empty -m 'chore(plan): merge S-007 system overview spec'",
-    )
-
-    assert _integration_result(monkeypatch, tmp_path) == "not found"
-
-
-def test_status_reports_latest_work_log_session_of_completed_items(
-    monkeypatch, tmp_path
-):
-    tracker = tmp_path / ".ai-team" / "tracker"
-    _write(
-        tracker / "tasks" / "T-001.md",
-        _task(
-            "T-001",
-            "Old task",
-            "completed",
-            body=_work_log((1, "2026-05-01", "Old verification output.")),
-        ),
-    )
-    _write(
-        tracker / "tasks" / "T-002.md",
-        _task(
-            "T-002",
-            "Pending with newer log",
-            "pending",
-            body=_work_log((1, "2026-06-30", "Not completed, must be ignored.")),
-        ),
-    )
-    _write(
-        tracker / "bugs" / "B-003.md",
-        BUG_TEMPLATE.format(
-            id="B-003", title="Fixed bug", severity="low", status="resolved"
-        ).replace(
-            "Body.",
-            _work_log(
-                (1, "2026-05-02", "First pass."),
-                (2, "2026-06-01", "pytest: 12 passed."),
-            ),
-        ),
-    )
-
-    assert _integration_result(monkeypatch, tmp_path) == (
-        "B-003 Session 2 (2026-06-01): pytest: 12 passed."
-    )
-
-
-def test_status_breaks_date_ties_with_highest_item_id(monkeypatch, tmp_path):
-    tracker = tmp_path / ".ai-team" / "tracker" / "tasks"
-    for number in (5, 12):
-        _write(
-            tracker / f"T-{number:03d}.md",
-            _task(
-                f"T-{number:03d}",
-                "Task",
-                "completed",
-                body=_work_log((1, "2026-06-01", f"Result {number}.")),
-            ),
-        )
-
-    assert _integration_result(monkeypatch, tmp_path) == (
-        "T-012 Session 1 (2026-06-01): Result 12."
-    )
-
-
-def test_status_breaks_same_number_ties_between_task_and_bug_by_item_id(
-    monkeypatch, tmp_path
-):
-    tracker = tmp_path / ".ai-team" / "tracker"
-    _write(
-        tracker / "tasks" / "T-012.md",
-        _task(
-            "T-012",
-            "Task",
-            "completed",
-            body=_work_log((1, "2026-06-01", "Task result.")),
-        ),
-    )
-    _write(
-        tracker / "bugs" / "B-012.md",
-        BUG_TEMPLATE.format(
-            id="B-012", title="Bug", severity="low", status="resolved"
-        ).replace("Body.", _work_log((1, "2026-06-01", "Bug result."))),
-    )
-
-    assert _integration_result(monkeypatch, tmp_path) == (
-        "T-012 Session 1 (2026-06-01): Task result."
-    )
-
-
-def test_status_reports_not_found_when_completed_item_has_no_sessions(
-    monkeypatch, tmp_path
-):
-    _write(
-        tmp_path / ".ai-team" / "tracker" / "tasks" / "T-001.md",
-        _task("T-001", "Done task", "completed"),
-    )
-
-    assert _integration_result(monkeypatch, tmp_path) == "not found"
 
 
 def test_status_counts_every_task_state(monkeypatch, tmp_path):
@@ -518,3 +359,28 @@ def test_status_active_specs_exclude_superseded_and_overview(monkeypatch, tmp_pa
 
     assert result.exit_code == 0
     assert json.loads(result.stdout)["counts"]["specs_active"] == 1
+
+
+def test_status_lists_every_unresolved_critical_or_high_bug(monkeypatch, tmp_path):
+    """Gate 5's bug list covers open, in-progress and blocked bugs, not resolved ones."""
+    from ai_team.cli import app
+
+    bugs = tmp_path / ".ai-team" / "tracker" / "bugs"
+    _write(bugs / "B-001.md", _bug("B-001", "Open", "critical", "open"))
+    _write(bugs / "B-002.md", _bug("B-002", "Working", "high", "in-progress"))
+    _write(bugs / "B-003.md", _bug("B-003", "Deferred", "high", "blocked"))
+    _write(bugs / "B-004.md", _bug("B-004", "Fixed", "critical", "resolved"))
+    _write(bugs / "B-005.md", _bug("B-005", "Minor", "medium", "in-progress"))
+
+    monkeypatch.chdir(tmp_path)
+    result = CliRunner().invoke(app, ["status", "--json"])
+
+    assert result.exit_code == 0, result.output
+    ids = sorted(
+        row["id"] for row in json.loads(result.stdout)["critical_high_unresolved_bugs"]
+    )
+    assert ids == ["B-001", "B-002", "B-003"]
+
+    rich = CliRunner().invoke(app, ["status"])
+    assert "Unresolved Critical/High Bugs" in rich.stdout
+    assert "Latest integration" not in rich.stdout

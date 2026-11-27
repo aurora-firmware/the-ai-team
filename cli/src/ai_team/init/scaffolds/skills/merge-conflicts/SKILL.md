@@ -1,6 +1,6 @@
 ---
 name: merge-conflicts
-description: Resolve git merge conflicts preserving the intent of both sides. Use when a merge conflict arises during integration of task or bug branches.
+description: Resolve git merge conflicts preserving the intent of both sides. Use when a Developer merges the integration branch into its task or bug branch and the merge conflicts.
 allowed-tools: Read, Grep, Glob, Edit, Bash
 ---
 
@@ -8,17 +8,16 @@ allowed-tools: Read, Grep, Glob, Edit, Bash
 
 ## Input Requirements
 
-- **The merge in progress:** the source branch, the destination branch, and the conflicted files (`git status`).
-- **The source work item file:** what the task or bug fix on the source branch set out to do.
-- **The verification commands** the caller determined. Without them, find the project's commands with the Discovery Order of the `integrate` skill.
+- **The merge in progress:** `{{integration_branch}}` merged into the work item branch that is checked out, and the conflicted files (`git status`).
+- **The work item file:** what the task or bug fix on the branch set out to do, and its Verification or Fix Verification commands.
 
 ## Procedure
 
 ### Step 1: Understand Both Sides
 
-1. Read the source work item file.
-2. The destination may carry many work items. For each conflicting hunk, find the destination commits that touched it (`git log --oneline <merge-base>..<destination> -- <file>`, `git blame` on the destination side). Their merge commits (`chore(tasks|bugs): merge <ID> …`) name the work items; read each file with `ai-team show <ID> --json`.
-3. Compare the versions: `git show :1:<file>` (base), `:2:<file>` (destination), `:3:<file>` (source).
+1. Read the work item file.
+2. `{{integration_branch}}` may carry many work items. For each conflicting hunk, find its commits that touched it (`git log --oneline <merge-base>..{{integration_branch}} -- <file>`, `git blame` on that side). Their merge commits (`chore(tasks|bugs): merge <ID> …`) name the work items; read each file with `ai-team show <ID> --json`.
+3. Compare the versions: `git show :1:<file>` (base), `:2:<file>` (the work item branch), `:3:<file>` (`{{integration_branch}}`).
 
 Establish what each side set out to do, not only what its code says.
 
@@ -35,8 +34,8 @@ When the changes are incompatible (one side deletes what the other modifies), or
 
 ### Step 4: Verify and Conclude
 
-1. Run the source work item's verification command on the resolved tree. When the caller is not `integrate`, also run the destination's full suite; `integrate` runs it after the merge concludes. If a test fails, the resolution is wrong: return to Step 3.
-2. Stage the resolved files with `git add <files>` and conclude with `git commit --no-edit`. This keeps the merge message the caller gave, in the `git-conventions` format (`chore(<kind>): merge <ID> <short-description>`); for a merge started without one, commit with that message.
+1. Run the work item's verification commands and the tests of the resolved files on the resolved tree; the full suite runs at integration. If a test fails, the resolution is wrong: return to Step 3.
+2. Stage the resolved files with `git add <files>` and conclude with `git commit --no-edit`. This keeps the merge message of `git-conventions` Syncing a Work Branch; for a merge started without one, commit with that message.
 
 ### Step 5: Abort
 
@@ -45,14 +44,9 @@ Return `ESCALATE` (see Escalation).
 
 ## Escalation
 
-Return `ESCALATE` from Step 5 with the four-field request in the format `escalation-review` owns; the caller routes it to the Architect.
+Return `ESCALATE` from Step 5 with the escalation request `role-report` defines; the Developer returns it, and the loop routes it to the Architect.
 
-```text
-Problem: [the conflict that cannot be resolved: file, lines, incompatibility]
-Attempted: [the resolutions considered, and the work items read on both sides]
-Failed because: [why neither side's intent can be kept without guessing]
-Question: [the decision or guidance needed]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the conflict that cannot be resolved: file, lines, incompatibility; **Attempted** — the resolutions considered, and the work items read on both sides; **Failed because** — why neither side's intent can be kept without guessing; **Question** — the decision or guidance needed.
 
 ## Output Format
 

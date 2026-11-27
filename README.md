@@ -55,13 +55,13 @@ Work moves through three phases.
 The product owner shapes and approves the specification, the agents plan and build it, and the product owner signs off on the result.
 
 <p align="center">
-  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1 and is approved by the product owner instead. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Regressions open bugs that the bug loop diagnoses, fixes, reviews and integrates" width="100%">
+  <img src="docs/images/readme/01_process_overview.svg" alt="Three panels. Spec and planning: feature request, brainstorm to spec, Gate 1 product owner approval, feature architecture, task breakdown, Gate 2 Architect preflight; a change-request skips Gate 1 and is approved by the product owner instead. Development loop: next pending task, Developer, Reviewer at Gate 3 with FAIL looping back, Integration at Gate 4, then the next task. Final sign-off when the queue is empty: spec-truth check, status report, Gate 5. Open bugs go to the bug loop, which diagnoses, fixes, reviews and integrates them" width="100%">
 </p>
 
 Inside both loops every task or bug goes through the same review cycle: it is integrated only after the Reviewer passes it.
 
 <p align="center">
-  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect; a regression found at integration opens a bug for the bug loop" width="100%">
+  <img src="docs/images/readme/02_review_cycle.svg" alt="Pending task to Developer to Reviewer; FAIL returns to the Developer, PASS goes to Integration and then completed; ESCALATE or a third FAIL goes to the Architect" width="100%">
 </p>
 
 Blocked work does not spin: a role first retries within its own threshold, then consults the Architect once, then hands the decision to the product owner.
@@ -78,15 +78,14 @@ Each agent implements a distinct role defined in [`ai-process/architecture/compo
 |---|---|
 | **Planner** | Creates specifications with the product owner, then decomposes approved specifications into executable tasks |
 | **Architect** | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions |
-| **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code |
+| **Developer** | Implements tasks and fixes bugs; diagnoses bugs before changing production code; merges `dev-agent` into its branch and resolves conflicts before review |
 | **Reviewer** | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality |
-| **Integrator** | Resolves merge conflicts; supports task and bug integration into target branches |
 
 ## Skills
 
 Skills are reusable procedures agents invoke for common activities.
 Each skill implements a workflow or action defined in the ai-process.
-Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`); `status-report` is the only one the model never starts on its own.
+Every skill except `role-report`, `coding-standards` and `review-cycle`, which only agents and the loops load, can be started as a slash command (`/<name>`), and the model or any agent can start any of them.
 
 | Skill | What it implements |
 |---|---|
@@ -112,7 +111,7 @@ Every skill except `role-report`, `coding-standards` and `review-cycle`, which o
 | **bug-loop** | Autonomous diagnosis-first Developer → Reviewer → Integration loop across the open bug queue |
 | **change-request** | Creates a change request by invoking `ai-team change-request new`, then fills its content |
 | **new-spec** | Creates a specification by invoking `ai-team spec new`, then fills spec content |
-| **new-task** | Creates a planned task by invoking `ai-team task new` |
+| **new-task** | Creates a task by invoking `ai-team task new`: `planned` during spec breakdown, `pending` otherwise |
 | **new-bug** | Creates an evidence-backed bug report by invoking `ai-team bug new`, then fills bug content |
 | **new-adr** | Creates an Architecture Decision Record by invoking `ai-team adr new`, then fills ADR content |
 | **new-system-overview** | Creates the S-000 system overview by invoking `ai-team spec new --overview`, then fills it in |
@@ -213,7 +212,7 @@ See `guides/setup_guide.md` for the complete file list, AGENTS.md starter templa
 | [`guides/agent_template.md`](guides/agent_template.md) | Canonical template and rules for writing new agent definitions |
 | [`guides/skill_template.md`](guides/skill_template.md) | Canonical template and rules for writing new skill definitions |
 | [`guides/skill_testing_guide.md`](guides/skill_testing_guide.md) | Method for showing that a new or changed skill works |
-| [`guides/spec_authoring_guide.md`](guides/spec_authoring_guide.md) | Authoring contract for specifications and the S-000 system overview |
+| [`guides/spec_authoring_guide.md`](guides/spec_authoring_guide.md) | Authoring contract for feature specifications |
 
 ## Repository Structure
 

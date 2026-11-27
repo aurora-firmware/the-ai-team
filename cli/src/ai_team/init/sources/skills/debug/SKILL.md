@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Diagnostic debugging procedure for bugs and unexpected failures. Use before fixing any bug, when tests fail unexpectedly, when code misbehaves, or when an integration failure has been traced to a source branch.
+description: Diagnostic debugging procedure for bugs and unexpected failures. Use before fixing any bug, when tests fail unexpectedly, or when code misbehaves.
 allowed-tools: Read, Grep, Glob, Edit, Bash
 ---
 
@@ -89,12 +89,7 @@ Where it goes:
 Return `ESCALATE` when the failure cannot be reproduced and no evidence-backed fault hypothesis can be formed.
 The active loop routes the request to the Architect through `escalation-review`.
 
-```text
-Problem: [the observed symptom and why reproduction failed]
-Attempted: [reproduction strategies and attempts, instrumentation, logs inspected]
-Failed because: [the missing evidence or the assumptions that could not be validated]
-Question: [the decision or guidance needed from the Architect]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the observed symptom and why reproduction failed; **Attempted** — reproduction strategies and attempts, instrumentation, logs inspected; **Failed because** — the missing evidence or the assumptions that could not be validated; **Question** — the decision or guidance needed from the Architect.
 
 ## Output Format
 

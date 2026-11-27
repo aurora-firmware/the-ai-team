@@ -85,14 +85,9 @@ A product-scope concern, or a time-bound criterion whose verification departs fr
 
 The Architect is the escalation target, so this escalation goes to the product owner.
 Return `ESCALATE` only when the approved spec or the approved change-request intent must change; every other problem is a `FAIL` back to the Planner.
-Append the Escalation Request block and the Product Owner Escalation Report, both in the formats `escalation-review` owns:
+Append the Escalation Request block (`role-report`) and the Product Owner Escalation Report in the format `escalation-review` owns.
 
-```text
-Problem: [the requirement or intent the plan cannot be made consistent with]
-Attempted: [the checks run and the corrections made or requested]
-Failed because: [why the approved spec or change-request must change]
-Question: [the decision the product owner must make]
-```
+Fill the escalation request's four fields (`role-report`) for this trigger: **Problem** — the requirement or intent the plan cannot be made consistent with; **Attempted** — the checks run and the corrections made or requested; **Failed because** — why the approved spec or change-request must change; **Question** — the decision the product owner must make.
 
 ## Output Format
 

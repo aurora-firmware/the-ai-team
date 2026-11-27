@@ -33,8 +33,8 @@ A skill that works for Opus may need more detail for Haiku. If a skill will be i
 Skills fall into three categories. The shape of the `SKILL.md` differs slightly per category.
 
 - **Procedures** — analytical, multi-step work. Have a numbered `Procedure`, `Escalation` section, `Quality Criteria`, and `Common Pitfalls` when the Pitfalls rule leaves rows. Examples: `tdd`, `code-review`, `integrate`, `debug`, `merge-conflicts`, `spec-breakdown-review`, `escalation-review`, `brainstorm`, `spec-breakdown`.
-- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`; the shared review cycle, with its cycle counter and its reset, comes from `review-cycle`, which the loops call. Stay model-invocable so the product owner can delegate a loop to an agent; the `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
-- **Actions** — simple document-creation or single-purpose operations. Short numbered list, usually no escalation section. Product-owner-only actions may carry `disable-model-invocation: true`; actions invoked by another skill must remain model-invocable. Examples: `new-spec`, `new-task`, `new-bug`, `new-adr`, `status-report`. Rule skills that agents and other skills preload (`git-conventions`, `coding-standards`, `role-report`, `evidence-before-claims`) use the same short shape.
+- **Orchestrators** — autonomous loops that spawn subagents and drive workflows. Have a numbered `Procedure` with explicit `**Spawn the <Role> subagent**` blocks, `Commit Conventions`, `Hard Stops`, and `What This Skill Does NOT Do`; the shared review cycle, with its cycle counter and its reset, comes from `review-cycle`, which the loops call. The `using-ai-team` rule forbids starting one unasked. Examples: `dev-loop`, `bug-loop`.
+- **Actions** — simple document-creation or single-purpose operations. Short numbered list, usually no escalation section. Examples: `new-spec`, `new-task`, `new-bug`, `new-adr`, `status-report`. Rule skills that agents and other skills preload (`git-conventions`, `coding-standards`, `role-report`, `evidence-before-claims`) use the same short shape.
 
 ## The Separation Rule
 
@@ -67,7 +67,7 @@ Only create `assets/`, `references/`, or `scripts/` when the skill needs them. D
 
 A source skill is one `SKILL.md` (frontmatter plus body) under `cli/src/ai_team/init/sources/skills/<name>/`, with optional `assets/`, `references/` and `scripts/` folders. Only those are exported. Any other file in that directory stays in the source tree.
 
-The supporting folders reach the export next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}` and `{{integration_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
+The supporting folders reach the export next to `SKILL.md`. The generator copies them byte for byte. When `ai-team init` writes them into a project, it fills in `{{project_dir}}`, `{{integration_branch}}` and `{{release_branch}}`. Files that are not UTF-8 text are copied byte for byte, without placeholder filling.
 
 ## Canonical Section Order
 
@@ -199,7 +199,7 @@ The Developer → Reviewer → Architect → integrate cycle, its review-cycle c
 
 ### Frontmatter
 
-Orchestrators declare `Agent` in `allowed-tools` (to spawn subagents). They stay model-invocable so the product owner can delegate a loop to an agent, for example to keep the main session clean; the `using-ai-team` rule that a loop starts only when the product owner asks is the guard against starting one unasked. End the description with a sentence limiting use to an explicit product owner request.
+Orchestrators declare `Agent` in `allowed-tools` (to spawn subagents). The `using-ai-team` rule that a loop starts only when the product owner asks is the guard against starting one unasked. End the description with a sentence limiting use to an explicit product owner request.
 
 ```yaml
 allowed-tools: Read, Glob, Grep, Bash, Agent, Skill(integrate), Skill(git-conventions)
@@ -243,9 +243,7 @@ description: Use this when needed.     # no specifics
 `argument-hint`:
 - Use for skills invoked as slash commands with positional arguments. Document the argument shape tersely in frontmatter and fully in `## Input Requirements`.
 
-`disable-model-invocation`:
-- Set to `true` for product-owner-only actions such as `status-report`. Do not set it on orchestrators: they stay model-invocable so the product owner can delegate a loop to an agent, and the `using-ai-team` rule forbids starting one unasked.
-- Do not set it to `true` on a skill referenced through another skill's `Skill(<name>)` declaration. The target must remain model-invocable for that in-process call to work.
+Do not set `disable-model-invocation`: every skill stays invocable by the model and by any agent (ADR-004). Gate ownership, not invocation, keeps a role from overriding a gate.
 
 `user-invocable`:
 - Set to `false` on rule skills that only agents preload and no one runs as a command, such as `role-report`. It hides the skill from the slash menu; agents still preload it and the model can still load it.
@@ -498,7 +496,7 @@ Before treating a skill as ready:
 - [ ] `name` ≤64 chars, lowercase-hyphen only, no reserved words.
 - [ ] `description` ≤1024 chars, third person, names *what* and *when*.
 - [ ] `allowed-tools` lists every tool and every in-process `Skill()` invoked.
-- [ ] `disable-model-invocation: true` set only on product-owner-only actions (never on orchestrators) and not targeted by another skill's `Skill()` declaration.
+- [ ] No `disable-model-invocation` field.
 
 **Content**
 - [ ] `SKILL.md` body under 500 lines.

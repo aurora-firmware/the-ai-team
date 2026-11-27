@@ -442,7 +442,10 @@ def test_root_guidance_file_created_from_stable_template(tmp_path):
     ).read_text(encoding="utf-8")
     content = (target / "AGENTS.md").read_text(encoding="utf-8")
     assert content == render_placeholders(
-        source, project_dir="ai-team", integration_branch="dev-agent"
+        source,
+        project_dir="ai-team",
+        integration_branch="dev-agent",
+        release_branch="main",
     )
 
 

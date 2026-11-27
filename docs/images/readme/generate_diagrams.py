@@ -17,7 +17,7 @@ name table, which keeps clear of Josefin Sans's Reserved Font Name.
 
 Colour carries meaning, not identity: every agent card looks the same (Dark Blue card,
 Orange role name); Orange and the gradient mark the Product Owner's decisions, Info Blue
-marks automated gates, Red marks FAIL and regressions, Orange Light marks escalation,
+marks automated gates, Red marks FAIL, Orange Light marks escalation,
 and Success Green marks PASS and integrated work.
 """
 
@@ -269,7 +269,7 @@ def two_gates():
     b.append(arrow(f"M262,{cy} H280", "g", "d4"))
     b.append(arrow(f"M891,{cy} H897", "g", "d9"))
     b.append(arrow(f"M971,{cy} H981", "ok", "d10"))
-    b.append(txt(560, 346, "Blocked work escalates:  Developer / Reviewer / Integrator  →  Architect  →  Product Owner", "s", wrap="d11"))
+    b.append(txt(560, 346, "Blocked work escalates:  Developer / Reviewer  →  Architect  →  Product Owner", "s", wrap="d11"))
     return svg(1120, 376, "You decide what gets built and what ships.", "The agents do the rest.", "\n".join(b))
 
 
@@ -302,7 +302,7 @@ def process_overview():
     bsteps = [(180, "neutral", "Next pending task", "from the local tracker", None),
               (270, "agent", "Developer", "implements · TDD", None),
               (360, "agent", "Reviewer", "Gate 3 · two-stage review", BLUE),
-              (450, "pass", "Integration", "Gate 4 · merge + full test suite", BLUE)]
+              (450, "pass", "Integration", "Gate 4 · full test suite + merge", BLUE)]
     for i, (y, kind, l1, l2, l2fill) in enumerate(bsteps):
         b.append(card(510, y, 210, 46, kind, l1, l2, f"d{8 + i}", l2fill=l2fill))
         if i < 3:
@@ -319,8 +319,6 @@ def process_overview():
 
     b.append(arrow("M721,190 H850", "g", "d12"))
     b.append(txt(727, 182, "queue empty", "s", anchor="start", wrap="d12"))
-    b.append(arrow("M721,485 H800 V437 H850", "r", "d12"))
-    b.append(txt(727, 503, "regression", "s", anchor="start", fill=RED_L, wrap="d12"))
 
     # sign-off
     b.append(card(853, 176, 204, 36, "step", "Spec-truth check · Architect", None, "d10", l1cls="t"))
@@ -337,7 +335,7 @@ def process_overview():
             b.append(arrow(f"M955,{y + 35} V{y + 48}", "g", f"d{10 + i}"))
     b.append(arrow("M852,537 H838 V487 H850", "r", "d12", flow=True))
     b.append(f'<g class="n d12"><text class="s" x="831" y="512" text-anchor="middle" fill="{RED_L}" transform="rotate(-90 831 512)">FAIL</text></g>')
-    b.append(txt(955, 630, "resolved bugs join the Gate 5 summary", "s", wrap="d12"))
+    b.append(txt(955, 630, "resolved bugs join the status report", "s", wrap="d12"))
     return svg(1120, 680, "From feature request to main",
                "Three phases and five gates. The Product Owner owns Gate 1 and Gate 5; agents run the rest.", "\n".join(b))
 
@@ -360,9 +358,6 @@ def review_cycle():
     b.append(arrow("M580,261 V327", "o", "d8"))
     b.append(txt(588, 300, "ESCALATE, or a 3rd FAIL", "s", anchor="start", fill=ORANGE_L, wrap="d8"))
     b.append(card(480, 330, 200, 56, "esc", "Architect", "guidance, or Product Owner", "d8"))
-    b.append(arrow("M820,261 V327", "r", "d9"))
-    b.append(txt(828, 300, "regression", "s", anchor="start", fill=RED_L, wrap="d9"))
-    b.append(card(720, 330, 200, 56, "fail", "Open bug", "→ /bug-loop", "d9"))
     b.append(txt(560, 430, "The loop takes the next pending task until the queue is empty, a task is blocked, or escalation is needed.", "s", wrap="d10"))
     return svg(1120, 460, "Every task earns its merge",
                "Developer → Reviewer → integration, repeated until the Reviewer passes the work.", "\n".join(b))
@@ -382,7 +377,7 @@ def escalation():
     b.append(txt(743, 239, "resolved", "s", anchor="start", fill=ORANGE_L, wrap="d5"))
     b.append(arrow("M560,261 C560,360 220,370 210,324", "ok", "d7", flow=True))
     b.append(txt(400, 368, "resolved → the role continues", "t", fill=GREEN, wrap="d7"))
-    b.append(txt(560, 412, "Thresholds:  Developer, 3 failed attempts  |  Reviewer, ESCALATE or 3 review cycles  |  Integrator, 1 merge attempt", "s", wrap="d8"))
+    b.append(txt(560, 412, "Thresholds:  Developer, 3 failed attempts or an unresolvable conflict  |  Reviewer, ESCALATE or 3 review cycles", "s", wrap="d8"))
     return svg(1120, 440, "Blocked work climbs a short ladder",
                "Self-recovery first, then one Architect consultation, then the Product Owner decides.", "\n".join(b))
 

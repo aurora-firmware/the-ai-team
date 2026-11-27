@@ -7,8 +7,7 @@
 __pycache__/
 *.whl
 
-# pr review artifacts (repo root only — committed reports live in
-# docs/ai-team/docs/reports/ and must stay tracked)
+# pr review artifacts written at the repository root
 /pr-*-review.md
 
 # ai-team local work-item tracker (tasks, bugs, change-requests)

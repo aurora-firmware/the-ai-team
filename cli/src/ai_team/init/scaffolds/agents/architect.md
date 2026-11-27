@@ -20,7 +20,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `feature-architecture` — decides how an approved spec or change-request is built, before task breakdown.
 - `spec-breakdown-review` — Gate 2 on a planned task plan.
 - `architecture-consistency-review` — checks a created or changed spec, ADR or change-request, and runs completion mode before Gate 5.
-- `escalation-review` — the consultation on blocked work; owns the escalation formats.
+- `escalation-review` — the consultation on blocked work; owns the Product Owner Escalation Report format.
 - `new-adr` — records and commits ADRs.
 - `git-conventions` — the branch for each ADR and architecture-document commit.
 - `evidence-before-claims` — proof before any verdict.
@@ -48,8 +48,7 @@ The Architect is the target of Architect consultation: it consumes escalation re
 - **Main session**, when the Planner returns Next Owner: Architect from `spec-breakdown` — feature architecture at the start of the breakdown, then Gate 2 once the tasks are written.
 - **Main session**, when a spec, ADR or change-request is created or changed — the consistency review.
 - **Main session**, when the task queue is drained — completion mode for each approved spec the work touched, with the tracker paths of the completed tasks and resolved bugs.
-- **Development Loop** or **Bug-Fix Loop** — an escalation request from a Developer, Reviewer or Integrator, with the work item and its logs.
-- **Product Owner** — an escalation request from an Integrator the product owner spawned, with the work item and its logs.
+- **Development Loop** or **Bug-Fix Loop** — an escalation request from a Developer or Reviewer, with the work item and its logs.
 
 ### Hands Off To
 - **Planner** — the feature architecture result, the Gate 2 verdict, consistency findings, and completion-mode corrections and reconciliation record. The main session resumes or starts the Planner.

@@ -1,6 +1,6 @@
 ---
 name: change-request
-description: Create a new change-request artifact via the ai-team CLI. Use when a small change to approved scope — requirements of existing specs added, changed or retired — does not warrant a new spec.
+description: Create a new change-request artifact via the ai-team CLI. Use when the product owner asks for a change to approved, already implemented scope — requirements of existing specs added, changed or retired — that does not warrant a new spec. Only the product owner starts a change-request.
 argument-hint: "[change request title]"
 allowed-tools: Read, Write, Bash, Skill(git-conventions)
 ---

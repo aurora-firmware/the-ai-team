@@ -92,6 +92,8 @@ Do not edit generated scaffolds to change framework behavior.
   document is unclear, follow `ai-process/`. Where `ai-process/` itself seems
   wrong, stop and tell the product owner instead of working around it.
 - Keep framework behavior in `ai-process/`, `guides/`, or the CLI source tree.
+- Specs in `docs/ai-team/` cover the CLI and its packaging. They never restate a
+  rule `ai-process/` already owns; they point to it.
 - Do not read from or depend on the repo-local `.claude/` folder.
 - Do not hardcode project-specific test, build, deploy, or run commands into the
   framework sources; consuming projects must supply those details themselves.

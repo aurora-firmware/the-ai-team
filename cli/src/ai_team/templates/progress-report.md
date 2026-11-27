@@ -16,11 +16,9 @@ One-paragraph overview of current project state.
 |---|---|---|
 | specification-name.md | approved | Current Gate 5 target |
 
-## Integration Evidence
+## Sign-off Test Run
 
-- Latest integration-test result:
-- Source:
-- Date:
+- Sign-off test run on the integration branch (command and result):
 
 ## Completed
 
