@@ -8,9 +8,8 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 |---|---|---|---|---|---|
 | Planner | Creates specifications with the product owner, then decomposes approved specifications into executable tasks; reads S-000 (the system overview) at session start | New System Overview; Brainstorm; Spec Breakdown | Product Owner | Product Owner (approval), Local tracker (`planned` → `pending` tasks), Architect, through the main session (Feature Architecture; Gate 2; Architecture Consistency Review for created/changed specs and change-requests) | `.claude/agents/planner.md` |
 | Architect | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions; reads S-000 (the system overview) at session start, checking specs against it | Feature Architecture; Spec Breakdown Review; Architecture Consistency Review; Escalation Review; New ADR | Planner, through the main session (Feature Architecture at the start of task breakdown; Gate 2; Architecture Consistency Review for created/changed specs and change-requests), Any blocked role | Planner (architecture result, revision requests, consistency findings), Requesting role (directives), Product Owner (escalation), Decision Log, Architecture Documents | `.claude/agents/architect.md` |
-| Developer | Implements tasks and fixes bugs; diagnoses bugs before changing production code | TDD; Debug; Receive Code Review; Coding Standards | Development Loop or Bug-Fix Loop | Reviewer | `.claude/agents/developer.md` |
+| Developer | Implements tasks and fixes bugs; diagnoses bugs before changing production code; merges `dev-agent` into its branch before review and resolves conflicts | TDD; Debug; Receive Code Review; Merge Conflicts; Coding Standards | Development Loop or Bug-Fix Loop | Reviewer | `.claude/agents/developer.md` |
 | Reviewer | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality | Code Review; Coding Standards | Developer (via Development Loop or Bug-Fix Loop) | Development Loop or Bug-Fix Loop (verdict in task or bug file) | `.claude/agents/reviewer.md` |
-| Integrator | Resolves merge conflicts; supports task and bug integration into target branches | Integrate; Merge Conflicts | Product Owner (manual merges and conflicts); the loops run Integrate in process | `dev-agent` or preserved task branch | `.claude/agents/integrator.md` |
 
 ## Procedures
 
@@ -34,12 +33,12 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Code Review | Carry out the review checklist (`ai-process/guidelines/review_checklist.md`): review tasks and bug fixes against the Developer's claims and the project's rules, and settle the Developer's answers until both agree on every finding | Reviewer | `.claude/skills/code-review/SKILL.md` |
 | Receive Code Review | Answer each open review finding on the task or bug branch: fix it, or show with evidence that it does not hold | Developer | `.claude/skills/receive-code-review/SKILL.md` |
 | Review Cycle | Drive one work item through Developer → Reviewer cycles, Architect consultation at the review-cycle cap or on ESCALATE, and integration; resume an `in-progress` item on its existing branch | Development Loop, Bug-Fix Loop | `.claude/skills/review-cycle/SKILL.md` |
-| Integrate | Merge task or bug branches, run pre- and post-merge tests, promote completed work, and file regression bugs on failure | Development Loop, Bug-Fix Loop, Integrator | `.claude/skills/integrate/SKILL.md` |
-| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Integrate | `.claude/skills/merge-conflicts/SKILL.md` |
+| Integrate | Test a reviewed task or bug branch that contains `dev-agent`, merge it, and promote completed work; a failure merges nothing | Development Loop, Bug-Fix Loop | `.claude/skills/integrate/SKILL.md` |
+| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Developer | `.claude/skills/merge-conflicts/SKILL.md` |
 | Escalation Review | Analyse blocked work after role self-recovery and issue guidance or escalate to the product owner | Architect | `.claude/skills/escalation-review/SKILL.md` |
 | New Specification | Create a specification document from the standard template | Planner | `.claude/skills/new-spec/SKILL.md` |
 | New Task | Create a task in the local tracker from the standard template | Planner | `.claude/skills/new-task/SKILL.md` |
-| New Bug | Create an evidence-rich `open` bug report in the local tracker from the standard template | Product Owner, Developer, Reviewer, Integrate | `.claude/skills/new-bug/SKILL.md` |
+| New Bug | Create an evidence-rich `open` bug report in the local tracker from the standard template | Product Owner, Developer, Reviewer | `.claude/skills/new-bug/SKILL.md` |
 | New ADR | Create an architecture decision record in `ai-team/decisions/` from the standard template | Architect | `.claude/skills/new-adr/SKILL.md` |
 | Status Report | Summarize specifications, tasks, bugs, decisions, and integration state for Gate 5, on demand | Product Owner | `.claude/skills/status-report/SKILL.md` |
 
@@ -57,7 +56,7 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 | Gate 1: Specification Approval | Confirm the specification is complete and aligned with the feature request | Product Owner |
 | Gate 2: Task Plan Preflight | Confirm the task plan is complete, conflict-aware, and implementation-ready | Architect |
 | Gate 3: Code Review | Confirm task implementations satisfy acceptance criteria and bug fixes include sound diagnosis, targeted fix, verification, and quality | Reviewer |
-| Gate 4: Integration Tests | Confirm merged task or bug work does not regress the target branch | Integrate |
+| Gate 4: Integration Tests | Confirm a reviewed task or bug branch, which contains `dev-agent`, passes the full suite before it is merged | Integrate |
 | Gate 5: Final Merge Sign-off | Confirm completed work matches spec intent before `dev-agent` → `main` | Product Owner |
 
 ## Documents and Directories

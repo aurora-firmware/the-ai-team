@@ -16,7 +16,7 @@ Project-specific commit scopes and any overrides are in the project's root `AGEN
 | `{{integration_branch}}` | Integrated work | — | Merge commits only (reviewed task and bug branches, planning branches), plus ADR commits from the Architect and hygiene `.gitignore` commits. Never direct source code |
 | `plan/S-NNN-<slug>` or `plan/CR-NNN-<slug>` | One spec or change-request: the spec and its amendments, cross-spec amendments, and the architecture-document updates from its feature architecture. Never source code | See Planning Branches | Planner and Architect |
 | `task/T-NNN-<slug>` | One task | Created when the development loop picks the task, from `{{integration_branch}}`. Deleted with `git branch -d` after it integrates | Developer only: source, tests, and project artifacts; the Architect also commits ADRs here |
-| `bug/B-NNN-<slug>` | One bug's diagnosis and fix | Created when the bug-fix loop picks the bug: an existing defect from `{{integration_branch}}`, a task regression from the bug's `source_branch` (the preserved task branch, which it merges back into). Deleted with `git branch -d` after it integrates | Developer only: source, tests, and project artifacts; the Architect also commits ADRs here |
+| `bug/B-NNN-<slug>` | One bug's diagnosis and fix | Created when the bug-fix loop picks the bug, from `{{integration_branch}}`. Deleted with `git branch -d` after it integrates | Developer only: source, tests, and project artifacts; the Architect also commits ADRs here |
 
 Tasks, bugs and change-requests live in the local tracker (`ai-team tracker path`), outside version control and outside every branch.
 Their state is the frontmatter `status` field.
@@ -84,16 +84,25 @@ docs(specs): add phase2 boardroom role selection
 chore(plan): merge S-004 billing export
 ```
 
+## Syncing a Work Branch
+
+Before handing a task or bug branch off for review, the Developer brings `{{integration_branch}}` into it, so the Reviewer reviews the merged result and the integration merge reproduces that tree:
+
+1. When `git merge-base --is-ancestor {{integration_branch}} HEAD` exits 0, the branch is already in sync: do nothing.
+2. Otherwise run `git merge --no-ff {{integration_branch}} -m "chore(<kind>): merge {{integration_branch}} into <work-item-id>"`, with `<kind>` `tasks` or `bugs`. Never rebase a work branch.
+3. On a conflict, invoke the `merge-conflicts` skill. It concludes the merge or aborts it and returns `ESCALATE`, which the Developer returns as its own escalation.
+4. Run the tests of the code the merge touched together with the work item's own Verification commands; the full suite runs at integration.
+
 ## When Each Role Commits
 
 | Role | Commits when | Branch |
 |---|---|---|
 | **Planner** | Each spec or spec amendment is finalized | `plan/…` |
 | **Planner** | One merge commit per planning branch, at the point Merging a Planning Branch names | `{{integration_branch}}` |
-| **Developer** | After each implementation cycle, and for the failing test alone in a `tdd` Step 7 recovery | `task/T-NNN-…` or `bug/B-NNN-…` |
+| **Developer** | After each implementation cycle, for the failing test alone in a `tdd` Step 7 recovery, and one merge commit when it syncs its branch (Syncing a Work Branch) | `task/T-NNN-…` or `bug/B-NNN-…` |
 | **Architect** | After producing or amending an ADR | The branch that is checked out, never `main` |
 | **Architect** | After updating the architecture documents in feature architecture | `plan/…` |
-| **Integrator, or the loop running `integrate`** | One merge commit per task or bug branch merged into its target branch | the target branch |
+| **The loop running `integrate`** | One merge commit per task or bug branch | `{{integration_branch}}` |
 
 ## Workspace Hygiene
 

@@ -94,6 +94,7 @@ Scenarios:
 - Add the inspection or demonstration record, a `debug` fix contract, and the `#### Review answers` block from `receive-code-review` when they apply.
 - `N` increments across all sessions on the work item.
 
+Before returning, sync the branch with `{{integration_branch}}` (`git-conventions`, Syncing a Work Branch) and list the merge commit, if any, in the entry.
 Return the entry to the active loop, which appends it under `## Work Log`.
 The `Base commit:` line the loop wrote there stays as it is; the loop reads it to resume.
 

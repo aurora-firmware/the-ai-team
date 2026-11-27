@@ -44,13 +44,13 @@ Anything else stops the loop with: "Task <task-id> is not a pending or in-progre
 
 **Without a task argument:**
 
-1. **Resume first.** Take the first `in-progress` task (`ai-team list tasks --state in-progress`) that has not returned `WAITING` in this run, and go to Step 3.
+1. **Resume first.** Take the first `in-progress` task (`ai-team list tasks --state in-progress`), and go to Step 3.
 2. **Then pending work.** From `ai-team list tasks --state pending` (`planned` tasks are not in the queue), pick the task with the highest `priority` (critical → high → medium → low), then the oldest `created`, whose dependencies are all `completed`. The dependencies are the task IDs under `## Dependencies` in its file (``- `T-NNN` — reason``, or `- None`). Go to Step 4.
 3. If nothing is left, go to Step 6. When pending tasks remain whose dependencies are not completed, list each with the tasks it waits for in the run summary.
 
 ### Step 3: Resume the Task
 
-Run `review-cycle` from its Step 1, with the target branch `{{integration_branch}}`.
+Run `review-cycle` from its Step 1.
 Then go to Step 5.
 
 ### Step 4: Claim the Task
@@ -58,15 +58,13 @@ Then go to Step 5.
 1. Run `ai-team task start T-NNN`.
 2. Check out `{{integration_branch}}` and create the task branch from it: `git checkout -b task/T-NNN-<slug>`, with the slug from the task filename.
 3. Record BASE: append `Base commit: <git rev-parse HEAD>` under `## Work Log` in the task file.
-4. Run `review-cycle` from its Step 2, with the target branch `{{integration_branch}}`. Then go to Step 5.
+4. Run `review-cycle` from its Step 2. Then go to Step 5.
 
 ### Step 5: Act on the Outcome
 
 | Outcome | Next |
 |---|---|
 | `DONE` | Step 2 |
-| `WAITING` | Note the task and its unresolved bugs for the run summary; Step 2 |
-| `REGRESSION` | Step 6. Next action: `/bug-loop` for the filed bugs, then `/dev-loop`, which resumes the task and retries its integration |
 | `ESCALATED` | Step 6, with the report or escalation block `review-cycle` returned |
 | `STOPPED` | Step 6, with the cause |
 
@@ -77,7 +75,7 @@ With a task argument, go to Step 6 after any outcome.
 1. Run the after-point Workspace Hygiene check and restore any changes this run parked.
 2. Return a short run summary in the chat, a few lines and no report file:
    - tasks completed this run, with their merge commits;
-   - tasks blocked, waiting on regression bugs, or stopped, with the reason;
+   - tasks blocked or stopped, with the reason;
    - bugs filed this run;
    - changes parked or restored and `.gitignore` patterns added by the hygiene check;
    - the next action: `/bug-loop` for filed bugs; for a blocked task, the product owner's decision and `ai-team task unblock`; when no task is pending, in-progress or blocked, say that the queue is drained: the main session runs completion reconciliation with the Architect for the specs this work touched, then the product owner runs `/status-report` for Gate 5.
@@ -88,7 +86,7 @@ Do not invoke `status-report`: the product owner runs it on demand.
 
 All commits follow the `git-conventions` skill.
 The Developer commits on the task branch.
-The loop session commits the hygiene check's `.gitignore` patterns and, running `integrate`, the merge and revert commits.
+The loop session commits the hygiene check's `.gitignore` patterns and, running `integrate`, the merge commits.
 Task state, Work Logs and Review Verdicts live in the tracker and are never committed.
 
 ## Hard Stops (Do Not Continue)
@@ -96,11 +94,10 @@ Task state, Work Logs and Review Verdicts live in the tracker and are never comm
 Every stop goes through Step 6.
 
 - The baseline test guard stops `BLOCKED`.
-- `review-cycle` returns `REGRESSION`, `ESCALATED` or `STOPPED`.
+- `review-cycle` returns `ESCALATED` or `STOPPED`.
 - No pending task has all its dependencies completed, and no task can be resumed.
 
 ## What This Skill Does NOT Do
 
 - Does not touch `main`, which is product-owner-only.
 - Does not modify specifications or decisions, or touch implementation and test files itself.
-- Does not fix integration failures: regressions are filed as bugs, and the bug-fix loop fixes them.
