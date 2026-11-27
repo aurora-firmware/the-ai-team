@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -120,38 +119,6 @@ def _blocking_reason(path: Path, item: object, kind: ArtifactKind) -> str:
     return _latest_work_log_line(path, kind)
 
 
-_SESSION_HEADING = re.compile(r"^### Session (\d+) — (\d{4}-\d{2}-\d{2})\s*$")
-_ID_NUMBER = re.compile(r"(\d+)$")
-
-
-def _latest_integration_result(
-    tasks_by_status: dict[str, list[tuple[Path, object]]],
-    bugs_by_status: dict[str, list[tuple[Path, object]]],
-) -> str:
-    """Cite the newest Work Log session of a completed task or resolved bug."""
-    candidates: list[tuple[str, int, str, str, str]] = []
-    finished = [
-        (path, item, "task") for path, item in tasks_by_status.get("completed", [])
-    ] + [(path, item, "bug") for path, item in bugs_by_status.get("resolved", [])]
-    for path, item, kind in finished:
-        session = _latest_work_log_session(path, kind)
-        if session is None:
-            continue
-        heading_match = _SESSION_HEADING.match(session[0])
-        id_match = _ID_NUMBER.search(item.id)
-        if heading_match is None or id_match is None:
-            continue
-        number, date = heading_match.groups()
-        candidates.append(
-            (date, int(id_match.group(1)), item.id, f"Session {number}", session[1])
-        )
-
-    if not candidates:
-        return "not found"
-    date, _, item_id, session_label, line = max(candidates, key=lambda c: c[:3])
-    return f"{item_id} {session_label} ({date}): {line}"
-
-
 def _by_status(paths: list[Path], parser) -> dict[str, list[tuple[Path, object]]]:
     """Group parsed work items by their frontmatter ``status``."""
     grouped: dict[str, list[tuple[Path, object]]] = {}
@@ -194,9 +161,12 @@ def _payload(root: ProjectRoot) -> dict[str, object]:
         for path, bug in bugs_by_status.get("blocked", [])
     ]
 
+    # Gate 5 counts every bug that is not resolved: open, in progress or blocked.
     critical_high_bugs: list[CriticalBug] = [
         CriticalBug(id=bug.id, title=bug.title, severity=bug.severity)
-        for _, bug in bugs_by_status.get("open", [])
+        for status, bugs in bugs_by_status.items()
+        if status != "resolved"
+        for _, bug in bugs
         if bug.severity in {"critical", "high"}
     ]
 
@@ -243,13 +213,10 @@ def _payload(root: ProjectRoot) -> dict[str, object]:
             }
             for bug in blocked_bugs
         ],
-        "critical_high_open_bugs": [
+        "critical_high_unresolved_bugs": [
             {"id": bug.id, "title": bug.title, "severity": bug.severity}
             for bug in critical_high_bugs
         ],
-        "latest_integration_result": _latest_integration_result(
-            tasks_by_status, bugs_by_status
-        ),
     }
     return payload
 
@@ -274,7 +241,7 @@ def _to_markdown(payload: dict[str, object]) -> str:
     assert isinstance(blocked_tasks, list)
     blocked_bugs = payload["blocked_bugs"]
     assert isinstance(blocked_bugs, list)
-    critical_high = payload["critical_high_open_bugs"]
+    critical_high = payload["critical_high_unresolved_bugs"]
     assert isinstance(critical_high, list)
 
     in_progress_lines = _list_lines(
@@ -313,13 +280,12 @@ def _to_markdown(payload: dict[str, object]) -> str:
         f"- Bugs in progress: {bugs['in_progress']}\n"
         f"- Blocked bugs: {bugs['blocked']}\n"
         f"- Resolved bugs: {bugs['resolved']}\n"
-        f"- ADRs: {counts['adrs']}\n"
-        f"- Latest integration result: {payload['latest_integration_result']}\n\n"
+        f"- ADRs: {counts['adrs']}\n\n"
         "### In Progress\n"
         f"{in_progress_lines}\n\n"
         "### Blocked\n"
         f"{blocked_lines}\n\n"
-        "### Critical/High Bugs\n"
+        "### Unresolved Critical/High Bugs\n"
         f"{critical_high_lines}\n"
     )
 

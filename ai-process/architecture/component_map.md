@@ -1,53 +1,55 @@
 # Component Map
 
 This document maps the ai-process roles, procedures, processes, and gates to their implementation files where applicable.
+Implementation paths are the sources in this repository: `cli/src/ai_team/init/sources/agents/` and `cli/src/ai_team/init/sources/skills/`, which `ai-team init` installs in a project under `agents/` and `skills/`.
+Project artifact paths start at the project directory, `[project] dir` in `.ai-team.toml` (default `ai-team/`).
 
 ## Roles
 
 | Role | Purpose | Procedures Used | Receives From | Hands Off To | Implementation |
 |---|---|---|---|---|---|
-| Planner | Creates specifications with the product owner, then decomposes approved specifications into executable tasks; reads S-000 (the system overview) at session start | New System Overview; Brainstorm; Spec Breakdown | Product Owner | Product Owner (approval), Local tracker (`planned` → `pending` tasks), Architect, through the main session (Feature Architecture; Gate 2; Architecture Consistency Review for created/changed specs and change-requests) | `.claude/agents/planner.md` |
-| Architect | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions; reads S-000 (the system overview) at session start, checking specs against it | Feature Architecture; Spec Breakdown Review; Architecture Consistency Review; Escalation Review; New ADR | Planner, through the main session (Feature Architecture at the start of task breakdown; Gate 2; Architecture Consistency Review for created/changed specs and change-requests), Any blocked role | Planner (architecture result, revision requests, consistency findings), Requesting role (directives), Product Owner (escalation), Decision Log, Architecture Documents | `.claude/agents/architect.md` |
-| Developer | Implements tasks and fixes bugs; diagnoses bugs before changing production code; merges `dev-agent` into its branch before review and resolves conflicts | TDD; Debug; Receive Code Review; Merge Conflicts; Coding Standards | Development Loop or Bug-Fix Loop | Reviewer | `.claude/agents/developer.md` |
-| Reviewer | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality | Code Review; Coding Standards | Developer (via Development Loop or Bug-Fix Loop) | Development Loop or Bug-Fix Loop (verdict in task or bug file) | `.claude/agents/reviewer.md` |
+| Planner | Creates specifications with the product owner, then decomposes approved specifications into executable tasks; reads S-000 (the system overview) at session start | New System Overview; Brainstorm; Change Request; Spec Breakdown | Product Owner | Product Owner (approval), Local tracker (`planned` → `pending` tasks), Architect, through the main session (Feature Architecture; Gate 2; Architecture Consistency Review for created/changed specs and change-requests) | `agents/planner.md` |
+| Architect | Owns the architecture and structural review: feature architecture, Gate 2 preflight, architectural consistency, escalation analysis, and ADR decisions; reads S-000 (the system overview) at session start, checking specs against it | Feature Architecture; Spec Breakdown Review; Architecture Consistency Review; Escalation Review; New ADR | Planner, through the main session (Feature Architecture at the start of task breakdown; Gate 2; Architecture Consistency Review for created/changed specs and change-requests), Any blocked role | Planner (architecture result, revision requests, consistency findings), Requesting role (directives), Product Owner (escalation), Decision Log, Architecture Documents | `agents/architect.md` |
+| Developer | Implements tasks and fixes bugs; diagnoses bugs before changing production code; merges `dev-agent` into its branch before review and resolves conflicts | TDD; Debug; Receive Code Review; Merge Conflicts; Coding Standards | Development Loop or Bug-Fix Loop | Reviewer | `agents/developer.md` |
+| Reviewer | Reviews task acceptance, bug diagnosis, targeted fixes, verification evidence, and code quality | Code Review; Coding Standards | Developer (via Development Loop or Bug-Fix Loop) | Development Loop or Bug-Fix Loop (verdict in task or bug file) | `agents/reviewer.md` |
 
 ## Procedures
 
 | Procedure | Purpose | Used By | Implementation |
 |---|---|---|---|
-| New System Overview | Create the S-000 system overview that later specs are checked against; produces only the project bootstrap tasks, never solution tasks | Planner | `.claude/skills/new-system-overview/SKILL.md` |
-| Project Bootstrap | Plan the bootstrap tasks of an approved S-000: decisions and architecture documents, environment configuration, coding guidelines, project guidance, and the README description | Planner | `.claude/skills/spec-breakdown/SKILL.md` (run on S-000) |
-| Brainstorm | Explore the request, alternatives, constraints, and prior decisions before writing a specification | Planner | `.claude/skills/brainstorm/SKILL.md` |
-| Change Request (intake) | Capture smaller desired changes and possible spec amendments without the full brainstorm-to-spec flow; produces tasks and amendments as needed | Planner, Product Owner | `ai-team change-request new`; template at `cli/src/ai_team/templates/change-request.md`; artifacts stored in the local tracker |
-| Feature Architecture | Decide how an approved spec or change-request is built: check the architecture documents cover it, decide the missing technology and design, record ADRs, and update the architecture documents | Architect | `.claude/skills/feature-architecture/SKILL.md` |
-| Spec Breakdown | Decompose an approved specification into atomic tasks with dependencies, acceptance criteria, and verification, following the project's architecture | Planner | `.claude/skills/spec-breakdown/SKILL.md` |
-| Spec Breakdown Review | Validate task dependencies, file conflict risk, decision-record consistency, atomicity, and implementation readiness (evaluates Gate 2) | Architect | `.claude/skills/spec-breakdown-review/SKILL.md` |
-| Architecture Consistency Review | Check a created or changed spec, ADR, or change-request against every approved spec and accepted ADR, and route corrections for any drift (spec amendments, or follow-up tasks when the spec is right and the work falls short) | Architect | `.claude/skills/architecture-consistency-review/SKILL.md` |
-| Evidence Before Claims | Require a fresh command and its actual output before any completion claim or `Evidence:` entry | All roles | `.claude/skills/evidence-before-claims/SKILL.md` |
-| Role Report | Own the result every role returns: the report fields, the evidence entry forms, the allowed Result and Next Owner values, and passing on the escalation request a procedure returned | All roles | `.claude/skills/role-report/SKILL.md` |
-| Git Conventions | Apply the branch model, commit message format, per-role commit rules, workspace hygiene, and hard git rules | All roles | `.claude/skills/git-conventions/SKILL.md` |
-| Using AI Team | Match the situation to a skill and check gate preconditions before any other action | Main session (user-facing entry point) | `.claude/skills/using-ai-team/SKILL.md` |
-| TDD | Write a failing test, verify failure, implement the minimal change, verify pass, and refactor; for an inspection or demonstration task, carry it out and record the result | Developer | `.claude/skills/tdd/SKILL.md` |
-| Debug | Reproduce or confirm a defect, gather evidence, isolate the fault, record a root-cause hypothesis, then permit fixing | Developer | `.claude/skills/debug/SKILL.md` |
-| Coding Standards | The general coding standards the Developer follows and the Reviewer checks, alongside the project's coding guidelines | Developer, Reviewer | `.claude/skills/coding-standards/SKILL.md` |
-| Code Review | Carry out the review checklist (`ai-process/guidelines/review_checklist.md`): review tasks and bug fixes against the Developer's claims and the project's rules, and settle the Developer's answers until both agree on every finding | Reviewer | `.claude/skills/code-review/SKILL.md` |
-| Receive Code Review | Answer each open review finding on the task or bug branch: fix it, or show with evidence that it does not hold | Developer | `.claude/skills/receive-code-review/SKILL.md` |
-| Review Cycle | Drive one work item through Developer → Reviewer cycles, Architect consultation at the review-cycle cap or on ESCALATE, and integration; resume an `in-progress` item on its existing branch | Development Loop, Bug-Fix Loop | `.claude/skills/review-cycle/SKILL.md` |
-| Integrate | Test a reviewed task or bug branch that contains `dev-agent`, merge it, and promote completed work; a failure merges nothing | Development Loop, Bug-Fix Loop | `.claude/skills/integrate/SKILL.md` |
-| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Developer | `.claude/skills/merge-conflicts/SKILL.md` |
-| Escalation Review | Analyse blocked work after role self-recovery and issue guidance or escalate to the product owner | Architect | `.claude/skills/escalation-review/SKILL.md` |
-| New Specification | Create a specification document from the standard template | Planner | `.claude/skills/new-spec/SKILL.md` |
-| New Task | Create a task in the local tracker from the standard template | Planner | `.claude/skills/new-task/SKILL.md` |
-| New Bug | Create an evidence-rich `open` bug report in the local tracker from the standard template | Product Owner, Developer, Reviewer | `.claude/skills/new-bug/SKILL.md` |
-| New ADR | Create an architecture decision record in `ai-team/decisions/` from the standard template | Architect | `.claude/skills/new-adr/SKILL.md` |
-| Status Report | Summarize specifications, tasks, bugs, decisions, and integration state for Gate 5, on demand | Product Owner | `.claude/skills/status-report/SKILL.md` |
+| New System Overview | Create the S-000 system overview that later specs are checked against; produces only the project bootstrap tasks, never solution tasks | Planner | `skills/new-system-overview/SKILL.md` |
+| Project Bootstrap | Plan the bootstrap tasks of an approved S-000: decisions and architecture documents, environment configuration, coding guidelines, project guidance, and the README description | Planner | `skills/spec-breakdown/SKILL.md` (run on S-000) |
+| Brainstorm | Explore the request, alternatives, constraints, and prior decisions before writing a specification | Planner | `skills/brainstorm/SKILL.md` |
+| Change Request (intake) | Capture a change to approved, already implemented scope and its spec amendments without the full brainstorm-to-spec flow; started only by the product owner; produces tasks and amendments as needed | Product Owner, with the Planner writing it | `skills/change-request/SKILL.md`, which calls `ai-team change-request new`; template at `cli/src/ai_team/templates/change-request.md`; artifacts stored in the local tracker |
+| Feature Architecture | Decide how an approved spec or change-request is built: check the architecture documents cover it, decide the missing technology and design, record ADRs, and update the architecture documents | Architect | `skills/feature-architecture/SKILL.md` |
+| Spec Breakdown | Decompose an approved specification into atomic tasks with dependencies, acceptance criteria, and verification, following the project's architecture | Planner | `skills/spec-breakdown/SKILL.md` |
+| Spec Breakdown Review | Validate task dependencies, file conflict risk, decision-record consistency, atomicity, and implementation readiness (evaluates Gate 2) | Architect | `skills/spec-breakdown-review/SKILL.md` |
+| Architecture Consistency Review | Check a created or changed spec, ADR, or change-request against every approved spec and accepted ADR, and route corrections for any drift (spec amendments, or follow-up tasks when the spec is right and the work falls short) | Architect | `skills/architecture-consistency-review/SKILL.md` |
+| Evidence Before Claims | Require a fresh command and its actual output before any completion claim or `Evidence:` entry | All roles | `skills/evidence-before-claims/SKILL.md` |
+| Role Report | Own the result every role returns: the report fields, the evidence entry forms, the allowed Result and Next Owner values, and passing on the escalation request a procedure returned | All roles | `skills/role-report/SKILL.md` |
+| Git Conventions | Apply the branch model, commit message format, per-role commit rules, workspace hygiene, and hard git rules | All roles | `skills/git-conventions/SKILL.md` |
+| Using AI Team | Match the situation to a skill and check gate preconditions before any other action | Main session (user-facing entry point) | `skills/using-ai-team/SKILL.md` |
+| TDD | Write a failing test, verify failure, implement the minimal change, verify pass, and refactor; for an inspection or demonstration task, carry it out and record the result | Developer | `skills/tdd/SKILL.md` |
+| Debug | Reproduce or confirm a defect, gather evidence, isolate the fault, record a root-cause hypothesis, then permit fixing | Developer | `skills/debug/SKILL.md` |
+| Coding Standards | The general coding standards the Developer follows and the Reviewer checks, alongside the project's coding guidelines | Developer, Reviewer | `skills/coding-standards/SKILL.md` |
+| Code Review | Carry out the review checklist (`ai-process/guidelines/review_checklist.md`): review tasks and bug fixes against the Developer's claims and the project's rules, and settle the Developer's answers until both agree on every finding | Reviewer | `skills/code-review/SKILL.md` |
+| Receive Code Review | Answer each open review finding on the task or bug branch: fix it, or show with evidence that it does not hold | Developer | `skills/receive-code-review/SKILL.md` |
+| Review Cycle | Drive one work item through Developer → Reviewer cycles, Architect consultation at the review-cycle cap or on ESCALATE, and integration; resume an `in-progress` item on its existing branch | Development Loop, Bug-Fix Loop | `skills/review-cycle/SKILL.md` |
+| Integrate | Test a reviewed task or bug branch that contains `dev-agent`, merge it, and promote completed work; a failure merges nothing | Development Loop, Bug-Fix Loop | `skills/integrate/SKILL.md` |
+| Merge Conflicts | Resolve git merge conflicts while preserving both sides' intent | Developer | `skills/merge-conflicts/SKILL.md` |
+| Escalation Review | Analyse blocked work after role self-recovery and issue guidance or escalate to the product owner | Architect | `skills/escalation-review/SKILL.md` |
+| New Specification | Create a specification document from the standard template | Planner | `skills/new-spec/SKILL.md` |
+| New Task | Create a task in the local tracker from the standard template | Planner | `skills/new-task/SKILL.md` |
+| New Bug | Create an evidence-rich `open` bug report in the local tracker from the standard template | Product Owner, Developer, Reviewer | `skills/new-bug/SKILL.md` |
+| New ADR | Create an architecture decision record in `<project dir>/decisions/` from the standard template | Architect | `skills/new-adr/SKILL.md` |
+| Status Report | Summarize specifications, tasks, bugs and decisions, and run the integration tests on `dev-agent`, for Gate 5, on demand | Product Owner, or the main session when the product owner asks | `skills/status-report/SKILL.md` |
 
 ## Processes
 
 | Process | Purpose | Started By | Implementation |
 |---|---|---|---|
-| Development Loop | Autonomous task loop that resumes `in-progress` tasks, then works `pending` tasks: Developer → Reviewer → Integration (through Review Cycle) until the queue is empty, blocked, or escalated | Product Owner after Gate 2 passes | `.claude/skills/dev-loop/SKILL.md` |
-| Bug-Fix Loop | Diagnosis-first bug loop that resumes `in-progress` bugs, then works `open` bugs: Debug → implementation → Reviewer → Integrate (through Review Cycle) until the queue is empty or escalated | Product Owner when open bugs need resolution | `.claude/skills/bug-loop/SKILL.md` |
+| Development Loop | Autonomous task loop that resumes `in-progress` tasks, then works `pending` tasks: Developer → Reviewer → Integration (through Review Cycle) until the queue is empty, blocked, or escalated | Product Owner after Gate 2 passes | `skills/dev-loop/SKILL.md` |
+| Bug-Fix Loop | Diagnosis-first bug loop that resumes `in-progress` bugs, then works `open` bugs: Debug → implementation → Reviewer → Integrate (through Review Cycle) until the queue is empty or escalated | Product Owner when open bugs need resolution | `skills/bug-loop/SKILL.md` |
 
 ## Gates
 
@@ -63,18 +65,18 @@ This document maps the ai-process roles, procedures, processes, and gates to the
 
 | Component | Type | Purpose | Location |
 |---|---|---|---|
-| Specifications | Directory | Feature and system specs | `ai-team/specs/` |
+| Specifications | Directory | Feature and system specs | `<project dir>/specs/` |
 | Local Tracker | Directory outside version control | Tasks, bugs, and change-requests; lifecycle state is the frontmatter `status` field; one tracker per repository, shared by all worktrees | `[tracker] dir` in `.ai-team.toml` (default `.ai-team/tracker/`) |
-| Decision Log | Directory | Architecture decision records | `ai-team/decisions/` |
+| Decision Log | Directory | Architecture decision records | `<project dir>/decisions/` |
 | Architecture Documents | Files | How the project is built: architecture, technology stack, protocol stacks, and implementation design; written by the project bootstrap and kept current by Feature Architecture | `docs/development/architecture.md` and `docs/development/tech_stack.md` by default; the project guidance names their location |
 | Root Guidance Files | Files | Project-level command documentation for autonomous agents; `## Test` section is the canonical home for the baseline test command that `integrate`'s Discovery Order finds for `dev-loop` and `integrate` | `AGENTS.md` at the project root; scaffolded by `ai-team init` from templates in `cli/src/ai_team/init/sources/root/` |
-| Project Guidance Files | Files | Artifact directory orientation for agents; always generated by `ai-team init` | `ai-team/AGENTS.md`; scaffolded from `cli/src/ai_team/init/sources/project/` |
+| Project Guidance Files | Files | Artifact directory orientation for agents; always generated by `ai-team init` | `<project dir>/AGENTS.md`; scaffolded from `cli/src/ai_team/init/sources/project/` |
 | Templates | CLI package assets | Reusable document formats | `cli/src/ai_team/templates/` |
 | Process Docs | Directory | Workflow and procedure definitions (spec layer only — not exported by `ai-team init`) | `ai-process/processes/` |
 | Guidelines | Directory | Standards and checklists (spec layer only — not exported by `ai-team init`) | `ai-process/guidelines/` |
 | Architecture Docs | Directory | System design documentation (spec layer only — not exported by `ai-team init`) | `ai-process/architecture/` |
-| Action Procedures | Directory | Automation for document creation and status reporting | `.claude/skills/` (`disable-model-invocation: true` only for product-owner-only actions that no other skill invokes) |
-| CLI Scaffold Sources | Package assets | Authoritative source for the Claude agents and skills (`.claude/agents/`, `.claude/skills/`) and templates exported by `ai-team init`; nothing is exported for other agent tools | `cli/src/ai_team/init/sources/` |
+| Action Procedures | Directory | Automation for document creation and status reporting | `skills/`; every skill can be invoked by the model and by any agent (ADR-004) |
+| CLI Scaffold Sources | Package assets | Authoritative source for the Claude agents and skills (`agents/`, `skills/`) and templates exported by `ai-team init`; nothing is exported for other agent tools | `cli/src/ai_team/init/sources/` |
 
 ## CLI Command Mapping
 
@@ -86,9 +88,9 @@ Action skills that create or report on project artifacts invoke `ai-team` CLI co
 | `new-system-overview` | `ai-team spec new --overview` | Create the S-000 system overview specification |
 | `new-task` | `ai-team task new` | Create a new task in the local tracker |
 | `new-bug` | `ai-team bug new` | Create a new bug report in the local tracker |
-| `new-adr` | `ai-team adr new` | Create a new architecture decision record in `ai-team/decisions/` |
+| `new-adr` | `ai-team adr new` | Create a new architecture decision record in `<project dir>/decisions/` |
 | `status-report` | `ai-team status`, `ai-team report` | Generate inline Gate 5 summary and full progress report |
-| *(change-request intake)* | `ai-team change-request new` | Create a change-request in the local tracker |
+| `change-request` | `ai-team change-request new`, `ai-team change-request set-status` | Create a change-request in the local tracker and record its approval or rejection |
 
 ## Interaction Diagram
 

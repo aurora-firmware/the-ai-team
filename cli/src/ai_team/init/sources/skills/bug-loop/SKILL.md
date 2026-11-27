@@ -113,7 +113,7 @@ Every stop goes through Step 7.
 
 ## What This Skill Does NOT Do
 
-- Does not touch `main`, which is product-owner-only.
+- Does not touch `{{release_branch}}`, which is product-owner-only.
 - Does not modify specifications or task files, or touch implementation and test files itself.
 - Does not mix bugs on one branch.
 - Does not patch a bug it cannot reproduce or explain: that bug is escalated.

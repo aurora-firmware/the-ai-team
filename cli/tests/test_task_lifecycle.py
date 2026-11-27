@@ -142,7 +142,6 @@ def test_lifecycle_command_is_idempotent_when_already_in_destination_status(
         ("start", "completed"),
         ("start", "planned"),
         ("complete", "pending"),
-        ("unblock", "pending"),
     ],
 )
 def test_lifecycle_command_rejects_unexpected_source_status(
@@ -223,3 +222,68 @@ def test_lifecycle_command_reports_not_found_and_names_tracker_folder(
     assert result.exit_code != 0
     assert "not found" in result.stderr.lower()
     assert ".ai-team/tracker/tasks" in result.stderr
+
+
+@pytest.mark.parametrize("before", ["pending", "in-progress", "planned"])
+def test_unblock_restores_the_status_held_before_block(monkeypatch, tmp_path, before):
+    """`task block` records the previous status and `task unblock` restores it."""
+    from ai_team.cli import app
+
+    path = _write_task(tmp_path, "T-080", before)
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(app, ["task", "block", "T-080", "--reason", "wait"])
+    assert result.exit_code == 0, result.output
+    assert parse_task(path).blocked_from == before
+
+    result = CliRunner().invoke(app, ["task", "unblock", "T-080"])
+    assert result.exit_code == 0, result.output
+    task = parse_task(path)
+    assert task.status == before
+    assert task.blocked_from is None
+    assert "blocked_from" not in path.read_text(encoding="utf-8")
+
+
+def test_set_status_blocked_is_restored_by_unblock(monkeypatch, tmp_path):
+    """`task set-status blocked` records the previous status like `block` does."""
+    from ai_team.cli import app
+
+    path = _write_task(tmp_path, "T-081", "pending")
+    monkeypatch.chdir(tmp_path)
+
+    assert (
+        CliRunner().invoke(app, ["task", "set-status", "T-081", "blocked"]).exit_code
+        == 0
+    )
+    assert CliRunner().invoke(app, ["task", "unblock", "T-081"]).exit_code == 0
+    assert parse_task(path).status == "pending"
+
+
+def test_unblock_without_a_recorded_status_falls_back_to_in_progress(
+    monkeypatch, tmp_path
+):
+    """A task blocked by hand, with no recorded status, unblocks to in-progress."""
+    from ai_team.cli import app
+
+    path = _write_task(tmp_path, "T-082", "blocked")
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(app, ["task", "unblock", "T-082"])
+
+    assert result.exit_code == 0, result.output
+    assert parse_task(path).status == "in-progress"
+
+
+def test_unblock_leaves_a_task_that_is_not_blocked_unchanged(monkeypatch, tmp_path):
+    """`task unblock` on a task that is not blocked changes nothing."""
+    from ai_team.cli import app
+
+    path = _write_task(tmp_path, "T-083", "pending")
+    before_bytes = path.read_bytes()
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(app, ["task", "unblock", "T-083"])
+
+    assert result.exit_code == 0
+    assert "not blocked" in result.output
+    assert path.read_bytes() == before_bytes

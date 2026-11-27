@@ -35,7 +35,7 @@ def test_adr_new_creates_decision_with_defaults_and_prints_absolute_path(
     adr = parse_adr(expected)
     assert adr.id == "ADR-001"
     assert adr.title == "Use event bus"
-    assert adr.status == "proposed"
+    assert adr.status == "accepted"
     assert adr.created == date.today().isoformat()
     assert adr.supersedes is None
 

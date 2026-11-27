@@ -52,12 +52,20 @@ def _transition_task(
     *,
     command: str,
     allowed_from: tuple[str, ...] | None,
-    new_status: str,
+    new_status: str | None,
     work_log_text: str | None = None,
 ) -> None:
-    """Set *task_id* to *new_status* in place, enforcing *allowed_from* when given."""
+    """Set *task_id* to *new_status* in place, enforcing *allowed_from* when given.
+
+    A *new_status* of None unblocks: it restores the status recorded by `block`.
+    """
     path = _find_task_or_exit(task_id)
     task, _ = read_artifact(path, "task")
+    if new_status is None:  # unblock: restore the status held before `block`
+        if task.status != "blocked":
+            typer.echo(f"Task {task_id} already in {task.status}; it is not blocked.")
+            return
+        new_status = task.blocked_from or "in-progress"
 
     if task.status == new_status:
         typer.echo(f"Task {task_id} already in {new_status}.")
@@ -159,13 +167,8 @@ def complete_task(task_id: str) -> None:
 
 @app.command("unblock")
 def unblock_task(task_id: str) -> None:
-    """Set a blocked task back to in-progress."""
-    _transition_task(
-        task_id,
-        command="unblock",
-        allowed_from=("blocked",),
-        new_status="in-progress",
-    )
+    """Set a blocked task back to the status it had before it was blocked."""
+    _transition_task(task_id, command="unblock", allowed_from=None, new_status=None)
 
 
 @app.command("block")

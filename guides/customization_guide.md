@@ -10,7 +10,7 @@ The `ai-team init` command exports these files from the CLI package scaffold sou
 |---|---|
 | **Agent definitions** | `.claude/agents/` — roles are universal |
 | **Skill definitions** | `.claude/skills/` — procedures are language-agnostic |
-| **Action skills** | Action skills in `.claude/skills/` (`disable-model-invocation: true` only for product-owner-only actions that no other skill invokes) |
+| **Action skills** | Action skills in `.claude/skills/` |
 
 The `ai-process/` specification documents (process docs, guidelines, architecture docs) are **not** exported. They live in the AI team definition meta-repository and serve as the authoritative spec for the rules that agents and skills implement. Your project does not need them; the agent and skill files already embed the rules they need to execute.
 
@@ -125,7 +125,7 @@ Create a new directory under `.claude/skills/<name>/` with a `SKILL.md` file. Co
 
 ### Adding New Action Skills
 
-Create a new directory under `.claude/skills/<name>/` with a `SKILL.md` file. Add the `disable-model-invocation: true` frontmatter field if the skill should be user-invocable only (not triggered by the model). Reference existing skills as examples.
+Create a new directory under `.claude/skills/<name>/` with a `SKILL.md` file. Reference existing skills as examples.
 
 ## Retrofitting Into an Existing Project
 
@@ -134,7 +134,7 @@ If you have an existing codebase:
 1. Follow the setup guide to create the directory structure alongside your existing code. `ai-team init` detects the adoption case (no `.ai-team.toml` that records `[init] framework_version`, but some files it would write already exist), lists those files and asks once whether to overwrite them; answer no to keep them and write only the missing ones.
 2. Your existing source code stays where it is — the framework directories are additive.
 3. Write or update `AGENTS.md` so agents can find project commands and repository layout.
-4. Migrate existing issues/tasks by creating a task for each open item with `ai-team task new` (they land in the local tracker).
+4. Migrate existing issues/tasks by creating a task for each open item with `ai-team task new`, or a bug with `ai-team bug new`. They land in the local tracker as `pending` tasks or `open` bugs that the loops can pick up; split a task or turn it into a change-request later when it needs planning.
 5. Write the S-000 system overview spec — what the project is for and how it divides into components (`ai-team spec new --overview` or the `new-system-overview` skill), and get it approved.
 6. Run the project bootstrap after S-000 is approved (`spec-breakdown` on S-000): its tasks fill in the project guidance and the coding guidelines (the document the project guidance names, default `docs/development/coding_guidelines.md`), instead of you writing them by hand.
 7. Create an ADR in `ai-team/decisions/` documenting the decision to adopt this framework.

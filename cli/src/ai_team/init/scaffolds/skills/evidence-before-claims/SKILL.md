@@ -36,7 +36,7 @@ Find the claim in the table and get the proof it requires:
 
 When the proof is a command:
 
-1. Run the full command after the last change — not a subset, and not a result from earlier in the session.
+1. Run the full command after the last change — not a subset, and not a result from earlier in the session. The one exception: a recorded run on the identical tree (the same commit, or a merge that reproduces it) counts, as Gate 4 accepts the run on the source branch for the merge.
 2. Read the full output: check the exit code and count the failures.
 3. Confirm the output supports the claim.
 

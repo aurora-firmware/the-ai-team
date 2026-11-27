@@ -5,7 +5,7 @@ Project-specific commit scopes and any overrides belong in the project's own `AG
 
 ## Branch Model
 
-`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`.
+`dev-agent` is the default integration branch. A project can use another name with `[git] integration_branch` in `.ai-team.toml` (or `ai-team init --integration-branch`); the generated skills and agents then name that branch wherever this document says `dev-agent`. Likewise `main` is the default release branch, the target of the Gate 5 merge; `[git] release_branch` (or `ai-team init --release-branch`) names another.
 
 | Branch | Purpose | Who touches it |
 |---|---|---|
@@ -54,6 +54,14 @@ An approved spec amended after its planning branch merged gets a new planning br
 4. On PASS, the Planner merges the branch into `dev-agent` with `--no-ff` and deletes it with `git branch -d`, never waiting for follow-up tasks or a reconciliation re-run. If the amendment creates tasks, they are created `planned` and the merge waits for Gate 2, as for any planning branch.
 
 A `Reconciliation record:` with no spec change goes in the spec's Amendment Log on its own amendment planning branch, which the Planner merges as soon as the row is committed.
+
+### Cross-Spec Amendments on a Planning Branch
+
+When a planning branch amends an approved spec other than its own, the Planner bumps that spec's `version`, adds its Amendment Log entry on the branch, and lists the amendment (spec, changed requirements, new `version`) for the product owner to approve with the branch's own spec at Gate 1 ([Cross-spec amendments](../processes/quality_gates.md#cross-spec-amendments)). The amendment reaches `dev-agent` only with the branch's merge.
+
+### Merging a Planning Branch
+
+The Planner merges with `git checkout dev-agent`, `git merge --no-ff plan/<id>-<slug>` (message `chore(plan): merge <id> <short description>`), then `git branch -d plan/<id>-<slug>`, at the points the [Branch Model](#branch-model) rules name.
 
 ## Commit Message Format
 

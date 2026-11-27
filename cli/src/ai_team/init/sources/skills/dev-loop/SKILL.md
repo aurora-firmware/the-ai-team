@@ -99,5 +99,5 @@ Every stop goes through Step 6.
 
 ## What This Skill Does NOT Do
 
-- Does not touch `main`, which is product-owner-only.
+- Does not touch `{{release_branch}}`, which is product-owner-only.
 - Does not modify specifications or decisions, or touch implementation and test files itself.

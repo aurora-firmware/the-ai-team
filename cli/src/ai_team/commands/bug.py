@@ -40,10 +40,13 @@ def _transition_bug(
     *,
     command: str,
     allowed_from: tuple[str, ...] | None,
-    new_status: str,
+    new_status: str | None,
     work_log_text: str | None = None,
 ) -> None:
-    """Set *bug_id* to *new_status* in place, enforcing *allowed_from* when given."""
+    """Set *bug_id* to *new_status* in place, enforcing *allowed_from* when given.
+
+    A *new_status* of None unblocks: it restores the status recorded by `block`.
+    """
     root = project_root()
     path = find_item(root.bugs, bug_id)
     if path is None:
@@ -51,6 +54,12 @@ def _transition_bug(
         raise typer.Exit(code=1)
 
     bug, _ = read_artifact(path, "bug")
+    if new_status is None:  # unblock: restore the status held before `block`
+        if bug.status != "blocked":
+            typer.echo(f"Bug {bug_id} already in {bug.status}; it is not blocked.")
+            return
+        new_status = bug.blocked_from or "in-progress"
+
     if bug.status == new_status:
         typer.echo(f"Bug {bug_id} already in {new_status}.")
         return
@@ -74,11 +83,6 @@ def new_bug(
     title: str,
     severity: Severity = typer.Option("medium", "--severity"),
     task: str | None = typer.Option(None, "--task"),
-    source_branch: str | None = typer.Option(
-        None,
-        "--source-branch",
-        help="Branch that introduced a task regression; omit for existing defects.",
-    ),
     as_json: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:
     """Create a new open bug in the tracker from the bundled template."""
@@ -99,7 +103,6 @@ def new_bug(
             status="open",
             created=date.today().isoformat(),
             task=task,
-            source_branch=source_branch,
         )
         return dest, model, body
 
@@ -139,10 +142,8 @@ def resolve_bug(bug_id: str) -> None:
 
 @app.command("unblock")
 def unblock_bug(bug_id: str) -> None:
-    """Set a blocked bug back to in-progress."""
-    _transition_bug(
-        bug_id, command="unblock", allowed_from=("blocked",), new_status="in-progress"
-    )
+    """Set a blocked bug back to the status it had before it was blocked."""
+    _transition_bug(bug_id, command="unblock", allowed_from=None, new_status=None)
 
 
 @app.command("block")

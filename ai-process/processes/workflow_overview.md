@@ -78,7 +78,7 @@ It is also the entry point for brownfield adoption: a project with existing code
 S-000 describes the system as a whole. It produces only the project bootstrap tasks, which cover its development-infrastructure components; solution work comes from feature specs, and S-000 is the reference they are checked against.
 
 S-000's own planning branch does not wait for Gate 2; only its bootstrap task plan does. After Gate 1, the Planner sets S-000 to `approved` and merges its planning branch into `dev-agent` with `--no-ff`.
-For a brownfield S-000, the Planner then proposes a change request that brings the existing specs in line with S-000's components, from the overlaps, gaps, and disagreements the draft reported; the product owner decides which side of each disagreement changes.
+For a brownfield S-000, the Planner then lists the overlaps, gaps, and disagreements the draft reported as candidate change-request entries; the product owner decides which side of each disagreement changes and whether to start the change request that brings the existing specs in line with S-000's components.
 
 ### Project bootstrap
 
@@ -111,7 +111,7 @@ This phase is **interactive**. The Planner does not produce a finished document 
 **Ends when:** The product owner approves the specification at Gate 1; `new-spec` then sets it to `approved` and commits on the planning branch.
 Because the product owner shaped the spec throughout the dialogue, Gate 1 approval should be quick.
 
-**Lighter path — change-request:** For smaller changes that do not warrant a full new spec, the Planner uses a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves product-owner-answerable `[TODO]` markers one at a time before the product owner approves the change-request. Once the product owner approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
+**Lighter path — change-request:** For changes to an existing, already implemented part of the project that do not warrant a full new spec, the product owner starts a change-request (`CR-NNN-<slug>.md` in the local tracker) instead of the full brainstorm flow. Only the product owner starts one: another role that finds approved scope in need of change says so in its report, and the product owner decides. The Planner writes the change-request with the product owner. A change-request records desired changes and possible spec amendments, then produces tasks and amendments as needed. The Planner resolves product-owner-answerable `[TODO]` markers one at a time before the product owner approves the change-request. Once the product owner approves a TODO-free change-request, that approved artifact becomes the authoritative statement of intended scope for Planner-owned consistency fixes and spec amendments. Larger features still use the full brainstorm, Gate 1 approval, and task breakdown path. The CLI command `ai-team change-request new` creates a change-request document from the bundled template.
 
 Feature specs follow the authoring contract in `guides/spec_authoring_guide.md`, implemented by the `new-spec` skill.
 A spec describes what the product does: its behaviour, requirements and interfaces. It makes no technology choice and records no implementation design; those are decided in Feature Architecture, after the spec is approved.
@@ -139,7 +139,7 @@ The Planner does not start the Architect itself. Twice during breakdown it stops
 
 During breakdown the Planner explicitly considers whether the spec changes require documentation updates or test coverage updates. When they do, those updates are planned as implementation tasks or acceptance criteria — not as prerequisites before task creation. If documentation and test updates are not needed, the Planner omits them without creating placeholder tasks.
 
-The Planner also gives each task a verification method: a test, an inspection, or a demonstration, as defined in `guides/spec_authoring_guide.md`. Each task regenerates the generated files its own change affects and lists them in Files to Touch, so a plan has no trailing "regenerate everything" task.
+The Planner also gives each task a verification method: a test, an inspection, or a demonstration, as defined in `ai-process/guidelines/verification_methods.md`. Each task regenerates the generated files its own change affects and lists them in Files to Touch, so a plan has no trailing "regenerate everything" task.
 
 Before task breakdown starts, the input artifact must be ready for execution: an approved spec must already be free of product-owner-answerable `[TODO]` markers, and an approved change-request must already be TODO-free, product-owner-approved, and reconciled against Architect consistency findings that do not change the approved intent. If a consistency finding would alter the approved change-request's intended scope, the process stops for a product owner decision instead of letting the Planner reinterpret the request.
 
@@ -171,7 +171,7 @@ None of these steps creates a commit or needs a branch switch.
 
 #### What the development loop does
 
-Before claiming the first task, the loop discovers the project's documented baseline test command from project-specific guidance and runs it. It starts with the root guidance file `AGENTS.md`, then follows clear references to project-local docs such as the coding guidelines (located as `ai-process/guidelines/coding_standards.md` describes), README files, build configuration, or other documented test instructions. If no automated baseline command is documented, or multiple plausible commands are documented without a clear baseline, the loop asks the product owner for the command or for explicit confirmation that no automated baseline test is available. If the command fails, the loop stops and reports the failure. When whoever starts the loop states that `dev-agent` is green, the loop trusts that statement and skips the baseline run.
+Before claiming the first task, the loop runs the [baseline guard](quality_gates.md#development-loop-baseline-guard).
 
 1. Resumes any `in-progress` task first, without asking the product owner: it checks out the task's existing branch, takes the base commit from the Work Log, and re-enters review, or integration when the latest verdict is PASS. A task is `in-progress` at startup after an interrupted run or after `ai-team task unblock`. Otherwise it picks the next `pending` task (priority → dependency readiness → creation date), using `ai-team list tasks --state pending`.
 2. Sets a picked task to `in-progress` with `ai-team task start` and creates the task branch from `dev-agent`.
@@ -226,9 +226,9 @@ The task branch already contains the tip of `dev-agent`, so the merge reproduces
 If the test run fails, or `dev-agent` moved since the Developer last merged it, nothing is merged and the task goes back to the Developer as a review finding through the loop's review cycle.
 
 Once the queue is empty and all tasks are `completed`, the development loop ends with a short run summary in the chat and does not write a report.
-Before Gate 5 the Architect runs spec-truth reconciliation (`architecture-consistency-review` in completion mode, ADR-002) for each approved spec the work touched, then the product owner runs `/status-report`, which produces the status summary. Reporting is on demand.
-The status summary lists the approved specification, completed tasks, unresolved bugs by severity, and latest integration-test result.
-The product owner reviews that status summary and approves the merge to `main` (Gate 5).
+Before Gate 5 the Architect runs spec-truth reconciliation (`architecture-consistency-review` in completion mode, ADR-002) for each approved spec the work touched, then the product owner runs `/status-report`, which produces the status report. Reporting is on demand.
+The status report lists the approved specification, completed tasks, unresolved bugs by severity, and the result of running the integration tests on `dev-agent` at sign-off.
+The product owner reviews that status report and approves the merge to `main` (Gate 5).
 This is a sign-off — the product owner confirms the outcome matches the spec intent, not individual code diffs.
 
 **Ends when:** The product owner approves the merge from `dev-agent` to `main` (Gate 5).
@@ -277,17 +277,19 @@ The development loop and bug-fix loop do not run concurrently.
 
 ## Lifecycle State Machines
 
+In the task and bug tables, a state in backticks is a `status` value in the tracker; a state in plain text (task branch, review pending, …) is a step inside `in-progress`, not a status.
+
 ### Task Lifecycle
 
 | State | Owner | Entry condition | Exit condition |
 |---|---|---|---|
 | `planned` | Planner | Task is created during spec breakdown, on behalf of a planning branch | The planning branch merges after Gate 2 (`pending`) or its spec or change-request is abandoned (`cancelled`) |
-| `pending` | Planner | The planning branch merged after Gate 2, or the task is a follow-up routed by spec-truth reconciliation, which is exempt from Gate 2 (ADR-002) | Development loop selects it |
+| `pending` | Planner, or whoever created the task | The planning branch merged after Gate 2; or the task was created outside a breakdown, or is a follow-up routed by spec-truth reconciliation, both exempt from Gate 2 (ADR-002) | Development loop selects it |
 | `in-progress` | Development loop | Task is claimed and a task branch is created, or a `blocked` task is unblocked | Reviewer passes, task is blocked, or task is abandoned. A loop that starts with the task `in-progress` resumes it on its existing branch |
 | task branch | Developer | Developer receives assignment | Developer submits for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
 | integration pending | Integration procedure | Reviewer returns PASS | Integration succeeds or fails |
-| `completed` | Integration procedure | Merge and tests pass | Task is included in the Gate 5 status summary |
+| `completed` | Integration procedure | Merge and tests pass | Task is included in the Gate 5 status report |
 | `blocked` | Development loop, Architect or Escalation procedure | Max retries, escalation, an Architect ruling that the task file must change, or unresolved blocker | The product owner or Planner resolves the blocker and runs `ai-team task unblock` (`in-progress`); the next loop run resumes the task |
 | `cancelled` | Planner | Its spec or change-request was abandoned before work started | — |
 
@@ -306,21 +308,34 @@ The integration procedure owns the pre-merge test run and the merge.
 | bug branch | Developer | Root cause or fault hypothesis is recorded | Developer submits fix for review |
 | review pending | Reviewer | Developer reports completion | PASS, FAIL, or ESCALATE verdict |
 | integration pending | Integration procedure | Reviewer returns PASS | Integration succeeds or fails |
-| `resolved` | Bug-fix loop | Fix is merged and tests pass | Bug is included in the Gate 5 status summary |
+| `resolved` | Bug-fix loop | Fix is merged and tests pass | Bug is included in the Gate 5 status report |
 | `blocked` | Bug-fix loop, Architect or Escalation procedure | Product owner escalation after the Architect consultation fails, an Architect ruling that the bug file must change, or the product owner defers the bug (`ai-team bug block`) | The product owner or Planner resolves the blocker and runs `ai-team bug unblock` (`in-progress`); the next loop run resumes the bug |
 
 Bug branches start from `dev-agent` and merge back into it.
 The bug-fix loop records Developer Diagnosis Log and Work Log handoffs in that file, and the Reviewer records verdicts there before the loop reads them.
 
+### Change-Request Lifecycle
+
+| State | Owner | Entry condition | Exit condition |
+|---|---|---|---|
+| `pending` | Product Owner, with the Planner writing it | The product owner starts a change-request (`ai-team change-request new`) | The product owner approves the TODO-free request (`approved`) or rejects it (`rejected`) |
+| `approved` | Planner | The product owner approved it (`ai-team change-request set-status <id> approved`) | — the change-request is done when every task its planning branch created is `completed` or `cancelled` |
+| `rejected` | Product Owner | The product owner rejected it, before or after approval; its `planned` tasks are `cancelled` | — |
+
+### Spec Lifecycle
+
+| State | Owner | Entry condition | Exit condition |
+|---|---|---|---|
+| `draft` | Planner | The spec is created on its planning branch (`ai-team spec new`) | It is TODO-free and passes `ai-team validate` (`review`) |
+| `review` | Planner and Architect | The Planner set it to `review` | The Architect's consistency review passed and the product owner approved it at Gate 1 (`approved`) |
+| `approved` | Planner | Gate 1 passed | A later spec replaces it (`superseded`). Amendments keep it `approved` and add an Amendment Log row |
+| `superseded` | Planner | A later approved spec replaces it; the Planner may move it to `specs/archive/` | — |
+
+Abandoning a spec before Gate 1 means the product owner deletes its planning branch; its `planned` tasks are `cancelled`.
+
 ### Gate Lifecycle
 
-| Gate | Controls transition | Evaluator | Output |
-|---|---|---|---|
-| Gate 1: Specification Approval | Feature request → TODO-free approved spec | Product Owner | Approved specification |
-| Gate 2: Task Plan Preflight | Task plan draft (from approved spec **or** approved change-request) → implementation-ready task queue; follow-up tasks from spec-truth reconciliation are exempt (ADR-002) | Architect | Approved task queue or correction request |
-| Gate 3: Code Review | Developer-complete task → integration-ready branch | Reviewer | PASS, FAIL, or ESCALATE |
-| Gate 4: Integration Tests | Reviewed branch → completed task or bug | Integration procedure | Merged and completed, or a finding back to the Developer |
-| Gate 5: Final Merge Sign-off | Completed queue → production merge | Product Owner | Approval to merge `dev-agent` to `main` |
+The gate table, with the transition each gate controls, is in `ai-process/processes/quality_gates.md`.
 
 Change-requests are a lighter intake path that may bypass Gate 1, but they do not bypass intent completion: the Planner resolves product-owner-answerable `[TODO]` markers before approval, the product owner approves the TODO-free request, and the Planner then carries forward only those Architect consistency fixes that preserve the approved intent. Approved change-requests then feed into the existing Feature Architecture, Task Breakdown and Gate 2 flow without adding a new product owner review gate. Full features still go through Brainstorm, Gate 1, Feature Architecture, and Task Breakdown.
 
@@ -356,17 +371,4 @@ See `ai-process/processes/escalation_procedure.md` for details.
 
 ## Quality Gates
 
-Five gates control the workflow (see `ai-process/processes/quality_gates.md` for full criteria):
-
-| Gate | Checkpoint | Evaluator | Phase boundary |
-|------|-----------|-----------|----------------|
-| 1 | Spec Approval | Product Owner | Brainstorm → Feature Architecture (skipped for change-request intake) |
-| 2 | Task Plan Preflight | Architect | Task Breakdown → Development Loop (applies to both spec and change-request derived tasks) |
-| 3 | Code Review | Reviewer | Implementation → Integration (per-task, inside the development loop) |
-| 4 | Integration Tests | Integration procedure | Review → Completed (per-task, inside the development loop) |
-| 5 | Final Merge Sign-off | Product Owner | `dev-agent` → `main` |
-
-Gates 1 and 5 are product owner touchpoints — design approval and final production sign-off.
-Gate 1 is required for full feature specs, and those specs must be TODO-free before Architecture Consistency Review and product owner approval. Change-requests bypass Gate 1, but they still must become TODO-free and product-owner-approved before Architect consistency work and Task Breakdown continue.
-Gate 2 is automated — it catches structural problems in the task plan before implementation starts, not product-intent questions already settled by an approved spec or approved change-request.
-Gates 3 and 4 are automated role and procedure checks — they catch defects during execution.
+Five gates control the workflow; their table and full criteria are in `ai-process/processes/quality_gates.md`. Gates 1 and 5 are the product owner's touchpoints, design approval and final sign-off; Gates 2 to 4 are automated role and procedure checks.

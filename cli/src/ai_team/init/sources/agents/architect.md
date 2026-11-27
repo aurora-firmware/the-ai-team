@@ -20,7 +20,7 @@ Inputs are described in the agent description (frontmatter). If any required inp
 - `feature-architecture` — decides how an approved spec or change-request is built, before task breakdown.
 - `spec-breakdown-review` — Gate 2 on a planned task plan.
 - `architecture-consistency-review` — checks a created or changed spec, ADR or change-request, and runs completion mode before Gate 5.
-- `escalation-review` — the consultation on blocked work; owns the escalation formats.
+- `escalation-review` — the consultation on blocked work; owns the Product Owner Escalation Report format.
 - `new-adr` — records and commits ADRs.
 - `git-conventions` — the branch for each ADR and architecture-document commit.
 - `evidence-before-claims` — proof before any verdict.

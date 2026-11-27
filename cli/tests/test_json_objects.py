@@ -100,4 +100,4 @@ def test_adr_json_object_is_the_same_from_new_list_and_show(repo):
     shown = _invoke_json("show", created["id"])
 
     _assert_same_object(created, listed, shown)
-    assert created["status"] == "proposed"
+    assert created["status"] == "accepted"

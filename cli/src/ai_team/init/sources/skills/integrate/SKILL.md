@@ -42,7 +42,7 @@ Argument: `$ARGUMENTS`
 2. Otherwise the project's verification command, found with the Discovery Order below.
 3. Otherwise stop `BLOCKED` and ask the product owner for the project's verification command.
 
-Add the baseline command found with the Discovery Order, and any separate destination or baseline check the work item or the project guidance names, when they are not already in the set. The Developer does not run the full suite (`tdd`), so this is its only run before the merge.
+Add the baseline command found with the Discovery Order, and any separate destination or baseline check the work item or the project guidance names, when they are not already in the set. The Developer runs the full suite at most once, to check its base before its first change (`tdd`), so this is the only full run on the finished branch.
 When no baseline command is discoverable, record a **coverage gap**: report it with the result, never present it as full coverage; it never blocks integration by itself. When the set is empty, Step 5 is skipped.
 
 #### Discovery Order
@@ -112,7 +112,7 @@ On every stop the work item's status is unchanged and the source branch is kept;
 ## What This Skill Does NOT Do
 
 - Does not resolve merge conflicts or fix failing tests: the Developer does, on the source branch.
-- Does not touch `main`, which is product-owner-only.
+- Does not touch `{{release_branch}}`, which is product-owner-only.
 - Does not modify specifications or ADRs.
 - Does not skip tests or bypass hooks (`--no-verify` is forbidden).
 - Does not merge more than one branch per invocation.
